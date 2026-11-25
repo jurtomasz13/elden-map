@@ -4,7 +4,7 @@
     {
       "name": "mockup",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5180", "--bind", "127.0.0.1"],
+      "runtimeArgs": ["tools/static_server.py", "5180"],
       "port": 5180
     },
     {

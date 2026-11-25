@@ -150,8 +150,9 @@
     const head = live.state?.equipment?.head, sig = $(".char-sigil");
     itemsIndex().then(() => { const it = head && findItem("armor", head.id);
       sig.classList.toggle("has-portrait", !!(it || live.file));
-      sig.innerHTML = live.file ? `<img class="hp-render" src="${headSrc(live.file, live.slot, live.state?.equipment)}" alt="" data-fb="${it ? ICON(it.icon) : ""}" onerror="__hpFallback(this)">`
-        : it ? `<img src="${ICON(it.icon)}" alt="">` : ""; });
+      const html = live.file ? `<img class="hp-render" src="${headSrc(live.file, live.slot, live.state?.equipment)}" alt="" data-fb="${it ? ICON(it.icon) : ""}" onerror="__hpFallback(this)">`
+        : it ? `<img src="${ICON(it.icon)}" alt="">` : "";
+      if (sig.dataset.html !== html) { sig.dataset.html = html; sig.innerHTML = html; } });   // bez migania przy każdym zapisie
     sig.onclick = $("#charName").onclick = () => { location.hash = "#character"; };
   }
   const ring = (done, total, label) => {
@@ -769,7 +770,7 @@
       el.querySelectorAll("[data-mm]").forEach(b => b.onclick = ev => { ev.stopPropagation(); const k = b.dataset.mm; close(); if (k !== "x") actions[+k].run(); });
     });
   }
-  let bigMap, mapLayers = {};
+  let bigMap, mapLayers = {}, playerMarker = null;
   function mapCounts() {
     const m = state.map, c = {};
     const add = (k, done) => { c[k] ??= [0, 0]; c[k][1]++; if (done) c[k][0]++; };
@@ -822,7 +823,7 @@
     else if (p && state.map === p.map) map.setView(ll(map, p.px, p.py), 3.5); else map.setView(ll(map, 5600, 5600), 2.5);
     viewMap.keep = null;
     $("#zin").onclick = () => map.zoomIn(.75); $("#zout").onclick = () => map.zoomOut(.75);
-    if (p && p.map === state.map) L.marker(ll(map, p.px, p.py), { icon: divIcon('<span class="mk-player"></span>', 28), zIndexOffset: 1000 })
+    if (p && p.map === state.map) playerMarker = L.marker(ll(map, p.px, p.py), { icon: divIcon('<span class="mk-player"></span>', 28), zIndexOffset: 1000 })
       .bindTooltip(`<b>Tu jesteś</b>${esc(p.name)} · ostatni zapis${p.approx ? " · w lochu (znacznik przy wejściu)" : ""}`, { direction: "top", offset: [0, -12], className: "er-tip" }).addTo(map);
     buildLayers();
   }
@@ -1218,7 +1219,7 @@
       const felled = bossList().filter(b => b.defeated && !before.has(b.id)), graces = mine ? W.graces.filter(g => isSet(g.flag) && !beforeG.has(g.flag)) : [];
       if (mine && felled.length) banner("Wróg pokonany", felled.map(b => b.name).join(" · "));
       else if (graces.length) banner("Odkryto łaskę", graces.map(g => g.name).join(" · "));
-      topbar(); render(true);
+      topbar(); quietRender();
     });
     es.onerror = () => $(".nav-note").textContent = "backend: łączę ponownie…";
     es.addEventListener("hello", () => live.on && ($(".nav-note").textContent = `na żywo · ${D.save.file} · slot ${live.slot}`));
@@ -1228,7 +1229,7 @@
   const demo = document.createElement("button");
   demo.className = "session-btn"; demo.style.marginTop = "8px"; demo.textContent = "▶ Symuluj zapis gry";
   demo.onclick = () => { const b = bossList().find(x => !x.defeated && x.discovered && x.icon); if (!b) return;
-    demoSet.add(b.flag); saveAgo = 0; banner("Wróg pokonany", b.name); render(true); };
+    demoSet.add(b.flag); saveAgo = 0; banner("Wróg pokonany", b.name); quietRender(); };
   $(".nav-foot").insertBefore(demo, $(".nav-note"));
 
   $("#spoilerToggle").onchange = e => { state.spoilers = e.target.checked; render(); };
@@ -1255,6 +1256,28 @@
 
   /* ---------------- router ---------------- */
   const VIEWS = { character: viewCharacter, map: viewMap, bosses: viewBosses, quests: viewQuests, items: viewItems, chronicle: viewChronicle };
+  // Odświeżenie po zapisie gry bez „mrugania”: bez animacji wejścia, z zachowaniem przewinięcia list i paneli;
+  // na mapie tylko znaczniki, liczniki i pozycja gracza (mapa i kafle zostają).
+  const SCROLLERS = [".qlist", ".layers-scroll", ".region-aside", ".cat-progress", ".drawer-body"];
+  function quietRender() {
+    const v = (location.hash || "#bosses").slice(1);
+    if (v === "map" && bigMap) {
+      buildLayers();
+      const c = mapCounts();
+      document.querySelectorAll(".layer[data-layer]").forEach(b => { const n = c[b.dataset.layer], el = b.querySelector(".cnt");
+        if (n && el) el.textContent = `${n[0] ? n[0] + "/" : ""}${n[1]}`; });
+      const p = D.position;
+      if (playerMarker && p && p.map === state.map) playerMarker.setLatLng(ll(bigMap, p.px, p.py));
+      return;
+    }
+    const pos = { main: main.scrollTop, ...Object.fromEntries(SCROLLERS.map(sel => [sel, document.querySelector(sel)?.scrollTop || 0])) };
+    document.body.classList.add("quiet");
+    Promise.resolve(render(true)).then(() => {
+      main.scrollTop = pos.main;
+      for (const sel of SCROLLERS) { const el = document.querySelector(sel); if (el) el.scrollTop = pos[sel]; }
+      requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove("quiet")));
+    });
+  }
   function render(keepMap) {
     const v = (location.hash || "#bosses").slice(1);
     document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("active", a.dataset.view === v));

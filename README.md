@@ -167,7 +167,7 @@ Ręcznie, w dwóch terminalach (to samo co `start.py`):
 
 ```bash
 python backend/server.py                                  # API na 127.0.0.1:8765
-python -m http.server 5180 --bind 127.0.0.1               # strona: http://127.0.0.1:5180/mockup/
+python tools/static_server.py 5180                     # strona: http://127.0.0.1:5180/mockup/
 ```
 
 ## Konfiguracja

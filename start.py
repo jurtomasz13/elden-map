@@ -30,8 +30,7 @@ def main():
     if a.save_dir:
         be += ["--save-dir", a.save_dir]
     procs = [subprocess.Popen(be, cwd=ROOT),
-             subprocess.Popen([sys.executable, "-m", "http.server", str(a.port), "--bind", "127.0.0.1"], cwd=ROOT,
-                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)]
+             subprocess.Popen([sys.executable, os.path.join(ROOT, "tools", "static_server.py"), str(a.port)], cwd=ROOT)]
     url = f"http://127.0.0.1:{a.port}/mockup/"
     for _ in range(40):                                   # poczekaj, aż strona odpowie
         try:
