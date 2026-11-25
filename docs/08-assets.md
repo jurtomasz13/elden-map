@@ -63,16 +63,16 @@ PlayerCoordinates + MapID, patrz [03](03-format-save.md)). Skala 1 px = 1 m.
 | Mapa | area | OX | OZ |
 |---|---|---|---|
 | M00 Ziemie Pomiędzy | 60 | 7168 | 6144 |
-| M10 Królestwo Cienia | 61 | 7008 | 6048 |
+| M10 Królestwo Cienia | 61 | 7168 | 6144 |
 
-**M00 (2026-11-25):** kafle L0 mapy pokrywają się 1:1 z komórkami siatki m60 — OX = 28·256, OZ = 24·256.
-Sprawdzone w pełnym przybliżeniu na wyraźnych punktach (most do Boskiej Wieży Pogrobna, Burzowa Brama,
-Kościół Elleha). Wcześniejsze OZ = 6112 z dopasowania zgrubnego (`fit_offset.mjs`, siatka co 32 px) dawało
-wszystko 32 px za wysoko.
-
-**M10 — do poprawy:** stałe z dopasowania zgrubnego. Na północnym zachodzie (ruiny Rauh) pasują, ale na
-wschodzie łaski odstają nawet o ~150–190 px (np. Katedra Manusa Metyra), więc błąd zależy od miejsca —
-możliwa inna skala mapy DLC. Wymaga kalibracji na kilku punktach rozłożonych po całej mapie DLC.
+**Jeden wzór dla obu map (2026-11-25):** kafle L0 mapy pokrywają się 1:1 z komórkami siatki świata —
+OX = 28·256, OZ = 24·256 dla m60 i m61. Sprawdzone w pełnym przybliżeniu na wyraźnych budowlach:
+podstawka — most do Boskiej Wieży Pogrobna, Burzowa Brama, Kościół Elleha; DLC — Fort Napomnienia,
+Katedra Manusa Metyra, Wieża Rabbatha, Kościół Błogosławieństwa, ruiny Unte, Kościół Pąka, schody Rauh,
+brama Zamku Ensis, Belurat i Donżon Cienia. Wcześniejsze stałe z dopasowania zgrubnego (`fit_offset.mjs`,
+siatka co 32 px, kryterium „łaska nie w morzu”) były błędne: M00 OZ 6112 (32 px za wysoko), M10 OX 7008 /
+OZ 6048 (160 px na wschód, 96 px na północ). Przedmioty Szczeliny i Szczeliny Kamiennego Sarkofagu „w morzu”
+to podziemne jaskinie pod wybrzeżem — tak ma być.
 
 Lochy legacy i podziemia: `WorldMapLegacyConvParam` (zob. `10-world-data.md`); podziemia M01 używają tego
 samego przeliczenia co M00.
