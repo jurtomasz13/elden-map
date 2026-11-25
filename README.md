@@ -201,6 +201,22 @@ znaleziony, ustaw `ER_GAME_DIR`.
 <details>
 <summary><b>Port 8765 lub 5180 jest zajęty</b></summary>
 
+Najczęściej to Elden Map uruchomiony w innym oknie terminala. Wtedy `start.py` sam to wykrywa i otwiera stronę.
+Żeby uruchomić od nowa, zamknij tamto okno albo naciśnij w nim Ctrl+C. Jeśli port zajmuje inny program,
+`start.py` podpowie, jak go znaleźć:
+
+```sh
+ss -ltnp | grep :8765        # Linux: który proces nasłuchuje
+fuser -k 8765/tcp            # Linux: zamknij go
+```
+
+```powershell
+netstat -ano | findstr :8765   # Windows: ostatnia kolumna to PID
+```
+
+Do wersji 0.1.2 na Linuxie restart zaraz po Ctrl+C kończył się `OSError: [Errno 98] Address already in use`
+(port zwalniał się dopiero po ok. minucie). Od 0.1.3 restart działa od razu.
+
 `python start.py --port 5190` zmienia port strony. Backend: `python backend/server.py --port 9000`
 (strona domyślnie łączy się z 8765 — przy zmianie uruchamiaj ręcznie).
 </details>

@@ -22,11 +22,19 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
+class Server(http.server.ThreadingHTTPServer):
+    daemon_threads = True
+    allow_reuse_address = os.name != "nt"     # Linux: szybki restart mimo TIME_WAIT; Windows: bez podwójnego nasłuchu
+
+
 def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 5180
     handler = functools.partial(NoCacheHandler, directory=ROOT)
-    with http.server.ThreadingHTTPServer(("127.0.0.1", port), handler) as srv:
-        srv.serve_forever()
+    with Server(("127.0.0.1", port), handler) as srv:
+        try:
+            srv.serve_forever()
+        except KeyboardInterrupt:
+            pass
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import logging
 import queue
 import re
@@ -190,7 +191,10 @@ class Handler(BaseHTTPRequestHandler):
 
 class Server(ThreadingHTTPServer):
     daemon_threads = True
-    allow_reuse_address = False
+    # Linux/macOS: po zamknięciu otwarte połączenia SSE zostają w TIME_WAIT (~60 s) i bez SO_REUSEADDR ponowne
+    # uruchomienie kończy się „Address already in use”. Na Windows SO_REUSEADDR pozwoliłby dwóm procesom
+    # nasłuchiwać na tym samym porcie, więc tam zostaje wyłączone.
+    allow_reuse_address = os.name != "nt"
     stopping = False
 
 
