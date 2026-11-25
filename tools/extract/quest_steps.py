@@ -90,6 +90,10 @@ def main():
         for i, s in enumerate(steps):
             if not s["alt"]:
                 s["later"] = list(dict.fromkeys(f for x in steps[i + 1:] if not x["alt"] and not x.get("extra") for f in x["flags"]))
+        for s in steps:                                # zakończenia/alternatywy bez podpowiedzi — ogólny tekst bez szczegółów
+            if not s.get("text_safe") and s.get("alt"):
+                s["text_safe"] = ("Jedno z możliwych zakończeń wątku — szczegóły ukryte." if s.get("end")
+                                  else "Alternatywna ścieżka wątku — szczegóły ukryte.")
         q["steps"] = steps
         q["sources"] = list(dict.fromkeys((q.get("sources") or []) + ["questpath"]))
         out.append(q)
