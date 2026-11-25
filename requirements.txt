@@ -1,0 +1,6 @@
+# Windows: niepotrzebne — szyfrowanie i Oodle idą przez systemowe bcrypt.dll i DLL z folderu gry.
+# Linux / macOS: szyfrowanie AES (archiwa gry, regulation.bin) i dekompresja Oodle Kraken.
+cryptography>=42; sys_platform != "win32"
+kraken-decompressor>=0.2; sys_platform != "win32"
+# Python < 3.14 nie ma compression.zstd w bibliotece standardowej.
+zstandard>=0.22; python_version < "3.14"

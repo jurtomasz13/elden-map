@@ -1,0 +1,20 @@
+# --- Dane wyciągnięte z gry (prawa FromSoftware) — każdy generuje je lokalnie z własnej kopii gry (python prepare.py)
+assets/
+backend/data/*.json
+
+# --- Dane społeczności bez licencji (pobiera tools/fetch_community.py) i lokalny wyciąg z tabeli Cheat Engine
+docs/data/
+
+# --- Twoje dane: historia zapisów i sesji z save'ów, logi
+backend/var/
+logs/
+
+# --- Python / narzędzia
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.claude/settings.local.json
+.DS_Store
+Thumbs.db

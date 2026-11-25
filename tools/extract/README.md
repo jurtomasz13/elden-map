@@ -1,0 +1,55 @@
+# Ekstraktor zasobów Elden Ring
+
+Wyciąga z **Twojej** instalacji gry (tylko odczyt) prawdziwą mapę świata, ikony przedmiotów,
+ekrany ładowania i dane (przedmioty, łaski, wizerunki bossów) z polskimi nazwami z gry.
+Bez pobierania czegokolwiek z internetu: klucze RSA są w `eldenring.exe`, dekompresja przez
+`oo2core_6_win64.dll` z folderu gry, AES przez Windows CNG (`bcrypt.dll`).
+
+```powershell
+python tools/extract/run_all.py
+```
+
+Wymaga Python 3.14+ (moduł `compression.zstd`) i Node 18+. Pełny przebieg trwa ok. 2–3 min
+(pierwszy raz dłużej: odszyfrowanie nagłówków archiwów, cache w `assets/cache`).
+
+Ścieżka gry jest w `bhd.py` (`GAME_DIR`).
+
+## Wynik (`assets/`, poza repozytorium)
+
+| Ścieżka | Co |
+|---|---|
+| `assets/map/M00/{z}/{x}/{y}.png` | Ziemie Pomiędzy — piramida kafli 256 px, zoom 0–6 (L0 = 10496 px) |
+| `assets/map/M10/...` | Królestwo Cienia (DLC) |
+| `assets/map/M01/...`, `M11/...` | mapy podziemi (bazowa gra / DLC) |
+| `assets/map/meta.json` | rozmiary i zakres zoomu |
+| `assets/icons/<iconId>.png` | 2499 ikon przedmiotów, 256 px, przezroczyste tło |
+| `assets/loading/<n>.png` | 35 grafik z ekranów ładowania (1280 px) |
+| `assets/data/items.json` | 3631 przedmiotów: kategoria, id, nazwa PL/EN, iconId, DLC |
+| `assets/data/bosses.json` | wizerunki (remembrances) bossów → iconId |
+| `assets/data/graces.json` | 422 łaski: flaga, nazwa, kraina, pozycja, piksele na mapie |
+| `assets/data/map_transform.json` | przeliczenie współrzędnych gry → piksele mapy |
+
+## Pliki
+
+| Plik | Rola |
+|---|---|
+| `bhd.py` | klucze RSA z exe, odszyfrowanie nagłówków BHD5 |
+| `archive.py` | spis plików BHD5, hash ścieżek, AES, DCX (KRAK/ZSTD/DFLT) |
+| `formats.py` | BND4, BXF4, TPF, FMG |
+| `params.py` | `regulation.bin` (AES-256-CBC + ZSTD) i teksty |
+| `dds.mjs` | dekoder BC1/3/4/5/7 → PNG (bez zależności) |
+| `extract_map.py` + `build_tiles.mjs` | kafle mapy w wariancie „pełna mapa” → piramida |
+| `extract_icons.py` + `build_icons.mjs` | ikony, ekrany ładowania, spis przedmiotów |
+| `extract_data.py` | łaski + przeliczenie współrzędnych |
+| `overlay_test.mjs`, `fit_offset.mjs` | narzędzia do weryfikacji/kalibracji przeliczenia |
+| `msb.py` + `extract_world.py` | pliki map i skrypty zdarzeń: wszyscy bossowie, miejsca/lochy, przedmioty na mapie, NPC ([docs/10](../../docs/10-world-data.md)) |
+| `flver.py` + `export_model.py` + `render.mjs` | modele 3D (FLVER2 z `chrbnd`, tekstury z `texbnd`, albedo z MATBIN) → programowy render PNG z przezroczystym tłem; `node render.mjs <katalog> <out.png> [rozmiar] [obrót] [full\|bust]` |
+| `render_bosses.py` | portrety bossów bez ikony → `assets/renders/<model>.png` + pole `render` w `bosses_all.json` |
+| `render_character.py` | portret głowy postaci gracza (twarz, włosy, kolory z save'a + hełm) → `assets/renders/char_<plik>_<slot>.png`; wymaga działającego backendu |
+| `extract_curves.py` | krzywe statystyk (CalcCorrectGraph) → `stat_curves.json` — miękkie progi atrybutów |
+| `extract_sources.py` | skąd zdobyć przedmioty: kupcy (ShopLineupParam + skrypty rozmów), łup z przeciwników, zdarzenia, bossowie → `item_sources.json` |
+| `quest_spoilers.py` | wersje kroków questów bez spoilerów (stosowane też w `build_quests.py`) |
+| `contact_sheet.mjs` | podgląd: kilka PNG w jednej siatce |
+| `build_quests.py` | questy NPC (`assets/data/quests.json`); `--verify` sprawdza flagi na postaciach przez backend ([docs/09](../../docs/09-quests.md)). Osobno od `run_all.py`, bo korzysta z pobranych danych społeczności |
+
+Szczegóły formatów i ustaleń: [docs/08-assets.md](../../docs/08-assets.md).

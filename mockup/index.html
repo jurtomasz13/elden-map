@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kronika Zmatowiałego</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .8  0 0 0 0 .7  0 0 0 0 .5  0 0 0 .07 0"/></filter>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter>
+    <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="4" seed="3"/><feColorMatrix values="0 0 0 0 .80  0 0 0 0 .72  0 0 0 0 .55  0 0 0 .35 0"/></filter>
+    <radialGradient id="graceGlow"><stop offset="0" stop-color="#f4d37c" stop-opacity=".9"/><stop offset="1" stop-color="#f4d37c" stop-opacity="0"/></radialGradient>
+  </defs>
+</svg>
+<div class="grain" aria-hidden="true"><svg width="100%" height="100%"><rect width="100%" height="100%" filter="url(#grain)"/></svg></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="char">
+      <span class="char-sigil" aria-hidden="true"></span>
+      <div class="char-name-wrap">
+        <div class="char-name" id="charName">boink</div>
+        <button class="char-switch" id="charSwitch">zmień postać ▾</button>
+      </div>
+      <dl class="char-stats">
+        <div><dt>Poziom</dt><dd id="stLevel">180</dd></div>
+        <div><dt>Czas</dt><dd id="stTime">77 h</dd></div>
+        <div><dt>Śmierci</dt><dd id="stDeaths">330</dd></div>
+        <div><dt>Pamięć run</dt><dd id="stRunes">14,6 mln</dd></div>
+      </dl>
+    </div>
+    <div class="top-right">
+      <label class="toggle" title="Ukrywa bossów, miejsca i przedmioty, do których jeszcze nie dotarłeś">
+        <input type="checkbox" id="spoilerToggle" checked>
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">Bez spoilerów</span>
+      </label>
+      <div class="live" title="Dane z pliku save (tryb online z EAC): gra zapisuje co ~60 s">
+        <span class="live-dot"></span>
+        <span>Ostatni zapis <b id="lastSave">23 s</b> temu</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="Widoki">
+    <a href="#character" data-view="character"><span class="nav-ico">☗</span><span>Postać</span></a>
+    <a href="#map" data-view="map"><span class="nav-ico">◈</span><span>Mapa</span></a>
+    <a href="#bosses" data-view="bosses"><span class="nav-ico">⚔</span><span>Bossowie</span></a>
+    <a href="#quests" data-view="quests"><span class="nav-ico">✦</span><span>Questy</span></a>
+    <a href="#items" data-view="items"><span class="nav-ico">❖</span><span>Przedmioty</span></a>
+    <a href="#chronicle" data-view="chronicle"><span class="nav-ico">❦</span><span>Kronika</span></a>
+    <div class="nav-foot">
+      <button class="session-btn" id="sessionBtn">Podsumowanie sesji</button>
+      <div class="nav-note">makieta · dane przykładowe</div>
+    </div>
+  </nav>
+
+  <main class="main" id="main"></main>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <button class="drawer-close" id="drawerClose" aria-label="Zamknij">✕</button>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+</div>
+
+<div class="felled" id="felled" aria-live="polite"><div class="felled-line"></div><div class="felled-text" id="felledText">Pokonano</div><div class="felled-sub" id="felledSub"></div><div class="felled-line"></div></div>
+<div class="modal" id="modal" aria-hidden="true"><div class="modal-card" id="modalCard"></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
