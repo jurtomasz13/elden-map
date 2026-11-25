@@ -7,6 +7,7 @@ Wynik (assets/data/):
   npcs.json            — NPC z dialogiem (MSB: wróg z TalkID) z nazwą PL i pozycją
 Pozycje: mapy m60/m61 przeliczane wprost (map_transform), lochy przez WorldMapLegacyConvParam
 (łańcuchy aż do m60/m61). Małe lochy (katakumby, jaskinie, tunele, lochy DLC) ląduje przy wejściu (`approx`).
+Podziemia (m12) — dokładnie, na osobnej mapie M01; Farum Azula (m13) — w wirze burzy (stała FARUM).
 """
 import json
 import os
@@ -21,7 +22,11 @@ import params as P  # noqa: E402
 from extract_data import TRANSFORM  # noqa: E402
 
 DATA = os.path.join(A.ROOT, "assets", "data")
-ENTRANCE_AREAS = {12, 30, 31, 32, 39, 40, 41, 42, 43}      # małe lochy -> punkt wejścia
+ENTRANCE_AREAS = {30, 31, 32, 39, 40, 41, 42, 43}          # małe lochy -> punkt wejścia
+UNDERGROUND = {"M00": "M01"}                                # podziemia (m12: Siofra, Ainsel, Głębiny) — osobna mapa gry
+# Przeklęte Farum Azula (m13): gra rysuje je w wirze burzy na wschód od Szczytów Olbrzymów, a WorldMapLegacyConvParam
+# wskazuje miejsce na Szczytach (zawartość lądowała na cudzym terenie). Środek wiru w pikselach mapy, skala, środek lochu.
+FARUM = {"px": 8520, "py": 4500, "scale": 0.9, "x": -107.0, "z": 350.0}
 DLC_AREAS = {20, 21, 22, 25, 28, 40, 41, 42, 43, 61}
 LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
 
@@ -55,13 +60,17 @@ class World:
         return None
 
     def to_map(self, area, gx, gz, x, y, z):
+        if area == 13:
+            f = FARUM
+            return {"map": "M00", "px": round(f["px"] + (x - f["x"]) * f["scale"], 1),
+                    "py": round(f["py"] - (z - f["z"]) * f["scale"], 1), "approx": False}
         w = self.to_overworld(area, gx, gz, x, y, z)
         if not w:
             return None
         a, gx, gz, x, y, z, approx = w
         for key, t in TRANSFORM.items():
             if t["area"] == a:
-                return {"map": key, "px": round(gx * 256 + x + 128 - t["ox"], 1),
+                return {"map": UNDERGROUND.get(key, key) if area == 12 else key, "px": round(gx * 256 + x + 128 - t["ox"], 1),
                         "py": round(t["size"] - (gz * 256 + z + 128 - t["oz"]), 1), "approx": bool(approx)}
         return None
 
@@ -527,29 +536,55 @@ def main():
         for g in graces:
             if not g.get("region") and dlc_region.get(g["flag"]):
                 g["region"] = region_pl.get(dlc_region[g["flag"]].lower()) or dlc_region[g["flag"]]
+    # gra podstawowa: podkraina z menu podróży (Płaczący Półwysep, Nokron…) — widok bossów zagnieżdża ją w krainie;
+    # DLC: w głównych lochach podkraina (Belurat, Enir-Ilim…), poza nimi kraina główna (drobne podkrainy DLC
+    # nie mają miejsca w drzewie krain strony)
+    def sub_or_region(g):
+        legacy_dlc = 20 <= int((g.get("map_id") or "m00")[1:3]) <= 28      # główne lochy DLC
+        return ((not g.get("dlc") or legacy_dlc) and g.get("subregion")) or g["region"]
     by_map = {}
     for g in graces:
         if g.get("region") and g.get("map_id"):
-            by_map.setdefault(g["map_id"], []).append(g["region"])
-    graces = [g for g in graces if g.get("map") and g.get("region")]
+            by_map.setdefault(g["map_id"], []).append(sub_or_region(g))
+    graces = [g for g in graces if g.get("map") and g.get("region") and (g.get("map_id") or "")[:3] in ("m60", "m61")]   # tylko otwarty świat
     def nearest_region(o):
         mid = o.get("map_id") or ""
         if mid[:3] not in ("m60", "m61") and by_map.get(mid):        # loch: kraina łask z tego samego pliku mapy
             regs = by_map[mid]
             return max(set(regs), key=regs.count)
         same = [g for g in graces if g["map"] == o.get("map")]
-        return min(same, key=lambda g: (g["px"] - o["px"]) ** 2 + (g["py"] - o["py"]) ** 2)["region"] if same and o.get("px") is not None else None
+        if not same or o.get("px") is None:
+            return None
+        g = min(same, key=lambda g: (g["px"] - o["px"]) ** 2 + (g["py"] - o["py"]) ** 2)
+        return sub_or_region(g)
     for coll in (bosses, treasures, pois, npcs):
         for o in coll:
             o["region_pl"] = nearest_region(o) or o.get("region_pl")
             if o["region_pl"] == "Land of the Tower":                 # brak polskiej nazwy w grze
-                o["region_pl"] = "Kraina Wieży"
+                o["region_pl"] = "Ziemie Wieży"
             if o["region_pl"] == "Nokron Eternal City":
                 o["region_pl"] = "Nokron, Wieczne Miasto"
             if isinstance(o.get("name"), str):
                 o["name"] = o["name"].strip()
     for b in bosses:                                               # opis miejsca z tabeli CE jest po angielsku — nie pokazujemy
         b["location"] = None
+
+    # łaski w lochach (Farum Azula, Leyndell, podziemia, katakumby…): extract_data liczy tylko m60/m61 — tu przeliczamy
+    # przez WorldMapLegacyConvParam jak bossów i skarby (główne lochy: dokładnie, małe lochy: przy wejściu, approx)
+    gpath = os.path.join(DATA, "graces.json")
+    all_graces = json.load(open(gpath, encoding="utf-8"))
+    placed = 0
+    for g in all_graces:
+        if not g.get("map_id") or not g.get("pos") or g["map_id"][:3] in ("m60", "m61"):
+            continue                                             # otwarty świat: z extract_data; lochy: zawsze od nowa
+        area, gx, gz = (int(v) for v in g["map_id"][1:].split("_")[:3])
+        pos = world.to_map(area, gx, gz, *g["pos"])
+        if pos:
+            g.update(pos)
+            placed += 1
+    with open(gpath, "w", encoding="utf-8") as f:
+        json.dump(all_graces, f, ensure_ascii=False, indent=0)
+    print(f"łaski w lochach umieszczone na mapie: {placed}, bez pozycji: {sum(1 for g in all_graces if not g.get('map'))}")
 
     for fn, data in (("bosses_all", bosses), ("pois", pois), ("item_locations", treasures), ("npcs", npcs)):
         with open(os.path.join(DATA, fn + ".json"), "w", encoding="utf-8") as f:

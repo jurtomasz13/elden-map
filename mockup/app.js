@@ -8,8 +8,20 @@
   const L0 = 10496, MAXZ = 6;
   const fmt = n => (n ?? 0).toLocaleString("pl-PL");
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-  const state = { spoilers: true, bossGame: "base", bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
+  const pref = (k, d) => { try { return localStorage.getItem("er." + k) ?? d; } catch { return d; } };
+  const savePref = (k, v) => { try { localStorage.setItem("er." + k, v); } catch { /* prywatne okno */ } };
+  const state = { spoilers: true, game: pref("game", "all"), mapMine: pref("mapMine", "1") === "1", offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
     hideDone: false, mapQuery: "", qOpen: new Set(), qFilter: "all", off: new Set(["golden_rune", "material", "consumable", "ammo", "upgrade", "note", "npc", "poi:landmark"]) };
+
+  // zakres gry dla wszystkich widoków (przełącznik w górnym pasku): wszystko / podstawka / DLC
+  const gameOk = x => state.game === "all" || (state.game === "dlc") === !!x?.dlc;
+  // przejście do konkretnej rzeczy spoza wybranego zakresu (np. link do questu z DLC) — pokaż wszystko
+  function ensureGame(x) { if (x && !gameOk(x)) setGame("all", true); }
+  function setGame(g, quiet) {
+    state.game = g; savePref("game", g); state.bossRegion = "all";
+    document.querySelectorAll("[data-game]").forEach(b => b.classList.toggle("on", b.dataset.game === g));
+    if (!quiet) render();
+  }
 
   // dane wyciągnięte z gry (tools/extract)
   const cache = {};
@@ -73,7 +85,8 @@
   const questSteps = q => q.steps.map(s => ({ ...s, done: (s.flags || []).length ? (s.mode === "any" ? s.flags.some(f => isSet(f, 50)) : s.flags.every(f => isSet(f, 50))) : false }));
 
   async function loadWorld() {
-    const [b, p, it, n, g, q, tr] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform"].map(load));
+    const [b, p, it, n, g, q, tr, mp] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces"].map(load));
+    W.pieces = mp || {};                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
     // bossowie bez nazwy w plikach gry (np. Wyszczerbiony Drake na szczycie) zostają — nazwę dopisze backend (tabela CE)
     W.bosses = (b || []).map(x => x.name ? x : { ...x, name: x.name_en || "Boss bez nazwy w grze", unnamed: true })
       .map(x => x.icon == null && x.render ? { ...x, icon: "r:" + x.render, rendered: true } : x); W.pois = p || []; W.items = it || []; W.npcs = n || []; W.graces = g || [];
@@ -90,7 +103,7 @@
       api(`/api/session?${qs()}`).catch(() => null), api(`/api/deaths?${qs()}&limit=500`).catch(() => null)]);
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
-      ...W.quests.flatMap(q => q.steps.flatMap(s => s.flags || []))].filter(Boolean));
+      ...W.quests.flatMap(q => q.steps.flatMap(s => s.flags || [])), ...Object.values(W.pieces || {}).flat()].filter(Boolean));
     const arr = [...ids], flags = {};
     for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
     live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
@@ -237,11 +250,11 @@
       "Podziemia porzuconych", "Urwisko usiane ruinami"],
     "Szczyty Olbrzymów": ["Zakazane Krainy", "Szczyt Płomienia", "Uświęcona śnieżna dolina", "Święte Drzewo Miquelli", "Elphael, Podpora Świętego Drzewa", "Przeklęte Farum Azula", "Kamienna platforma"],
     "Podziemia": ["Rzeka Siofra", "Nokron, Wieczne Miasto", "Rzeka Ainsel", "Główne koryto rzeki Ainsel", "Głębiny", "Jezioro Zgnilizny", "Pałac Mohgwynów"],
-    "Cmentarna Równina": ["Belurat, osada przy wieży", "Szczelina kamiennego sarkofagu"],
+    "Cmentarna równina": ["Belurat, osada przy wieży", "Szczelina kamiennego sarkofagu"],
     "Ostrowyż Altus": ["Donżon cienia", "Donżon cienia, dzielnica kościelna", "Magazyn z okazami", "Włości Midry"],
-    "Kraina Wieży": ["Enir-Ilim"],
+    "Ziemie Wieży": ["Enir-Ilim"],
   };
-  const REGION_ALIAS = { "Land of the Tower": "Kraina Wieży" };      // nazwy, których gra nie ma po polsku
+  const REGION_ALIAS = { "Land of the Tower": "Ziemie Wieży", "Kraina Wieży": "Ziemie Wieży", "Cmentarna Równina": "Cmentarna równina" };   // nazwy jak w menu podróży gry
   const REGION_PARENT = Object.fromEntries(Object.entries(REGION_TREE).flatMap(([p, kids]) => kids.map(k => [k, p])));
   const regionMatch = (r, sel) => sel === "all" || r === sel || REGION_PARENT[r] === sel;
   // grupowanie / sortowanie bossów (domyślnie wg rangi, w grupie od najcenniejszych)
@@ -259,7 +272,7 @@
     alive: { name: "Najpierw niepokonani", f: (x, y) => x.defeated - y.defeated || (y.runes || 0) - (x.runes || 0) },
   };
   function viewBosses() {
-    const all = bossList().filter(b => state.bossGame === "all" || (state.bossGame === "dlc") === !!b.dlc);
+    const all = bossList().filter(gameOk);
     const done = all.filter(b => b.defeated).length;
     const regions = [...new Set(all.map(b => b.region))].sort((x, y) => x.localeCompare(y, "pl"));
     const gk = state.bossGroup || "tier", sk = state.bossSort || "runes", g = BOSS_GROUPS[gk], so = BOSS_SORTS[sk];
@@ -303,7 +316,6 @@
         <input class="search it-q" id="bq" type="search" placeholder="Szukaj bossa lub krainy…" value="${esc(state.bossQuery || "")}">
         <label class="it-lbl"><span>Grupuj</span>${sel("bgroup", Object.entries(BOSS_GROUPS).map(([k, v]) => [k, v.name]), gk)}</label>
         <label class="it-lbl"><span>Sortuj</span>${sel("bsort", Object.entries(BOSS_SORTS).map(([k, v]) => [k, v.name]), sk)}</label>
-        <span class="it-chips">${chip("bg", "all", "Wszystko", state.bossGame === "all")}${chip("bg", "base", "Gra podstawowa", state.bossGame === "base")}${chip("bg", "dlc", "DLC", state.bossGame === "dlc")}</span>
         <span class="it-chips">${chip("bf", "all", "Wszyscy", state.bossFilter === "all")}${chip("bf", "alive", "Niepokonani", state.bossFilter === "alive")}${chip("bf", "felled", "Pokonani", state.bossFilter === "felled")}</span>
         <span class="it-chips tier-filters">${chip("bt", "", "Każda ranga", !state.bossTier)}${TIER_ORDER.map(t => { const n = all.filter(b => b.tier === t);
           return n.length ? `<button class="chip tier-chip t-${t} ${state.bossTier === t ? "on" : ""}" data-bt="${t}" title="${esc(TIER[t].desc)}"><i>${TIER[t].glyph}</i>${TIER[t].name}<small>${n.filter(b => b.defeated).length}/${n.length}</small></button>` : ""; }).join("")}</span>
@@ -315,7 +327,6 @@
         return `<section class="region boss-group ${gk === "tier" ? "tg-" + k : ""}">${gk === "none" ? "" : `<div class="region-head">${g.head(k)}<span class="region-count">${tot.filter(b => b.defeated).length} / ${tot.length}</span><span class="region-line"></span></div>`}
           <div class="grid">${items.map(bossCard).join("")}</div></section>`; }).join("") || '<p class="view-sub">Nic nie pasuje do filtrów.</p>'}</div>
       ${regionAside}</div></div>`;
-    main.querySelectorAll("[data-bg]").forEach(b => b.onclick = () => { state.bossGame = b.dataset.bg; state.bossRegion = "all"; viewBosses(); });
     main.querySelectorAll("[data-bf]").forEach(b => b.onclick = () => { state.bossFilter = b.dataset.bf; viewBosses(); });
     main.querySelectorAll("[data-bt]").forEach(b => b.onclick = () => { state.bossTier = b.dataset.bt; viewBosses(); });
     $("#bgroup").onchange = e => { state.bossGroup = e.target.value; viewBosses(); };
@@ -421,7 +432,6 @@
     const qStatus = x => { const st = family(x).flatMap(f => f.steps), d = st.filter(s => s.done).length;
       return d && d === st.length ? "done" : d ? "active" : "new"; };
     const allRoots = quests.filter(x => !x.parent || !quests.some(p => p.id === x.parent));
-    const gameOk = x => !state.qGame || state.qGame === "all" || (state.qGame === "dlc") === !!x.dlc;   // podstawka / DLC
     const roots = allRoots.filter(gameOk), shown = roots.flatMap(family);
     const blur = s => state.spoilers && !s.done && !s.current;
     const total = shown.reduce((a, x) => a + x.steps.length, 0), doneAll = shown.reduce((a, x) => a + x.steps.filter(s => s.done).length, 0);
@@ -430,9 +440,7 @@
         <div class="view-sub">${real ? `${pl(roots.length, "wątek", "wątki", "wątków")} · kroki odhaczają się z flag zapisu gry` : "Dane przykładowe — zbiór questów jeszcze się buduje."}</div></div>
         ${ring(doneAll, total, "kroków za tobą")}</div>
       <div class="filters">${[["all", "Wszystkie"], ["active", "W toku"], ["new", "Nierozpoczęte"], ["done", "Ukończone"]]
-        .map(([k, l]) => `<button class="chip ${state.qFilter === k ? "on" : ""}" data-qf="${k}">${l}<small class="chip-n">${roots.filter(r => k === "all" || qStatus(r) === k).length}</small></button>`).join("")}
-        <span class="sep"></span>${[["all", "Wszystko"], ["base", "Gra podstawowa"], ["dlc", "DLC"]]
-        .map(([k, l]) => `<button class="chip ${(state.qGame || "all") === k ? "on" : ""}" data-qg="${k}">${l}<small class="chip-n">${allRoots.filter(r => k === "all" || (k === "dlc") === !!r.dlc).length}</small></button>`).join("")}</div>
+        .map(([k, l]) => `<button class="chip ${state.qFilter === k ? "on" : ""}" data-qf="${k}">${l}<small class="chip-n">${roots.filter(r => k === "all" || qStatus(r) === k).length}</small></button>`).join("")}</div>
       <div class="quests"><div class="qlist">${[["active", "W toku"], ["new", "Nierozpoczęte"], ["done", "Ukończone"]]
         .filter(([k]) => state.qFilter === "all" || state.qFilter === k).map(([k, l]) => { const list = roots.filter(r => qStatus(r) === k); if (!list.length) return "";
           return `<div class="qsection ${k}"><div class="qsection-head">${l}<span>${list.length}</span></div>${list.map(x => qNode(x, 0)).join("")}</div>`; }).join("")
@@ -457,7 +465,6 @@
     main.querySelectorAll("[data-qt]").forEach(b => b.onclick = e => { e.stopPropagation(); const id = b.dataset.qt;
       state.qOpen.has(id) ? state.qOpen.delete(id) : state.qOpen.add(id); viewQuests(); });
     main.querySelectorAll("[data-qf]").forEach(b => b.onclick = () => { state.qFilter = b.dataset.qf; viewQuests(); });
-    main.querySelectorAll("[data-qg]").forEach(b => b.onclick = () => { state.qGame = b.dataset.qg; viewQuests(); });
 
     function kidsOf(id) { return quests.filter(c => c.parent === id); }
     function qNode(x, depth) {
@@ -669,7 +676,7 @@
     fp: { name: "Koszt PS", cats: ["spells"], f: (a, b) => (a.stats?.fp ?? 0) - (b.stats?.fp ?? 0) },
   };
   const avail = (o, cat) => Object.entries(o).filter(([, v]) => !v.cats || v.cats.includes(cat.id));
-  const itf = () => (state.itf ??= { group: {}, sort: {}, q: "", own: "all", dlc: "all", aff: "" });
+  const itf = () => (state.itf ??= { group: {}, sort: {}, q: "", own: "all", aff: "" });
   function itemToolbar(cat) {
     const f = itf(), g = f.group[cat.id] || "rarity", so = f.sort[cat.id] || "rarity";
     const sel = (name, opts, cur) => `<select class="it-sel" data-it="${name}">${opts.map(([k, v]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${v.name}</option>`).join("")}</select>`;
@@ -680,7 +687,6 @@
       <label class="it-lbl"><span>Grupuj</span>${sel("group", avail(GROUPS, cat), g)}</label>
       <label class="it-lbl"><span>Sortuj</span>${sel("sort", avail(SORTS, cat), so)}</label>
       <span class="it-chips">${chip("own", "all", "Wszystkie", f.own)}${chip("own", "have", "Posiadane", f.own)}${chip("own", "missing", "Brakujące", f.own)}</span>
-      <span class="it-chips">${chip("dlc", "all", "Wszystko", f.dlc)}${chip("dlc", "base", "Gra podstawowa", f.dlc)}${chip("dlc", "dlc", "DLC", f.dlc)}</span>
       ${affs.length ? `<span class="it-chips it-aff">${chip("aff", "", "Każdy żywioł", f.aff)}${affs.map(k => `<button class="chip aff-chip ${f.aff === k ? "on" : ""}" data-itc="aff" data-v="${k}" style="--c:${AFF[k][1]}">${AFF[k][0]}</button>`).join("")}</span>` : ""}
     </div>`;
   }
@@ -689,7 +695,7 @@
     const q = f.q.trim().toLowerCase();
     const idx = new Map(cat.list.map((it, i) => [it, i]));          // indeks do demonstracyjnego ukrywania (bez spoilerów)
     const list = cat.list.filter(it => (!q || it.name.toLowerCase().includes(q) || (it.name_en || "").toLowerCase().includes(q))
-      && (f.own === "all" || (f.own === "have") === !!have(it)) && (f.dlc === "all" || (f.dlc === "dlc") === !!it.dlc)
+      && (f.own === "all" || (f.own === "have") === !!have(it))
       && (!f.aff || cat.id !== "weapons" || affinities(it).list.some(a => a.k === f.aff))).sort(sdef.f);
     if (!list.length) return `<p class="view-sub">Nic nie pasuje do filtrów.</p>`;
     const groups = new Map();
@@ -717,7 +723,7 @@
     main.innerHTML = `<div class="view"><div class="view-sub">Wczytywanie przedmiotów z gry…</div></div>`;
     const items = await load("items") || [];
     if (location.hash !== "#items") return;
-    const cats = CATS.map(c => { const l = items.filter(c.f); return { ...c, list: l, have: l.filter(have).length }; });
+    const cats = CATS.map(c => { const l = items.filter(c.f).filter(gameOk); return { ...c, list: l, have: l.filter(have).length }; });
     const cat = cats.find(c => c.id === state.cat);
     const done = cats.reduce((a, c) => a + c.have, 0), total = cats.reduce((a, c) => a + c.list.length, 0);
     main.innerHTML = `<div class="view">
@@ -771,19 +777,28 @@
     });
   }
   let bigMap, mapLayers = {}, playerMarker = null;
+  // mapy gry: powierzchnia, podziemia (Siofra, Ainsel, Głębiny) i Królestwo Cieni — dostępne wg zakresu gry
+  const MAPS = { M00: "Ziemie Pomiędzy", M01: "Podziemia", M10: "Królestwo Cieni (DLC)" };
+  const mapsFor = g => g === "dlc" ? ["M10"] : g === "base" ? ["M00", "M01"] : ["M00", "M01", "M10"];
+  // warstwy wyłączone: osobno dla „Całej mapy” (bez drobnicy) i „Mojego postępu” (tam widać też runy, materiały…)
+  const offLayers = () => state.mapMine ? state.offMine : state.off;
   function mapCounts() {
-    const m = state.map, c = {};
-    const add = (k, done) => { c[k] ??= [0, 0]; c[k][1]++; if (done) c[k][0]++; };
+    const m = state.map, c = {}, mine = state.mapMine, near = mine ? revealTest(m) : null;
+    // „Mój postęp”: zaliczone na tle wszystkich; miejsca i postacie (bez stanu) — tylko te w odkrytych okolicach
+    const add = (k, done, pos) => { if (mine && done == null && !near(pos)) return;
+      c[k] ??= [0, 0]; c[k][1]++; if (done) c[k][0]++; };
     for (const g of W.graces) if (g.map === m) add("grace", isSet(g.flag, 60));
     for (const b of bossList()) if (b.map === m && !hiddenBoss(b)) add("boss", b.defeated);
-    for (const p of W.pois) if (p.map === m) add("poi:" + p.category, false);
+    for (const p of W.pois) if (p.map === m) add("poi:" + p.category, null, p);
     for (const t of W.items) if (t.map === m) add(t.kind, isSet(t.flag));
-    for (const n of W.npcs) if (n.map === m) add("npc", false);
+    for (const n of W.npcs) if (n.map === m) add("npc", null, n);
     const nd = (D.deathPoints || []).filter(d => d.map === m).length; if (nd) c.deaths = [0, nd];
     return c;
   }
   function viewMap() {
-    const cnt = mapCounts(), on = k => !state.off.has(k);
+    const avail = mapsFor(state.game);
+    if (!avail.includes(state.map)) state.map = avail[0];
+    const off = offLayers(), cnt = mapCounts(), on = k => !off.has(k);
     const row = (k, label, sw) => cnt[k] ? `<button class="layer ${on(k) ? "on" : ""}" data-layer="${k}"><span class="sw">${sw}</span>${esc(label)}
       <span class="cnt">${cnt[k][0] ? `${cnt[k][0]}/` : ""}${cnt[k][1]}</span></button>` : "";
     const group = (title, keys, body) => { const rows = body.filter(Boolean).join(""); if (!rows) return "";
@@ -791,11 +806,13 @@
     const dot = col => `<span class="sw-dot" style="background:${col}"></span>`;
     const poiKeys = Object.keys(POI).map(k => "poi:" + k), kindKeys = KIND_GROUPS.flatMap(g => g[1]);
     main.innerHTML = `<div class="mapview"><div class="mapcanvas" id="mapc"></div>
-      <div class="map-panel corners"><div class="eyebrow">${state.map === "M00" ? "Ziemie Pomiędzy" : "Królestwo Cieni (DLC)"}</div><h2 class="title">Mapa</h2>
-        <div class="maptabs"><button class="chip ${state.map === "M00" ? "on" : ""}" data-m="M00">Ziemie Pomiędzy</button><button class="chip ${state.map === "M10" ? "on" : ""}" data-m="M10">Królestwo Cieni (DLC)</button></div>
+      <div class="map-panel corners"><div class="eyebrow">${MAPS[state.map]}</div><h2 class="title">Mapa</h2>
+        ${avail.length > 1 ? `<div class="maptabs">${avail.map(k => `<button class="chip ${state.map === k ? "on" : ""}" data-m="${k}">${MAPS[k]}</button>`).join("")}</div>` : ""}
+        <div class="map-mode" role="group" aria-label="Tryb mapy"><button class="${state.mapMine ? "" : "on"}" data-mine="0">Cała mapa</button><button class="${state.mapMine ? "on" : ""}" data-mine="1" title="Tylko okolice, w których już byłeś, i to, co już zaliczyłeś">Mój postęp</button></div>
         <input class="search map-search" id="mq" type="search" placeholder="Szukaj: przedmiot, boss, miejsce…" value="${esc(state.mapQuery)}">
         ${state.mapQuery ? `<button class="chip on map-filter-chip" id="mqClear">Filtr: ${esc(state.mapQuery)}${state.mapExact ? " (dokładnie)" : ""} ✕</button>` : ""}
-        <label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>
+        ${state.mapMine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
+          : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "npc", "deaths"], [row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>')])}
@@ -807,10 +824,11 @@
       <div class="map-legend">◆ twoja pozycja z ostatniego zapisu · kółko myszy: przybliżenie · klik: szczegóły</div>
       <div class="map-zoom"><button id="zin" aria-label="Przybliż">+</button><button id="zout" aria-label="Oddal">−</button></div></div>`;
     main.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { state.map = b.dataset.m; viewMap(); });
-    main.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => { const k = b.dataset.layer; state.off.has(k) ? state.off.delete(k) : state.off.add(k); b.classList.toggle("on"); refreshLayers(); });
+    main.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => { const k = b.dataset.layer; off.has(k) ? off.delete(k) : off.add(k); b.classList.toggle("on"); refreshLayers(); });
     main.querySelectorAll("[data-group]").forEach(b => b.onclick = () => { const keys = b.dataset.group.split(","), allOn = keys.every(on);
-      keys.forEach(k => allOn ? state.off.add(k) : state.off.delete(k)); viewMapKeep(); });
-    $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
+      keys.forEach(k => allOn ? off.add(k) : off.delete(k)); viewMapKeep(); });
+    if ($("#hideDone")) $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
+    main.querySelectorAll("[data-mine]").forEach(b => b.onclick = () => { state.mapMine = b.dataset.mine === "1"; savePref("mapMine", state.mapMine ? "1" : "0"); viewMapKeep(); });
     let t; $("#mq").oninput = e => { clearTimeout(t); t = setTimeout(() => { state.mapQuery = e.target.value; state.mapExact = null; viewMapKeep(); const n = $("#mq"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 350); };
     if ($("#mqClear")) $("#mqClear").onclick = () => { state.mapQuery = ""; state.mapExact = null; viewMapKeep(); };
     if (!window.L) { $("#mapc").innerHTML = '<p class="view-sub" style="padding:40px">Brak biblioteki Leaflet (offline?).</p>'; return; }
@@ -832,25 +850,27 @@
     const map = bigMap; if (!map) return;
     for (const g of Object.values(mapLayers)) g.remove();
     mapLayers = {};
-    const m = state.map, q = state.mapQuery.trim().toLowerCase(), hide = state.hideDone, renderer = L.canvas({ padding: .4 });
+    const m = state.map, q = state.mapQuery.trim().toLowerCase(), mine = state.mapMine, hide = state.hideDone && !mine, renderer = L.canvas({ padding: .4 });
+    const near = mine ? revealTest(m) : () => true;
+    drawFog(map, m);
     const grp = k => mapLayers[k] ??= L.layerGroup();
     const match = (...names) => !q || names.some(n => state.mapExact ? (n || "").toLowerCase() === q : (n || "").toLowerCase().includes(q));
-    for (const g of W.graces) { if (g.map !== m || !match(g.name, g.region)) continue; const v = isSet(g.flag, 60); if (hide && v) continue;
+    for (const g of W.graces) { if (g.map !== m || !match(g.name, g.region)) continue; const v = isSet(g.flag, 60); if ((hide && v) || (mine && !v)) continue;
       L.marker(ll(map, g.px, g.py), { icon: divIcon(`<span class="mk-grace ${v ? "on" : ""}"></span>`, 22) })
         .bindTooltip(`<b>${esc(g.name || "Miejsce łaski")}</b>${esc(g.region || "")} · ${v ? "odkryte" : "nieodkryte"}`, { direction: "top", offset: [0, -8], className: "er-tip" }).addTo(grp("grace")); }
-    for (const b of bossList()) { if (b.map !== m || !match(b.name, b.name_en) || (hide && b.defeated) || hiddenBoss(b)) continue;
+    for (const b of bossList()) { if (b.map !== m || !match(b.name, b.name_en) || (hide && b.defeated) || (mine && !b.defeated) || hiddenBoss(b)) continue;
       L.marker(ll(map, b.px, b.py), { icon: divIcon(`<span class="mk-boss ${b.defeated ? "done" : ""}">${b.icon != null ? `<img src="${ICON(b.icon)}">` : ""}</span>`, 34), riseOnHover: true })
         .bindTooltip(`<b>${esc(b.name)}</b>${b.defeated ? "pokonany" : "niepokonany"} · ${pl(b.runes || 0, "run", "runy", "runów")}${b.approx ? " · w lochu" : ""}`, { direction: "top", offset: [0, -16], className: "er-tip" })
         .on("click", () => openBoss(b.id)).addTo(grp("boss")); }
-    for (const pnt of W.pois) { if (pnt.map !== m || !match(pnt.name)) continue;
+    for (const pnt of W.pois) { if (pnt.map !== m || !match(pnt.name) || !near(pnt)) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
         .bindTooltip(`<b>${esc(pnt.name)}</b>${esc(POI[pnt.category]?.[0] || "")}`, { direction: "top", offset: [0, -8], className: "er-tip" }).addTo(grp("poi:" + pnt.category)); }
-    for (const n of W.npcs) { if (n.map !== m || !match(n.name, n.name_en)) continue;
+    for (const n of W.npcs) { if (n.map !== m || !match(n.name, n.name_en) || !near(n)) continue;
       L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 })
         .bindTooltip(`<b>${esc(n.name)}</b>${npcQuest(n) ? "postać · klik: quest „" + esc(npcQuest(n).name) + "”" : "postać"}`, { direction: "top", className: "er-tip" })
         .on("click", () => { const q = npcQuest(n); if (q) goQuest(q.id); }).addTo(grp("npc")); }
     for (const t of W.items) { if (t.map !== m || !match(...t.items.map(i => i.name), ...t.items.map(i => i.name_en))) continue;
-      const done = isSet(t.flag); if (hide && done) continue;
+      const done = isSet(t.flag); if ((hide && done) || (mine && !done)) continue;
       const col = KINDS[t.kind]?.[1] || "#999";
       L.circleMarker(ll(map, t.px, t.py), { renderer, radius: q ? 7 : 4.5, color: done ? "#3a2d1e" : "#1a140c", weight: 1, fillColor: col, fillOpacity: done ? .3 : .95 })
         .on("click", () => selectSpot(t))
@@ -862,6 +882,72 @@
         .bindTooltip(d.last ? `<b>Plama krwi</b>${d.runes > 0 ? pl(d.runes, "run", "runy", "runów") + " do odzyskania" : "ostatnia śmierć"}` : "<b>Śmierć</b>", { direction: "top", className: "er-tip" }).addTo(grp("deaths"));
     refreshLayers();
   }
+  // „Mój postęp”: odkryte okolice = odwiedzone łaski, zebrane skarby, pokonani bossowie, miejsca śmierci i pozycja gracza
+  const FOG_R = 560, FOG_PX = 1024;                     // promień odkrytej okolicy (piksele mapy) · rozdzielczość mgły
+  function revealPoints(m) {
+    const pts = [];
+    for (const g of W.graces) if (g.map === m && isSet(g.flag, 60)) pts.push(g);
+    for (const t of W.items) if (t.map === m && isSet(t.flag)) pts.push(t);
+    for (const b of bossList()) if (b.map === m && b.defeated) pts.push(b);
+    for (const d of D.deathPoints || []) if (d.map === m) pts.push(d);
+    if (D.position?.map === m) pts.push(D.position);
+    return pts.filter(p => p.px != null);
+  }
+  function revealTest(m) {
+    const pts = revealPoints(m), r2 = (FOG_R * .8) ** 2;
+    return o => !o || pts.some(p => (p.px - o.px) ** 2 + (p.py - o.py) ** 2 < r2);
+  }
+  let fogLayer = null, fogToken = 0;
+  // maska fragmentów (assets/map/<M>/pieces.png, build_map_pieces.mjs): kanały R,G,B = bity fragmentów w danym miejscu
+  const pieceData = {};
+  const pieceMask = m => pieceData[m] ??= new Promise(res => {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement("canvas"); c.width = im.width; c.height = im.height;
+      const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0); res(x.getImageData(0, 0, c.width, c.height)); };
+    im.onerror = () => res(null);
+    im.src = `${ASSETS}/map/${m}/pieces.png`;
+  });
+  const NOTHING = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+  function drawFog(map, m) {
+    if (fogLayer) { fogLayer.remove(); fogLayer = null; }
+    const token = ++fogToken;
+    if (!state.mapMine) return;
+    if (W.pieces?.[m]) return pieceMask(m).then(data => {
+      if (token !== fogToken || bigMap !== map) return;
+      if (!data) return circleFog(map, m);
+      // jak w grze: widać tylko to, co odsłaniają zebrane fragmenty mapy; resztę kryje pusta faktura z gry
+      let have = 0;
+      W.pieces[m].forEach((f, i) => { if (isSet(f, 70)) have |= 1 << i; });
+      const c = document.createElement("canvas"); c.width = data.width; c.height = data.height;
+      const x = c.getContext("2d"), out = x.createImageData(c.width, c.height), d = data.data;
+      for (let i = 0; i < d.length; i += 4) { const bits = d[i] | d[i + 1] << 8 | d[i + 2] << 16; if (bits && !(bits & have)) out.data[i + 3] = 255; }
+      x.putImageData(out, 0, 0);
+      const url = c.toDataURL();
+      fogLayer = L.imageOverlay(NOTHING, L.latLngBounds(ll(map, 0, L0), ll(map, L0, 0)), { className: "fog pieces-fog", interactive: false }).addTo(map);
+      const el = fogLayer.getElement();
+      el.style.backgroundImage = `url(${ASSETS}/map/blank.png)`;
+      el.style.webkitMaskImage = el.style.maskImage = `url(${url})`;
+      el.style.webkitMaskSize = el.style.maskSize = "100% 100%";
+      const size = () => { el.style.backgroundSize = `${256 * 2 ** (map.getZoom() - MAXZ)}px`; };
+      size(); map.on("zoomend", size); fogLayer.on("remove", () => map.off("zoomend", size));
+    });
+    circleFog(map, m);
+  }
+  // bez masek fragmentów (stare dane): mgła wokół odwiedzonych miejsc
+  function circleFog(map, m) {
+    const pad = 1500, span = L0 + 2 * pad, k = FOG_PX / span, c = document.createElement("canvas");
+    c.width = c.height = FOG_PX;
+    const x = c.getContext("2d");
+    x.fillStyle = "#070605"; x.fillRect(0, 0, FOG_PX, FOG_PX);                // nieodkryte: całkowicie zakryte
+    x.globalCompositeOperation = "destination-out";
+    const r = FOG_R * k;
+    for (const p of revealPoints(m)) {
+      const cx = (p.px + pad) * k, cy = (p.py + pad) * k, gr = x.createRadialGradient(cx, cy, r * .35, cx, cy, r);
+      gr.addColorStop(0, "rgba(0,0,0,1)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+      x.fillStyle = gr; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
+    }
+    fogLayer = L.imageOverlay(c.toDataURL(), L.latLngBounds(ll(map, -pad, L0 + pad), ll(map, L0 + pad, -pad)), { className: "fog", interactive: false }).addTo(map);
+  }
   // zaznaczenie wybranego skarbu: pulsujący złoty pierścień + panel szczegółów
   let selMarker = null;
   function selectSpot(t) {
@@ -870,7 +956,7 @@
     openSpot(t);
   }
   $("#drawerClose").addEventListener("click", () => { if (selMarker) { selMarker.remove(); selMarker = null; } });
-  function refreshLayers() { for (const [k, g] of Object.entries(mapLayers)) state.off.has(k) && !state.mapQuery ? g.remove() : g.addTo(bigMap); }
+  function refreshLayers() { const off = offLayers(); for (const [k, g] of Object.entries(mapLayers)) off.has(k) && !state.mapQuery ? g.remove() : g.addTo(bigMap); }
 
   // ---------- powiązania między widokami: przedmiot ↔ mapa ↔ boss ↔ quest ----------
   let pendingAfter = null;
@@ -884,12 +970,16 @@
   }
   function goMap(o, spot) {
     if (!o?.map) return;
-    if (location.hash === "#map") { closeDrawer(); if (state.map !== o.map) { state.map = o.map; viewMap(); } focusMap(o, spot); return; }
+    // „Mój postęp” ukrywa nieodkryte miejsca — przy przejściu do konkretnej rzeczy spoza odkrytych okolic pokaż całą mapę
+    const unveil = state.mapMine && (spot ? !isSet(spot.flag) : true) && !revealTest(o.map)(o);
+    if (unveil) state.mapMine = false;
+    ensureGame({ dlc: o.map === "M10" });
+    if (location.hash === "#map") { closeDrawer(); if (state.map !== o.map || unveil) { state.map = o.map; viewMap(); } focusMap(o, spot); return; }
     state.map = o.map; navTo("#map", () => focusMap(o, spot));
   }
   // quest postaci: po imieniu NPC (pierwszy człon przed przecinkiem)
   const npcQuest = n => { const stem = (n.name || "").split(",")[0].trim(); return stem.length >= 3 ? W.quests.find(q => (q.npc || "").split(",")[0].trim() === stem) : null; };
-  function goQuest(id) { state.quest = id; state.qFilter = "all"; state.qGame = "all"; if (location.hash === "#quests") { closeDrawer(); render(); } else navTo("#quests"); }
+  function goQuest(id) { state.quest = id; state.qFilter = "all"; ensureGame(W.quests.find(q => q.id === id)); if (location.hash === "#quests") { closeDrawer(); render(); } else navTo("#quests"); }
   // nazwy w tekstach questów: przedmioty (≥ 6 znaków), bossowie ważniejszych rang (rdzeń imienia), miejsca (łaski, lochy)
   const GENERIC = new Set(["rycerz", "strażnik", "nocna", "żołnierz", "duch", "ptak", "smok", "latający", "magmowy", "gnijący", "wielki", "starożytna", "starożytny", "bestia", "człowiek", "zabójca", "łowca", "onyksowy", "pradawny", "krwawy", "szalony", "królewski", "marynarz", "cmentarny", "dowódca", "awatar", "duet", "upadły", "apostoł", "szlachcic", "orędownik", "pobratymiec", "boska", "rudy", "dorosła"]);
   let refIdx = null;
@@ -1149,7 +1239,7 @@
     const of = x => `<em>${fmt(x.done)} z ${fmt(x.total)}</em>`;
     const lands = new Set((live.state.regions || []).map(r => r.region).filter(Boolean)).size;
     return [pd.bosses_required && e("♛", `Bossowie potrzebni do zakończenia gry: ${of(pd.bosses_required)}`),
-      pd.graces && e("❦", `Łaski — gra podstawowa: ${of(pd.graces.base)} · DLC: ${of(pd.graces.dlc)}`),
+      pd.graces && e("❦", `Łaski — podstawka: ${of(pd.graces.base)} · DLC: ${of(pd.graces.dlc)}`),
       pd.map_treasures && e("❖", `Skarby zebrane z map: ${of(pd.map_treasures)}`),
       pd.quests && e("✦", `Ukończone questy: ${of({ done: pd.quests.base.done + pd.quests.dlc.done, total: pd.quests.base.total + pd.quests.dlc.total })}`),
       lands && e("◈", `Zwiedzone krainy: <em>${lands}</em>`)].filter(Boolean).join("");
@@ -1233,6 +1323,7 @@
   $(".nav-foot").insertBefore(demo, $(".nav-note"));
 
   $("#spoilerToggle").onchange = e => { state.spoilers = e.target.checked; render(); };
+  document.querySelectorAll("[data-game]").forEach(b => { b.classList.toggle("on", b.dataset.game === state.game); b.onclick = () => setGame(b.dataset.game); });
   $("#charSwitch").onclick = () => live.on && live.characters ? drawer(`<div class="eyebrow">Twoje save'y</div><div class="d-title" style="text-align:left">Postacie</div>
     ${live.characters.files.map(f => `<div class="d-section"><h4>${f.file === "co2" ? "Seamless Coop · ER0000.co2" : "Oficjalna gra · ER0000.sl2"}</h4>
       ${(f.characters || []).map(c => `<button class="reward char-row ${f.file === live.file && c.slot === live.slot ? "on" : ""}" data-file="${f.file}" data-slot="${c.slot}">

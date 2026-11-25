@@ -36,8 +36,13 @@ Wyniki w `assets/` są w `.gitignore`: to grafiki FromSoftware, **nie publikujem
   z `/menu/71_maptile.mtmskbnd.dcx` (XML, `id = poziom*10000 + x*100 + y`, `mask = ...`).
   Wybieramy wariant równy masce albo jej największy podzbiór. Bez tego wychodzą zdublowane
   i testowe (deweloperskie) kafle.
-- Przy okazji: `WorldMapPieceParam` (34 fragmenty) ma flagi fragmentów (np. 62011) i ich
-  prostokąty. Pozwoli to w przyszłości pokazać mapę odkrytą tak, jak u gracza w grze.
+- **Mapa odkryta jak w grze** (tryb „Mój postęp”): bit `i` wariantu = `i`-ty wiersz `WorldMapPieceParam`
+  danej mapy (M00: wiersze 0–69, M01: 100–199, M10: 1000–1069), flaga zebrania pod `+0x04`
+  (62010–62053, 62004–62009 morze, 62060–62065 podziemia, 62080–62084 DLC).
+  `extract_map_pieces.py` zapisuje dla każdego kafla i bitu parę wariantów różniących się tylko tym bitem,
+  `build_map_pieces.mjs` porównuje je (bloki 8×8 px) i składa `assets/map/<M>/pieces.png` (1312 px; kanały
+  R,G,B = bity 0–23) oraz `assets/map/blank.png` (pusta faktura). Strona zakrywa tą fakturą (CSS `mask-image`)
+  miejsca, których nie odsłania żaden zebrany fragment. Flagi: `assets/data/map_pieces.json`.
 
 ## Przeliczenie współrzędnych gry → piksele mapy
 

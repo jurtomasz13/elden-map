@@ -36,13 +36,14 @@ i offline. Windows i Linux (Steam + Proton).
 | Widok | Co pokazuje |
 |---|---|
 | 🧍 **Postać** | Portret 3D głowy z twojego save'a (twarz, włosy, kolory, założony hełm) · ekwipunek · atrybuty z **miękkimi progami z plików gry** (podświetlenie „blisko progu”, tabela przyrostów po najechaniu) · obciążenie |
-| 🗺️ **Mapa** | Prawdziwa mapa z gry (Ziemie Pomiędzy i Królestwo Cieni) · łaski, bossowie, NPC, lochy, ~3400 skarbów w kategoriach · filtry · wyszukiwanie · twoja pozycja i miejsca śmierci |
+| 🗺️ **Mapa** | Prawdziwa mapa z gry (Ziemie Pomiędzy, Podziemia, Królestwo Cieni) · tryb **„Mój postęp”**: odsłonięte tylko zebrane fragmenty mapy, jak w grze, oraz to, co już zaliczyłeś · łaski, bossowie, NPC, lochy, ~3400 skarbów w kategoriach · filtry · wyszukiwanie · twoja pozycja i miejsca śmierci |
 | ⚔️ **Bossowie** | 200+ bossów z ikonami lub portretami 3D · rangi (Wielki run, Legenda, Wielki boss… „Ledwo boss”) · grupowanie, sortowanie, panel krain z postępem · nagrody · najbliższa łaska *przed* areną |
 | 📜 **Questy** | Kroki odhaczane z flag zapisu · „co dalej” · zagnieżdżone wątki · ostrzeżenia „zanim zabijesz…” · **teksty bez spoilerów** do czasu wykonania kroku |
 | 🎒 **Przedmioty** | Kolekcja z ekwipunku w save'ie · ramki **rzadkość × żywioł** (np. legendarny + mróz) · statystyki · „**Jak zdobyć**”: boss, kupiec z ceną, wymiana, łup z przeciwnika (szansa), nagroda ze zdarzenia |
 | 📖 **Kronika** | Dziennik wyprawy pisany z kolejnych zapisów gry · podsumowanie sesji |
 
 Wszystko jest połączone: z przedmiotu przejdziesz na mapę, do bossa albo questa — i z powrotem.
+Przełącznik **Wszystko / Podstawka / DLC** w górnym pasku działa we wszystkich widokach naraz.
 **Tryb bez spoilerów** ukrywa bossów, których jeszcze nie spotkałeś, i rzadkie przedmioty, których nie masz.
 
 ## Jak to działa

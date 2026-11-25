@@ -8,6 +8,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STEPS = [
     [sys.executable, "-X", "utf8", "extract_map.py"],
     ["node", "--max-old-space-size=4096", "build_tiles.mjs"],
+    [sys.executable, "-X", "utf8", "extract_map_pieces.py"],   # fragmenty mapy: które części odsłania każdy fragment
+    ["node", "build_map_pieces.mjs"],
     [sys.executable, "-X", "utf8", "extract_icons.py"],
     ["node", "build_icons.mjs"],
     [sys.executable, "-X", "utf8", "extract_data.py"],

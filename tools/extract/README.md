@@ -39,6 +39,7 @@ Wymaga Python 3.14+ (moduł `compression.zstd`) i Node 18+. Pełny przebieg trwa
 | `params.py` | `regulation.bin` (AES-256-CBC + ZSTD) i teksty |
 | `dds.mjs` | dekoder BC1/3/4/5/7 → PNG (bez zależności) |
 | `extract_map.py` + `build_tiles.mjs` | kafle mapy w wariancie „pełna mapa” → piramida |
+| `extract_map_pieces.py` + `build_map_pieces.mjs` | zasięg fragmentów mapy (maska) + flagi — mapa odkryta jak w grze |
 | `extract_icons.py` + `build_icons.mjs` | ikony, ekrany ładowania, spis przedmiotów |
 | `extract_data.py` | łaski + przeliczenie współrzędnych |
 | `overlay_test.mjs`, `fit_offset.mjs` | narzędzia do weryfikacji/kalibracji przeliczenia |

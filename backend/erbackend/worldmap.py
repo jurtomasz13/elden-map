@@ -5,7 +5,8 @@ pozycje łask/bossów/skarbów w assets/data — więc pozycja gracza i plamy kr
     świat:   X = gx*256 + x + 128,  Z = gz*256 + z + 128          (kafel mAA_gx_gz_00, AA = 60/61)
     piksele: px = X - ox,  py = size - (Z - oz)                    (ox/oz/size z map_transform)
 Lochi -> świat: WorldMapLegacyConvParam (punkt src w lochu = punkt dst na świecie, łańcuchy rekurencyjnie);
-małe lochy (katakumby, jaskinie, tunele, lochy DLC, podziemia m12) — cała zawartość przy wejściu (approx).
+małe lochy (katakumby, jaskinie, tunele, lochy DLC) — cała zawartość przy wejściu (approx);
+podziemia m12 — dokładnie, na mapie M01; Farum Azula m13 — w wirze burzy (FARUM).
 """
 from __future__ import annotations
 
@@ -15,7 +16,9 @@ import os
 
 from .gamedata import DATA_DIR
 
-ENTRANCE_AREAS = {12, 30, 31, 32, 39, 40, 41, 42, 43}
+ENTRANCE_AREAS = {30, 31, 32, 39, 40, 41, 42, 43}
+UNDERGROUND = {"M00": "M01"}          # podziemia (m12) — osobna mapa gry (jak tools/extract/extract_world.py)
+FARUM = {"px": 8520, "py": 4500, "scale": 0.9, "x": -107.0, "z": 350.0}   # Farum Azula (m13) w wirze burzy
 
 
 RECT_Y = (-10.0, 40.0)        # region "rect" jest płaski (szer. × głęb.) — wysokość: 10 m pod spodem, 40 m nad
@@ -101,13 +104,19 @@ class WorldMap:
         return {"area": a, "X": gx * 256 + wx + 128, "Y": wy, "Z": gz * 256 + wz + 128, "approx": approx}
 
     def to_map(self, map_id: str, x: float, y: float, z: float) -> dict | None:
-        """Piksele mapy strony: {map: "M00"/"M10", px, py, approx} albo None."""
+        """Piksele mapy strony: {map: "M00"/"M01"/"M10", px, py, approx} albo None."""
+        m = parse_map(map_id)
+        if m and m[0] == 13 and x is not None and self.available:
+            f = FARUM
+            return {"map": "M00", "px": round(f["px"] + (x - f["x"]) * f["scale"], 1),
+                    "py": round(f["py"] - (z - f["z"]) * f["scale"], 1), "approx": False}
         w = self.world(map_id, x, y, z)
         if not w:
             return None
         for key, t in self.transform.items():
             if t["area"] == w["area"]:
-                return {"map": key, "px": round(w["X"] - t["ox"], 1), "py": round(t["size"] - (w["Z"] - t["oz"]), 1),
+                return {"map": UNDERGROUND.get(key, key) if m and m[0] == 12 else key,
+                        "px": round(w["X"] - t["ox"], 1), "py": round(t["size"] - (w["Z"] - t["oz"]), 1),
                         "approx": w["approx"]}
         return None
 

@@ -76,8 +76,21 @@ w różnych fazach questów).
 `+0x04` src area/gx/gz, `+0x08` src pozycja, `+0x14` dst area/gx/gz, `+0x18` dst pozycja, `+0x24` punkt bazowy.
 Punkt `src` w lochu odpowiada `dst` na kaflu świata; łańcuchy (`m35`→`m11`→`m60`) rozwiązywane rekurencyjnie
 (najpierw wiersze prowadzące wprost do m60/m61). Lochy legacy (Stormveil, Leyndell, Akademia, wieże)
-przeliczane z przesunięciem; **małe lochy** (katakumby m30, jaskinie m31, tunele m32, m39–m43, podziemia m12)
+przeliczane z przesunięciem; **małe lochy** (katakumby m30, jaskinie m31, tunele m32, m39–m43)
 — cała zawartość przy wejściu (`approx: true`).
+
+Wyjątki (2026-11-25):
+- **Podziemia m12** (Siofra, Ainsel, Głębiny, Pałac Mohgwynów) — przeliczane z przesunięciem jak lochy legacy
+  i zapisywane na osobnej mapie gry **`M01`** (te same piksele co powierzchnia; wszystkie 339 skarbów trafia
+  w teren mapy podziemi). Wcześniej wszystko lądowało w 6 punktach na powierzchni.
+- **Przeklęte Farum Azula m13** — gra rysuje je w wirze burzy na wschód od Szczytów Olbrzymów, a wiersz
+  `WorldMapLegacyConvParam` wskazuje skrawek Szczytów (zawartość lądowała na cudzym terenie). Stała `FARUM`
+  (`extract_world.py`, `backend/erbackend/worldmap.py`): środek wiru (8520, 4500) px, skala 0,9, środek lochu
+  (x −107, z 350).
+- **Łaski w lochach** (194 z 422) — `extract_data.py` liczy tylko m60/m61; `extract_world.py` przelicza resztę
+  tym samym `World.to_map` co bossów i skarby i dopisuje do `graces.json`.
+- **Krainy**: podkraina z menu podróży (Płaczący Półwysep, Nokron…; w DLC tylko w lochach m20–m28), kraina
+  główna tylko dla otwartego świata DLC. Nazwy jak w grze („Cmentarna równina”, „Ziemie Wieży”).
 
 ## Pliki wynikowe
 
@@ -92,7 +105,7 @@ przeliczane z przesunięciem; **małe lochy** (katakumby m30, jaskinie m31, tune
 
 - Ikony ~110 mniejszych bossów (nagrody z katakumb/jaskiń wymagają pełnego parsera EMEVD).
 - Przedmioty zdobywane inaczej niż z ziemi (kupcy, wrogowie, questy) — do pokrycia przez ekwipunek z save'a (backend).
-- Zawartość podziemi (Siofra, Ainsel, Głębiny) jest przy wejściach; osobna mapa podziemi (`M01`) nie ma jeszcze przeliczenia.
+- Podziemia DLC (`M11`) to w plikach gry tylko szczątkowy fragment — nie używamy.
 
 ## Najbliższa łaska (frontend, 2026-11-23)
 
