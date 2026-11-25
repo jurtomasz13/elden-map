@@ -34,17 +34,29 @@ def main():
     else:
         print("jest już", os.path.relpath(bst, ROOT))
 
-    tga = os.path.join(ROOT, "assets", "cache", "community", "tga")
-    if not os.path.isdir(os.path.join(tga, "Elden-Ring-CT-TGA-master")):
-        os.makedirs(tga, exist_ok=True)
-        print("pobieram tabelę The Grand Archives (kilkadziesiąt MB)…")
+    # Z tabeli TGA potrzebne jest tylko poddrzewo „Event Flags” — rozpakowane płasko do krótkiego folderu
+    # (pełne ścieżki z archiwum przekraczają limit 260 znaków na Windows)
+    tga = os.path.join(ROOT, "assets", "cache", "community", "tga-flags")
+    if not os.path.isdir(tga):
+        print("pobieram tabelę The Grand Archives (kilkadziesiąt MB)…", flush=True)
+        marker = "/CheatEntries/Open - The Grand Archives - Elden Ring/Event Flags/"
+        dest = ("\\\\?\\" + os.path.abspath(tga)) if os.name == "nt" else tga
+        n = 0
         with tarfile.open(fileobj=io.BytesIO(get(TGA_URL)), mode="r:gz") as tf:
-            safe = [m for m in tf.getmembers() if not (m.name.startswith("/") or ".." in m.name.split("/"))]
-            tf.extractall(tga, members=safe, filter="data")
-        print("rozpakowano do", os.path.relpath(tga, ROOT))
+            for m in tf.getmembers():
+                if marker not in m.name or not m.isfile():
+                    continue
+                rel = m.name.split(marker, 1)[1]
+                if rel.startswith("/") or ".." in rel.split("/"):
+                    continue
+                out = os.path.join(dest, *rel.split("/"))
+                os.makedirs(os.path.dirname(out), exist_ok=True)
+                with open(out, "wb") as f:
+                    f.write(tf.extractfile(m).read())
+                n += 1
+        print(f"rozpakowano {n} plików do", os.path.relpath(tga, ROOT))
     else:
-        print("jest już tabela TGA")
-
+        print("jest już tabela TGA (Event Flags)")
 
 if __name__ == "__main__":
     sys.exit(main())

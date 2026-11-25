@@ -27,8 +27,10 @@ import archive as A  # noqa: E402
 import params as P  # noqa: E402
 
 ROOT = A.ROOT
-TGA_DIR = os.path.join(ROOT, "assets", "cache", "community", "tga", "Elden-Ring-CT-TGA-master", "CheatTable",
-                       "CheatEntries", "Open - The Grand Archives - Elden Ring", "Event Flags")
+TGA_DIR = os.path.join(ROOT, "assets", "cache", "community", "tga-flags")           # tools/fetch_community.py
+if not os.path.isdir(TGA_DIR):                                                        # stary układ (pełne archiwum)
+    TGA_DIR = os.path.join(ROOT, "assets", "cache", "community", "tga", "Elden-Ring-CT-TGA-master", "CheatTable",
+                           "CheatEntries", "Open - The Grand Archives - Elden Ring", "Event Flags")
 BST = os.path.join(ROOT, "docs", "data", "er-save-lib", "eventflag_bst.txt")
 OUT = os.path.join(ROOT, "assets", "data", "quests.json")
 BACKEND = "http://127.0.0.1:8765"
