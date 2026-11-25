@@ -145,7 +145,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _health(self) -> dict:
         s = self.service
-        return {"ok": True, "version": __version__, "save_dir": s.save_dir, "time": now_iso(),
+        return {"ok": True, "version": __version__, "save_dir": s.save_dir, "save_dirs": s.save_dirs, "time": now_iso(),
                 "files": {k: {"loaded": k in s.saves, "error": s.errors.get(k)} for k in FILE_KINDS},
                 "active": s.active,
                 "history_db": s.history.path,

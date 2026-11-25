@@ -504,6 +504,15 @@ samo jak w `inventory` — przy nazwach traktuj je jako rodzinę (np. 1000–102
 | `starting_gift` | 0 `none`, 1 `crimson_amber_medallion`, 2 `lands_between_rune`, 3 `golden_seed`, 4 `fanged_imp_ashes`, 5 `cracked_pot`, 6 `stonesword_key`, 7 `bewitching_branch`, 8 `boiled_prawn`, 9 `shabriris_woe` | ✅ 0 i 1 (Ser Davick ma talizman 1000); reszta wg menu |
 | `body_type` | 1 `A`, 0 `B` | średnia (6 z 7 postaci = 1) |
 
+## Foldery save'ów (`save_dirs`)
+
+`/api/health` i `/api/characters` zwracają `save_dirs: {"sl2": …, "co2": …}` — każdy rodzaj pliku może leżeć w innym
+folderze. Bez `--save-dir` / `ER_SAVE_DIR` backend przeszukuje `%APPDATA%\EldenRing` (Windows) oraz na Linuxie
+wszystkie prefiksy Protona (`steamapps/compatdata/*/pfx/drive_c/users/*/AppData/Roaming/EldenRing`), `~/.wine`,
+Lutris (`~/Games/*`), Heroic i Bottles, i dla każdego pliku wybiera najświeższy. Typowy przypadek: Seamless Coop
+dodany do Steama jako gra spoza Steama dostaje własny `compatdata/<numer>`, więc `.co2` jest w innym prefiksie niż `.sl2`
+(test: `backend/tests/test_savedirs.py`).
+
 ## Atrybuty (`stats` w `/api/state`)
 
 Z PlayerGameData (zaraz za mapą GaItem, `savefile.parse_stats`): `+0x08` PŻ (bieżące, max, bazowe max), `+0x14` PS,

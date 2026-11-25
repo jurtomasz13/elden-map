@@ -144,6 +144,10 @@ Flatpak (`~/.var/app/com.valvesoftware.Steam/…`), Snap oraz wszystkie dodatkow
 <biblioteka Steama>/steamapps/compatdata/1245620/pfx/drive_c/users/steamuser/AppData/Roaming/EldenRing/<SteamID64>/
 ```
 
+Przeszukiwane są **wszystkie** prefiksy Protona (`compatdata/*`), a także Lutris, Heroic, Bottles i `~/.wine`.
+Seamless Coop dodany do Steama jako gra spoza Steama ma własny prefiks — wtedy `ER0000.co2` leży gdzie indziej niż
+`ER0000.sl2`, a backend czyta oba naraz (dla każdego pliku wybiera najświeższy).
+
 > **Bez Wine?** Wskaż natywną bibliotekę Oodle (`export ER_OODLE_LIB=/ścieżka/liboo2corelinux64.so`) albo
 > przygotuj dane raz na Windowsie, skopiuj `assets/` i `backend/data/` i uruchom `python prepare.py --skip-extract`.
 > Otwarty dekoder `kraken-decompressor` (ooz) nie rozpakowuje archiwów Elden Ringa.
@@ -171,7 +175,7 @@ python -m http.server 5180 --bind 127.0.0.1               # strona: http://127.0
 | Zmienna / opcja | Do czego |
 |---|---|
 | `ER_GAME_DIR` | folder gry (`…/ELDEN RING/Game`), gdy nie wykrywa się sam |
-| `ER_SAVE_DIR` lub `--save-dir` | folder z `ER0000.sl2` / `ER0000.co2` |
+| `ER_SAVE_DIR` lub `--save-dir` | jeden folder z `ER0000.sl2` / `ER0000.co2` (bez tego: wykrywanie osobno dla każdego pliku) |
 | `ER_OODLE_LIB` | (Linux) natywna biblioteka Oodle zamiast Wine |
 | `ER_WINEPREFIX` | (Linux) inny prefiks Wine dla Oodle (domyślnie `~/.cache/elden-map/wine`) |
 | `python backend/server.py --help` | port, poll, ścieżki danych, logi debug |

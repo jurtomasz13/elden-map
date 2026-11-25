@@ -20,7 +20,7 @@ from erbackend.gamedata import DATA_DIR, GameData  # noqa: E402
 from erbackend.history import DEFAULT_DB, History  # noqa: E402
 from erbackend.portraits import Portraits  # noqa: E402
 from erbackend.server import make_server  # noqa: E402
-from erbackend.service import Service, find_save_dir, save_roots  # noqa: E402
+from erbackend.service import Service, find_save_dir, find_save_dirs, save_roots  # noqa: E402
 
 
 def main(argv=None):
@@ -47,13 +47,15 @@ def main(argv=None):
     if host != "localhost" and not ipaddress.ip_address(host).is_loopback:
         ap.error("--host musi być adresem lokalnym (127.0.0.1 / ::1 / localhost)")
 
+    save_dirs = None if a.save_dir else find_save_dirs()   # .sl2 i .co2 mogą być w różnych prefiksach Protona
     save_dir = a.save_dir or find_save_dir()
     if not save_dir or not os.path.isdir(save_dir):
         ap.error("nie znaleziono folderu save'a (podaj --save-dir albo ER_SAVE_DIR); szukano w: " + ", ".join(save_roots()))
     if not os.path.exists(a.bst):
         ap.error(f"brak pliku {a.bst} (mapa ID flagi -> bajt/bit)")
 
-    service = Service(save_dir, FlagMap.load(a.bst), GameData.load(a.data_dir), History(a.db), poll_interval=a.poll)
+    service = Service(save_dir, FlagMap.load(a.bst), GameData.load(a.data_dir), History(a.db), poll_interval=a.poll,
+                      save_dirs=save_dirs)
     service.start()
     httpd = make_server(service, host, a.port)
     # portrety postaci: render w tle po zmianie hełmu/wyglądu (i brakujące przy starcie, gdy serwer już nasłuchuje)
@@ -61,7 +63,7 @@ def main(argv=None):
     service.listeners.append(portraits.check)
     portraits.scan_all()
     logging.info("elden-map backend: http://%s:%d/api/health  (save: %s, baza: %s, aktywny: %s)",
-                 host, a.port, save_dir, a.db, service.active)
+                 host, a.port, " | ".join(f"{k}: {v}" for k, v in service.save_dirs.items()), a.db, service.active)
     try:
         httpd.serve_forever(poll_interval=0.5)
     except KeyboardInterrupt:

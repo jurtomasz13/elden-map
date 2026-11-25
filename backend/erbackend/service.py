@@ -20,48 +20,76 @@ log = logging.getLogger("erbackend")
 DEFAULT_SAVE_ROOT = os.path.join(os.environ.get("APPDATA", ""), "EldenRing")
 
 
-def save_roots() -> list[str]:
-    """Windows: %APPDATA%/EldenRing. Linux (Steam + Proton): …/compatdata/1245620/pfx/drive_c/users/steamuser/AppData/Roaming/EldenRing."""
-    roots = [DEFAULT_SAVE_ROOT] if os.environ.get("APPDATA") else []
+def _steam_libraries() -> list[str]:
     home = os.path.expanduser("~")
     steam = [os.path.join(home, ".steam", "steam"), os.path.join(home, ".local", "share", "Steam"),
              os.path.join(home, ".var", "app", "com.valvesoftware.Steam", ".local", "share", "Steam"),
              os.path.join(home, "snap", "steam", "common", ".local", "share", "Steam")]
     libs = list(steam)
-    for s in steam:
-        vdf = os.path.join(s, "steamapps", "libraryfolders.vdf")
+    for s_ in steam:
+        vdf = os.path.join(s_, "steamapps", "libraryfolders.vdf")
         if os.path.exists(vdf):
             import re
             libs += re.findall(r'"path"\s+"([^"]+)"', open(vdf, encoding="utf-8", errors="replace").read())
-    for lib in libs:
-        roots.append(os.path.join(lib, "steamapps", "compatdata", "1245620", "pfx", "drive_c", "users", "steamuser",
-                                  "AppData", "Roaming", "EldenRing"))
+    return libs
+
+
+def save_roots() -> list[str]:
+    """Wszystkie katalogi „EldenRing” z save'ami: Windows %APPDATA%, a na Linuxie każdy prefiks Wine/Protona —
+    także Seamless Coop dodany do Steama jako gra spoza Steama (własny compatdata/<numer>), Lutris, Heroic, Bottles."""
+    import glob
+    roots = [DEFAULT_SAVE_ROOT] if os.environ.get("APPDATA") else []
+    home = os.path.expanduser("~")
+    tail = os.path.join("drive_c", "users", "*", "AppData", "Roaming", "EldenRing")
+    patterns = [os.path.join(lib, "steamapps", "compatdata", "*", "pfx", tail) for lib in _steam_libraries()]
+    patterns += [os.path.join(home, ".wine", tail), os.path.join(home, "Games", "*", tail),
+                 os.path.join(home, "Games", "Heroic", "Prefixes", "*", "*", tail),
+                 os.path.join(home, ".local", "share", "bottles", "bottles", "*", tail),
+                 os.path.join(home, ".var", "app", "com.usebottles.bottles", "data", "bottles", "bottles", "*", tail)]
+    seen = set()
+    for pat in patterns:
+        for d in sorted(glob.glob(pat)):
+            key = os.path.normcase(os.path.realpath(d))
+            if key not in seen:
+                seen.add(key)
+                roots.append(d)
     return roots
 
 
-def find_save_dir(root: str | None = None) -> str | None:
-    """<katalog EldenRing>/<SteamID64> — wybiera folder z najświeższym plikiem save'a (Windows i Linux/Proton)."""
+def find_save_dirs(root: str | None = None) -> dict[str, str]:
+    """Dla każdego rodzaju pliku (sl2 = gra, co2 = Seamless Coop) folder <EldenRing>/<SteamID64> z najświeższym plikiem.
+    Pliki mogą leżeć w różnych prefiksach (np. Seamless Coop uruchamiany przez Proton jako osobna gra)."""
     if os.environ.get("ER_SAVE_DIR"):
-        return os.environ["ER_SAVE_DIR"]
-    best, best_mt = None, -1
-    candidates = []
+        return {k: os.environ["ER_SAVE_DIR"] for k in FILE_KINDS}
+    best: dict[str, tuple[int, str]] = {}
     for r in ([root] if root else save_roots()):
         try:
-            candidates += [(r, n) for n in os.listdir(r)]
+            names = os.listdir(r)
         except OSError:
             continue
-    for root_, name in candidates:
-        d = os.path.join(root_, name)
-        if not (name.isdigit() and os.path.isdir(d)):
-            continue
-        for fn in FILE_KINDS.values():
-            try:
-                mt = os.stat(os.path.join(d, fn)).st_mtime_ns
-            except OSError:
+        for name in names:
+            d = os.path.join(r, name)
+            if not (name.isdigit() and os.path.isdir(d)):
                 continue
-            if mt > best_mt:
-                best, best_mt = d, mt
-    return best
+            for kind, fn in FILE_KINDS.items():
+                try:
+                    mt = os.stat(os.path.join(d, fn)).st_mtime_ns
+                except OSError:
+                    continue
+                if mt > best.get(kind, (-1, ""))[0]:
+                    best[kind] = (mt, d)
+    return {k: d for k, (_mt, d) in best.items()}
+
+
+def find_save_dir(root: str | None = None) -> str | None:
+    """Folder z najświeższym plikiem save'a (dowolnego rodzaju)."""
+    if os.environ.get("ER_SAVE_DIR"):
+        return os.environ["ER_SAVE_DIR"]
+    dirs = find_save_dirs(root)
+    if not dirs:
+        return None
+    return max(dirs.values(), key=lambda d: max((os.stat(os.path.join(d, fn)).st_mtime_ns
+                                                 for fn in FILE_KINDS.values() if os.path.exists(os.path.join(d, fn))), default=-1))
 
 
 def now_iso() -> str:
@@ -71,8 +99,10 @@ def now_iso() -> str:
 class Service:
     def __init__(self, save_dir: str, flagmap: FlagMap | None = None, gamedata: GameData | None = None,
                  history: History | None = None, poll_interval: float = 0.5, debounce: float = 0.4,
-                 worldmap: WorldMap | None = None):
+                 worldmap: WorldMap | None = None, save_dirs: dict[str, str] | None = None):
         self.save_dir = os.path.normpath(save_dir)
+        # osobny folder dla każdego rodzaju pliku (np. .co2 Seamless Coop w innym prefiksie Protona niż .sl2)
+        self.save_dirs = {k: os.path.normpath((save_dirs or {}).get(k) or save_dir) for k in FILE_KINDS}
         self.flagmap = flagmap or FlagMap.load()
         self.gamedata = gamedata or GameData.load()
         # domyślnie baza w pamięci (testy/skrypty); serwer podaje plik backend/var/history.sqlite
@@ -96,7 +126,7 @@ class Service:
 
     # --- wczytywanie -------------------------------------------------------------------------
     def path_for(self, kind: str) -> str:
-        return os.path.join(self.save_dir, FILE_KINDS[kind])
+        return os.path.join(self.save_dirs[kind], FILE_KINDS[kind])
 
     def _initial_load(self):
         for kind in FILE_KINDS:
@@ -174,7 +204,7 @@ class Service:
                     "file": kind, "path": sf.path, "written_at": sf.written_at, "last_slot": sf.last_slot,
                     "characters": [char_dict(c) for c in sf.characters()],
                 })
-            return {"save_dir": self.save_dir, "active": self.active, "files": files}
+            return {"save_dir": self.save_dir, "save_dirs": self.save_dirs, "active": self.active, "files": files}
 
     def state(self, kind: str | None = None, slot: int | None = None, sections: list[str] | None = None,
               item_kinds: list[str] | None = None) -> dict:
@@ -285,7 +315,7 @@ class Service:
             self._thread.join(timeout=5)
 
     def _run(self):
-        log.info("obserwuję %s (co %.1f s)", self.save_dir, self.poll_interval)
+        log.info("obserwuję %s (co %.1f s)", ", ".join(sorted(set(self.save_dirs.values()))), self.poll_interval)
         while not self._stop.wait(self.poll_interval):
             try:
                 self.poll_once()
