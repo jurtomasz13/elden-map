@@ -275,7 +275,14 @@ def _helper_decompress(comp, raw_size, dll):
                                    "(np. CachyOS/Arch: sudo pacman -S wine; Ubuntu: sudo apt install wine) "
                                    "— albo ER_OODLE_LIB z natywną biblioteką Oodle")
             cmd = [wine, win_python(), _to_wine(helper), _to_wine(dll)]
-        env = {**os.environ, "WINEDEBUG": "-all"}
+        env = {**os.environ, "WINEDEBUG": "-all",
+               "WINEDLLOVERRIDES": "mscoree=;mshtml=",       # bez okien z pytaniem o Wine Mono / Gecko
+               # osobny prefiks Wine aplikacji (nie ruszamy ~/.wine ani prefiksów Protona)
+               "WINEPREFIX": os.environ.get("ER_WINEPREFIX") or os.path.join(
+                   os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"), "elden-map", "wine")}
+        os.makedirs(os.path.dirname(env["WINEPREFIX"]), exist_ok=True)    # sam prefiks utworzy Wine
+        print("Uruchamiam Oodle z gry przez Wine (pierwszy raz Wine przygotowuje prefiks — chwilę to trwa)…",
+              file=sys.stderr, flush=True)
         _helper = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
     p = _helper
     p.stdin.write(struct.pack("<II", len(comp), raw_size) + bytes(comp))

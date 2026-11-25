@@ -8,7 +8,7 @@ Lokalna strona, która czyta plik zapisu gry (tylko do odczytu) i po każdym zap
 co już zrobiłeś, a co jeszcze przed tobą. Działa z oficjalną grą online (EasyAntiCheat), z Seamless Coop
 i offline. Windows i Linux (Steam + Proton).
 
-`Python 3.11+` · `Node.js 18+` · bez frameworków, bez kont, bez chmury — wszystko na `127.0.0.1`
+**[⬇ Pobierz (Windows / Linux)](https://github.com/jurtomasz13/elden-map/releases/latest)** · bez kont, bez chmury — wszystko na `127.0.0.1`
 
 </div>
 
@@ -18,9 +18,10 @@ i offline. Windows i Linux (Steam + Proton).
 
 - [Co potrafi](#co-potrafi)
 - [Jak to działa](#jak-to-działa)
+- [Pobierz i uruchom](#pobierz-i-uruchom-najprościej)
 - [Wymagania](#wymagania)
-- [Szybki start — Windows](#szybki-start--windows)
-- [Szybki start — Linux](#szybki-start--linux)
+- [Ze źródeł — Windows](#ze-źródeł--windows)
+- [Ze źródeł — Linux](#ze-źródeł--linux)
 - [Uruchamianie na co dzień](#uruchamianie-na-co-dzień)
 - [Konfiguracja](#konfiguracja)
 - [Rozwiązywanie problemów](#rozwiązywanie-problemów)
@@ -62,68 +63,90 @@ Wszystko jest połączone: z przedmiotu przejdziesz na mapę, do bossa albo ques
 - Dane świata (bossowie, przedmioty, mapa, ikony) są **wyciągane z twojej kopii gry** — repozytorium
   nie zawiera żadnych plików FromSoftware.
 
+## Pobierz i uruchom (najprościej)
+
+Gotowe paczki są w [**Releases**](https://github.com/jurtomasz13/elden-map/releases/latest) — z wbudowanym
+Pythonem i Node.js, nic nie trzeba instalować ani konfigurować.
+
+### Windows — instalator
+
+1. Pobierz **`EldenMap-Setup-<wersja>.exe`** i uruchom (instalacja dla bieżącego użytkownika, bez uprawnień administratora).
+2. Uruchom **Elden Map** z menu Start lub pulpitu.
+3. Przy pierwszym uruchomieniu program przez kilkanaście minut wyciąga dane z twojej gry (mapa, ikony,
+   bossowie, przedmioty) — potem otworzy się przeglądarka. Kolejne uruchomienia trwają kilka sekund.
+
+> Windows SmartScreen może ostrzec o nieznanym wydawcy (instalator nie jest podpisany certyfikatem) —
+> „Więcej informacji” → „Uruchom mimo to”.
+
+### Linux (CachyOS, Arch, Ubuntu, Fedora…) — archiwum
+
+```bash
+sudo pacman -S --needed wine          # CachyOS / Arch  (Ubuntu/Debian: sudo apt install wine · Fedora: sudo dnf install wine)
+tar xf elden-map-<wersja>-linux-x64.tar.gz
+cd elden-map-<wersja>-linux-x64
+./elden-map
+```
+
+Pierwsze uruchomienie przygotuje dane z gry (kilkanaście minut), potem otworzy przeglądarkę.
+**Wine jest potrzebne tylko do jednorazowego rozpakowania archiwów gry**: dekompresję Oodle robi biblioteka
+z samej gry (`oo2core_6_win64.dll`), uruchamiana w osobnym prefiksie `~/.cache/elden-map/wine` — twoje
+prefiksy Wine i Protona nie są ruszane. Backend i strona działają natywnie.
+
+Ponowne przygotowanie danych (np. po aktualizacji gry): Windows — skrót „Elden Map — przygotuj dane od nowa”,
+Linux — `./elden-map --prepare`.
+
 ## Wymagania
 
 | | Windows | Linux |
 |---|---|---|
 | Gra | Elden Ring ze Steama (DLC opcjonalne) | Elden Ring ze Steama przez **Proton** |
-| Python | 3.11+ (zalecany **3.14**) | 3.11+ (zalecany **3.14**) |
-| Node.js | 18+ (budowa kafli mapy, ikon i portretów) | 18+ |
-| Pakiety Python | — (używa `bcrypt.dll` i DLL Oodle z gry) | `pip install -r requirements.txt` |
-| Miejsce | ok. 3 GB na `assets/` | ok. 3 GB |
+| Paczka z Releases | nic więcej | **Wine** (tylko do pierwszego przygotowania danych) |
+| Ze źródeł | Python 3.11+ (zalecany **3.14**), Node.js 18+ | to samo + Wine |
+| Miejsce | ok. 3 GB na dane z gry | ok. 3 GB |
 
 Przeglądarka: dowolna nowoczesna (Chrome, Firefox, Edge).
 
-## Szybki start — Windows
+## Ze źródeł — Windows
 
 PowerShell:
 
 ```powershell
 git clone https://github.com/jurtomasz13/elden-map.git
 cd elden-map
-python -m pip install -r requirements.txt   # na Windows nic nie doinstaluje (poza zstandard dla Pythona < 3.14)
 python prepare.py                           # jednorazowo: dane z gry (kilkanaście minut)
 python start.py                             # backend + strona, otworzy przeglądarkę
 ```
 
 Folder gry i save'y zostaną znalezione automatycznie (biblioteki Steama, `%APPDATA%\EldenRing`).
 
-## Szybki start — Linux
+## Ze źródeł — Linux
+
+**CachyOS / Arch:** `sudo pacman -S --needed git python nodejs wine`
+· **Debian / Ubuntu / Mint:** `sudo apt install git python3 nodejs wine`
+· **Fedora:** `sudo dnf install git python3 nodejs wine`
 
 ```bash
 git clone https://github.com/jurtomasz13/elden-map.git
 cd elden-map
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt             # cryptography (AES) + kraken-decompressor (Oodle)
 python prepare.py                           # jednorazowo: dane z gry (kilkanaście minut)
 python start.py                             # backend + strona, otworzy przeglądarkę
 ```
 
-**CachyOS / Arch Linux** — zależności systemowe (raz):
-
-```bash
-sudo pacman -S --needed git python nodejs npm base-devel   # base-devel: gdyby pip musiał skompilować dekoder Oodle
-```
-
-Arch blokuje `pip install` poza wirtualnym środowiskiem (PEP 668) — dlatego powyżej jest `venv`.
-Steam z repozytorium (`steam`) i Proton (także `proton-cachyos`) są wykrywane automatycznie.
-
-**Debian / Ubuntu / Mint:** `sudo apt install git python3 python3-venv nodejs npm build-essential`
-· **Fedora:** `sudo dnf install git python3 nodejs npm gcc-c++`
+Nie są potrzebne żadne pakiety z `pip` (opcjonalnie `pip install cryptography` w `venv` przyspiesza
+odszyfrowywanie). Przy pierwszej ekstrakcji `prepare.py` pobierze z python.org mały Python dla Windows
+(12 MB, suma SHA-256 sprawdzana), w którym przez Wine działa Oodle z gry.
 
 Automatycznie przeszukiwane są biblioteki Steama: `~/.steam/steam`, `~/.local/share/Steam`,
 Flatpak (`~/.var/app/com.valvesoftware.Steam/…`), Snap oraz wszystkie dodatkowe biblioteki z
-`libraryfolders.vdf`. Save'y z Protona:
+`libraryfolders.vdf` (Steam z repozytorium CachyOS i `proton-cachyos` też). Save'y z Protona:
 
 ```
 <biblioteka Steama>/steamapps/compatdata/1245620/pfx/drive_c/users/steamuser/AppData/Roaming/EldenRing/<SteamID64>/
 ```
 
-> **Oodle na Linuxie.** Archiwa gry są kompresowane Oodle Kraken. Na Windowsie używana jest biblioteka
-> z folderu gry; na Linuxie pakiet `kraken-decompressor` (otwarty dekoder ooz). Jeśli `prepare.py`
-> zgłosi *„Unable to decompress”*, wskaż natywną bibliotekę Oodle:
-> `export ER_OODLE_LIB=/ścieżka/do/liboo2corelinux64.so` — albo wykonaj `prepare.py` raz na Windowsie,
-> skopiuj `assets/` i `backend/data/` na Linuxa i uruchom `python prepare.py --skip-extract`.
+> **Bez Wine?** Wskaż natywną bibliotekę Oodle (`export ER_OODLE_LIB=/ścieżka/liboo2corelinux64.so`) albo
+> przygotuj dane raz na Windowsie, skopiuj `assets/` i `backend/data/` i uruchom `python prepare.py --skip-extract`.
+> Otwarty dekoder `kraken-decompressor` (ooz) nie rozpakowuje archiwów Elden Ringa.
 
 ## Uruchamianie na co dzień
 
@@ -149,7 +172,8 @@ python -m http.server 5180 --bind 127.0.0.1               # strona: http://127.0
 |---|---|
 | `ER_GAME_DIR` | folder gry (`…/ELDEN RING/Game`), gdy nie wykrywa się sam |
 | `ER_SAVE_DIR` lub `--save-dir` | folder z `ER0000.sl2` / `ER0000.co2` |
-| `ER_OODLE_LIB` | (Linux) ścieżka do natywnej biblioteki Oodle zamiast `kraken-decompressor` |
+| `ER_OODLE_LIB` | (Linux) natywna biblioteka Oodle zamiast Wine |
+| `ER_WINEPREFIX` | (Linux) inny prefiks Wine dla Oodle (domyślnie `~/.cache/elden-map/wine`) |
 | `python backend/server.py --help` | port, poll, ścieżki danych, logi debug |
 
 `ER0000.sl2` to oficjalna gra, `ER0000.co2` — Seamless Coop. Obsługiwane oba, także wiele postaci.
@@ -178,10 +202,10 @@ znaleziony, ustaw `ER_GAME_DIR`.
 </details>
 
 <details>
-<summary><b>Linux: „Brak pakietu 'cryptography'” / „Brak dekompresora Oodle”</b></summary>
+<summary><b>Linux: „potrzebne jest Wine” / „Pomocnik Oodle (Wine) zakończył się”</b></summary>
 
-`pip install -r requirements.txt` w aktywnym `venv`. Dla Oodle zobacz notkę w
-[Szybki start — Linux](#szybki-start--linux).
+Zainstaluj Wine (`sudo pacman -S wine`) i sprawdź `wine --version`. Pierwsze uruchomienie tworzy prefiks
+w `~/.cache/elden-map/wine` (kilkanaście sekund). Inne wyjścia: [Ze źródeł — Linux](#ze-źródeł--linux).
 </details>
 
 <details>
@@ -197,7 +221,8 @@ lewej („na żywo · ER0000.co2 · slot N”). Sprawdź też <http://127.0.0.1:
 elden-map/
 ├─ start.py              # uruchamia backend + stronę
 ├─ prepare.py            # jednorazowe przygotowanie danych z gry
-├─ requirements.txt      # tylko Linux / Python < 3.14
+├─ launcher.py           # punkt startowy paczek (pierwsze uruchomienie → prepare, potem start)
+├─ requirements.txt      # opcjonalne (Python < 3.14, szybsze AES na Linuxie)
 ├─ mockup/               # strona (HTML/CSS/JS, Leaflet) — wszystkie widoki w app.js
 ├─ backend/              # serwer: odczyt save'a, API, SSE, kronika (tylko biblioteka standardowa)
 │  ├─ erbackend/         #   parser save'a, flagi, ekwipunek, historia, portrety
@@ -205,7 +230,8 @@ elden-map/
 │  └─ tests/             #   testy (kopiują save'y do katalogu tymczasowego)
 ├─ tools/
 │  ├─ extract/           # ekstrakcja z plików gry: archiwa BHD/BDT, DCX, params, MSB, EMEVD, FLVER, mapa, ikony
-│  └─ fetch_community.py # pobiera dane społeczności (ER-Save-Lib, The Grand Archives)
+│  ├─ fetch_community.py # pobiera dane społeczności (ER-Save-Lib, The Grand Archives)
+│  └─ build_release.py   # buduje instalator Windows i archiwum Linux (bez kompilacji)
 └─ docs/                 # badania i formaty: save, pamięć, archiwa, mapa, questy, API
 ```
 
@@ -231,6 +257,7 @@ Dokumentacja formatów i ustaleń: [docs/](docs/README.md) — m.in. [format sav
 - Dane społeczności pobierane przy instalacji (bez licencji, nie są tu kopiowane):
   [ClayAmore/ER-Save-Lib](https://github.com/ClayAmore/ER-Save-Lib) (`eventflag_bst.txt`),
   [The Grand Archives — Elden Ring CT](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA).
-- Na Linuxie: [kraken-decompressor](https://pypi.org/project/kraken-decompressor/) (dekoder
-  [ooz](https://github.com/powzix/ooz)) i [cryptography](https://pypi.org/project/cryptography/).
+- Paczki zawierają [Python](https://www.python.org/) (PSF), [python-build-standalone](https://github.com/astral-sh/python-build-standalone)
+  (Linux) i [Node.js](https://nodejs.org/) (MIT) — pobierane z oficjalnych źródeł, sumy SHA-256 sprawdzane w
+  `tools/build_release.py`. Instalator: [Inno Setup](https://jrsoftware.org/isinfo.php).
 - Projekt fanowski, niezwiązany z FromSoftware ani Bandai Namco.

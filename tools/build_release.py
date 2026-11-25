@@ -169,8 +169,8 @@ def build_linux(version):
                 'exec "$HERE/runtime/python/bin/python3" -X utf8 "$HERE/app/launcher.py" "$@"\n').encode()
     with tarfile.open(out, "w:gz", compresslevel=9) as tf:
         add_bytes(tf, f"{name}/elden-map", launcher, 0o755)
-        for f in app_files():
-            data = open(os.path.join(ROOT, f), "rb").read()
+        for f in app_files():                                                    # z gita: końce linii LF
+            data = subprocess.run(["git", "show", f"HEAD:{f}"], cwd=ROOT, capture_output=True, check=True).stdout
             add_bytes(tf, f"{name}/app/{f}", data, 0o755 if f.endswith(".sh") else 0o644)
         copy_tar(tf, dep("linpy"), "r:gz", f"{name}/runtime/python/", 1)          # python/… → runtime/python/…
         with tarfile.open(dep("linnode"), "r:xz") as s:                          # tylko bin/node

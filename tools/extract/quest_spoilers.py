@@ -71,6 +71,8 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.dirname(__file__))
     import archive as A  # noqa: E402
     path = os.path.join(A.ROOT, "assets", "data", "quests.json")
+    if not os.path.exists(path):                     # questy powstają w build_quests.py (prepare.py robi to w kolejności)
+        sys.exit(print("quest_spoilers: brak assets/data/quests.json — pomijam"))
     d = json.load(open(path, encoding="utf-8"))
     known = {(e["id"], s.get("id")) for e in d["entries"] for s in e.get("steps", [])}
     missing = [k for k in SAFE if k not in known]
