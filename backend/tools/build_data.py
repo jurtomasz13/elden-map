@@ -47,6 +47,10 @@ SOURCES = {
         "title": "Wiedza ogólna o grze (opisy lokacji i wskazówki dojścia, pisane przez Claude)",
         "note": "Niezweryfikowane ze źródłem — do sprawdzenia w grze.",
     },
+    "questpath": {
+        "title": "QuestPath (imCioco) — opisy kroków questów, tłumaczenie na polski (tools/extract/quest_steps.py)",
+        "url": "https://github.com/imCioco/ER_QuestPath-Lang", "license": "MIT",
+    },
 }
 
 DLC = "Shadow of the Erdtree"

@@ -30,6 +30,7 @@ def main():
     if "--skip-extract" not in sys.argv:
         step("Ekstrakcja z plików gry: mapa, ikony, dane świata, portrety", PY + ["tools/extract/run_all.py"])
     step("Questy", PY + ["tools/extract/build_quests.py"], optional=True)
+    step("Pełne listy kroków questów", PY + ["tools/extract/quest_steps.py"], optional=True)
     step("Dodatkowe dane świata dla backendu", PY + ["backend/tools/extract_world_extras.py"])
     step("Dane backendu", PY + ["backend/tools/build_data.py"])
     step("Teksty questów bez spoilerów", PY + ["tools/extract/quest_spoilers.py"])

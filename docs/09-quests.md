@@ -181,3 +181,22 @@ Radahn (flaga pokonania + wariant 12…), dowolna łaska Pałacu Mohgwynów (m12
 obszar startowy DLC (flaga 62002) lub pierwsza łaska DLC „Cmentarna Równina”. Kroki mają wersje bez spoilerów.
 Na mapie: znacznik „Wejście do DLC” przy łasce „Kokon Niebianina” (mapa podziemi) i „Początek Królestwa Cieni”
 (mapa DLC); kliknięcie otwiera wątek.
+
+## Pełne listy kroków (2026-11-25) — `quest_steps.py` + `quest_steps_pl.json`
+
+**45 questów, 427 kroków** (wcześniej 139), 160 z własną flagą. Opisy kroków z QuestPath (imCioco,
+[ER_QuestPath-Lang](https://github.com/imCioco/ER_QuestPath-Lang), MIT — `tools/extract/LICENSE.questpath.txt`),
+przetłumaczone na polski; nazwy własne w znacznikach `{p:}` `{i:}` `{n:}` → oficjalne polskie nazwy z gry
+(nieznalezione zostają po angielsku). Podpowiedzi QuestPath (`hint`) = wersje bez spoilerów (`text_safe`).
+- Kroki QuestPath dopasowane do naszych (`match`) przejmują flagi i identyfikatory (ostrzeżenia `locks` działają).
+- Flagi położenia NPC z TGA: **+5 w bloku to stan początkowy** (ustawiony od startu gry, sprawdzone na nowej
+  postaci) — nie oznacza spotkania; wykluczone, tak samo +6 u Yury.
+- `later`: krok bez własnej flagi zalicza się, gdy zaliczony jest dalszy etap. Bez `alt` (wybory wykluczające się)
+  i bez `extra` (nasze kroki z flagą bez odpowiednika — wstawiane za poprzednim dopasowanym krokiem).
+- `end` (QuestPath s98/s99, np. śmierć NPC) kończy wątek.
+- Sprawdzone na 3 postaciach: nowa (poziom 13) — 2 kroki (prawdziwe), średnia i ukończona — bez luk poza
+  Rogierem (śmierć na końcu, kroki pośrednie bez flag).
+
+QuestPath (mod na Nexusie) trzyma logikę kroków w kodzie DLL — flag nie da się z niego odczytać (sprawdzone:
+w zasobach są tylko tłumaczenia). Następny krok: flagi ze skryptów rozmów NPC w plikach gry (talk ESD,
+`tools/extract/talk_flags.py` — na razie lista flag bloku NPC używanych przez skrypt, np. Boc 3941–3948).
