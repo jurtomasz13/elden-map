@@ -84,6 +84,33 @@
   }
   const questSteps = q => q.steps.map(s => ({ ...s, done: (s.flags || []).length ? (s.mode === "any" ? s.flags.some(f => isSet(f, 50)) : s.flags.every(f => isSet(f, 50))) : false }));
 
+  // Wejście do DLC: kokon Miquelli na arenie Mohga (Pałac Mohgwynów, podziemia). Wątek dopisywany do questów —
+  // kroki z flag save'a (pokonani bossowie, łaski pałacu, obszar startowy DLC 62002 / pierwsza łaska DLC).
+  const DLC_COCOON = "Kokon Niebianina", DLC_ARRIVAL = "Cmentarna Równina";
+  // znaczniki wejścia do DLC: kokon (mapa podziemi) i miejsce przybycia (mapa DLC)
+  function dlcMarks(m) {
+    const q = W.quests.find(x => x.id === "dlc-entry"), entered = q ? questSteps(q).at(-1).done : false, out = [];
+    const cocoon = W.graces.find(g => g.name === DLC_COCOON), arrival = W.graces.find(g => g.name === DLC_ARRIVAL && g.dlc);
+    if (cocoon && cocoon.map === m) out.push({ ...cocoon, done: entered, title: "Wejście do DLC",
+      sub: state.spoilers && !entered ? "Kokon w Pałacu Mohgwynów" : "Kokon Miquelli na arenie Mohga — po pokonaniu Radahna i Mohga" });
+    if (arrival && arrival.map === m) out.push({ ...arrival, done: entered, title: "Początek Królestwa Cieni", sub: "Tu trafiasz z kokonu Miquelli" });
+    return out;
+  }
+  function dlcEntryQuest() {
+    const boss = pre => W.bosses.find(b => (b.name || "").startsWith(pre));
+    const radahn = boss("Radahn, Gwiezdna Plaga"), mohg = boss("Mohg, Pan Krwi");
+    const palace = W.graces.filter(g => (g.map_id || "").startsWith("m12_05")), arrival = W.graces.find(g => g.name === DLC_ARRIVAL && g.dlc);
+    if (!radahn || !mohg || !palace.length) return null;
+    return { id: "dlc-entry", name: "Wejście do Królestwa Cieni", npc: "Shadow of the Erdtree (DLC)", dlc: true, icon: null, parent: null, missable: false, locks: [],
+      steps: [
+        { text: "Pokonaj Radahna, Gwiezdną Plagę (Zamek Redmane, Caelid) — bez tego kokon nie zadziała.", text_safe: "Pokonaj potężnego wroga, którego wzywa festiwal w Zamku Redmane (Caelid).",
+          flags: [radahn.flag, ...(radahn.alt_flags || [])], mode: "any", where: "Zamek Redmane, Caelid" },
+        { text: "Dostań się do Pałacu Mohgwynów: teleport w Uświęconej Śnieżnej Dolinie albo Medalik Rycerza Czystej Krwi od Varrégo.",
+          flags: palace.map(g => g.flag), mode: "any", where: "Pałac Mohgwynów (Podziemia)" },
+        { text: "Pokonaj Mohga, Pana Krwi, na końcu pałacu.", text_safe: "Pokonaj pana tego pałacu.", flags: [mohg.flag, ...(mohg.alt_flags || [])], mode: "any", where: "Pałac Mohgwynów" },
+        { text: "Dotknij ręki Miquelli w kokonie na arenie Mohga — trafisz do Królestwa Cieni.", text_safe: "Znajdź na arenie przejście dalej.",
+          flags: [62002, ...(arrival ? [arrival.flag] : [])], mode: "any", where: DLC_COCOON } ] };
+  }
   async function loadWorld() {
     const [b, p, it, n, g, q, tr, mp] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces"].map(load));
     W.pieces = mp || {};                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
@@ -91,6 +118,7 @@
     W.bosses = (b || []).map(x => x.name ? x : { ...x, name: x.name_en || "Boss bez nazwy w grze", unnamed: true })
       .map(x => x.icon == null && x.render ? { ...x, icon: "r:" + x.render, rendered: true } : x); W.pois = p || []; W.items = it || []; W.npcs = n || []; W.graces = g || [];
     W.quests = (q && q.entries) || []; TR = tr;
+    const dq = dlcEntryQuest(); if (dq && W.quests.length) W.quests.push(dq);
     if (W.quests.length) state.quest = W.quests[0].id; else state.quest = D.quests[0].id;
   }
 
@@ -825,6 +853,7 @@
     for (const p of W.pois) if (p.map === m) add("poi:" + p.category, null, p);
     for (const t of W.items) if (t.map === m) add(t.kind, isSet(t.flag));
     for (const n of W.npcs) if (n.map === m) add("npc", null, n);
+    for (const d of dlcMarks(m)) add("dlc", mine ? null : d.done, d);
     const nd = (D.deathPoints || []).filter(d => d.map === m).length; if (nd) c.deaths = [0, nd];
     return c;
   }
@@ -846,7 +875,7 @@
         ${state.mapMine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
           : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
         <div class="layers-scroll">
-        ${group("Na mapie", ["grace", "boss", "npc", "deaths"], [row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'),
+        ${group("Na mapie", ["grace", "boss", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi — miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
         ${group("Miejsca i lochy", poiKeys, Object.entries(POI).map(([k, [l, g]]) => row("poi:" + k, l, `<span class="sw-poi">${g}</span>`)))}
         ${KIND_GROUPS.map(([title, keys]) => group(title, keys, keys.map(k => row(k, KINDS[k][0], dot(KINDS[k][1]))))).join("")}
@@ -913,6 +942,10 @@
     for (const pnt of W.pois) { if (pnt.map !== m || !match(pnt.name) || !near(pnt)) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
         .bindTooltip(`<b>${esc(pnt.name)}</b>${esc(POI[pnt.category]?.[0] || "")}`, { direction: "top", offset: [0, -8], className: "er-tip" }).addTo(grp("poi:" + pnt.category)); }
+    for (const d of dlcMarks(m)) { if (!match("wejście do dlc", "dlc", d.name) || (mine && !near(d))) continue;
+      L.marker(ll(map, d.px, d.py), { icon: divIcon(`<span class="mk-dlc ${d.done ? "done" : ""}">✦</span>`, 30), zIndexOffset: 800, riseOnHover: true })
+        .bindTooltip(`<b>${d.title}</b>${esc(d.sub)}<span class="tip-sub">klik: jak się tam dostać</span>`, { direction: "top", offset: [0, -14], className: "er-tip" })
+        .on("click", () => goQuest("dlc-entry")).addTo(grp("dlc")); }
     for (const n of W.npcs) { if (n.map !== m || !match(n.name, n.name_en) || !near(n)) continue;
       L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 })
         .bindTooltip(`<b>${esc(n.name)}</b>${npcQuest(n) ? "postać · klik: quest „" + esc(npcQuest(n).name) + "”" : "postać"}`, { direction: "top", className: "er-tip" })
@@ -1370,7 +1403,8 @@
     demoSet.add(b.flag); saveAgo = 0; banner("Wróg pokonany", b.name); quietRender(); };
   $(".nav-foot").insertBefore(demo, $(".nav-note"));
 
-  $("#spoilerToggle").onchange = e => { state.spoilers = e.target.checked; render(); };
+  // zmiana trybu spoilerów: otwarte szczegóły (boss, przedmiot…) mogły pokazywać to, co teraz ma być ukryte
+  $("#spoilerToggle").onchange = e => { state.spoilers = e.target.checked; closeDrawer(); render(); };
   document.querySelectorAll("[data-game]").forEach(b => { b.classList.toggle("on", b.dataset.game === state.game); b.onclick = () => setGame(b.dataset.game); });
   $("#charSwitch").onclick = () => live.on && live.characters ? drawer(`<div class="eyebrow">Twoje save'y</div><div class="d-title" style="text-align:left">Postacie</div>
     ${live.characters.files.map(f => `<div class="d-section"><h4>${f.file === "co2" ? "Seamless Coop · ER0000.co2" : "Oficjalna gra · ER0000.sl2"}</h4>

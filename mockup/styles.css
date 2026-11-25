@@ -924,3 +924,9 @@ body.quiet .view, body.quiet .view *, body.quiet .card, body.quiet .icell { anim
 .map-mode button { flex: 1; }
 .mine-note { margin: 8px 0 4px; font-size: 15.5px; }
 .leaflet-image-layer.fog { pointer-events: none; }
+
+/* wejście do DLC — znacznik na mapie */
+.mk-dlc { display: grid; place-items: center; width: 30px; height: 30px; transform: rotate(45deg); border: 1.5px solid #e6d3ff;
+  background: radial-gradient(circle, rgba(170,120,255,.95), rgba(70,30,120,.95)); box-shadow: 0 0 14px rgba(190,150,255,.85); color: #fff; font-size: 15px; }
+.mk-dlc.done { filter: saturate(.4) brightness(.8); box-shadow: none; }
+.sw-dlc { color: #c9a8ff; font-size: 15px; }

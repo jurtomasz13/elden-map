@@ -173,3 +173,11 @@ po śmierci NPC, zwroty akcji jak Yura/Shabriri). `tools/extract/quest_spoilers.
 przy generowaniu, a `python tools/extract/quest_spoilers.py` — na gotowym `quests.json`. Frontend w trybie
 „bez spoilerów” pokazuje wersję bezpieczną dla kroków jeszcze niezaliczonych i w „Co dalej”; po zaliczeniu kroku — pełny
 tekst. Obecnie 28 kroków + 1 ostrzeżenie (Igon).
+
+## Wejście do Królestwa Cieni (2026-11-25)
+
+Wątek dopisywany na stronie (`dlcEntryQuest` w `mockup/app.js`), bo w danych questów go nie ma:
+Radahn (flaga pokonania + wariant 12…), dowolna łaska Pałacu Mohgwynów (m12_05), Mohg, Pan Krwi, a na koniec
+obszar startowy DLC (flaga 62002) lub pierwsza łaska DLC „Cmentarna Równina”. Kroki mają wersje bez spoilerów.
+Na mapie: znacznik „Wejście do DLC” przy łasce „Kokon Niebianina” (mapa podziemi) i „Początek Królestwa Cieni”
+(mapa DLC); kliknięcie otwiera wątek.
