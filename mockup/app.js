@@ -1441,7 +1441,7 @@
   const VIEWS = { character: viewCharacter, map: viewMap, bosses: viewBosses, quests: viewQuests, items: viewItems, chronicle: viewChronicle };
   // Odświeżenie po zapisie gry bez „mrugania”: bez animacji wejścia, z zachowaniem przewinięcia list i paneli;
   // na mapie tylko znaczniki, liczniki i pozycja gracza (mapa i kafle zostają).
-  const SCROLLERS = [".qlist", ".layers-scroll", ".region-aside", ".cat-progress", ".drawer-body"];
+  const SCROLLERS = [".qlist", ".qdetail", ".layers-scroll", ".region-aside", ".cat-progress", ".drawer-body"];
   function quietRender() {
     const v = (location.hash || "#bosses").slice(1);
     if (v === "map" && bigMap) {

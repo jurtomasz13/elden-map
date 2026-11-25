@@ -939,3 +939,6 @@ body.quiet .view, body.quiet .view *, body.quiet .card, body.quiet .icell { anim
 .fx.up b { color: #9fd18b; }
 .fx.down b { color: #e08a7a; }
 .fx-note { margin: 8px 0 0; font-size: 14.5px; }
+
+/* panele szczegółów obok list — przyklejone do ekranu, gdy lista się przewija (jak panel krain u bossów) */
+.qdetail, .cat-progress { position: sticky; top: 18px; max-height: calc(100vh - 120px); overflow-y: auto; scrollbar-color: var(--ash-3) transparent; }
