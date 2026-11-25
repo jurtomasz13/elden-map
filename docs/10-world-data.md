@@ -83,10 +83,12 @@ Wyjątki (2026-11-25):
 - **Podziemia m12** (Siofra, Ainsel, Głębiny, Pałac Mohgwynów) — przeliczane z przesunięciem jak lochy legacy
   i zapisywane na osobnej mapie gry **`M01`** (te same piksele co powierzchnia; wszystkie 339 skarbów trafia
   w teren mapy podziemi). Wcześniej wszystko lądowało w 6 punktach na powierzchni.
-- **Przeklęte Farum Azula m13** — gra rysuje je w wirze burzy na wschód od Szczytów Olbrzymów, a wiersz
-  `WorldMapLegacyConvParam` wskazuje skrawek Szczytów (zawartość lądowała na cudzym terenie). Stała `FARUM`
-  (`extract_world.py`, `backend/erbackend/worldmap.py`): środek wiru (8520, 4500) px, skala 0,9, środek lochu
-  (x −107, z 350).
+- **Przeklęte Farum Azula m13** — gra rysuje je w wirze burzy na wschód od Szczytów Olbrzymów. m13 ma cztery
+  wiersze `WorldMapLegacyConvParam` z różnymi przesunięciami; najbliższy (10/132) prowadził na Szczyty.
+  Właściwy jest wiersz 11 (punkt bazowy → m60_51_43): px = 8488,9 + x, py = 4803,7 − z, skala 1:1 — obiekty
+  leżą wtedy na ruinach z grafiki mapy (arena Malikitha na okrągłej platformie, Wielki Most). Stała `FARUM`
+  w `extract_world.py` i `backend/erbackend/worldmap.py`. Pozostałe lochy (Burzowy Całun, Leyndell, Akademia,
+  Haligtree, Wulkaniczny Dwór, lochy DLC) i otwarty świat sprawdzone nakładką na grafikę mapy (2026-11-25).
 - **Łaski w lochach** (194 z 422) — `extract_data.py` liczy tylko m60/m61; `extract_world.py` przelicza resztę
   tym samym `World.to_map` co bossów i skarby i dopisuje do `graces.json`.
 - **Krainy**: podkraina z menu podróży (Płaczący Półwysep, Nokron…; w DLC tylko w lochach m20–m28), kraina
