@@ -16,7 +16,9 @@ import archive as A  # noqa: E402
 import params as P  # noqa: E402
 
 TRANSFORM = {
-    "M00": {"area": 60, "ox": 7168, "oz": 6112, "size": 10496, "name": "Ziemie Pomiędzy"},
+    # Ziemie Pomiędzy: kafle L0 mapy = komórki siatki m60 (ox = 28·256, oz = 24·256) — sprawdzone na mostach,
+    # bramach i kościołach w pełnym przybliżeniu (wcześniej oz = 6112 z dopasowania zgrubnego: 32 px za wysoko)
+    "M00": {"area": 60, "ox": 7168, "oz": 6144, "size": 10496, "name": "Ziemie Pomiędzy"},
     "M10": {"area": 61, "ox": 7008, "oz": 6048, "size": 10496, "name": "Królestwo Cienia"},
 }
 

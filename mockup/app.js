@@ -116,8 +116,10 @@
     const p = px(st.position);
     D.position = p ? { ...p, name: lg?.name || st.position.map_id } : { map: null, name: st.position.map_id };
     D.deathPoints = (deaths?.deaths || []).filter(d => d.position).map(d => px(d.position)).filter(Boolean);
+    // plama krwi z save'a = zwykle ta sama, co ostatnia zapisana śmierć — jeden znacznik, nie dwa nałożone
     const bs = px(st.bloodstain);
-    if (bs) D.deathPoints.push({ ...bs, last: true, runes: st.bloodstain.runes });
+    if (bs) D.deathPoints = [...D.deathPoints.filter(d => d.map !== bs.map || Math.hypot(d.px - bs.px, d.py - bs.py) > 3),
+      { ...bs, last: true, runes: st.bloodstain.runes }];
     D.chronicle = chronicleFrom(chron?.events || []);
     const s = sess?.session;
     D.session = s ? { duration: `${Math.floor(s.playtime_s / 3600)} h ${Math.round(s.playtime_s % 3600 / 60)} min`, hours: (s.playtime_s / 3600).toFixed(1),
@@ -830,7 +832,7 @@
     const avail = mapsFor(state.game);
     if (!avail.includes(state.map)) state.map = avail[0];
     const off = offLayers(), cnt = mapCounts(), on = k => !off.has(k);
-    const row = (k, label, sw) => cnt[k] ? `<button class="layer ${on(k) ? "on" : ""}" data-layer="${k}"><span class="sw">${sw}</span>${esc(label)}
+    const row = (k, label, sw, tip) => cnt[k] ? `<button class="layer ${on(k) ? "on" : ""}" data-layer="${k}"${tip ? ` title="${esc(tip)}"` : ""}><span class="sw">${sw}</span>${esc(label)}
       <span class="cnt">${cnt[k][0] ? `${cnt[k][0]}/` : ""}${cnt[k][1]}</span></button>` : "";
     const group = (title, keys, body) => { const rows = body.filter(Boolean).join(""); if (!rows) return "";
       const allOn = keys.every(on); return `<div class="lgroup"><button class="lgroup-head" data-group="${keys.join(",")}">${esc(title)}<span>${allOn ? "ukryj" : "pokaż"} wszystkie</span></button>${rows}</div>`; };
@@ -841,12 +843,11 @@
         ${avail.length > 1 ? `<div class="maptabs">${avail.map(k => `<button class="chip ${state.map === k ? "on" : ""}" data-m="${k}">${MAPS[k]}</button>`).join("")}</div>` : ""}
         <div class="map-mode" role="group" aria-label="Tryb mapy"><button class="${state.mapMine ? "" : "on"}" data-mine="0">Cała mapa</button><button class="${state.mapMine ? "on" : ""}" data-mine="1" title="Tylko okolice, w których już byłeś, i to, co już zaliczyłeś">Mój postęp</button></div>
         <input class="search map-search" id="mq" type="search" placeholder="Szukaj: przedmiot, boss, miejsce…" value="${esc(state.mapQuery)}">
-        ${state.mapQuery ? `<button class="chip on map-filter-chip" id="mqClear">Filtr: ${esc(state.mapQuery)}${state.mapExact ? " (dokładnie)" : ""} ✕</button>` : ""}
         ${state.mapMine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
           : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "npc", "deaths"], [row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'),
-          row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>')])}
+          row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi — miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
         ${group("Miejsca i lochy", poiKeys, Object.entries(POI).map(([k, [l, g]]) => row("poi:" + k, l, `<span class="sw-poi">${g}</span>`)))}
         ${KIND_GROUPS.map(([title, keys]) => group(title, keys, keys.map(k => row(k, KINDS[k][0], dot(KINDS[k][1]))))).join("")}
         </div>
@@ -855,13 +856,27 @@
       <div class="map-legend">◆ twoja pozycja z ostatniego zapisu · kółko myszy: przybliżenie · klik: szczegóły</div>
       <div class="map-zoom"><button id="zin" aria-label="Przybliż">+</button><button id="zout" aria-label="Oddal">−</button></div></div>`;
     main.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { state.map = b.dataset.m; viewMap(); });
-    main.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => { const k = b.dataset.layer; off.has(k) ? off.delete(k) : off.add(k); b.classList.toggle("on"); refreshLayers(); });
+    // warstwy i grupy: tylko przełączenie znaczników i przycisków (bez przebudowy mapy i panelu)
+    const syncGroups = () => main.querySelectorAll("[data-group]").forEach(h => {
+      const ks = h.dataset.group.split(","); h.querySelector("span").textContent = `${ks.every(on) ? "ukryj" : "pokaż"} wszystkie`; });
+    main.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => { const k = b.dataset.layer; off.has(k) ? off.delete(k) : off.add(k);
+      b.classList.toggle("on", on(k)); syncGroups(); refreshLayers(); });
     main.querySelectorAll("[data-group]").forEach(b => b.onclick = () => { const keys = b.dataset.group.split(","), allOn = keys.every(on);
-      keys.forEach(k => allOn ? off.add(k) : off.delete(k)); viewMapKeep(); });
+      keys.forEach(k => allOn ? off.add(k) : off.delete(k));
+      main.querySelectorAll("[data-layer]").forEach(l => l.classList.toggle("on", on(l.dataset.layer)));
+      syncGroups(); refreshLayers(); });
     if ($("#hideDone")) $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
     main.querySelectorAll("[data-mine]").forEach(b => b.onclick = () => { state.mapMine = b.dataset.mine === "1"; savePref("mapMine", state.mapMine ? "1" : "0"); viewMapKeep(); });
-    let t; $("#mq").oninput = e => { clearTimeout(t); t = setTimeout(() => { state.mapQuery = e.target.value; state.mapExact = null; viewMapKeep(); const n = $("#mq"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 350); };
-    if ($("#mqClear")) $("#mqClear").onclick = () => { state.mapQuery = ""; state.mapExact = null; viewMapKeep(); };
+    // wyszukiwanie: tylko znaczniki i żeton filtra (pole zostaje, mapa się nie przebudowuje)
+    const syncChip = () => {
+      $("#mqClear")?.remove();
+      if (state.mapQuery) {
+        $("#mq").insertAdjacentHTML("afterend", `<button class="chip on map-filter-chip" id="mqClear">Filtr: ${esc(state.mapQuery)}${state.mapExact ? " (dokładnie)" : ""} ✕</button>`);
+        $("#mqClear").onclick = () => { state.mapQuery = ""; state.mapExact = null; $("#mq").value = ""; syncChip(); buildLayers(); };
+      }
+    };
+    let t; $("#mq").oninput = e => { clearTimeout(t); t = setTimeout(() => { state.mapQuery = e.target.value; state.mapExact = null; syncChip(); buildLayers(); }, 350); };
+    syncChip();
     if (!window.L) { $("#mapc").innerHTML = '<p class="view-sub" style="padding:40px">Brak biblioteki Leaflet (offline?).</p>'; return; }
     const keepView = viewMap.keep && bigMap && viewMap.keep.map === state.map ? { c: bigMap.getCenter(), z: bigMap.getZoom() } : null;
     if (bigMap) bigMap.remove();

@@ -18,7 +18,7 @@ from .gamedata import DATA_DIR
 
 ENTRANCE_AREAS = {30, 31, 32, 39, 40, 41, 42, 43}
 UNDERGROUND = {"M00": "M01"}          # podziemia (m12) — osobna mapa gry (jak tools/extract/extract_world.py)
-FARUM = {"px": 8488.9, "py": 4803.7, "scale": 1.0, "x": 0.0, "z": 0.0}   # Farum Azula (m13) w wirze burzy (wiersz 11 WorldMapLegacyConvParam)
+FARUM = {"px": 8488.9, "py": 4835.7, "scale": 1.0, "x": 0.0, "z": 0.0}   # Farum Azula (m13) w wirze burzy (wiersz 11 WorldMapLegacyConvParam)
 
 
 RECT_Y = (-10.0, 40.0)        # region "rect" jest płaski (szer. × głęb.) — wysokość: 10 m pod spodem, 40 m nad

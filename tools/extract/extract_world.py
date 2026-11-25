@@ -26,7 +26,7 @@ ENTRANCE_AREAS = {30, 31, 32, 39, 40, 41, 42, 43}          # małe lochy -> punk
 UNDERGROUND = {"M00": "M01"}                                # podziemia (m12: Siofra, Ainsel, Głębiny) — osobna mapa gry
 # Przeklęte Farum Azula (m13): gra rysuje je w wirze burzy na wschód od Szczytów Olbrzymów. Przesunięcie z wiersza 11
 # WorldMapLegacyConvParam (punkt bazowy m13 -> m60_51_43), skala 1:1; najbliższy wiersz (10/132) prowadził na Szczyty.
-FARUM = {"px": 8488.9, "py": 4803.7, "scale": 1.0, "x": 0.0, "z": 0.0}
+FARUM = {"px": 8488.9, "py": 4835.7, "scale": 1.0, "x": 0.0, "z": 0.0}
 DLC_AREAS = {20, 21, 22, 25, 28, 40, 41, 42, 43, 61}
 LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
 
