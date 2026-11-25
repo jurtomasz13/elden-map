@@ -43,6 +43,13 @@ Wyniki w `assets/` są w `.gitignore`: to grafiki FromSoftware, **nie publikujem
   `build_map_pieces.mjs` porównuje je (bloki 8×8 px) i składa `assets/map/<M>/pieces.png` (1312 px; kanały
   R,G,B = bity 0–23) oraz `assets/map/blank.png` (pusta faktura). Strona zakrywa tą fakturą (CSS `mask-image`)
   miejsca, których nie odsłania żaden zebrany fragment. Flagi: `assets/data/map_pieces.json`.
+- **Obszar mapy** (jak w grze — dalej nie da się przesunąć ani oddalić): `+0x08` 4×f32 [lewo, prawo, góra, dół]
+  w pikselach mapy, suma prostokątów otwartych fragmentów + okolice miejsc, w których byłeś (łaski, zebrane
+  przedmioty, pokonani bossowie, śmierci, pozycja). Wiersze 70 / 1070 (flagi 62000 / 62002) to obszar startowy
+  gry i DLC — 62002 ustawia się po wejściu do DLC, więc wtedy pojawia się mapa Królestwa Cieni. Podziemia nie
+  mają obszaru startowego — mapa pojawia się po pierwszej łasce lub wizycie. `+0x18` (63xxx) w save'ach nigdy
+  nie jest ustawiona — pomijamy. Sprawdzone na żywo (podstawione zapisy): fragment, nowa łaska w Caelid,
+  pierwsza łaska w podziemiach i wejście do DLC aktualizują mapę bez przeładowania strony.
 
 ## Przeliczenie współrzędnych gry → piksele mapy
 

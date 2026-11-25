@@ -103,7 +103,7 @@
       api(`/api/session?${qs()}`).catch(() => null), api(`/api/deaths?${qs()}&limit=500`).catch(() => null)]);
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
-      ...W.quests.flatMap(q => q.steps.flatMap(s => s.flags || [])), ...Object.values(W.pieces || {}).flat()].filter(Boolean));
+      ...W.quests.flatMap(q => q.steps.flatMap(s => s.flags || [])), ...Object.values(W.pieces || {}).flat().map(p => p.f)].filter(Boolean));
     const arr = [...ids], flags = {};
     for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
     live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
@@ -779,7 +779,38 @@
   let bigMap, mapLayers = {}, playerMarker = null;
   // mapy gry: powierzchnia, podziemia (Siofra, Ainsel, Głębiny) i Królestwo Cieni — dostępne wg zakresu gry
   const MAPS = { M00: "Ziemie Pomiędzy", M01: "Podziemia", M10: "Królestwo Cieni (DLC)" };
-  const mapsFor = g => g === "dlc" ? ["M10"] : g === "base" ? ["M00", "M01"] : ["M00", "M01", "M10"];
+  const mapsFor = g => (g === "dlc" ? ["M10"] : g === "base" ? ["M00", "M01"] : ["M00", "M01", "M10"])
+    .filter(k => !state.mapMine || !W.pieces?.[k] || travelArea(k));          // „Mój postęp”: tylko mapy, na których byłeś
+  // obszar mapy jak w grze: prostokąty otwartych fragmentów (zebrane mapy + obszar startowy) i okolice miejsc,
+  // w których byłeś (łaski, zebrane przedmioty, pokonani bossowie, śmierci, pozycja) — [lewo, prawo, góra, dół]
+  function travelArea(m) {
+    const ps = W.pieces?.[m]; if (!ps) return null;
+    let a = null;
+    const add = r => { a = a ? [Math.min(a[0], r[0]), Math.max(a[1], r[1]), Math.min(a[2], r[2]), Math.max(a[3], r[3])] : [...r]; };
+    for (const p of ps) if (isSet(p.f, 70)) add(p.r);
+    for (const p of revealPoints(m)) add([p.px - 500, p.px + 500, p.py - 500, p.py + 500]);
+    if (!a) return null;
+    const cx = (a[0] + a[1]) / 2, cy = (a[2] + a[3]) / 2, w = Math.max(a[1] - a[0], 1600) / 2, h = Math.max(a[3] - a[2], 1000) / 2;
+    return [cx - w, cx + w, cy - h, cy + h];
+  }
+  // „Mój postęp”: widok nie wychodzi poza obszar mapy, a najmniejsze przybliżenie wypełnia nim ekran
+  function applyArea(map, keep) {
+    const a = state.mapMine && travelArea(state.map);
+    if (!a) return false;
+    const b = L.latLngBounds(ll(map, a[0], a[3]), ll(map, a[1], a[2]));
+    map.options.maxBoundsViscosity = 1;
+    map.setMaxBounds(b);
+    // przybliżenie, przy którym obszar wypełnia okno (liczone wprost — getBoundsZoom przycina do bieżącego minZoom,
+    // więc po powiększeniu obszaru minimum by nie spadło)
+    const s = map.getSize(), fill = Math.max(s.x / (a[1] - a[0]), s.y / (a[3] - a[2]));
+    const z = Math.min(MAXZ + 1, Math.ceil((MAXZ + Math.log2(fill)) * 4) / 4);
+    map.setMinZoom(z);
+    const p = D.position;
+    if (!keep) map.setView(p && p.map === state.map && b.contains(ll(map, p.px, p.py)) ? ll(map, p.px, p.py) : b.getCenter(), Math.max(z, Math.min(3.5, MAXZ)), { animate: false });
+    else if (map.getZoom() < z) map.setZoom(z, { animate: false });
+    map.panInsideBounds(b, { animate: false });
+    return true;
+  }
   // warstwy wyłączone: osobno dla „Całej mapy” (bez drobnicy) i „Mojego postępu” (tam widać też runy, materiały…)
   const offLayers = () => state.mapMine ? state.offMine : state.off;
   function mapCounts() {
@@ -838,7 +869,9 @@
     map.setMaxBounds(L.latLngBounds(ll(map, -1500, L0 + 1500), ll(map, L0 + 1500, -1500)));
     const p = D.position;
     if (keepView) map.setView(keepView.c, keepView.z, { animate: false });
-    else if (p && state.map === p.map) map.setView(ll(map, p.px, p.py), 3.5); else map.setView(ll(map, 5600, 5600), 2.5);
+    if (!applyArea(map, !!keepView) && !keepView) {                 // „Mój postęp”: widok wg odkrytego obszaru
+      if (p && state.map === p.map) map.setView(ll(map, p.px, p.py), 3.5); else map.setView(ll(map, 5600, 5600), 2.5);
+    }
     viewMap.keep = null;
     $("#zin").onclick = () => map.zoomIn(.75); $("#zout").onclick = () => map.zoomOut(.75);
     if (p && p.map === state.map) playerMarker = L.marker(ll(map, p.px, p.py), { icon: divIcon('<span class="mk-player"></span>', 28), zIndexOffset: 1000 })
@@ -917,7 +950,7 @@
       if (!data) return circleFog(map, m);
       // jak w grze: widać tylko to, co odsłaniają zebrane fragmenty mapy; resztę kryje pusta faktura z gry
       let have = 0;
-      W.pieces[m].forEach((f, i) => { if (isSet(f, 70)) have |= 1 << i; });
+      W.pieces[m].forEach((p, i) => { if (i < 24 && isSet(p.f, 70)) have |= 1 << i; });
       const c = document.createElement("canvas"); c.width = data.width; c.height = data.height;
       const x = c.getContext("2d"), out = x.createImageData(c.width, c.height), d = data.data;
       for (let i = 0; i < d.length; i += 4) { const bits = d[i] | d[i + 1] << 8 | d[i + 2] << 16; if (bits && !(bits & have)) out.data[i + 3] = 255; }
@@ -1353,6 +1386,10 @@
   function quietRender() {
     const v = (location.hash || "#bosses").slice(1);
     if (v === "map" && bigMap) {
+      // nowa mapa w „Moim postępie” (pierwsze zejście do podziemi) — przebuduj panel z zakładkami
+      const tabs = [...document.querySelectorAll(".maptabs [data-m]")].map(b => b.dataset.m).join() || state.map;
+      if (mapsFor(state.game).join() !== tabs) return viewMapKeep();
+      applyArea(bigMap, true);                                       // obszar mapy mógł urosnąć (nowa łaska, fragment)
       buildLayers();
       const c = mapCounts();
       document.querySelectorAll(".layer[data-layer]").forEach(b => { const n = c[b.dataset.layer], el = b.querySelector(".cnt");

@@ -2,7 +2,10 @@
 
 Gra trzyma każdy kafel mapy (L0, 256 px) w wariantach: bity w nazwie = zebrane fragmenty, które go dotyczą
 (MENU_MapTile_M00_L0_x_y_<bity>), wariant 0 to pusta, ciemna faktura. Bit i = i-ty wiersz WorldMapPieceParam danej
-mapy (M00: wiersze 0–69, M01: 100–199, M10: 1000–1069), flaga zebrania pod +0x04 (np. 62010 = Pogrobno, zachód).
+mapy (M00: wiersze 0–69, M01: 100–199, M10: 1000–1069): +0x04 flaga zebrania mapy (62010 = Pogrobno, zachód),
++0x08 4×f32 obszar mapy do oglądania [lewo, prawo, góra, dół] w pikselach mapy (+0x18 druga flaga 63xxx —
+w save'ach nigdy nieustawiona, pomijamy). Strona: obszar mapy = otwarte fragmenty + okolice, w których byłeś;
+grafika — tylko tam, gdzie zebrana mapa (reszta: pusta faktura, jak w grze).
 
 Tu zapisujemy dla każdego kafla i bitu parę wariantów różniących się tylko tym bitem (z bitem / bez niego);
 build_map_pieces.mjs porównuje je piksel po pikselu i składa maskę zasięgu fragmentów (assets/map/<M>/pieces.png).
@@ -19,15 +22,20 @@ import archive as A  # noqa: E402
 import formats as F  # noqa: E402
 import params as P  # noqa: E402
 
-MAPS = {"00": (0, 70), "01": (100, 200), "10": (1000, 1070)}   # mapa -> zakres wierszy WorldMapPieceParam
+MAPS = {"00": (0, 71), "01": (100, 200), "10": (1000, 1071)}   # mapa -> zakres wierszy WorldMapPieceParam
+# wiersze 70 / 1070 (flagi 62000 / 62002) to obszar startowy (Cmentarzysko Rozbitków, początek DLC) — bez bitu kafli
 LEVEL = 0
 
 
 def piece_flags():
+    """Fragmenty każdej mapy (kolejność = bity wariantów kafli):
+    f — flaga otwarcia (zebrana mapa; 62000/62002 — obszar startowy, ustawiona od początku gry),
+    r — obszar mapy, który da się oglądać po otwarciu fragmentu [lewo, prawo, góra, dół] w pikselach mapy."""
     rows, _ = P.rows(P.load_params()["WorldMapPieceParam"])
     out = {}
     for mp, (lo, hi) in MAPS.items():
-        out["M" + mp] = [struct.unpack_from("<I", r, 4)[0] for rid, r in sorted(rows) if lo <= rid < hi]
+        out["M" + mp] = [{"f": struct.unpack_from("<I", r, 4)[0], "r": [round(v, 1) for v in struct.unpack_from("<4f", r, 8)]}
+                         for rid, r in sorted(rows) if lo <= rid < hi]
     return out
 
 
