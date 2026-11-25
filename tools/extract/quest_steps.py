@@ -24,6 +24,9 @@ ROOT = B.ROOT
 SRC = os.path.join(os.path.dirname(__file__), "quest_steps_pl.json")
 OUT = os.path.join(ROOT, "assets", "data", "quests.json")
 NEW = {"dragon-priestess": {"name": "Kapłanka Smoczej Komunii", "dlc": True}}
+_BOSSES = os.path.join(ROOT, "assets", "data", "bosses_all.json")
+BOSS_FLAGS = ({b["flag"] for b in json.load(open(_BOSSES, encoding="utf-8"))} |
+              {f for b in json.load(open(_BOSSES, encoding="utf-8")) for f in b.get("alt_flags") or []}) if os.path.exists(_BOSSES) else set()
 TALK_SRC = os.path.join(os.path.dirname(__file__), "quest_talk_flags.json")
 TALK = json.load(open(TALK_SRC, encoding="utf-8")) if os.path.exists(TALK_SRC) else {}
 
@@ -57,7 +60,8 @@ def main():
             used |= {m for m in s.get("match") or [] if m in by_step}
             # flagi położenia NPC: +5 w bloku (20 flag od wielokrotności 20) to stan początkowy, ustawiony od startu
             # gry — nie znaczy „spotkałeś postać”; tak samo +6 u Yury (sprawdzone na nowej postaci)
-            extra = [f for f in s.get("flags") or [] if not (3000 <= f < 5000 and f % 20 == 5) and f != 3626]
+            # 3383/3387 — slot Iriny/Hyetty: „Irina nie żyje / Hyetta czeka przy klifach”, ustawia się przed spotkaniem Hyetty
+            extra = [f for f in s.get("flags") or [] if not (3000 <= f < 5000 and f % 20 == 5) and f not in (3626, 3383, 3387)]
             own = list(dict.fromkeys([f for m in mt for f in m.get("flags") or []] + extra))
             mode = "all" if len(mt) == 1 and mt[0].get("mode") == "all" and not s.get("flags") else "any"
             sid = mt[0]["id"] if len(mt) == 1 and mt[0]["id"] not in {x["id"] for x in steps} else f"p{s['qp']}"
@@ -87,9 +91,15 @@ def main():
                 s["flags"] = list(dict.fromkeys(list(s.get("flags") or []) + add))
                 s["mode"] = "any"
                 s["sources"] = list(dict.fromkeys((s.get("sources") or []) + ["talk-esd"]))
+        # flaga pokonania bossa wspólnego dla całej gry (np. Radahn) nie mówi nic o postępie questu: gdy krok ma inne
+        # flagi (rozmowa, przedmiot), boss jest zbędny; i nigdy nie zalicza wcześniejszych kroków
+        for s in steps:
+            if any(f not in BOSS_FLAGS for f in s["flags"]):
+                s["flags"] = [f for f in s["flags"] if f not in BOSS_FLAGS]
         for i, s in enumerate(steps):
             if not s["alt"]:
-                s["later"] = list(dict.fromkeys(f for x in steps[i + 1:] if not x["alt"] and not x.get("extra") for f in x["flags"]))
+                s["later"] = list(dict.fromkeys(f for x in steps[i + 1:] if not x["alt"] and not x.get("extra")
+                                                for f in x["flags"] if f not in BOSS_FLAGS))
         for s in steps:                                # zakończenia/alternatywy bez podpowiedzi — ogólny tekst bez szczegółów
             if not s.get("text_safe") and s.get("alt"):
                 s["text_safe"] = ("Jedno z możliwych zakończeń wątku — szczegóły ukryte." if s.get("end")

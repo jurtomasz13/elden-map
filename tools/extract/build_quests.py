@@ -254,7 +254,8 @@ QUESTS = [
     ], notes="Krok 3 zaliczony także, gdy Blaidd zginie (flaga 3603).", npc_block=3600),
 
     Q("iji", "Iji, mistrz kowalstwa", "Smithing Master Iji", "Liurnia of the Lakes", "Iji's Mirrorhelm", [
-        S("Spotkaj Iji przy drodze do lokacji {p:Caria Manor} (pomaga w queście Ranni).", NPC(3760), cumulative=True,
+        # bez NPC(3760): spotkanie z rozmowy (quest_talk_flags.json) — stan bloku zmienia się też bez rozmowy
+        S("Spotkaj Iji przy drodze do lokacji {p:Caria Manor} (pomaga w queście Ranni).", cumulative=True,
           where="{p:Liurnia of the Lakes}", next="Idź drogą do lokacji {p:Caria Manor} i porozmawiaj z kowalem Iji."),
         S("Po zakończeniu questa Ranni Iji ginie — zabierz {i:Iji's Mirrorhelm} i {i:Iji's Bell Bearing}.",
           L("Iji's Mirrorhelm", "Iji's Bell Bearing"), where="{p:Liurnia of the Lakes}",
@@ -461,7 +462,9 @@ QUESTS = [
     ], missable=True, npc_block=3400),
 
     Q("hyetta", "Hyetta i Trzy Palce", "Lightseeker Hyetta", "Liurnia of the Lakes", "Frenzied Flame Seal", [
-        S("Spotkaj Hyettę w Liurnii i dawaj jej przedmiot {i:Shabriri Grape}.", NPC(3380), cumulative=True,
+        # bez NPC(3380): blok 3380 to jeden slot postaci — najpierw Irina, po jej śmierci Hyetta; 3387 („Irina nie żyje /
+        # Hyetta czeka przy klifach”) ustawia się przed spotkaniem Hyetty. Krok zalicza się po dalszych etapach Hyetty.
+        S("Spotkaj Hyettę w Liurnii i dawaj jej przedmiot {i:Shabriri Grape}.", cumulative=True,
           where="{p:Lake-Facing Cliffs}", next="Znajdź Hyettę przy lokacji {p:Lake-Facing Cliffs}."),
         S("Koniec drogi: Hyetta przy Trzech Palcach w lokacji {p:Subterranean Shunning-Grounds} — {i:Frenzied Flame Seal}.",
           L("Frenzied Flame Seal"), where="{p:Subterranean Shunning-Grounds}",
@@ -518,7 +521,9 @@ QUESTS = [
 
     Q("gideon", "Sir Gideon Ofnir", "Sir Gideon Ofnir, the All-Knowing", "Roundtable Hold", "Law of Causality", [
         S("Porozmawiaj z Gideonem w lokacji {p:Roundtable Hold} (przenosi się do swojej komnaty).",
-          NPC(3960), L("Black Flame's Protection", "Lord's Divine Fortification", "Law of Causality"),
+          # bez NPC(3960): 3967 („pokój — Godrick pokonany”) ustawia się po Godricku bez rozmowy z Gideonem;
+          # rozmowy z Gideonem — z quest_talk_flags.json
+          L("Black Flame's Protection", "Lord's Divine Fortification", "Law of Causality"),
           cumulative=True, where="{p:Roundtable Hold}", next="Zgłaszaj się do Gideona po każdym ważnym bossie."),
         S("Pokonaj Gideona w Leyndell, Stolicy Popiołu.", B("Sir Gideon Ofnir, the All-Knowing"),
           where="{p:Leyndell, Royal Capital}", next="Po Maliketh Gideon czeka przed Hoarah Louxem."),
