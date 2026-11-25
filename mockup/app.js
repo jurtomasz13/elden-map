@@ -112,8 +112,9 @@
           flags: [62002, ...(arrival ? [arrival.flag] : [])], mode: "any", where: DLC_COCOON } ] };
   }
   async function loadWorld() {
-    const [b, p, it, n, g, q, tr, mp] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces"].map(load));
-    W.pieces = mp || {};                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
+    const [b, p, it, n, g, q, tr, mp, fx] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces", "item_effects"].map(load));
+    W.pieces = mp || {};
+    W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
     // bossowie bez nazwy w plikach gry (np. Wyszczerbiony Drake na szczycie) zostają — nazwę dopisze backend (tabela CE)
     W.bosses = (b || []).map(x => x.name ? x : { ...x, name: x.name_en || "Boss bez nazwy w grze", unnamed: true })
       .map(x => x.icon == null && x.render ? { ...x, icon: "r:" + x.render, rendered: true } : x); W.pois = p || []; W.items = it || []; W.npcs = n || []; W.graces = g || [];
@@ -1150,6 +1151,14 @@
       rows.push(`<button class="xbtn x-event" ${pinGo(ev)}>✦ Nagroda ze zdarzenia<small>quest, postać lub najeźdźca${ng ? " · okolice: " + esc(ng.name) : ""} · ⌖ na mapie</small></button>`); }
     return rows.length ? `<div class="d-section"><h4>Jak zdobyć</h4><div class="xlinks">${rows.join("")}</div></div>` : "";
   }
+  // ukryte statystyki z SpEffectParam: talizmany, zbroje, bronie (gdy w ręce)
+  function effectsHTML(it) {
+    const fx = W.effects?.[`${it.category}:${it.id}`];
+    if (!fx?.length) return "";
+    return `<div class="d-section"><h4>Ukryte statystyki</h4><div class="fx-list">${fx.map(f => `<div class="fx ${f.good ? "up" : "down"}">
+      <span>${esc(f.label)}${f.cond ? `<small>${esc(f.cond)}</small>` : ""}</span><b>${esc(f.v)}</b></div>`).join("")}</div>
+      <p class="view-sub fx-note">Dokładne liczby z parametrów gry${it.category === "weapon" ? " (działają, gdy broń jest w ręce)" : ""}.</p></div>`;
+  }
   function openItem(it) {
     pins.length = 0;
     const h = have(it), spots = whereItem(it), cat = CATS.find(c => c.f(it)), srcHTML = sourcesHTML(it), linksHTML = itemLinks(it);
@@ -1162,6 +1171,7 @@
       ${usageNote(it, kind) ? `<p class="ib-note"><b>Do czego służy:</b> ${esc(usageNote(it, kind))}</p>` : ""}
       ${srcHTML}
       ${linksHTML}
+      ${effectsHTML(it)}
       ${statsHTML(it)}
       ${spots.length ? `<div class="d-section"><h4>Gdzie leży</h4>${spots.slice(0, 6).map(t => { const ng = nearestGrace(t);
         return `<div class="reward"><span>${esc(t.region_pl || t.map_id)}${ng ? ` · przy łasce „${esc(ng.name)}”` : ""}</span><span>${isSet(t.flag) ? "zebrane" : "do zebrania"}</span></div>`; }).join("")}${spots.length > 6 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(spots.length - 6, "miejsce", "miejsca", "miejsc")} — wszystkie pokaże mapa (kliknij mini-mapę).</p>` : ""}</div>`

@@ -930,3 +930,12 @@ body.quiet .view, body.quiet .view *, body.quiet .card, body.quiet .icell { anim
   background: radial-gradient(circle, rgba(170,120,255,.95), rgba(70,30,120,.95)); box-shadow: 0 0 14px rgba(190,150,255,.85); color: #fff; font-size: 15px; }
 .mk-dlc.done { filter: saturate(.4) brightness(.8); box-shadow: none; }
 .sw-dlc { color: #c9a8ff; font-size: 15px; }
+
+/* ukryte statystyki przedmiotu */
+.fx-list { display: flex; flex-direction: column; gap: 2px; }
+.fx { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 6px 2px; border-bottom: 1px solid var(--line); font-size: 17px; color: var(--bone); }
+.fx small { display: block; font-size: 14.5px; color: var(--muted); font-style: italic; }
+.fx b { font-weight: 500; white-space: nowrap; }
+.fx.up b { color: #9fd18b; }
+.fx.down b { color: #e08a7a; }
+.fx-note { margin: 8px 0 0; font-size: 14.5px; }

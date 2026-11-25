@@ -216,3 +216,20 @@ Na mapach świata 225 z 422 łask; reszta jest w lochach legacy i podziemiach.
 - Przeliczenia dla podziemi i lochów legacy (Stormveil, Leyndell itd.).
 - Pozycji przedmiotów na mapie (wymaga MSB map + ItemLotParam_map).
 - Portretów NPC (gra ich nie ma; w zamian ikony przedmiotów). Możliwy render modeli `c0000` (części zbroi + twarz).
+
+## Ukryte statystyki przedmiotów (2026-11-25) — `extract_effects.py` → `item_effects.json`
+
+Talizman (`EquipParamAccessory` +0x4C..+0x58 resident, +0x04 refId), zbroja (`EquipParamProtector` +0x28/+0x2C/+0x30),
+broń w ręce (`EquipParamWeapon` +0x50/+0x54/+0x58) → `SpEffectParam` (912 B). Układ pól odczytany z publicznych
+definicji parametrów (Paramdex, bez licencji — w projekcie tylko przesunięcia, pliki nie są dołączane); zgodność
+sprawdzona rozmiarami wierszy wszystkich pięciu parametrów i znanymi przesunięciami statusów.
+- Zadawane obrażenia: `atkEnemyDmgCorrectRate_*` (+0x2A0..+0x2B0, przeciw wrogom) × `…AttackRate` × `…AttackPowerRate`;
+  otrzymywane: `defEnemyDmgCorrectRate_*` (+0x274..) × `…DamageCutRate`. Wartości dla PvP (`…Player…`) pomijamy.
+- Warunek rodzaju ataku: `magicSubCategoryChange` (+0x13A/+0x13B/+0x328): 100 ładowane, 101 z wierzchowca,
+  102 z wyskoku, 103 kontry po bloku, 104 ostatni cios serii, 105/113/118 strzały i bełty, 106/116 ryki i zionięcia,
+  108 garnki, 109 perfumy, 110 ładowane czary, 111/112 popioły wojny; `stateInfo` (+0x156) 111 krytyki, 197 kontrataki.
+- Warunek stanu: `conditionHp` (+0x04, PŻ ≤ X%), `conditionHpRate` (+0x1F0, 100 = pełne PŻ),
+  `invocationConditionsStateChange1` (+0x2B8): 379 krwotok, 380 trucizna/zgnilizna, 480 sen, 495 szaleństwo w pobliżu.
+- Pozostałe: mnożniki PŻ/PS/energii, obrony, równowagi (+0x1B4), run (+0xF4), udźwigu (+0xE4), kosztów PS, flaszek
+  (+0x2F4/+0x304), atrybuty (+0x31E.., s8), odporności (+0x1FC.., s32), odkrywanie (+0x1F8 ×100), regeneracja
+  energii (+0xB8, s32), PŻ/PS co `motionInterval`. Efekty pochodne (+0x124/+0x128/+0x12C/+0x174) dziedziczą warunek.
