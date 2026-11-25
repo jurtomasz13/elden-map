@@ -100,6 +100,10 @@ def main():
             if not s["alt"]:
                 s["later"] = list(dict.fromkeys(f for x in steps[i + 1:] if not x["alt"] and not x.get("extra")
                                                 for f in x["flags"] if f not in BOSS_FLAGS))
+            # krok zaliczany tylko flagą bossa (np. Darriwil, którego można pokonać bez Blaidda) liczy się dopiero,
+            # gdy zaliczony jest poprzedni krok questu
+            if i > 0 and s["flags"] and all(f in BOSS_FLAGS for f in s["flags"]):
+                s["gated"] = True
         for s in steps:                                # zakończenia/alternatywy bez podpowiedzi — ogólny tekst bez szczegółów
             if not s.get("text_safe") and s.get("alt"):
                 s["text_safe"] = ("Jedno z możliwych zakończeń wątku — szczegóły ukryte." if s.get("end")

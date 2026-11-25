@@ -83,9 +83,13 @@
     return null;
   }
   // krok zaliczony: własne flagi (any/all) albo dowolna flaga późniejszego etapu (`later`, quest_steps.py)
-  const questSteps = q => q.steps.map(s => { const fl = s.flags || [];
-    const own = fl.length ? (s.mode === "all" ? fl.every(f => isSet(f, 50)) : fl.some(f => isSet(f, 50))) : false;
-    return { ...s, done: own || (s.later || []).some(f => isSet(f, 50)) }; });
+  // `gated` (sama flaga bossa) — liczy się dopiero po zaliczeniu poprzedniego kroku
+  const questSteps = q => { let prev = true;
+    return q.steps.map(s => { const fl = s.flags || [];
+      const own = fl.length ? (s.mode === "all" ? fl.every(f => isSet(f, 50)) : fl.some(f => isSet(f, 50))) : false;
+      const done = (own && (!s.gated || prev)) || (s.later || []).some(f => isSet(f, 50));
+      if (!s.alt) prev = done;
+      return { ...s, done }; }); };
 
   // Wejście do DLC: kokon Miquelli na arenie Mohga (Pałac Mohgwynów, podziemia). Wątek dopisywany do questów —
   // kroki z flag save'a (pokonani bossowie, łaski pałacu, obszar startowy DLC 62002 / pierwsza łaska DLC).
