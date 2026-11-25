@@ -1,0 +1,1068 @@
+{
+ "alexander": {
+  "s1": {
+   "flags": [
+    1043399307,
+    1043399308
+   ],
+   "why": "„Dobra robota, miły panie… jestem już wolny” po wybiciu z dziury w Burzowym Wzgórzu; x u 5 rozwiniętych postaci"
+  },
+  "p2": {
+   "flags": [
+    32009205,
+    32009206
+   ],
+   "why": "rozmowy w Tunelu Gael: „Skąd ty się tu wziąłeś? To miał być ślepy zaułek… Drzwi pojawiają się znikąd!”; tylko finali"
+  },
+  "p3": {
+   "flags": [
+    1051369255
+   ],
+   "why": "spotkanie w Zamku Lwiej Grzywy: „Czy wiesz, dla kogo urządzają ten festiwal?”; x u prophet/finali"
+  },
+  "s2": {
+   "flags": [
+    1051369265,
+    1051369266,
+    1051369267
+   ],
+   "why": "rozmowa po walce z Radahnem: „To była wspaniała walka… stos ciał wojowników”"
+  },
+  "p5": {
+   "flags": [
+    1039449209,
+    1039449210
+   ],
+   "why": "„Wielkie dzięki! Za twą pomoc i twój imponujący spryt… jestem bardziej oślizgły niż żaba” po uwolnieniu olejem w Liurnii"
+  },
+  "s3": {
+   "flags": [
+    1035539205,
+    1035539209
+   ],
+   "why": "rozmowa w lawie na Górze Gelmir: „Dobry panie, czego poszukujesz w takim miejscu?”; x u boink/prophet/finali/Mokki"
+  },
+  "p7": {
+   "flags": [
+    13009255,
+    13009256
+   ],
+   "why": "spotkanie w Farum Azula: „Ach, widzę, że w końcu dotarłeś. Wiszące w powietrzu miasto…”"
+  },
+  "s4": {
+   "flags": [
+    13009257,
+    13009258
+   ],
+   "why": "po pojedynku: „Przyjmij ode mnie dar… z mojego wnętrza” / „zwycięstwo było niemożliwe”"
+  }
+ },
+ "ansbach": {
+  "s1": {
+   "flags": [
+    2046429371
+   ],
+   "why": "pierwsza rozmowa z Freyją: „Ach, pani Leda mówiła o tobie… Jestem Freyja”; x u boink i finali"
+  },
+  "p2": {
+   "flags": [
+    2045429225
+   ],
+   "why": "przedstawienie się Ansbacha: „Musisz być tym zmatowieńcem. Jestem Ansbach”; x tylko u finali"
+  },
+  "p5": {
+   "flags": [
+    2046429378
+   ],
+   "why": "rozmowa z Freyją po rozbiciu runy: „powiedz jej, że ruszam swoją drogą… Przez pewien czas będę sama”; tylko finali"
+  },
+  "p8": {
+   "flags": [
+    21019355,
+    21019357
+   ],
+   "why": "Freyja pochylona nad płytą w Magazynie: „Literki nakreślone niespokojną ręką”; tylko finali"
+  },
+  "p9": {
+   "flags": [
+    21019316
+   ],
+   "why": "opcja „Powiedz o decyzji Freyi” — „Freyja, na bogów… chce potwierdzić swoją wierność”; tylko finali"
+  },
+  "s2": {
+   "flags": [
+    21019317
+   ],
+   "why": "rozmowa z Ansbachem: „Czy możesz przekazać to Freyi?” (list); tylko finali"
+  },
+  "p12": {
+   "flags": [
+    4891,
+    21019371
+   ],
+   "why": "opcja „Przekaż list do Freyi” i „Od pana Ansbacha do mnie?”; tylko finali"
+  },
+  "p13": {
+   "flags": [
+    21019370
+   ],
+   "why": "Freyja po lekturze listu: „Teraz wreszcie pozbyłam się wątpliwości. Pozdrów ode mnie Ansbacha”; tylko finali"
+  }
+ },
+ "bernahl": {
+  "p1": {
+   "flags": [
+    1042389255,
+    1042389256,
+    1042389257
+   ],
+   "why": "pierwsza rozmowa w Szopie Wojennego Mistrza („Jestem Bernahl… Chcesz przejąć po mnie pałeczkę w rzemiośle wojennym?”), 255/256 to dwie gałęzie odpowiedzi."
+  },
+  "p2": {
+   "flags": [
+    16009455
+   ],
+   "why": "rozmowa w Wulkanicznym Dworze: „Wulkaniczny Dwór to nora odszczepieńców… Rozumiem / Nie rozumiem”."
+  },
+  "p3": {
+   "flags": [
+    16009457,
+    16009458,
+    16009459,
+    16009461
+   ],
+   "why": "Bernahl po pierwszym polowaniu: „twój miecz zasmakował krwi na polowaniu… Bernahl – odszczepieniec, tak jak ty”; x u postaci z dołączeniem do Dworu."
+  },
+  "s2": {
+   "flags": [
+    16009460
+   ],
+   "why": "„Więc zabiłeś Rykarda? Nie żywię do ciebie urazy”."
+  }
+ },
+ "blaidd": {
+  "s2": {
+   "flags": [
+    1052389306
+   ],
+   "why": "rozmowa po pokonaniu Radahna przy łasce na polu bitwy: „Spotkajmy się tam, gdzie spadająca gwiazda wryła się w ziemię”."
+  },
+  "p9": {
+   "flags": [
+    1044359255
+   ],
+   "why": "uwięziony Blaidd: „Uwięził mnie tu stary Iji”; tylko finali."
+  },
+  "p10": {
+   "flags": [
+    1044359260
+   ],
+   "why": "opcja „Otwórz wieczne więzienie”; tylko finali."
+  }
+ },
+ "boc": {
+  "p1": {
+   "flags": [
+    1043379356
+   ],
+   "why": "pierwsza rozmowa po uwolnieniu z krzaka: Boc przeprasza, że nie ma nagrody i proponuje zakraść się do jaskini; x u boink/prophet/finali/Mokki"
+  },
+  "p2": {
+   "flags": [
+    31159202,
+    31159205
+   ],
+   "why": "rozmowa z pobitym Boc w Przybrzeżnej Jaskini („A co ty tu robisz? Natychmiast opuść to miejsce”); x także u Mokki, który igły nie oddał"
+  },
+  "s1": {
+   "flags": [
+    31159206
+   ],
+   "why": "gałąź „Daj igłę do szycia” w tej samej rozmowie — brak u Mokki (bez dalszych flag Boc), x u boink/prophet/finali"
+  },
+  "p6": {
+   "flags": [
+    1039409259
+   ],
+   "why": "odpowiedź na pytanie o wygląd (menu „Właśnie tak / Ależ skąd”, „Czyżbym usłyszał głos mojej mamy?”); x u boink/prophet/finali"
+  }
+ },
+ "boggart": {
+  "s1": {
+   "flags": [
+    1036439207
+   ],
+   "why": "kupno naszyjnika (menu „Kup”): „No dobrze. Weź to”; x u prophet/finali/Mokki"
+  },
+  "p3": {
+   "flags": [
+    1044529261
+   ],
+   "why": "Boggart przy fosie Leyndell: „Jeśli ktoś gustuje w krabach…” (menu „O Łajnożercy”); x u prophet/finali"
+  },
+  "p4": {
+   "flags": [
+    1044529258,
+    1044529259
+   ],
+   "why": "„Słyszałeś o Łajnożercy?… Ten potwór czyha gdzieś tutaj”; x u prophet/finali"
+  },
+  "p5": {
+   "flags": [
+    1044529270
+   ],
+   "why": "umierający Boggart: „Nie chcę być przeklęty. Po prostu pozwól mi umrzeć”; x u prophet/finali"
+  }
+ },
+ "diallos": {
+  "s1": {
+   "flags": [
+    11109406
+   ],
+   "why": "pierwsza rozmowa w Twierdzy: „mów do mnie Diallos… młodą kobietę imieniem Lanya”; x u 5 rozwiniętych postaci"
+  },
+  "p2": {
+   "flags": [
+    1037449205
+   ],
+   "why": "Diallos w Podgrodziu Akademii: „Odważyli się tknąć moją służącą Lanyę”"
+  },
+  "p3": {
+   "flags": [
+    11109430
+   ],
+   "why": "Diallos po powrocie do Twierdzy: „Odszczepieńcy przysłali sługusa… kryjówka na górze Gelmir”"
+  },
+  "p4": {
+   "flags": [
+    16009405,
+    16009406
+   ],
+   "why": "Diallos w salonie Wulkanicznego Dworu: „Widzę, że ciebie też tu zaproszono”"
+  },
+  "p5": {
+   "flags": [
+    16009415,
+    16009416
+   ],
+   "why": "Diallos przyznaje: „Być może jednak jestem głupcem” / „Jestem kompletnym głupcem”"
+  },
+  "p6": {
+   "flags": [
+    1039449305
+   ],
+   "why": "Diallos w Słojogrodzie: „potrafię pilnować zwykłych słojów”; x tylko u boink"
+  },
+  "s2": {
+   "flags": [
+    1039449315
+   ],
+   "why": "rozmowa z umierającym Diallosem: „Ze słojami… wszystko w porządku? Czy je obroniłem?”; brak u wszystkich (nikt nie doszedł tak daleko)"
+  }
+ },
+ "dragon-priestess": {
+  "p1": {
+   "flags": [
+    2049399728
+   ],
+   "why": "flaga z rozmowy z kapłanką przy ołtarzu (oferta smoczej esencji); x tylko u finali"
+  }
+ },
+ "dung-eater": {
+  "p1": {
+   "flags": [
+    11109955
+   ],
+   "why": "rozmowa z duchem w Twierdzy: „Czy kiedykolwiek czułeś, że cały twój byt jest klątwą?”"
+  },
+  "s1": {
+   "flags": [
+    11109957
+   ],
+   "why": "„Nie, zaczekaj… Poczułeś klątwę… uwolnij me ciało” (klątwa siewu przy sobie); brak u grandes"
+  },
+  "p3": {
+   "flags": [
+    35009308
+   ],
+   "why": "odpowiedź po „Wyjdź z więzienia!”: „Ponownie zabiję. I zadbam o to, by zbezcześcić każde ciało”; x u boink/prophet/finali"
+  },
+  "p5": {
+   "flags": [
+    11109958,
+    11109959
+   ],
+   "why": "Twierdza po najeździe: „Odparłeś moje błogosławieństwo… Zbezcześć moje ciało klątwą siewu”"
+  }
+ },
+ "fia": {
+  "p10": {
+   "flags": [
+    12039161
+   ],
+   "why": "„To… jest drugie święte znamię… Godwyn może zająć należne mu miejsce” po oddaniu przeklętego znaku"
+  }
+ },
+ "gideon": {
+  "s1": {
+   "flags": [
+    11109658,
+    11109659,
+    11109662
+   ],
+   "why": "rozmowy z Gideonem w Twierdzy (pierwsza: „jesteś tylko gościem”, potem przyjęcie jako członka); x u 5 rozwiniętych postaci"
+  }
+ },
+ "goldmask": {
+  "p2": {
+   "flags": [
+    11109859
+   ],
+   "why": "Corhyn: „Postanowiłem opuścić Twierdzę… wyruszam na poszukiwanie Złotej Maski”."
+  },
+  "p3": {
+   "flags": [
+    1040529259
+   ],
+   "why": "Corhyn przy steli: „Jeszcze nie znalazłem Szlachetnego Złotej Maski”; x u wszystkich zaawansowanych."
+  },
+  "p6": {
+   "flags": [
+    1040549205
+   ],
+   "why": "Corhyn na moście: „Dzięki tobie poznałem samego Złotą Maskę… zająłem miejsce u jego boku”."
+  },
+  "p8": {
+   "flags": [
+    11009460
+   ],
+   "why": "Corhyn w Leyndell: „Co u licha zrobiłeś mistrzowi? Palec mistrza znów się porusza” — po przekazaniu prawdy."
+  },
+  "p9": {
+   "flags": [
+    1051569355
+   ],
+   "why": "Corhyn na moście przy Ruinach astrologów: „Nie mogę uwierzyć, że przeszedłeś całą tę drogę”."
+  }
+ },
+ "gowry": {
+  "s1": {
+   "flags": [
+    1050389205
+   ],
+   "why": "pierwsza rozmowa: „Jestem Gowry. Swego czasu byłem wielkim mędrcem” z prośbą."
+  },
+  "p2": {
+   "flags": [
+    1050389207
+   ],
+   "why": "„udało ci się znaleźć igłę z czystego złota… opisałem tutaj tajemnicę Sellii”."
+  },
+  "p3": {
+   "flags": [
+    1050389210
+   ],
+   "why": "„Naprawiłem igłę… Zaniesiesz ją do Millicenty?”."
+  },
+  "p4": {
+   "flags": [
+    1050389215
+   ],
+   "why": "„Uprzejmie ci dziękuję. Za dostarczenie igły Millicencie”."
+  },
+  "p5": {
+   "flags": [
+    1050389219
+   ],
+   "why": "„Zgadza się, Millicenta odwiedziła to nędzne domostwo”."
+  },
+  "p6": {
+   "flags": [
+    1050389221
+   ],
+   "why": "„A więc dałeś Millicencie złotą protezę ręki…” (flaga nieustawiona u nikogo)."
+  }
+ },
+ "hornsent": {
+  "p1": {
+   "flags": [
+    2046429210
+   ],
+   "why": "pierwsza rozmowa przy Krzyżu na trójdrożu: „Litości, ktoś znowu depcze po piętach Miquelli?”."
+  },
+  "p3": {
+   "flags": [
+    2046429221
+   ],
+   "why": "rozmowa z oddaniem gulaszu: „To strawa wieży. Pamiętam ten rodzinny zapach”."
+  },
+  "s2": {
+   "flags": [
+    2048459205
+   ],
+   "why": "przy Krzyżu przy gościńcu: „Znalazłem miejsce z nowym krzyżem. Weź to”."
+  },
+  "p5": {
+   "flags": [
+    2048459219
+   ],
+   "why": "po złamaniu uroku: „Czy nawet teraz uważasz nas za sojuszników? Chociaż zaklęcie Miquelli zostało niedawno złamane?”; tylko finali."
+  },
+  "p10": {
+   "flags": [
+    21019216
+   ],
+   "why": "na arenie Messmera: „Czy udało ci się dostrzec twarz Messmera, gdy nadszedł jego koniec?”."
+  }
+ },
+ "hornsent-grandam": {
+  "s2": {
+   "flags": [
+    20009280,
+    20009294
+   ],
+   "why": "Starowina po pokonaniu Messmera: „Dokonałeś tego! Wymierzenie sprawiedliwości naszym wrogom”; x u finali"
+  }
+ },
+ "hyetta": {
+  "p9": {
+   "flags": [
+    1036499206,
+    1036499207
+   ],
+   "why": "Hyetta w Kościele Bellum: „Prawdziwe opuszkowe winogrono… Dziękuję”; x u boink/prophet/finali"
+  }
+ },
+ "igon": {
+  "s1": {
+   "flags": [
+    2052409205,
+    2052409209
+   ],
+   "why": "Igon na arenie smoków: „Przyjmij ten palec. Mój palec”; x u finali"
+  },
+  "s2": {
+   "flags": [
+    2048429219
+   ],
+   "why": "Igon po walce z Bayle’em: „Co za widok! … prawdziwy wojownik”; x u finali"
+  }
+ },
+ "iji": {
+  "s1": {
+   "flags": [
+    1034499209
+   ],
+   "why": "pierwsze spotkanie: „Jestem Iji. Kowal, który niegdyś służył karyjskiej rodzinie królewskiej”."
+  }
+ },
+ "irina-edgar": {
+  "s2": {
+   "flags": [
+    1043319206
+   ],
+   "why": "Edgar po otrzymaniu listu: „Rozumiem, od Iriny… Dziękuję, jestem twoim dłużnikiem”."
+  },
+  "s3": {
+   "flags": [
+    1045349215
+   ],
+   "why": "wybór „Ona nie żyje” i Edgar: „Irina… Moja córka zasługiwała na lepszy los…”."
+  }
+ },
+ "jar-bairn": {
+  "s1": {
+   "flags": [
+    1039449255
+   ],
+   "why": "pierwsza rozmowa ze Słojątkiem: „Będziesz nowym słojtysem?” z wyborem opieki nad słojami."
+  },
+  "p2": {
+   "flags": [
+    1039449263
+   ],
+   "why": "Słojątko: „Wiesz, kim są kłusownicy, kuzynie?” — ostrzeżenie przed kłusownikami; tylko u boink."
+  },
+  "p3": {
+   "flags": [
+    1039449305,
+    1039449265
+   ],
+   "why": "Diallos: „Opuściłem Wulkaniczny Dwór… potrafię pilnować słojów” oraz Słojątko: „Do wioski przybył nowy słojtys… Diallos”."
+  },
+  "p4": {
+   "flags": [
+    1039449315
+   ],
+   "why": "umierający Diallos w napadniętym Słojogrodzie: „Ze słojami… wszystko w porządku? Czy je obroniłem?”."
+  },
+  "p5": {
+   "flags": [
+    1039449270
+   ],
+   "why": "Słojątko przy ciele: „Diallos walczył z kłusownikiem. Chociaż wielu z nas ucierpiało…”."
+  },
+  "p6": {
+   "flags": [
+    1039449280
+   ],
+   "why": "Słojątko w dawnym miejscu: „Dzięki, że wróciłeś… czas, bym wyruszył w podróż”."
+  },
+  "p8": {
+   "flags": [
+    1039449290
+   ],
+   "why": "pożegnanie przed odejściem: „Kiedy wyruszę, chyba już nigdy się nie spotkamy… Żegnaj, kuzynie”."
+  },
+  "p99": {
+   "flags": [
+    1039449253
+   ],
+   "why": "Słojątko: „Od początku byłeś kłusownikiem. Łamiesz mi serce” — zwrócił się przeciw graczowi."
+  }
+ },
+ "kenneth": {
+  "p1": {
+   "flags": [
+    1045389205,
+    1045389206
+   ],
+   "why": "Kenneth: „Ach, przychodzisz, by mi pomóc?” i „Mój fort leży na południu… Odzyskaj go dla mnie”."
+  },
+  "s1": {
+   "flags": [
+    1045389220
+   ],
+   "why": "Kenneth po odbiciu fortu: „Udało ci się odzyskać mój fort? Och, doskonale”."
+  }
+ },
+ "latenna": {
+  "s1": {
+   "flags": [
+    1036419207
+   ],
+   "why": "po pokazaniu medalionu Latenna prosi o przysługę: „lepiej będzie, jeśli medalion pozostanie w twoich rękach”."
+  },
+  "p3": {
+   "flags": [
+    1049549201
+   ],
+   "why": "głos Latenny: „Udało nam się dotrzeć do ziem Miquelli, gdzie rośnie Święte Drzewo” — po otwarciu drogi."
+  },
+  "s2": {
+   "flags": [
+    1047589205
+   ],
+   "why": "Latenna przy Apostackich ruinach: „Dziękuję. Wreszcie osiągnęłam swój cel”; x u finali."
+  }
+ },
+ "leda": {
+  "p8": {
+   "flags": [
+    2048459264
+   ],
+   "why": "Leda po pojedynku z Rogatym: „To była dobra walka… Nigdy nie porozumiałby się z nami”."
+  },
+  "p9": {
+   "flags": [
+    2048459270,
+    2048459294
+   ],
+   "why": "Leda: „Obawiam się, że następny musi być pan Ansbach”."
+  },
+  "p13": {
+   "flags": [
+    20019255
+   ],
+   "why": "Leda w Enir-Ilim: „Liczyłam, że się tutaj spotkamy… kierowało tobą Złote Drzewo”; tylko finali."
+  }
+ },
+ "millicent": {
+  "p1": {
+   "flags": [
+    1050389255
+   ],
+   "why": "oddanie igły: „Prosisz, bym wbiła w siebie igłę… To było prostsze, niż się spodziewałam”."
+  },
+  "p2": {
+   "flags": [
+    1050389266
+   ],
+   "why": "Millicenta w Szopie Gowry’ego: „Coś w tym miejscu wydawało mi się znajome… znalazłam tylko pustkę”."
+  },
+  "p3": {
+   "flags": [
+    1038519257,
+    1042559205
+   ],
+   "why": "„Czy ty… dajesz mi to ramię? Dziękuję” oraz „Ramię, które od ciebie otrzymałam, naprawdę jest zdumiewające”."
+  },
+  "p5": {
+   "flags": [
+    1051569255
+   ],
+   "why": "Millicenta w śnieżnej dolinie: „Szukam fortu na północ od ruin… medalion”."
+  },
+  "p6": {
+   "flags": [
+    15009205
+   ],
+   "why": "Millicenta w Elphael: „Noszę w sobie krew Malenii… Jest coś, co muszę zwrócić Malenii”."
+  },
+  "p8": {
+   "flags": [
+    15009210
+   ],
+   "why": "po walce ze złotym znakiem: „Bez twojej pomocy nie pokonałabym tego kwartetu… Sama wyciągnęłam igłę”."
+  }
+ },
+ "nepheli": {
+  "p1": {
+   "flags": [
+    10009705,
+    10009706
+   ],
+   "why": "pierwsza rozmowa w Burzowym Całunie: „Jestem Nepheli Loux… wezwij mnie na pomoc” przeciw Godrickowi"
+  },
+  "p3": {
+   "flags": [
+    1034429205,
+    1034429209
+   ],
+   "why": "Wioska albinauryków: „Co się stało z tą wioską?… wymierzyć sprawiedliwość”; x u boink/prophet/finali"
+  },
+  "p4": {
+   "flags": [
+    11109917,
+    11109921
+   ],
+   "why": "zrozpaczona Nepheli w piwnicy: „Nie mogę już dłużej ufać ojcu… wszystko straciłam”"
+  },
+  "p6": {
+   "flags": [
+    11109916,
+    11109923
+   ],
+   "why": "opcja „Skontaktował się ze mną Gideon” — „Mój ojciec mnie wypędził”"
+  },
+  "p7": {
+   "flags": [
+    11109922
+   ],
+   "why": "po oddaniu prochów: „Jednak te prochy… przypominają mi o moim pierwszym jastrzębiu”"
+  },
+  "s2": {
+   "flags": [
+    10009715,
+    10009716,
+    10009717
+   ],
+   "why": "Nepheli w sali tronowej Burzowego Całunu: „Powiedziałam ojcu, że już mnie z nim nie będzie… wezwę burzę”; x tylko u boink"
+  }
+ },
+ "patches": {
+  "p2": {
+   "flags": [
+    31009214,
+    31009206
+   ],
+   "why": "rozmowa z oszczędzonym Łatą („Wybacz i zapomnij / Są rzeczy, których nie można wybaczyć”, „Było, minęło”); brak u Mokki, który ma inną gałąź."
+  },
+  "p4": {
+   "flags": [
+    31009229,
+    31009234
+   ],
+   "why": "Łata po pułapce w skrzyni: „Ty żyjesz… Kto montuje pułapki w skrzyni” i ponowne otwarcie sklepu."
+  },
+  "p5": {
+   "flags": [
+    1038419258
+   ],
+   "why": "Łata na Malowniczej wyspie: „spotkałeś może tę dziewczynę, Ryę?”."
+  },
+  "p6": {
+   "flags": [
+    1038419259
+   ],
+   "why": "rada o żelaznej dziewicy „pod wielkim kołem wodnym w Akademii”."
+  },
+  "p8": {
+   "flags": [
+    1037549206
+   ],
+   "why": "spotkanie na Górze Gelmir: „Dziwne miejsce na przypadkowe spotkanie… O tam, widzisz to? Coś tam błyszczy”."
+  },
+  "p9": {
+   "flags": [
+    1037549207
+   ],
+   "why": "powrót po żarcie z urwiskiem: „Chciałem cię ostrzec, ale ups! Już poszedłeś”."
+  },
+  "p10": {
+   "flags": [
+    16009355,
+    16009356
+   ],
+   "why": "Łata w Wulkanicznym Dworze: „Aha, czyli dołączyłeś do Dworu, co?”."
+  },
+  "s2": {
+   "flags": [
+    16009357
+   ],
+   "why": "„Ach, witaj, idealne wyczucie czasu. To dla ciebie… Jesteś nowy na Dworze” — wręczenie listu."
+  },
+  "p13": {
+   "flags": [
+    16009358,
+    16009367
+   ],
+   "why": "„Dopadłeś Tragotha?… Przekażę wieści Tanith” / nagroda za Tragotha; x tylko u boink i finali."
+  },
+  "p15": {
+   "flags": [
+    1039549205,
+    1039549206
+   ],
+   "why": "ranny Łata po upadku Rykarda: „To przykre, że musisz oglądać mnie w takiej sytuacji”; tylko boink (ma też flagę zabicia Rykarda)."
+  },
+  "p16": {
+   "flags": [
+    31009255,
+    31009257
+   ],
+   "why": "ostatnia kapitulacja w Pieczarze: „Ta cała bandyterka nie jest wcale taka wspaniała…” / „Zaraz, no nie mów, to ty? Poddaję się”."
+  }
+ },
+ "ranni": {
+  "s1": {
+   "flags": [
+    1042369405
+   ],
+   "why": "rozmowa „Miło mi cię poznać… Jestem wiedźma Renna” z wręczeniem dzwonka przyzwania duchów; x u wszystkich poza chuj."
+  },
+  "p2": {
+   "flags": [
+    1034509418
+   ],
+   "why": "Ranni zleca zadanie: „Pomożesz mu w poszukiwaniach ukrytego skarbu Nokronu” / „Porozmawiaj z trójką, która czeka na dole”."
+  },
+  "p8": {
+   "flags": [
+    1052389306
+   ],
+   "why": "Blaidd po walce: „honor tej walki podzielisz tylko ty i Radahn… spadająca gwiazda” — Radahn pokonany."
+  },
+  "s3": {
+   "flags": [
+    1034509429
+   ],
+   "why": "Ranni: „Jesteś w jego posiadaniu… ukrytego skarbu Nokronu” i zapowiedź snu — oddanie Ostrza zabójcy palców."
+  }
+ },
+ "roderika": {
+  "s1": {
+   "flags": [
+    1041389406
+   ],
+   "why": "rozmowa w szopie na Burzowym Wzgórzu („Jesteś tu całkiem sam? I zmierzasz do Zamku Burzowego Całunu?”, prośba o zabranie meduzy); x u 5 doświadczonych postaci, nie u nowych."
+  },
+  "p2": {
+   "flags": [
+    11109255
+   ],
+   "why": "pierwsza rozmowa w Twierdzy Okrągłego Stołu („Mam na imię Roderika… Twierdza Okrągłego Stołu, tajna siedziba”); x u 5 doświadczonych postaci."
+  },
+  "p4": {
+   "flags": [
+    11109256
+   ],
+   "why": "opcja „Przekaż jej, co powiedział kowal” → „Poproszę mistrza Hewga, by mnie uczył”."
+  },
+  "s2": {
+   "flags": [
+    11109265
+   ],
+   "why": "Roderika jako stroicielka dziękuje: „Tobie to zawdzięczam… Przekonanie mistrza Hewga?”."
+  }
+ },
+ "rogier": {
+  "s1": {
+   "flags": [
+    10009617,
+    10009619
+   ],
+   "why": "rozmowa w kaplicy Burzowego Całunu: „Miło mi cię poznać. Na imię mi Rogier”; x u 5 rozwiniętych postaci"
+  },
+  "p2": {
+   "flags": [
+    11109520
+   ],
+   "why": "Twierdza: „Ach, pokonałeś Godricka i zdobyłeś dla siebie wielki run… Proszę, weź to”"
+  },
+  "p5": {
+   "flags": [
+    11109517,
+    11109527
+   ],
+   "why": "opcja „Podano ślad czarnego noża” — „To… ślad czarnego noża!”; x tylko u prophet"
+  }
+ },
+ "rya": {
+  "p1": {
+   "flags": [
+    1037429209
+   ],
+   "why": "pierwsza rozmowa z Ryą w Liurnii: „Napadł na mnie jakiś łotr” z wyborem „Wysłuchaj prośby”."
+  },
+  "s1": {
+   "flags": [
+    1037429210
+   ],
+   "why": "rozmowa z oddaniem naszyjnika: „Och, tak, to mój zaginiony naszyjnik… Jestem Rya”."
+  },
+  "p3": {
+   "flags": [
+    1037429211
+   ],
+   "why": "Rya: „Jeszcze jedno… Wielka Winda Dectus… stary tunel” — drogi na Płaskowyż Altus."
+  },
+  "p5": {
+   "flags": [
+    16009305
+   ],
+   "why": "Rya w salonie Wulkanicznego Dworu: „Witaj ponownie… tu w Wulkanicznym Dworze”."
+  },
+  "p6": {
+   "flags": [
+    16009308
+   ],
+   "why": "Rya po pierwszym zleceniu: „słyszeć dziwne odgłosy… prześlizgujące się łuski”."
+  },
+  "p7": {
+   "flags": [
+    16009306
+   ],
+   "why": "Rya w wężowej postaci: „Co cię tu sprowadza… to nie jest pokój gościnny” (pierwsza flaga tej rozmowy)."
+  },
+  "p8": {
+   "flags": [
+    16009307
+   ],
+   "why": "ta sama rozmowa: „O mojej wężowej formie i imieniu Zorayas… dzielę się tymi sekretami z tobą”."
+  },
+  "p10": {
+   "flags": [
+    16009315
+   ],
+   "why": "Rya po opowiedzeniu o ciemnej stronie Dworu: „Pani Tanith, moja własna matka, mnie oszukała…”."
+  },
+  "p11": {
+   "flags": [
+    16009319
+   ],
+   "why": "rozmowa z oddaniem worka owodniowego węża: „Wyraźnie pamiętam ten zapach”; x u boink/finali."
+  },
+  "p14": {
+   "flags": [
+    16009329
+   ],
+   "why": "Zorayas po wypiciu napoju zapomnienia: „Ach… Cóż za słodki smak…”."
+  },
+  "p15": {
+   "flags": [
+    16009335
+   ],
+   "why": "Rya po śmierci Rykarda: „pani Tanith i wszyscy czempioni zmatowieńców zniknęli”."
+  }
+ },
+ "sellen": {
+  "s1": {
+   "flags": [
+    1044369206,
+    1044369209
+   ],
+   "why": "pierwsza rozmowa z Sellen: „Jestem Sellen, czarodziejka. Co tu robisz?”; x u 5 rozwiniętych postaci, brak u nowych"
+  },
+  "p2": {
+   "flags": [
+    1044369228,
+    1044369231
+   ],
+   "why": "Sellen dziękuje za odnalezienie mistrza Lusata („To wszystko twoja zasługa”); x u boink/prophet/finali"
+  },
+  "s4": {
+   "flags": [
+    1041339255,
+    1041339256
+   ],
+   "why": "Jerren w Ruinach Zguby po odnalezieniu ciała Sellen („ta kobieta była jak pusta skorupa”); x u prophet/finali"
+  },
+  "p5": {
+   "flags": [
+    1034509255,
+    1034509257
+   ],
+   "why": "Sellen w nowym ciele marionetki: „Z twoją pomocą znów zamieszkuję nowe ciało”; x u boink/prophet/finali"
+  },
+  "s5": {
+   "flags": [
+    14009255
+   ],
+   "why": "Sellen w Akademii po walce z Jerrenem: „Znów ocaliłeś mi skórę… Nie ma już królowej Karii”; x u boink/finali"
+  }
+ },
+ "seluvis": {
+  "p6": {
+   "flags": [
+    1034509328
+   ],
+   "why": "konfrontacja w tajnej komnacie: „Włamujesz się do mojej prywatnej komnaty…”; x u prophet i finali."
+  }
+ },
+ "tanith": {
+  "s5": {
+   "flags": [
+    16009245,
+    16009246
+   ],
+   "why": "Tanith po walce: „A więc to prawda. Pokonałeś naszego pana”; x u grandes/boink/finali"
+  },
+  "p6": {
+   "flags": [
+    16009255
+   ],
+   "why": "Tanith na arenie Rykarda pożera jego ciało („Ciało naszego pana jest ogromne, niełatwo je spożyć”); x u tych samych postaci co s5"
+  }
+ },
+ "thiollier": {
+  "s1": {
+   "flags": [
+    2048439206
+   ],
+   "why": "pierwsze spotkanie: „Jesteś zmatowieńcem? Pani Leda mówiła o tobie”."
+  },
+  "p4": {
+   "flags": [
+    2048439213
+   ],
+   "why": "„Nie zadziałało? Nawet po zdjęciu zaklęcia? … O Świętej Trinie” — rozmowa po złamaniu runy Miquelli; tylko finali."
+  },
+  "p7": {
+   "flags": [
+    22009218
+   ],
+   "why": "Thiollier w ogrodzie św. Triny: „Dziękuję za pomoc… bez twoich wskazówek nie ujrzałbym ponownie św. Triny”."
+  },
+  "p10": {
+   "flags": [
+    22009232
+   ],
+   "why": "reakcja na przytoczenie słów św. Triny: „jesteś okropną, paskudną duszą… Koszmarem”; tylko finali."
+  }
+ },
+ "thops": {
+  "p1": {
+   "flags": [
+    1039399205,
+    1039399206
+   ],
+   "why": "pierwsza rozmowa w Kościele Irith (prośba o runy, „Mam na imię Thops”)"
+  },
+  "s1": {
+   "flags": [
+    60845,
+    1039399220
+   ],
+   "why": "„Chcesz mi oddać swój błyskamienny klucz? Dziękuję po stokroć”; x u boink/prophet/finali/Mokki"
+  }
+ },
+ "varre": {
+  "p1": {
+   "flags": [
+    1042369226
+   ],
+   "why": "wyczerpanie dialogu przy Pierwszym kroku (wybór „Polecę prosto i bezbłędnie! / To nie dla mnie” o Okrągłym Stole)."
+  },
+  "s1": {
+   "flags": [
+    1035449206
+   ],
+   "why": "opcja „Coś było z nimi nie tak” → „intuicja dobrze ci podpowiada”; x u trzech postaci kontynuujących wątek."
+  },
+  "s2": {
+   "flags": [
+    1035449216
+   ],
+   "why": "„Namaść mnie… Teraz weź to. Na ostateczną próbę. Zmocz tę tkaninę we krwi służki” — Łaska Pana Krwi."
+  },
+  "s3": {
+   "flags": [
+    1035449225,
+    1035449226
+   ],
+   "why": "„Ukończyłeś ostatnią próbę. Stajesz się formalnym rekrutem” + wręczenie medalu dynastii Mohgwynów."
+  },
+  "s4": {
+   "flags": [
+    12059165
+   ],
+   "why": "ostatnie słowa pokonanego Varrégo: „O… Świetlisty… Mohgu… daj mi… siłę”; tylko finali."
+  }
+ },
+ "ymir": {
+  "s1": {
+   "flags": [
+    2051459205,
+    2051459246
+   ],
+   "why": "pierwsza rozmowa: „Jestem Ymir. Witaj w Manus Metyr” i mapa ruin; x tylko u finali"
+  },
+  "p2": {
+   "flags": [
+    2051459208
+   ],
+   "why": "Ymir: „Moich uszu dobiegł podniosły dźwięk dzwonu” — po uderzeniu w pierwszy dzwon; x u finali"
+  },
+  "p4": {
+   "flags": [
+    2051459247
+   ],
+   "why": "Ymir: „dźwięk dzwonów. To już dwa razy” — po drugim dzwonie; x u finali"
+  }
+ },
+ "yura": {
+  "s1": {
+   "flags": [
+    1043379260
+   ],
+   "why": "pierwsze spotkania z Yurą koło Jeziora Agheela („Aha, musisz być tym nowym zmatowieńcem”); x u 5 rozwiniętych postaci"
+  },
+  "p4": {
+   "flags": [
+    1043359257
+   ],
+   "why": "„Doskonała robota z zabiciem tego smoka… smocza komunia”; x u grandes/prophet/finali"
+  },
+  "p5": {
+   "flags": [
+    1044389206,
+    1044389211
+   ],
+   "why": "rozmowa po walce z Nerijusem: „stanąłeś do walki z Nerijusem i przeżyłeś… Jestem Yura”"
+  },
+  "p8": {
+   "flags": [
+    1035469207
+   ],
+   "why": "rozmowa z Yurą w obozie przy moście Akademii po walce („Tak, już od dawna tropię Eleonorę”); x u boink/prophet/finali"
+  },
+  "s3": {
+   "flags": [
+    1049539205,
+    1049539206
+   ],
+   "why": "„Yura” (Shabriri) w Ruinach Zamor: „Wreszcie się spotykamy… zstąp w mrok pod stolicą”"
+  }
+ }
+}

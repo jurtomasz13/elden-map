@@ -200,3 +200,18 @@ przetłumaczone na polski; nazwy własne w znacznikach `{p:}` `{i:}` `{n:}` → 
 QuestPath (mod na Nexusie) trzyma logikę kroków w kodzie DLL — flag nie da się z niego odczytać (sprawdzone:
 w zasobach są tylko tłumaczenia). Następny krok: flagi ze skryptów rozmów NPC w plikach gry (talk ESD,
 `tools/extract/talk_flags.py` — na razie lista flag bloku NPC używanych przez skrypt, np. Boc 3941–3948).
+
+## Flagi ze skryptów rozmów NPC (2026-11-25) — `esd.py`, `talk_quests.py`, `quest_talk_flags.json`
+
+Skrypty rozmów (`/script/talk/<mapa>.talkesdbnd.dcx` → `t<TalkID><wariant>.esd`, TalkID = cyfry 2–4 z NpcName
+`1<ID>xx`) czytane własnym parserem `tools/extract/esd.py` (format „fsSL” 64-bit: grupy stanów, stany, warunki,
+polecenia, argumenty, bajtkod wyrażeń). Polecenie **1/11 = ustaw flagę (numer, stan)**; argumenty `TalkParam`
+(np. 22300100) → `TalkParam` +0x04 = id kwestii w `TalkMsg`; opcje wyboru — `EventTextForTalk`.
+Rozmowa = grupa stanów: flagi ustawiane w niej + jej kwestie i opcje menu (`python tools/extract/talk_quests.py 223`).
+
+Wniosek: skrypty rozmów **nie ustawiają** flag z bloku NPC (3940…), tylko flagi przypisane do miejsc
+(np. Boc: 31159206 „Daj igłę do szycia” w Przybrzeżnej Jaskini, 1039519205 „Możesz mnie tak nazywać” w Liurnii,
+11109805… spotkanie w Leyndell). Przypisanie rozmów do kroków (156 kroków w 38 questach, 210 flag) zrobione
+na podstawie kwestii i sprawdzone stanem flag na 7 postaciach (`quest_talk_flags.json`: flaga + uzasadnienie).
+Po dołączeniu: 255 kroków z własną flagą (wcześniej 160); postać nowa — 2 kroki (prawdziwe), pozostałe bez luk
+poza Rogierem (wątek kończy się śmiercią, kroki pośrednie bez flag).

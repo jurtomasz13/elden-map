@@ -24,6 +24,8 @@ ROOT = B.ROOT
 SRC = os.path.join(os.path.dirname(__file__), "quest_steps_pl.json")
 OUT = os.path.join(ROOT, "assets", "data", "quests.json")
 NEW = {"dragon-priestess": {"name": "Kapłanka Smoczej Komunii", "dlc": True}}
+TALK_SRC = os.path.join(os.path.dirname(__file__), "quest_talk_flags.json")
+TALK = json.load(open(TALK_SRC, encoding="utf-8")) if os.path.exists(TALK_SRC) else {}
 
 
 def main():
@@ -78,6 +80,13 @@ def main():
                                     {**s, "id": f"{o['id']}-{s['id']}" if o is not base else s["id"], "alt": False, "extra": True}))
         for pos, st in sorted(inserts, key=lambda x: -x[0]):
             steps.insert(pos, st)
+        # flagi ze skryptów rozmów NPC (talk ESD, talk_quests.py) przypisane do kroków — quest_talk_flags.json
+        for s in steps:
+            add = TALK.get(q["id"], {}).get(s["id"], {}).get("flags") or []
+            if add and not (s.get("mode") == "all" and s.get("flags")):   # krok „wszystkie flagi” (np. komplet nagród) bez zmian
+                s["flags"] = list(dict.fromkeys(list(s.get("flags") or []) + add))
+                s["mode"] = "any"
+                s["sources"] = list(dict.fromkeys((s.get("sources") or []) + ["talk-esd"]))
         for i, s in enumerate(steps):
             if not s["alt"]:
                 s["later"] = list(dict.fromkeys(f for x in steps[i + 1:] if not x["alt"] and not x.get("extra") for f in x["flags"]))

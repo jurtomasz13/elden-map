@@ -26,21 +26,30 @@ def talk_archives():
     return sorted(mids)
 
 
+_ALL = None
+
+
+def all_scripts():
+    """Wszystkie skrypty rozmów z archiwów map (wczytane raz): {"mapa/tNNN.esd": bajty}."""
+    global _ALL
+    if _ALL is None:
+        _ALL = {}
+        for mid in talk_archives():
+            r = A.find(f"/script/talk/{mid}.talkesdbnd.dcx")
+            if not r:
+                continue
+            try:
+                for _, n, d in F.bnd4(r[1]):
+                    _ALL[f"{mid}/{os.path.basename(n.replace(chr(92), '/'))}"] = d
+            except Exception:
+                continue
+    return _ALL
+
+
 def scripts(talk_id):
     pre = f"t{talk_id}"
-    out = {}
-    for mid in talk_archives():
-        r = A.find(f"/script/talk/{mid}.talkesdbnd.dcx")
-        if not r:
-            continue
-        try:
-            for _, n, d in F.bnd4(r[1]):
-                b = os.path.basename(n.replace("\\", "/"))
-                if b.startswith(pre) and len(b) == len(pre) + 6 + 4:
-                    out[f"{mid}/{b}"] = d
-        except Exception:
-            continue
-    return out
+    return {k: d for k, d in all_scripts().items()
+            if k.split("/")[-1].startswith(pre) and len(k.split("/")[-1]) == len(pre) + 6 + 4}
 
 
 def literals(d):
