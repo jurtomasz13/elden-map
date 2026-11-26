@@ -191,6 +191,10 @@ Leyndell w popiele, Enir-Ilim). Przełącznik „Stan świata: przed / po” by�
 (118 napisów) i ikony bez wpisu w parametrach (Leyndell szary, Belurat i Donżon Cienia bez czarnej chmury), dopóki
 nie sprawdzimy w grze, kiedy się pojawiają.
 
+Zrobione 2026-11-26 (po 0.1.10): imiona postaci z mapy gry (118 napisów, 71 znaczników postaci z ikoną z gry) według
+pytania 2, Rycerze wielkiego naczynia jako pojedynki ze znaku i szara ikona Leyndell po Malikecie (wiki.gg nazywa ją
+„Capital of Ash”). Zostaje Belurat i Donżon Cienia bez czarnej chmury: nie wiadomo, kiedy gra je pokazuje.
+
 Zrobione 2026-11-26: krok 6 (punkt 11). Baza historii w folderze użytkownika (kopiowana ze starego miejsca),
 przedmioty zdobyte bez flagi w kronice, `/api/days` z podsumowaniem dnia (od 4:00), widok Kroniki z kartami dni
 i przyciskiem „Starsze dni”.

@@ -100,7 +100,7 @@ def play_region_names(ps, tabs, subs, graces, pois, conv, places):
         by_map_grace.setdefault(g["map_id"][:6], []).append(g)
     poi_by_map = {}
     for p in pois:
-        if p.get("map_id"):
+        if p.get("map_id") and p.get("name"):          # without the game's character markers (name null)
             poi_by_map.setdefault(p["map_id"][:6], p)
     out = {}
     for rid, _ in P.rows(ps["PlayRegionParam"])[0]:

@@ -166,7 +166,7 @@
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
       ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f), ...W.invaders.map(x => x.flag),
-      ...WORLD_FLAGS, ...W.pois.flatMap(p => (p.names || []).flatMap(n => [n[1], n[2]]))].filter(Boolean));
+      ...WORLD_FLAGS, ...W.pois.flatMap(p => [...(p.names || []), ...(p.people || [])].flatMap(n => [n[1], n[2]]))].filter(Boolean));
     const arr = [...ids], flags = {};
     for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
     live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
@@ -467,10 +467,11 @@
   const hiddenInvader = x => spoilers() && !isSet(x.flag);
   function openInvader(x) {
     const done = isSet(x.flag), hid = hiddenInvader(x);
-    drawer(`<div class="d-hero">${portrait(null, "hero-portrait" + (done ? "" : " alive"), "knight")}<div class="eyebrow">Najeźdźca${x.dlc ? " · DLC" : ""}</div>
-      <div class="d-title">${hid ? "Nieznany najeźdźca" : esc(x.name)}</div><div class="d-loc">${esc(x.region_pl || "")}</div></div>
-      <div class="d-stats"><div><b>${done ? "✓" : "—"}</b><span>${done ? "Pokonany" : "Niepokonany"}</span></div><div><b>${hid ? "?" : x.rewards.length}</b><span>Nagrody</span></div></div>
-      <p class="view-sub" style="margin:10px 0 0">Czerwony fantom, który najeżdża twój świat w tej okolicy. Pokonany już nie wraca.</p>
+    drawer(`<div class="d-hero">${portrait(null, "hero-portrait" + (done ? "" : " alive"), "knight")}<div class="eyebrow">${x.summoned ? "Pojedynek" : "Najeźdźca"}${x.dlc ? " · DLC" : ""}</div>
+      <div class="d-title">${hid ? (x.summoned ? "Nieznany przeciwnik" : "Nieznany najeźdźca") : esc(x.name)}</div><div class="d-loc">${esc(x.region_pl || "")}</div></div>
+      <div class="d-stats"><div><b>${done ? "✓" : "—"}</b><span>${done ? "Pokonany" : "Niepokonany"}</span></div>${x.summoned ? "" : `<div><b>${hid ? "?" : x.rewards.length}</b><span>Nagrody</span></div>`}</div>
+      <p class="view-sub" style="margin:10px 0 0">${x.summoned ? "Czerwony fantom, którego przyzywasz znakiem. To jedna z kilku walk po kolei; za wygranie wszystkich nagrodę daje postać przy znaku."
+        : "Czerwony fantom, który najeżdża twój świat w tej okolicy. Pokonany już nie wraca."}</p>
       ${hid ? '<p class="note">Imię i nagrody zobaczysz po pokonaniu (tryb bez spoilerów).</p>' : x.rewards.length ? `<div class="d-section"><h4>Nagrody</h4>${x.rewards.map(r => rewardRow(r, findItem(r.cat, r.id))).join("")}
         ${x.quest_rewards ? '<p class="view-sub" style="margin:8px 0 0">Nagroda zależy od etapu questu tej postaci.</p>' : ""}</div>` : ""}
       ${x.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
@@ -912,8 +913,22 @@
   // flagi pokazania miejsc, które zmieniają się w trakcie gry (Enir-Ilim w DLC); pozostałe miejsca są zawsze na mapie
   const WORLD_FLAGS = [62890];
   // napis miejsca: ostatni włączony i niewyłączony (WorldMapPointParam); null = miejsca jeszcze (albo już) nie ma na mapie
-  const poiName = p => p.names ? p.names.filter(([, on, off]) => (!on || isSet(on)) && !(off && isSet(off))).pop()?.[0] ?? null : p.name;
-  const poiShown = p => poiName(p) !== null && (!WORLD_FLAGS.includes(p.flag) || isSet(p.flag));
+  const textOn = ([, on, off]) => (!on || isSet(on)) && !(off && isSet(off));
+  const poiName = p => p.names ? p.names.filter(textOn).pop()?.[0] ?? null : p.name;
+  // characters the game writes under a place once you have met them; without spoiler hiding also those who come later
+  function poiPeople(p) {
+    const now = [...new Set((p.people || []).filter(textOn).map(n => n[0]))];
+    return { now, later: spoilers() ? [] : [...new Set((p.people || []).map(n => n[0]))].filter(n => !now.includes(n)) };
+  }
+  // the game's own character markers (WorldMapPointParam with names only, name null) belong to the characters layer
+  const npcMarker = p => p.name === null;
+  const poiShown = p => (npcMarker(p) ? Object.values(poiPeople(p)).some(l => l.length) : poiName(p) !== null) && (!WORLD_FLAGS.includes(p.flag) || isSet(p.flag));
+  const poiLayer = p => npcMarker(p) ? "npc" : "poi:" + p.category;
+  // a character from the map files standing where the game has its own marker for them: one marker is enough
+  const hasGameMarker = n => W.pois.some(p => npcMarker(p) && p.map === n.map && p.people.some(x => x[0] === n.name) && (p.px - n.px) ** 2 + (p.py - n.py) ** 2 < 40 ** 2);
+  // icon 62 (Leyndell with the burning tree, "Capital of Ash" on wiki.gg) has no parameter row; shown with the
+  // ashen name, which WorldMapPointParam switches on flag 118 (Maliketh defeated)
+  const poiIcon = p => p.icon === 60 && isSet(118) ? 62 : p.icon;
   // Twierdza Okrągłego Stołu (m11_10): gra pokazuje ją jedną ikoną w morzu na zachód od Pogrobna; jej punkty zbieramy w liście
   const atRoundtable = o => (o.map_id || "").startsWith("m11_10");
   // widok nie wychodzi poza mapę z gry („Mój postęp”: poza odkryty obszar), a najmniejsze przybliżenie wypełnia nią ekran
@@ -942,9 +957,9 @@
     for (const g of W.graces) if (g.map === m) add("grace", isSet(g.flag, 60));               // Twierdza: jeden znacznik w warstwie łask
     for (const b of bossList()) if (b.map === m && !hiddenBoss(b)) add("boss", b.defeated);
     for (const x of W.invaders) if (x.map === m && !atRoundtable(x)) add("invader", isSet(x.flag), x);
-    for (const p of W.pois) if (p.map === m && poiShown(p)) add("poi:" + p.category, null, p);
+    for (const p of W.pois) if (p.map === m && poiShown(p)) add(poiLayer(p), null, p);
     for (const t of W.items) if (t.map === m && !atRoundtable(t)) add(t.kind, isSet(t.flag));
-    for (const n of W.npcs) if (n.map === m && !atRoundtable(n)) add("npc", null, n);
+    for (const n of W.npcs) if (n.map === m && !atRoundtable(n) && !hasGameMarker(n)) add("npc", null, n);
     for (const d of dlcMarks(m)) add("dlc", mine ? null : d.done, d);
     const nd = (D.deathPoints || []).filter(d => d.map === m).length; if (nd) c.deaths = [0, nd];
     return c;
@@ -969,7 +984,7 @@
           : `<label class="toggle hide-done" title="Ukrywa zebrane przedmioty, pokonanych bossów i odkryte miejsca łaski"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}>
             <span class="toggle-track"><span class="toggle-thumb"></span></span><span class="toggle-label">Ukryj zaliczone</span></label>`}
         <div class="layers-scroll">
-        ${group("Na mapie", ["grace", "boss", "invader", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC, które najeżdżają twój świat"),
+        ${group("Na mapie", ["grace", "boss", "invader", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC: najeźdźcy i pojedynki ze znaku przywołania"),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
         ${group("Miejsca i lochy", poiKeys, Object.entries(POI).map(([k, [l, g]]) => row("poi:" + k, l, `<span class="sw-poi">${g}</span>`)))}
         ${KIND_GROUPS.map(([title, keys]) => group(title, keys, keys.map(k => row(k, KINDS[k][0], dot(KINDS[k][1]))))).join("")}
@@ -1045,22 +1060,26 @@
     for (const x of W.invaders) { const done = isSet(x.flag), hid = hiddenInvader(x);
       if (x.map !== m || atRoundtable(x) || !match(hid ? "" : x.name, hid ? "" : x.name_en, "najeźdźca") || (hide && done) || (mine && !done)) continue;
       L.marker(ll(map, x.px, x.py), { icon: divIcon(`<span class="mk-invader ${done ? "done" : ""}"></span>`, 24), riseOnHover: true })
-        .bindTooltip(`<b>${hid ? "Najeźdźca" : esc(x.name)}</b>${done ? "pokonany" : "niepokonany"}${hid || !x.rewards.length ? "" : " · " + esc(x.rewards[0].name) + (x.rewards.length > 1 ? " i inne" : "")}`, { direction: "top", offset: [0, -10], className: "er-tip" })
+        .bindTooltip(`<b>${hid ? (x.summoned ? "Przeciwnik" : "Najeźdźca") : esc(x.name)}</b>${x.summoned ? "pojedynek ze znaku · " : ""}${done ? "pokonany" : "niepokonany"}${hid || !x.rewards.length ? "" : " · " + esc(x.rewards[0].name) + (x.rewards.length > 1 ? " i inne" : "")}`, { direction: "top", offset: [0, -10], className: "er-tip" })
         .on("click", () => openInvader(x)).addTo(grp("invader")); }
     // „Gdzie wypada”: wszystkie miejsca przeciwników z wybranym łupem (z karty przedmiotu)
     for (const [pm, px, py] of state.mapDrops?.pts || []) if (pm === m)
       L.circleMarker(ll(map, px, py), { pane: "drops", radius: 8, color: "#fff4e0", weight: 2, fillColor: "#e0483a", fillOpacity: 1 })
         .bindTooltip(`<b>${esc(state.mapDrops.title)}</b>tu się pojawia`, { direction: "top", className: "er-tip" }).addTo(grp("drops"));
-    for (const pnt of W.pois) { const name = poiName(pnt), icon = pnt.icon;
-      if (pnt.map !== m || !poiShown(pnt) || !match(name) || !near(pnt)) continue;
+    for (const pnt of W.pois) { const who = poiPeople(pnt), npc = npcMarker(pnt), icon = poiIcon(pnt);
+      const name = npc ? who.now.join(" · ") || "Postać" : poiName(pnt), here = npc ? [] : who.now;
+      const quest = npc && npcQuest({ name: who.now[0] || who.later[0] });
+      if (pnt.map !== m || !poiShown(pnt) || !match(name, ...who.now, ...who.later) || !near(pnt)) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: icon != null ? divIcon(`<span class="mk-place"><img src="${MAP_ICON(icon)}" alt=""></span>`, 36)
         : divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
-        .bindTooltip(`<b>${esc(name)}</b>${esc(POI[pnt.category]?.[0] || "")}`, { direction: "top", offset: [0, -12], className: "er-tip" }).addTo(grp("poi:" + pnt.category)); }
+        .on("click", () => { if (quest) goQuest(quest.id); })
+        .bindTooltip(`<b>${esc(name)}</b>${npc ? (quest ? `postać · klik: quest „${esc(quest.name)}”` : "postać") : esc(POI[pnt.category]?.[0] || "")}${here.length ? `<span class="tip-sub">tu jest: ${esc(here.join(" · "))}</span>` : ""}${
+          who.later.length ? `<span class="tip-sub">w innym momencie gry: ${esc(who.later.join(" · "))}</span>` : ""}`, { direction: "top", offset: [0, -12], className: "er-tip" }).addTo(grp(poiLayer(pnt))); }
     for (const d of dlcMarks(m)) { if (!match("wejście do dlc", "dlc", d.name) || (mine && !near(d))) continue;
       L.marker(ll(map, d.px, d.py), { icon: divIcon(`<span class="mk-dlc ${d.done ? "done" : ""}">✦</span>`, 30), zIndexOffset: 800, riseOnHover: true })
         .bindTooltip(`<b>${d.title}</b>${esc(d.sub)}<span class="tip-sub">klik: jak się tam dostać</span>`, { direction: "top", offset: [0, -14], className: "er-tip" })
         .on("click", () => goQuest("dlc-entry")).addTo(grp("dlc")); }
-    for (const n of W.npcs) { if (n.map !== m || atRoundtable(n) || !match(n.name, n.name_en) || !near(n)) continue;
+    for (const n of W.npcs) { if (n.map !== m || atRoundtable(n) || hasGameMarker(n) || !match(n.name, n.name_en) || !near(n)) continue;
       L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 })
         .bindTooltip(`<b>${esc(n.name)}</b>${npcQuest(n) ? "postać · klik: quest „" + esc(npcQuest(n).name) + "”" : "postać"}`, { direction: "top", className: "er-tip" })
         .on("click", () => { const q = npcQuest(n); if (q) goQuest(q.id); }).addTo(grp("npc")); }

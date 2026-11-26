@@ -71,15 +71,21 @@ prochy czcigodnych duchów), 15 wielkie runy, 16/18 inkantacje. Dalszy podział 
 
 ### Miejsca: `WorldMapPointParam`
 `+0x20` area/gx/gz, `+0x24` pozycja, `+0x04` flaga pokazania punktu (6001 = zawsze), `+0x0C` ikona `MENU_MAP_<id>`,
-`+0x30 + 12·i` do 8 napisów (PlaceName, flaga włączenia, flaga wyłączenia; flaga < 10 = zawsze), `+0x90 + i` rodzaj
-napisu (0 miejsce, 1 imię postaci) → 294 miejsca. Kategoria po nazwie (katakumby, jaskinie/pieczary, tunele,
+`+0x30 + 12·i` do 8 napisów (tekst, flaga włączenia, flaga wyłączenia; flaga < 10 = zawsze), `+0x90 + i` rodzaj
+napisu (0 miejsce z PlaceName, 1 imię postaci z NpcName) → 366 punktów. Kategoria po nazwie (katakumby, jaskinie/pieczary, tunele,
 wiekowięzienia, groby bohaterów, wieże, ruiny, kościoły, zamki, forty, szopy, pomniejsze Złote Drzewa, wioski).
 
 Stany świata: grafika kafli mapy ich nie ma (wariant kafla to tylko bity fragmentów mapy). Zmieniają się napisy i ikony
 miejsc: „Krater upadłej gwiazdy” po fladze 9417 (common.emevd po Radahnie, znika po wejściu do krateru, 1045360500),
 „Leyndell, stolica popiołów” po fladze 118 (po Malikecie), Enir-Ilim (ikona 211) po fladze 62890. Ikona 62 (Leyndell
-szary) nie ma wpisu w parametrach i strona jej nie używa, dopóki nie sprawdzimy w grze, kiedy się pojawia. Imion postaci
-(118 napisów rodzaju 1) strona na razie nie pokazuje. Twierdza Okrągłego Stołu (m11_10) jest jednym znacznikiem z ikoną 48
+z płonącym drzewem, na wiki.gg „Leyndell, Capital of Ash”) nie ma wpisu w parametrach; strona pokazuje ją razem z napisem
+w popiele, po fladze 118.
+
+Imiona postaci (118 napisów rodzaju 1, w `pois.json` pole `people`): gra dopisuje je pod miejscem, gdy postać tam jest
+(np. Sellen w Ruinach Zguby). 71 punktów ma same imiona, bez nazwy miejsca: to znaczniki postaci z gry (ikona 80,
+zakapturzona postać), w danych `name: null` i kategoria `npc`, na stronie w warstwie „Postacie (NPC)”. Dymek pokazuje,
+kto jest tu według save'a; bez ukrywania spoilerów także postacie, które przychodzą tu w innym momencie gry. Postać
+z `npcs.json` stojąca do 40 px od takiego znacznika z tym samym imieniem nie ma osobnego znacznika. Twierdza Okrągłego Stołu (m11_10) jest jednym znacznikiem z ikoną 48
 w miejscu łaski Stołu Utraconej Łaski; jej postacie, najeźdźca i skarby są w liście po kliknięciu.
 
 ### NPC
@@ -93,6 +99,12 @@ obszar, encja, pula), `90005774` (flaga, pula, flaga otrzymania) i `90005768` (Q
 zależne od etapu questu). Pula to łańcuch wierszy `ItemLotParam_map` (lot, lot+1…), tak jak skarby. `NpcParam +0x133`
 (teamType 27) nie wystarcza, bo mają go też czerwone postacie z pojedynków. Moore (6 wywołań w DLC) jest pominięty,
 dopóki nie sprawdzimy w grze, czy to prawdziwe inwazje.
+
+Pojedynki ze znaku (`summoned: true`): wspólne zdarzenie `90005793` obsługuje znaki przywołania postaci (pomocników jak
+Millicenta, ale też czerwone pojedynki). Kilka wywołań z tym samym warunkiem w jednej mapie to seria walk po kolei:
+trzej Rycerze wielkiego naczynia przy Wielkim Dzbanie (m60_47_41). Argumenty: warunek, flaga, flaga pokonania, encja.
+Flagi pokonania 1047410230-1047410232 i 1047419201 (cała seria wygrana) sprawdzone na save'ach. Nagroda (talizman
+„Arsenał wielkiego naczynia”) jest podarunkiem w rozmowie z Dzbanem, w `item_sources.json` jako `gifts`.
 
 ### Lochy → mapa świata: `WorldMapLegacyConvParam` (196 wierszy, 48 B)
 `+0x04` src area/gx/gz, `+0x08` src pozycja, `+0x14` dst area/gx/gz, `+0x18` dst pozycja, `+0x24` punkt bazowy.
@@ -122,9 +134,9 @@ Wyjątki (2026-11-25):
 |---|---|---|
 | `bosses_all.json` | 212 | id/flag, name (PL), name_en, location, region_pl, runes, map_id, dlc, icon, remembrance, rewards[], map/px/py/approx, named_by |
 | `item_locations.json` | 3401 | lot, flag, map_id, items[{cat,id,name,name_en,icon,count,kind}], kind, dlc, region_pl, map/px/py/approx |
-| `pois.json` | 295 | id, name, category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py |
+| `pois.json` | 366 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py |
 | `npcs.json` | 326 | name, name_en, map_id, entity, talk, region_pl, map/px/py |
-| `invaders.json` | 25 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, rewards[], region_pl, map/px/py |
+| `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), rewards[], region_pl, map/px/py |
 | `enemies.json` | 19 887 | [mapa, px, py] każdego przeciwnika z łupem (numery wierszy w `item_sources.json` → `at`) |
 
 ## Braki

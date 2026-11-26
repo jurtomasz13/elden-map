@@ -31,6 +31,10 @@ FARUM = {"px": 8488.9, "py": 4835.7, "scale": 1.0, "x": 0.0, "z": 0.0}
 DLC_AREAS = {20, 21, 22, 25, 28, 40, 41, 42, 43, 61}
 # najeźdźcy (czerwone fantomy NPC): wspólne zdarzenia z common_func wywoływane w skryptach map
 INVASION, INVADER_DEATH, FLAG_REWARD, QUEST_REWARDS = 90005790, 90005792, 90005774, 90005768
+# znak przywołania postaci (pomocnicy jak Millicenta i czerwone pojedynki): (warunek, ?, flaga, encja, …); kilka wywołań
+# z tym samym warunkiem w jednej mapie to seria pojedynków (trzej Rycerze wielkiego naczynia przy Wielkim Dzbanie),
+# a trzeci argument to flaga pokonania rycerza (sprawdzone na save'ach: 1047410230-232)
+SUMMON_SIGN = 90005793
 # Moore w DLC ma 6 takich wywołań; nie wiadomo, czy to prawdziwe inwazje, więc go pomijamy, dopóki nie sprawdzimy w grze
 SKIP_INVADERS_EN = {"Moore"}
 # kategorie w wierszach puli łupu (ItemLotParam); 6 = gotowa broń z EquipParamCustomWeapon (+0x00 broń bazowa),
@@ -294,8 +298,8 @@ def main():
     ps = P.load_params()
     world = World(ps)
     tp, te = P.load_texts("polpl"), P.load_texts("engus")
-    npc_pl = {**tp.get("NpcName", {}), **tp.get("NpcName_dlc01", {})}
-    npc_en = {**te.get("NpcName", {}), **te.get("NpcName_dlc01", {})}
+    npc_pl = {**tp.get("NpcName", {}), **tp.get("NpcName_dlc01", {}), **tp.get("NpcName_dlc02", {})}
+    npc_en = {**te.get("NpcName", {}), **te.get("NpcName_dlc01", {}), **te.get("NpcName_dlc02", {})}
     en2pl = {v.lower(): npc_pl.get(k) for k, v in npc_en.items() if npc_pl.get(k)}
     places = {**tp.get("PlaceName", {}), **tp.get("PlaceName_dlc01", {}), **tp.get("PlaceName_dlc02", {})}
     places_en = {**te.get("PlaceName", {}), **te.get("PlaceName_dlc01", {}), **te.get("PlaceName_dlc02", {})}
@@ -370,6 +374,7 @@ def main():
     award_src = award_params(E.load("/event/common_func.emevd.dcx") or {})
     boss_name_by_entity, reward_by_flag, name_near_flag, global_flag, reward_by_global = {}, {}, {}, {}, {}
     invasions, invader_lots, quest_lots = {}, {}, {}        # flaga pokonania -> encja / pule nagród
+    duels = {}                                              # (mapa, warunek) -> [(flaga pokonania, encja)] znaków przywołania
     # bossowie polowi (Nocna Kawaleria, Ptak śmierci…): wiersz GameAreaParam ma numer encji bossa, a śmierć zapisuje
     # wspólne zdarzenie 90005860/90005861(flaga pokonania, …, encja, …) pod inną flagą (…800 / …850)
     field_defeat = {}
@@ -393,6 +398,8 @@ def main():
                                 field_defeat.setdefault(v, cargs[0])
                     if cid == INVASION and len(cargs) >= 5:              # (warunek, flaga pokonania, obszar, obszar, encja, …)
                         invasions.setdefault(cargs[1], cargs[4])
+                    elif cid == SUMMON_SIGN and len(cargs) >= 4:
+                        duels.setdefault((mid, cargs[0]), []).append((cargs[2], cargs[3]))
                     elif cid == INVADER_DEATH and len(cargs) >= 5 and cargs[4] in lots and cargs[4] > 0:   # (flaga, obszar, obszar, encja, pula, …)
                         invader_lots.setdefault(cargs[0], []).append(cargs[4])
                     elif cid == FLAG_REWARD and len(cargs) >= 2 and cargs[1] in lots and cargs[1] > 0:     # (flaga, pula, flaga otrzymania)
@@ -452,7 +459,8 @@ def main():
 
     # ---------- najeźdźcy: część mapy o encji z wywołania inwazji, nagrody z zdarzeń jej flagi pokonania ----------
     invaders = []
-    for flag, entity in sorted(invasions.items()):
+    gauntlet = {flag: entity for calls in duels.values() if len(calls) > 1 for flag, entity in calls}
+    for flag, entity in sorted(invasions.items()) + sorted(gauntlet.items()):
         mid, part = enemies_by_entity.get(entity, (None, None))
         row = npc_rows.get(part["npc"]) if part else None
         if not row:
@@ -464,7 +472,7 @@ def main():
         lots_ = list(dict.fromkeys(invader_lots.get(flag, []) + quest_lots.get(flag, [])))
         invaders.append({"id": entity, "flag": flag, "name": npc_pl.get(nid), "name_en": npc_en.get(nid), "map_id": mid,
                          "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in part["pos"]], "lots": lots_,
-                         "quest_rewards": flag in quest_lots,
+                         "quest_rewards": flag in quest_lots, **({"summoned": True} if flag in gauntlet else {}),
                          "rewards": [x for lot in lots_ for x in lot_chain(lot)[0]],
                          **(world.to_map(area, gx, gz, *part["pos"]) or {})})
 
@@ -534,33 +542,37 @@ def main():
 
     # ---------- miejsca ----------
     # WorldMapPointParam: +0x04 flaga pokazania punktu (6001 = zawsze), +0x0C ikona MENU_MAP_<id>, +0x30 + 12·i do 8 napisów
-    # (tekst, flaga włączenia, flaga wyłączenia; flaga < 10 = zawsze), +0x90 + i rodzaj napisu (0 miejsce, 1 postać).
+    # (tekst, flaga włączenia, flaga wyłączenia; flaga < 10 = zawsze), +0x90 + i rodzaj napisu (0 miejsce z PlaceName,
+    # 1 postać z NpcName: gra dopisuje pod miejscem, kto tam teraz stoi, np. Blaidd po spotkaniu).
     # Napisy z flagami to stany świata (krater po Radahnie: 9417, Leyndell w popiele: 118) i prośby Wulkanicznego Dworu.
     map_icons = {int(k) for k in json.load(open(os.path.join(A.ROOT, "assets", "cache", "mapicons", "layout.json"), encoding="utf-8"))}
     pois = []
     for rid, r in P.rows(ps["WorldMapPointParam"])[0]:
-        names = []
+        names, people = [], []
         for i in range(8):
             tid, on, off = struct.unpack_from("<3i", r, 0x30 + 12 * i)
-            if r[0x90 + i] == 0 and places.get(tid):
-                names.append([places[tid].strip(), on if on >= 10 else 0, off if off >= 10 else 0])
-        if not names:
+            text = (places if r[0x90 + i] == 0 else npc_pl).get(tid)
+            if text:
+                (names if r[0x90 + i] == 0 else people).append([text.strip(), on if on >= 10 else 0, off if off >= 10 else 0])
+        if not names and not people:
             continue
-        name = names[0][0]
+        # a point with only character names is the game's own character marker (hooded figure), name null
+        name = names[0][0] if names else None
         area, gx, gz = r[0x20], r[0x21], r[0x22]
         local = struct.unpack_from("<3f", r, 0x24)
         pos = world.to_map(area, gx, gz, *local)
         show, icon = struct.unpack_from("<i", r, 0x04)[0], struct.unpack_from("<H", r, 0x0C)[0]
         if pos:
-            pois.append({"id": rid, "name": name, "category": poi_category(name), "map_id": msb.map_id(area, gx, gz),
+            pois.append({"id": rid, "name": name, "category": poi_category(name) if name else "npc", "map_id": msb.map_id(area, gx, gz),
                          "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in local], "flag": 0 if show == 6001 else show,
                          "icon": icon if icon in map_icons else None,
-                         **({"names": names} if len(names) > 1 or names[0][1] or names[0][2] else {}), **pos})
+                         **({"names": names} if len(names) > 1 or (names and (names[0][1] or names[0][2])) else {}),
+                         **({"people": people} if people else {}), **pos})
 
     # powtórzony wiersz w tym samym punkcie odpada, chyba że ma inne napisy z flagami (np. Wielka Winda Rold)
     seen_poi, uniq = set(), []
     for p_ in pois:
-        k = (p_["name"], p_.get("map"), round(p_.get("px") or 0, -1), round(p_.get("py") or 0, -1), json.dumps(p_.get("names")))
+        k = (p_["name"], p_.get("map"), round(p_.get("px") or 0, -1), round(p_.get("py") or 0, -1), json.dumps(p_.get("names")), json.dumps(p_.get("people")))
         if k not in seen_poi:
             seen_poi.add(k)
             uniq.append(p_)
