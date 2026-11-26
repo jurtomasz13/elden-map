@@ -1002,11 +1002,13 @@
       <div class="map-panel corners"><div class="eyebrow">${MAPS[state.map]}</div><h2 class="title">Mapa</h2>
         ${avail.length > 1 ? `<div class="maptabs">${avail.map(k => `<button class="chip ${state.map === k ? "on" : ""}" data-m="${k}">${MAPS[k]}</button>`).join("")}</div>` : ""}
         <input class="search map-search" id="mq" type="search" placeholder="Szukaj: przedmiot, boss, miejsce…" value="${esc(state.mapQuery)}">
+        ${state.mapFocus && !state.mapDrops ? `<button class="chip on map-filter-chip" id="focusClear">Pokazuję: ${esc(state.mapFocus.title)} · pokaż resztę ✕</button>` : ""}
         ${state.mapDrops ? `<button class="chip on map-filter-chip" id="dropsClear">Gdzie wypada: ${esc(state.mapDrops.title)} (${state.mapDrops.pts.filter(p => p[0] === state.map).length}) ✕</button>` : ""}
         ${state.mapPeek ? `<p class="view-sub mine-note">Pokazuję miejsce poza odkrytym terenem. <button class="chip" id="peekBack">Wróć do mojego postępu</button></p>` : ""}
         ${state.mine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
           : `<label class="toggle hide-done" title="Ukrywa zebrane przedmioty, pokonanych bossów i odkryte miejsca łaski"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}>
             <span class="toggle-track"><span class="toggle-thumb"></span></span><span class="toggle-label">Ukryj zaliczone</span></label>`}
+        <button class="chip all-layers" id="allLayers">${Object.keys(cnt).some(on) ? "Ukryj wszystko" : "Pokaż wszystko"}</button>
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "invader", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC: najeźdźcy i pojedynki ze znaku przywołania"),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
@@ -1021,14 +1023,16 @@
     // warstwy i grupy: tylko przełączenie znaczników i przycisków (bez przebudowy mapy i panelu)
     const syncGroups = () => main.querySelectorAll("[data-group]").forEach(h => {
       const ks = h.dataset.group.split(","); h.querySelector("span").textContent = `${ks.every(on) ? "ukryj" : "pokaż"} wszystkie`; });
-    main.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => { const k = b.dataset.layer; off.has(k) ? off.delete(k) : off.add(k);
-      b.classList.toggle("on", on(k)); syncGroups(); refreshLayers(); });
-    main.querySelectorAll("[data-group]").forEach(b => b.onclick = () => { const keys = b.dataset.group.split(","), allOn = keys.every(on);
-      keys.forEach(k => allOn ? off.add(k) : off.delete(k));
+    const setLayers = (keys, visible) => { keys.forEach(k => visible ? off.delete(k) : off.add(k));
       main.querySelectorAll("[data-layer]").forEach(l => l.classList.toggle("on", on(l.dataset.layer)));
-      syncGroups(); refreshLayers(); });
+      $("#allLayers").textContent = Object.keys(cnt).some(on) ? "Ukryj wszystko" : "Pokaż wszystko";
+      syncGroups(); refreshLayers(); };
+    main.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => { const k = b.dataset.layer; setLayers([k], off.has(k)); });
+    main.querySelectorAll("[data-group]").forEach(b => b.onclick = () => { const keys = b.dataset.group.split(","); setLayers(keys, !keys.every(on)); });
+    $("#allLayers").onclick = () => setLayers(Object.keys(cnt), !Object.keys(cnt).some(on));
     if ($("#hideDone")) $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
-    if ($("#dropsClear")) $("#dropsClear").onclick = () => { state.mapDrops = null;
+    if ($("#focusClear")) $("#focusClear").onclick = () => { state.mapFocus = null; $("#focusClear").remove(); buildLayers(); };
+    if ($("#dropsClear")) $("#dropsClear").onclick = () => { state.mapDrops = null; state.mapFocus = null;
       if (state.mapPeek) { state.mapPeek = false; viewMap(); } else { $("#dropsClear").remove(); buildLayers(); } };
     if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; state.mapDrops = null; viewMap(); };
     // wyszukiwanie: tylko znaczniki i żeton filtra (pole zostaje, mapa się nie przebudowuje)
@@ -1039,7 +1043,7 @@
         $("#mqClear").onclick = () => { state.mapQuery = ""; state.mapExact = null; $("#mq").value = ""; syncChip(); buildLayers(); };
       }
     };
-    let t; $("#mq").oninput = e => { clearTimeout(t); t = setTimeout(() => { state.mapQuery = e.target.value; state.mapExact = null; syncChip(); buildLayers(); }, 350); };
+    let t; $("#mq").oninput = e => { clearTimeout(t); t = setTimeout(() => { state.mapQuery = e.target.value; state.mapExact = null; state.mapFocus = null; $("#focusClear")?.remove(); syncChip(); buildLayers(); }, 350); };
     syncChip();
     if (!window.L) { $("#mapc").innerHTML = '<p class="view-sub" style="padding:40px">Brak biblioteki Leaflet (offline?).</p>'; return; }
     const keepView = viewMap.keep && bigMap && viewMap.keep.map === state.map ? { c: bigMap.getCenter(), z: bigMap.getZoom() } : null;
@@ -1068,21 +1072,25 @@
     drawFog(map, m);
     const grp = k => mapLayers[k] ??= L.layerGroup();
     const match = (...names) => !q || names.some(n => state.mapExact ? (n || "").toLowerCase() === q : (n || "").toLowerCase().includes(q));
+    // focus (opened from another page): only the target, whatever the layer, search and progress filters say
+    const foc = state.mapFocus;
+    const pinned = o => foc.at.some(a => a.map === o.map && Math.abs(a.px - o.px) < 2 && Math.abs(a.py - o.py) < 2);
+    const show = (o, ok) => foc ? pinned(o) : ok;
     const rt = roundtable(), rtg = rt.grace, rtFound = isSet(rtg.flag, 60);
-    if (rtg.map === m && (!mine || rtFound) && !(hide && rtFound) && match("okrągły stół", "twierdza", rtg.name,
-      ...rt.npcs.flatMap(n => [n.name, n.name_en]), ...rt.invaders.flatMap(x => [x.name, x.name_en]), ...rt.spots.flatMap(t => t.items.flatMap(i => [i.name, i.name_en]))))
+    if (rtg.map === m && show(rtg, (!mine || rtFound) && !(hide && rtFound) && match("okrągły stół", "twierdza", rtg.name,
+      ...rt.npcs.flatMap(n => [n.name, n.name_en]), ...rt.invaders.flatMap(x => [x.name, x.name_en]), ...rt.spots.flatMap(t => t.items.flatMap(i => [i.name, i.name_en])))))
       L.marker(ll(map, rtg.px, rtg.py), { icon: divIcon(`<span class="mk-place"><img src="${MAP_ICON(48)}" alt=""></span>`, 44), zIndexOffset: 700, riseOnHover: true })
         .bindTooltip(`<b>Twierdza Okrągłego Stołu</b><span class="tip-sub">klik: postacie, skarby i łaska</span>`, { direction: "top", offset: [0, -18], className: "er-tip" })
         .on("click", openRoundtable).addTo(grp("grace"));
-    for (const g of W.graces) { if (g.map !== m || atRoundtable(g) || !match(g.name, g.region)) continue; const v = isSet(g.flag, 60); if ((hide && v) || (mine && !v)) continue;
+    for (const g of W.graces) { if (g.map !== m || atRoundtable(g)) continue; const v = isSet(g.flag, 60); if (!show(g, match(g.name, g.region) && !(hide && v) && !(mine && !v))) continue;
       L.marker(ll(map, g.px, g.py), { icon: divIcon(`<span class="mk-grace ${v ? "on" : ""}"></span>`, 22) })
         .bindTooltip(`<b>${esc(g.name || "Miejsce łaski")}</b>${esc(g.region || "")} · ${v ? "odkryte" : "nieodkryte"}`, { direction: "top", offset: [0, -8], className: "er-tip" }).addTo(grp("grace")); }
-    for (const b of bossList()) { if (b.map !== m || !match(b.name, b.name_en) || (hide && b.defeated) || (mine && !b.defeated) || hiddenBoss(b)) continue;
+    for (const b of bossList()) { if (b.map !== m || hiddenBoss(b) || !show(b, match(b.name, b.name_en) && !(hide && b.defeated) && !(mine && !b.defeated))) continue;
       L.marker(ll(map, b.px, b.py), { icon: divIcon(`<span class="mk-boss ${b.defeated ? "done" : ""}">${b.icon != null ? `<img src="${ICON(b.icon)}">` : ""}</span>`, 34), riseOnHover: true })
         .bindTooltip(`<b>${esc(b.name)}</b>${b.defeated ? "pokonany" : "niepokonany"} · ${pl(b.runes || 0, "run", "runy", "runów")}${b.approx ? " · w lochu" : ""}`, { direction: "top", offset: [0, -16], className: "er-tip" })
         .on("click", () => openBoss(b.id)).addTo(grp("boss")); }
     for (const x of W.invaders) { const done = isSet(x.flag), hid = hiddenInvader(x);
-      if (x.map !== m || atRoundtable(x) || !match(hid ? "" : x.name, hid ? "" : x.name_en, "najeźdźca") || (hide && done) || (mine && !done)) continue;
+      if (x.map !== m || atRoundtable(x) || !show(x, match(hid ? "" : x.name, hid ? "" : x.name_en, "najeźdźca") && !(hide && done) && !(mine && !done))) continue;
       L.marker(ll(map, x.px, x.py), { icon: divIcon(`<span class="mk-invader ${done ? "done" : ""}"></span>`, 24), riseOnHover: true })
         .bindTooltip(`<b>${hid ? (x.summoned ? "Przeciwnik" : "Najeźdźca") : esc(x.name)}</b>${x.summoned ? "pojedynek ze znaku · " : ""}${done ? "pokonany" : "niepokonany"}${hid || !x.rewards.length ? "" : " · " + esc(x.rewards[0].name) + (x.rewards.length > 1 ? " i inne" : "")}`, { direction: "top", offset: [0, -10], className: "er-tip" })
         .on("click", () => openInvader(x)).addTo(grp("invader")); }
@@ -1093,29 +1101,29 @@
     for (const pnt of W.pois) { const who = poiPeople(pnt), npc = npcMarker(pnt), icon = poiIcon(pnt);
       const name = npc ? who.now.join(" · ") || "Postać" : poiName(pnt), here = npc ? [] : who.now;
       const quest = npc && npcQuest({ name: who.now[0] || who.later[0] });
-      if (pnt.map !== m || !poiShown(pnt) || !match(name, ...who.now, ...who.later) || !near(pnt)) continue;
+      if (pnt.map !== m || !poiShown(pnt) || !show(pnt, match(name, ...who.now, ...who.later) && near(pnt))) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: icon != null ? divIcon(`<span class="mk-place"><img src="${MAP_ICON(icon)}" alt=""></span>`, 36)
         : divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
         .on("click", () => { if (quest) goQuest(quest.id); })
         .bindTooltip(`<b>${esc(name)}</b>${npc ? (quest ? `postać · klik: quest „${esc(quest.name)}”` : "postać") : esc(POI[pnt.category]?.[0] || "")}${here.length ? `<span class="tip-sub">tu jest: ${esc(here.join(" · "))}</span>` : ""}${
           who.later.length ? `<span class="tip-sub">w innym momencie gry: ${esc(who.later.join(" · "))}</span>` : ""}`, { direction: "top", offset: [0, -12], className: "er-tip" }).addTo(grp(poiLayer(pnt))); }
-    for (const d of dlcMarks(m)) { if (!match("wejście do dlc", "dlc", d.name) || (mine && !near(d))) continue;
+    for (const d of dlcMarks(m)) { if (!show({ ...d, map: m }, match("wejście do dlc", "dlc", d.name) && !(mine && !near(d)))) continue;
       L.marker(ll(map, d.px, d.py), { icon: divIcon(`<span class="mk-dlc ${d.done ? "done" : ""}">✦</span>`, 30), zIndexOffset: 800, riseOnHover: true })
         .bindTooltip(`<b>${d.title}</b>${esc(d.sub)}<span class="tip-sub">klik: jak się tam dostać</span>`, { direction: "top", offset: [0, -14], className: "er-tip" })
         .on("click", () => goQuest("dlc-entry")).addTo(grp("dlc")); }
-    for (const n of W.npcs) { if (n.map !== m || atRoundtable(n) || hasGameMarker(n) || !match(n.name, n.name_en) || !near(n)) continue;
+    for (const n of W.npcs) { if (n.map !== m || atRoundtable(n) || hasGameMarker(n) || !show(n, match(n.name, n.name_en) && near(n))) continue;
       L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 })
         .bindTooltip(`<b>${esc(n.name)}</b>${npcQuest(n) ? "postać · klik: quest „" + esc(npcQuest(n).name) + "”" : "postać"}`, { direction: "top", className: "er-tip" })
         .on("click", () => { const q = npcQuest(n); if (q) goQuest(q.id); }).addTo(grp("npc")); }
-    for (const t of W.items) { if (t.map !== m || atRoundtable(t) || !match(...t.items.map(i => i.name), ...t.items.map(i => i.name_en))) continue;
-      const done = isSet(t.flag); if ((hide && done) || (mine && !done)) continue;
+    for (const t of W.items) { if (t.map !== m || atRoundtable(t)) continue;
+      const done = isSet(t.flag); if (!show(t, match(...t.items.map(i => i.name), ...t.items.map(i => i.name_en)) && !(hide && done) && !(mine && !done))) continue;
       const col = KINDS[t.kind]?.[1] || "#999", dim = done && !mine;      // „Mój postęp” pokazuje tylko zebrane: bez przygaszania
       L.circleMarker(ll(map, t.px, t.py), { renderer, radius: q ? 7 : 4.5, color: dim ? "#8a7a5a" : "#1a140c", weight: 1, fillColor: col, fillOpacity: dim ? .5 : .95 })
         .on("click", () => selectSpot(t))
         .bindTooltip(`${t.items.map(i => `<span class="tip-item">${i.icon != null ? `<img src="${ICON(i.icon)}">` : ""}<b>${esc(i.name || "?")}</b>${i.count > 1 ? ` ×${i.count}` : ""}</span>`).join("")}
           <span class="tip-sub">${KINDS[t.kind]?.[0] || ""}${t.region_pl ? " · " + esc(t.region_pl) : ""}${t.enemy ? " · łup" + dropFrom(t) : ""}${done ? " · zebrane" : ""}${t.approx ? " · w lochu" : ""}</span>`, { direction: "top", className: "er-tip" })
         .addTo(grp(t.kind)); }
-    if (live.on) for (const d of (D.deathPoints || []).filter(d => d.map === m))
+    if (live.on && !foc) for (const d of (D.deathPoints || []).filter(d => d.map === m))
       L.circleMarker(ll(map, d.px, d.py), { renderer, radius: d.last ? 8 : 5, color: "#f0c9a0", weight: d.last ? 1.5 : 0, fillColor: "#9b3428", fillOpacity: .7 })
         .bindTooltip(d.last ? `<b>Plama krwi</b>${d.runes > 0 ? pl(d.runes, "run", "runy", "runów") + " do odzyskania" : "ostatnia śmierć"}` : "<b>Śmierć</b>", { direction: "top", className: "er-tip" }).addTo(grp("deaths"));
     refreshLayers();
@@ -1194,7 +1202,7 @@
     openSpot(t);
   }
   $("#drawerClose").addEventListener("click", () => { if (selMarker) { selMarker.remove(); selMarker = null; } });
-  function refreshLayers() { const off = offLayers(); for (const [k, g] of Object.entries(mapLayers)) off.has(k) && !state.mapQuery ? g.remove() : g.addTo(bigMap); }
+  function refreshLayers() { const off = offLayers(); for (const [k, g] of Object.entries(mapLayers)) off.has(k) && !state.mapQuery && !state.mapFocus ? g.remove() : g.addTo(bigMap); }
 
   // ---------- powiązania między widokami: przedmiot ↔ mapa ↔ boss ↔ quest ----------
   let pendingAfter = null;
@@ -1211,8 +1219,9 @@
     // „Mój postęp”: rzecz spoza odkrytych okolic pokazujemy zaznaczeniem, bez granic widoku i bez wyłączania trybu
     const unveil = mapMine() && (spot ? !isSet(spot.flag) : true) && !revealTest(o.map)(o);
     if (unveil) state.mapPeek = true;
+    state.mapFocus = { title: o.name || spot?.items?.map(i => i.name).join(", ") || "wybrane miejsce", at: [o, ...(spot ? [spot] : [])] };
     ensureGame({ dlc: o.map === "M10" });
-    if (location.hash === "#map") { closeDrawer(); if (state.map !== o.map || unveil) { state.map = o.map; viewMap(); } focusMap(o, spot); return; }
+    if (location.hash === "#map") { closeDrawer(); state.map = o.map; viewMap(); focusMap(o, spot); return; }
     state.map = o.map; navTo("#map", () => focusMap(o, spot));
   }
   // quest postaci: po imieniu NPC (pierwszy człon przed przecinkiem)
@@ -1313,6 +1322,7 @@
     const per = {}; for (const p of pts) per[p[0]] = (per[p[0]] || 0) + 1;
     const m = Object.entries(per).sort((a, b) => b[1] - a[1])[0][0];
     state.mapDrops = { title: g.title, pts };
+    state.mapFocus = { title: g.title, at: [] };          // only the drop places, the rest of the map hidden
     if (state.mine && pts.some(([pm, px, py]) => !revealTest(pm)({ px, py }))) state.mapPeek = true;
     ensureGame({ dlc: m === "M10" });
     state.map = m;
@@ -1356,7 +1366,7 @@
       ${here?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
       () => here?.map && miniMap($("#minimap"), here.map, here.px, here.py, it.icon, [
         { label: spots.length > 1 ? "To miejsce" : "Pokaż na mapie", primary: true, run: () => goMap(here, here) },
-        ...(spots.length > 1 ? [{ label: `Wszystkie miejsca (${spots.length})`, run: () => { goMap({ ...spots[0] }); state.mapQuery = it.name; state.mapExact = true; viewMapKeep(); } }] : [])]));
+        ...(spots.length > 1 ? [{ label: `Wszystkie miejsca (${spots.length})`, run: () => { goMap({ ...spots[0] }); state.mapFocus = null; state.mapQuery = it.name; state.mapExact = true; viewMapKeep(); } }] : [])]));
   }
   /* ---------------- postać: założony ekwipunek (z save'a) ---------------- */
   const CLASS_PL = { vagabond: "Włóczęga", warrior: "Wojownik", hero: "Bohater", bandit: "Bandyta", astrologer: "Astrolog", prophet: "Prorok",
@@ -1661,7 +1671,7 @@
     const v = (location.hash || "#bosses").slice(1);
     document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("active", a.dataset.view === v));
     if (v !== "map" && bigMap) { bigMap.remove(); bigMap = null; }
-    if (v !== "map") { state.mapQuery = ""; state.mapExact = null; state.mapPeek = false; state.mapDrops = null; }
+    if (v !== "map") { state.mapQuery = ""; state.mapExact = null; state.mapPeek = false; state.mapDrops = null; state.mapFocus = null; }
     if (v === "map" && keepMap && bigMap) { viewMapKeep(); return; }
     return (VIEWS[v] || viewBosses)();
   }
