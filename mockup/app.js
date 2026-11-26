@@ -1064,8 +1064,8 @@
         .on("click", () => { const q = npcQuest(n); if (q) goQuest(q.id); }).addTo(grp("npc")); }
     for (const t of W.items) { if (t.map !== m || atRoundtable(t) || !match(...t.items.map(i => i.name), ...t.items.map(i => i.name_en))) continue;
       const done = isSet(t.flag); if ((hide && done) || (mine && !done)) continue;
-      const col = KINDS[t.kind]?.[1] || "#999";
-      L.circleMarker(ll(map, t.px, t.py), { renderer, radius: q ? 7 : 4.5, color: done ? "#3a2d1e" : "#1a140c", weight: 1, fillColor: col, fillOpacity: done ? .3 : .95 })
+      const col = KINDS[t.kind]?.[1] || "#999", dim = done && !mine;      // „Mój postęp” pokazuje tylko zebrane: bez przygaszania
+      L.circleMarker(ll(map, t.px, t.py), { renderer, radius: q ? 7 : 4.5, color: dim ? "#8a7a5a" : "#1a140c", weight: 1, fillColor: col, fillOpacity: dim ? .5 : .95 })
         .on("click", () => selectSpot(t))
         .bindTooltip(`${t.items.map(i => `<span class="tip-item">${i.icon != null ? `<img src="${ICON(i.icon)}">` : ""}<b>${esc(i.name || "?")}</b>${i.count > 1 ? ` ×${i.count}` : ""}</span>`).join("")}
           <span class="tip-sub">${KINDS[t.kind]?.[0] || ""}${t.region_pl ? " · " + esc(t.region_pl) : ""}${done ? " · zebrane" : ""}${t.approx ? " · w lochu" : ""}</span>`, { direction: "top", className: "er-tip" })
@@ -1240,6 +1240,8 @@
     const rows = [];
     for (const id of src.bosses || []) { const b = W.bosses.find(x => x.id === id); if (!b) continue;
       rows.push(`<button class="xbtn x-boss" data-go="boss:${b.id}">⚔ Nagroda za bossa<small>${esc(b.name)}${b.region_pl ? " · " + esc(b.region_pl) : ""}</small></button>`); }
+    for (const g of src.gifts || []) { const ng = !g.who && g.map && nearestGrace(g);
+      rows.push(`<button class="xbtn x-event" ${g.map ? pinGo(g) : "disabled"}>✦ Podarunek w rozmowie<small>${g.who ? esc(g.who) : "postać albo obiekt" + (ng ? " · okolice: " + esc(ng.name) : "")}${g.map ? " · ⌖ na mapie" : ""}</small></button>`); }
     for (const sh of src.shops || []) {
       if (sh.who.startsWith("Przeróbka")) { rows.push(`<button class="xbtn x-shop" disabled>✂ Przeróbka odzienia<small>przy miejscu łaski${sh.trade ? " · z: " + esc(sh.trade) : ""}</small></button>`); continue; }
       rows.push(`<button class="xbtn x-shop" ${sh.map ? pinGo(sh) : "disabled"}>⚖ ${sh.trade ? "Wymiana" : "U kupca"}<small>${esc(sh.who)}${sh.trade ? " · za: " + esc(sh.trade)

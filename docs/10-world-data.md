@@ -152,6 +152,10 @@ Generuje `tools/extract/extract_sources.py` (krok w `run_all.py`). Klucz `"<kate
   postaci i bossów), więc grupujemy po modelu. Grupa ma wszystkie miejsca (`at`: numery wierszy `enemies.json`),
   a `count` liczy każdą część raz, nawet gdy przedmiot jest w dwóch wierszach puli.
 - Najeźdźcy: nagrody z `invaders.json` (`invaders`: lista encji); ich pule nie są liczone jako zdarzenia.
+- Podarunki w rozmowie (`gifts`): w skrypcie rozmowy wywołanie podprogramu (blok poleceń 6) z jednym argumentem, który
+  jest pulą `ItemLotParam_map`. Postać i miejsce z części MSB o tym TalkID; gdy jej nie ma (obiekt, np. Wielki Dzban),
+  kafel z flag skryptu (`10XXYY…` → m60_XX_YY), znacznik w środku kafla. Pula wywoływana w rozmowach więcej niż 3 postaci
+  to wspólny podprogram (np. flaszka), pomijany.
 - Zdarzenia (questy, podarunki): `AwardItemLot` (`2003[4]`/`2003[36]`) w skryptach map i `common`, także
   z parametrem przez `InitializeEvent`/`InitializeCommonEvent` (bajt źródłowy z tablicy parametrów). Pomijamy pule skarbów
   leżących na mapie.

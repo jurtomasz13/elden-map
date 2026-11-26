@@ -11,6 +11,8 @@
   część), a grupa w item_sources.json ma tylko numery wierszy tego pliku (`at`).
 - Bossowie: nagrody z bosses_all.json (po nazwie przedmiotu).
 - Najeźdźcy: nagrody z invaders.json (extract_world.py); ich pule nie są już osobnym „zdarzeniem”.
+- Podarunki od postaci: w skrypcie rozmowy wywołanie podprogramu (blok poleceń 6) z jednym argumentem, który jest pulą
+  ItemLotParam_map (np. Wielki Dzban daje „Arsenał wielkiego naczynia”: t221006000, pula 104700).
 """
 import json
 import os
@@ -23,8 +25,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 import archive as A  # noqa: E402
 import formats as F  # noqa: E402
 import emevd  # noqa: E402
+import esd  # noqa: E402
 import msb  # noqa: E402
 import params as P  # noqa: E402
+from talk_quests import ints  # noqa: E402
 from extract_world import DATA, World, item_index, lot_ids, map_id_of, msb_paths  # noqa: E402
 
 LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
@@ -132,6 +136,8 @@ def main():
 
     # ---------- kupcy: zakresy sklepów ze skryptów rozmów ----------
     shop_owner = {}                          # (start, end) -> talk id
+    gift_talks = defaultdict(set)            # pula -> {talk id}, przedmioty dawane w rozmowie
+    talk_tiles = {}                          # talk id -> kafel otwartego świata z flag skryptu (rozmowa bez postaci na mapie)
     talk_files = {mid[:12] for mid in (map_id_of(pth) for pth in msb_list) for mid in [f"m{mid[0]:02d}_{mid[1]:02d}_{mid[2]:02d}_00"]}
     talk_files |= {"m60_00_00_00", "m61_00_00_00", "m00_00_00_00"}      # rozmowy z otwartego świata są we wspólnych archiwach
     for mid in sorted(talk_files):
@@ -148,8 +154,19 @@ def main():
                 # zakres (początek, koniec); początek nie musi być istniejącym wierszem (np. wymiany u Enii od 9000000)
                 if a < b < a + 1000 and a >= 100000 and (a in shop or (a % 25 == 0 and any(a <= x <= b for x in shop_ids))):
                     shop_owner.setdefault((a, b), talk)
-    shops = defaultdict(list)
-    for (a, b), talk in shop_owner.items():
+            for _, _, entry, conds in esd.Esd(d).states():
+                for b, _, a in list(entry) + [c for _, pc in conds for c in pc]:
+                    v = ints(a)
+                    if b == 6 and len(v) == 1 and v[0] in lot_map:
+                        gift_talks[v[0]].add(talk)
+            # flagi 10XXYY…/20XXYY… należą do kafla m60_XX_YY / m61_XX_YY (np. Wielki Dzban: 1047419201 → m60_47_41)
+            tiles = [(59 + v // 1000000000, v // 1000000 % 100, v // 10000 % 100) for v in lits
+                     if 1000000000 <= v < 2100000000 and v // 100000000 in (10, 20)]
+            if tiles:
+                talk_tiles[talk] = max(set(tiles), key=tiles.count)
+
+    def talk_owner(talk):
+        """Imię postaci o tym TalkID i jej miejsce na mapie (z części MSB)."""
         who, spot = None, None
         for mid, npc, pos in talk_parts.get(talk, []):
             r = npc_rows.get(npc)
@@ -158,8 +175,17 @@ def main():
                 nm = None
             if nm and not who:
                 who = nm
-            if pos and not spot:
+            if pos.get("map") and not spot:
                 spot = {"map": pos["map"], "px": pos["px"], "py": pos["py"], "map_id": mid}
+        if not spot and talk in talk_tiles:                  # obiekt bez części postaci (np. Wielki Dzban): środek kafla
+            area, gx, gz = talk_tiles[talk]
+            pos = world.to_map(area, gx, gz, 0, 0, 0)
+            spot = pos and {"map": pos["map"], "px": pos["px"], "py": pos["py"], "map_id": f"m{area}_{gx:02d}_{gz:02d}_00", "approx": True}
+        return who, spot
+
+    shops = defaultdict(list)
+    for (a, b), talk in shop_owner.items():
+        who, spot = talk_owner(talk)
         if talk == 1000 or 110000 <= a <= 111399:   # menu miejsca łaski: przeróbka odzienia (za oryginalną część)
             who, spot = "Przeróbka przy miejscu łaski", None
         if not who and talk // 1000000 == 800:     # skrypty 800… = koczowniczy kupcy (bez części o tym TalkID na mapie)
@@ -208,11 +234,21 @@ def main():
                         k = 8 + src
                         if k + 4 <= len(args):
                             event_award[struct.unpack_from("<i", args, k)[0]].add(mid)
+    gifts = defaultdict(list)
+    for lot, talks in gift_talks.items():
+        # pula wywoływana w wielu rozmowach naraz to wspólny podprogram (np. ulepszenie flaszki), nie podarunek
+        if lot in treasure_lots or len({t // 1000000 for t in talks}) > 3:
+            continue
+        for talk in sorted(talks):
+            who, spot = talk_owner(talk)
+            for kk, _chance, _n in lot_entries(lot_map, lot):
+                if not any(g["who"] == who for g in gifts[kk]):
+                    gifts[kk].append({"who": who, **(spot or {})})
     invaders = json.load(open(os.path.join(DATA, "invaders.json"), encoding="utf-8"))
     invader_lots = {lot for x in invaders for lot in x["lots"]}
     events_src = defaultdict(list)
     for lot, mids in event_award.items():
-        if lot <= 0 or lot in treasure_lots or lot in invader_lots or lot not in lot_map:
+        if lot <= 0 or lot in treasure_lots or lot in invader_lots or lot in gift_talks or lot not in lot_map:
             continue
         for kk, chance, _n in lot_entries(lot_map, lot):
             for mid in sorted(mids):
@@ -241,20 +277,20 @@ def main():
                 invader_src[kk].append(x["id"])
 
     out = {}
-    for kk in set(enemies) | set(shops) | set(boss_src) | set(events_src) | set(invader_src):
+    for kk in set(enemies) | set(shops) | set(boss_src) | set(events_src) | set(invader_src) | set(gifts):
         e = sorted(({"who": None if n.startswith("#") else n, "model": n[1:] if n.startswith("#") else None,
                      "chance": v["chance"], "count": v["count"], "at": v["at"]}
                     for n, v in enemies.get(kk, {}).items()), key=lambda x: (x["who"] is None, -x["chance"], -x["count"]))
         ev = [{"map_id": m, **(world.to_map(int(m[1:3]), int(m[4:6]), int(m[7:9]), 0, 0, 0) or {})} if m != "common" else {"map_id": m}
               for m in events_src.get(kk, [])][:4]
-        out[kk] = {k: v for k, v in (("bosses", boss_src.get(kk)), ("invaders", invader_src.get(kk)), ("shops", shops.get(kk)),
+        out[kk] = {k: v for k, v in (("bosses", boss_src.get(kk)), ("invaders", invader_src.get(kk)), ("gifts", gifts.get(kk)), ("shops", shops.get(kk)),
                                      ("enemies", e), ("events", ev)) if v}
     with open(os.path.join(DATA, "item_sources.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     with open(os.path.join(DATA, "enemies.json"), "w", encoding="utf-8") as f:
         json.dump(placed, f, separators=(",", ":"))
     print(f"źródła przedmiotów: {len(out)} (kupcy {len(shops)}, z przeciwników {len(enemies)}, za bossów {len(boss_src)}, "
-          f"za najeźdźców {len(invader_src)}, ze zdarzeń {len(events_src)}); miejsca przeciwników z łupem {len(placed)}; "
+          f"za najeźdźców {len(invader_src)}, podarunki {len(gifts)}, ze zdarzeń {len(events_src)}); miejsca przeciwników z łupem {len(placed)}; "
           f"zakresy sklepów {len(shop_owner)}, z nazwą kupca {sum(1 for (a, b), t in shop_owner.items() if talk_parts.get(t))}")
 
 
