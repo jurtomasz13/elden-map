@@ -217,3 +217,15 @@ ThomasJClark/elden-ring-weapon-calculator (MIT). Obrażenia ciosu: dla każdego 
 (stosunek ataku do obrony, 10-90%, według opisów społeczności) × (1 − redukcja); rodzaj ciosu fizycznego z
 `EquipParamWeapon +0x104`. Pierwszy lekki cios jedną ręką ma w danych 100% w 578 z 579 broni, więc tak liczymy. Pomijamy
 statusy, umiejętności broni, talizmany, wzmocnienia, oburęczność i łuki (obrażenia zależą od strzał).
+
+## Teleporty: `warps.json` (2026-11-26)
+
+Generuje `tools/extract/extract_warps.py` ze skryptów zdarzeń. Instrukcje przenoszące gracza: `2003[14]` WarpPlayer,
+`2002[11..13]` cutscena z przeniesieniem, `2004[40/41/42/74]` przeniesienie postaci (tylko gracza). Argumenty wspólnych
+zdarzeń są rozwijane przez wywołania (`emevd.callers`, `emevd.instances`, `emevd.resolve`): brama `90005605` (+28 flaga,
+bez której brama jest zamknięta), powroty po bossie, wieczne więzienia i windy z medalionem nie trafiają na mapę, bo
+przenoszą w to samo miejsce. Źródło to encja z warunku zdarzenia (przycisk akcji, obszar, odległość, śmierć), przy
+skrzyni-pułapce pierwsza encja z akcji. Encje celu to części albo regiony map, także punktowe (`msb.py` czyta EntityID
+regionu z danych bazowych `+0x50`). Sprawdzone z listą bram na Fextralife (wszystkie 32 w danych). Na mapie 52
+teleporty: 22 bramy, 2 skrzynie-pułapki, przejścia z kluczem Akademii, trumny, windy do Mohgwyn i inne. Pomijamy
+cutsceny w tym samym pliku mapy (wejście na arenę bossa).
