@@ -141,8 +141,8 @@ jest to, co już wiadomo, i to, co trzeba zbadać. Numery to proponowana kolejno
       mapy znikają, bo zastępuje je przełącznik u góry.
     - Przełącznik spoilerów jest wtedy wyszarzony, bo nie ma czego ukrywać.
     - Quest jest odkryty od pierwszego zrobionego kroku.
-    - Przejście „pokaż na mapie” do miejsca poza odkrytym terenem nie może już po cichu wyłączać trybu (dziś robi to
-      `goMap` w `mockup/app.js`). Do ustalenia przy implementacji: pokazać tylko tę jedną rzecz.
+    - Przejście „pokaż na mapie” do miejsca poza odkrytym terenem nie wyłącza trybu: zaznacza to miejsce, a granice
+      widoku są na ten czas zdjęte.
 
 ## Wygląd
 
@@ -170,6 +170,11 @@ jest to, co już wiadomo, i to, co trzeba zbadać. Numery to proponowana kolejno
 Zrobione 2026-11-26 (commit 2bd5bd7): krok 1 w całości. Zamiast kolejności kroków okazało się, że kraina w lochach
 była wybierana losowo przy remisie; teraz dwa przebiegi od zera dają te same dane. Rekomendacje z pytań przyjęte
 przez właściciela w całości.
+
+Zrobione 2026-11-26: krok 2 (punkty 2, 3, 4, 14). Przełącznik „Mój postęp” w górnym pasku działa we wszystkich
+zakładkach i zawsze jest bez spoilerów (przełącznik spoilerów wyszarzony). „Pokaż na mapie” do miejsca spoza
+odkrytego terenu zdejmuje tylko granice widoku (`mapPeek`), mgła i znaczniki zostają, a w panelu jest przycisk
+„Wróć do mojego postępu”. Kronika zostaje bez zmian (to i tak historia tego, co zrobione).
 
 1. Błędy, osobne szybkie wydanie dla kolegi: kolejność kroków przygotowania danych (punkt 1), przedmioty pomijane
    przez `extract_icons.py` (punkt 10), pula łupu NPC z NpcParam +0x34 (punkt 8).

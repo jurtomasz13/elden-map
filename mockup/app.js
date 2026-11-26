@@ -10,13 +10,27 @@
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const pref = (k, d) => { try { return localStorage.getItem("er." + k) ?? d; } catch { return d; } };
   const savePref = (k, v) => { try { localStorage.setItem("er." + k, v); } catch { /* prywatne okno */ } };
-  const state = { spoilers: true, game: pref("game", "all"), mapMine: pref("mapMine", "1") === "1", offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
+  const state = { spoilers: true, game: pref("game", "all"), mine: pref("mine", "1") === "1", mapPeek: false, offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
     hideDone: false, mapQuery: "", qOpen: new Set(), qFilter: "all", off: new Set(["golden_rune", "material", "consumable", "ammo", "upgrade", "note", "npc", "poi:landmark"]) };
 
   // zakres gry dla wszystkich widoków (przełącznik w górnym pasku): wszystko / podstawka / DLC
   const gameOk = x => state.game === "all" || (state.game === "dlc") === !!x?.dlc;
   // przejście do konkretnej rzeczy spoza wybranego zakresu (np. link do questu z DLC) — pokaż wszystko
   function ensureGame(x) { if (x && !gameOk(x)) setGame("all", true); }
+  // „Mój postęp” (przełącznik w górnym pasku): wszystkie widoki pokazują tylko to, co już zrobione albo zdobyte,
+  // bez list i liczby tego, co jeszcze jest w grze; zawsze bez spoilerów (bieżący krok, ostrzeżenia o żywych bossach)
+  const spoilers = () => state.spoilers || state.mine;
+  const frac = (d, n) => state.mine ? `${d}` : `${d} / ${n}`;
+  const layerCount = n => `${n[0] && !state.mine ? n[0] + "/" : ""}${n[1]}`;
+  // mapa: przejście do miejsca spoza odkrytego terenu zdejmuje na chwilę granice widoku (mgła i znaczniki zostają)
+  const mapMine = () => state.mine && !state.mapPeek;
+  function syncMine() {
+    $("#mineToggle").checked = state.mine;
+    $("#spoilerToggle").checked = spoilers();
+    $("#spoilerToggle").disabled = state.mine;
+    $("#spoilerToggle").closest(".toggle").classList.toggle("disabled", state.mine);
+  }
+  function setMine(v) { state.mine = v; state.mapPeek = false; savePref("mine", v ? "1" : "0"); syncMine(); closeDrawer(); render(); }
   function setGame(g, quiet) {
     state.game = g; savePref("game", g); state.bossRegion = "all";
     document.querySelectorAll("[data-game]").forEach(b => b.classList.toggle("on", b.dataset.game === g));
@@ -91,10 +105,14 @@
       const own = fl.length ? (s.mode === "all" ? fl.every(f => isSet(f, 50)) : fl.some(f => isSet(f, 50))) : false;
       const done = (own && (!s.gated || prev)) || (s.later || []).some(f => isSet(f, 50));
       if (!s.alt) prev = done;
-      return { ...s, done, skipped: false }; });
+      return { ...s, done, own: own && done, skipped: false }; });
+    st.forEach((s, i) => { if (s.done && !s.own) {
+      const by = st.slice(i + 1).find(x => x.own && !x.alt);
+      if (by) s.why = `Zaliczony, bo zrobiłeś już dalszy krok: ${by.text}`; } });
     let h = -1;
     st.forEach((s, i) => { if (!s.alt && (s.here || []).some(f => isSet(f, 50))) h = i; });
-    for (let i = 0; i < h; i++) if (!st[i].alt && !st[i].done) { st[i].done = true; st[i].skipped = true; }
+    for (let i = 0; i < h; i++) if (!st[i].alt && !st[i].done) { st[i].done = true; st[i].skipped = true;
+      st[i].why = "Postać czeka już przy dalszym kroku, więc ten jest za tobą. Gra nie zapisuje, czy go zrobiłeś, czy pominąłeś."; }
     return st; };
 
   // Wejście do DLC: kokon Miquelli na arenie Mohga (Pałac Mohgwynów, podziemia). Wątek dopisywany do questów —
@@ -105,7 +123,7 @@
     const q = W.quests.find(x => x.id === "dlc-entry"), entered = q ? questSteps(q).at(-1).done : false, out = [];
     const cocoon = W.graces.find(g => g.name === DLC_COCOON), arrival = W.graces.find(g => g.name === DLC_ARRIVAL && g.dlc);
     if (cocoon && cocoon.map === m) out.push({ ...cocoon, done: entered, title: "Wejście do DLC",
-      sub: state.spoilers && !entered ? "Kokon w Pałacu Mohgwynów" : "Kokon Miquelli na arenie Mohga, po pokonaniu Radahna i Mohga" });
+      sub: spoilers() && !entered ? "Kokon w Pałacu Mohgwynów" : "Kokon Miquelli na arenie Mohga, po pokonaniu Radahna i Mohga" });
     if (arrival && arrival.map === m) out.push({ ...arrival, done: entered, title: "Początek Królestwa Cieni", sub: "Tu trafiasz z kokonu Miquelli" });
     return out;
   }
@@ -213,10 +231,10 @@
     sig.onclick = $("#charName").onclick = () => { location.hash = "#character"; };
   }
   const ring = (done, total, label) => {
-    const r = 32, c = 2 * Math.PI * r, off = c * (1 - done / Math.max(1, total));
+    const r = 32, c = 2 * Math.PI * r, off = state.mine ? 0 : c * (1 - done / Math.max(1, total));
     return `<div class="ring"><svg viewBox="0 0 74 74"><circle class="track" cx="37" cy="37" r="${r}" fill="none" stroke-width="1"/>
       <circle class="bar" cx="37" cy="37" r="${r}" fill="none" stroke-width="2.5" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>
-      <div><div class="ring-num">${done}<small> / ${total}</small></div><div class="ring-label">${label}</div></div></div>`;
+      <div><div class="ring-num">${done}${state.mine ? "" : `<small> / ${total}</small>`}</div><div class="ring-label">${label}</div></div></div>`;
   };
 
   /* ---------------- bossowie (wszyscy, z plików gry) ---------------- */
@@ -247,14 +265,14 @@
       return { ...b, defeated, tier: bossTier(b), discovered: !!how, discovered_by: how, region: REGION_ALIAS[b.region_pl] || b.region_pl || (b.dlc ? "Królestwo Cieni" : "Ziemie Pomiędzy") };
     });
   }
-  const hiddenBoss = b => state.spoilers && !b.discovered && !(state.revealed ??= new Set()).has("b:" + b.id);
+  const hiddenBoss = b => spoilers() && !b.discovered && !(state.revealed ??= new Set()).has("b:" + b.id);
   // ostrzeżenia „zanim zabijesz…” z backendu: aktywne, gdy quest niedokończony, a boss blokujący jeszcze żyje
   const bossFlagOf = id => +String(id || "").replace("boss-", "");
   function activeWarnings() {
     if (!live.on) return [];
     const bl = new Map(bossList().map(b => [b.flag, b]));
     return (live.state?.warnings || []).map(w => ({ ...w, b: bl.get(bossFlagOf(w.boss_id)) }))
-      .map(w => ({ ...w, hidden: w.b && hiddenBoss(w.b), text: (state.spoilers && w.warning_safe) || w.warning }));
+      .map(w => ({ ...w, hidden: w.b && hiddenBoss(w.b), text: (spoilers() && w.warning_safe) || w.warning }));
   }
   const warnHtml = w => `<p class="note warn">⚠ <b>${w.hidden ? "Nieznany wróg" : esc(w.b?.name || w.boss)}</b> · quest <a href="#quests" data-wq="${esc(w.quest_id)}">„${esc(w.quest)}”</a>${w.npc ? ` (${esc(w.npc)})` : ""}: ${esc(w.text || "zabicie tego bossa może przerwać quest.")}</p>`;
   // próby z backendu: zarejestrowane śmierci przy arenie (promień 60 m) przed pokonaniem; null = nie wiadomo
@@ -316,12 +334,12 @@
     alive: { name: "Najpierw niepokonani", f: (x, y) => x.defeated - y.defeated || (y.runes || 0) - (x.runes || 0) },
   };
   function viewBosses() {
-    const all = bossList().filter(gameOk);
+    const all = bossList().filter(gameOk).filter(b => !state.mine || b.defeated);
     const done = all.filter(b => b.defeated).length;
     const regions = [...new Set(all.map(b => b.region))].sort((x, y) => x.localeCompare(y, "pl"));
     const gk = state.bossGroup || "tier", sk = state.bossSort || "runes", g = BOSS_GROUPS[gk], so = BOSS_SORTS[sk];
     const q = (state.bossQuery || "").toLowerCase();
-    const list = all.filter(b => (state.bossFilter === "all" || (state.bossFilter === "alive" ? !b.defeated : b.defeated)) &&
+    const list = all.filter(b => (state.bossFilter === "all" || state.mine || (state.bossFilter === "alive" ? !b.defeated : b.defeated)) &&
       regionMatch(b.region, state.bossRegion) && (!state.bossTier || b.tier === state.bossTier) &&
       (!q || (b.name + " " + (b.name_en || "") + " " + b.region).toLowerCase().includes(q))).sort(so.f);
     const chip = (attr, k, l, on) => `<button class="chip ${on ? "on" : ""}" data-${attr}="${esc(k)}">${l}</button>`;
@@ -336,15 +354,15 @@
       return { r: t, kids, ...stat([t, ...kids.map(k => k.r)]) };
     }).filter(x => x.n).sort((x, y) => (x.d === x.n) - (y.d === y.n) || y.n - x.n);
     state.regOpen ??= new Set();
-    const row = (x, cls = "") => `<button class="ra-row ${cls} ${state.bossRegion === x.r ? "on" : ""} ${x.d === x.n ? "complete" : ""}" data-br="${esc(x.r)}">
-        <span class="ra-name">${esc(x.r)}</span><span class="ra-cnt">${x.d === x.n ? "✓ " : ""}${x.d} / ${x.n}</span>
-        <span class="qbar"><i style="width:${x.d / x.n * 100}%"></i></span></button>`;
+    const row = (x, cls = "") => `<button class="ra-row ${cls} ${state.bossRegion === x.r ? "on" : ""} ${x.d === x.n && !state.mine ? "complete" : ""}" data-br="${esc(x.r)}">
+        <span class="ra-name">${esc(x.r)}</span><span class="ra-cnt">${x.d === x.n && !state.mine ? "✓ " : ""}${frac(x.d, x.n)}</span>
+        ${state.mine ? "" : `<span class="qbar"><i style="width:${x.d / x.n * 100}%"></i></span>`}</button>`;
     const regionAside = `<aside class="region-aside corners"><div class="eyebrow">Krainy</div>
-      <button class="ra-row ${state.bossRegion === "all" ? "on" : ""}" data-br="all"><span class="ra-name">Wszystkie krainy</span><span class="ra-cnt">${base.filter(b => b.defeated).length} / ${base.length}</span></button>
+      <button class="ra-row ${state.bossRegion === "all" ? "on" : ""}" data-br="all"><span class="ra-name">Wszystkie krainy</span><span class="ra-cnt">${frac(base.filter(b => b.defeated).length, base.length)}</span></button>
       ${tops.map(t => { const open = state.regOpen.has(t.r) || t.kids.some(k => k.r === state.bossRegion) || state.bossRegion === t.r;
         return `<div class="ra-node ${open ? "open" : ""}">${t.kids.length ? `<button class="ra-tog" data-rt="${esc(t.r)}" aria-label="Rozwiń">▸</button>` : ""}${row(t, "top")}
           ${t.kids.length ? `<div class="ra-kids">${t.kids.map(k => row(k, "kid")).join("")}</div>` : ""}</div>`; }).join("")}
-      <p class="view-sub ra-note">Kraina obejmuje swoje podkrainy (▸ rozwija). Ukończone spadają na dół listy.</p></aside>`;
+      <p class="view-sub ra-note">Kraina obejmuje swoje podkrainy (▸ rozwija).${state.mine ? "" : " Ukończone spadają na dół listy."}</p></aside>`;
     main.innerHTML = `<div class="view wide">
       <div class="view-head"><div><div class="eyebrow">Wrogowie godni wspomnienia</div><h1 class="title">Bossowie</h1>
         <div class="view-sub">${pl(all.length, "boss", "bossów", "bossów")} w tym widoku${live.on ? " · stan z twojego save'a" : " · stan przykładowy"}. Kliknij, by zobaczyć nagrody i miejsce.</div></div>
@@ -360,15 +378,15 @@
         <input class="search it-q" id="bq" type="search" placeholder="Szukaj bossa lub krainy…" value="${esc(state.bossQuery || "")}">
         <label class="it-lbl"><span>Grupuj</span>${sel("bgroup", Object.entries(BOSS_GROUPS).map(([k, v]) => [k, v.name]), gk)}</label>
         <label class="it-lbl"><span>Sortuj</span>${sel("bsort", Object.entries(BOSS_SORTS).map(([k, v]) => [k, v.name]), sk)}</label>
-        <span class="it-chips">${chip("bf", "all", "Wszyscy", state.bossFilter === "all")}${chip("bf", "alive", "Niepokonani", state.bossFilter === "alive")}${chip("bf", "felled", "Pokonani", state.bossFilter === "felled")}</span>
+        ${state.mine ? "" : `<span class="it-chips">${chip("bf", "all", "Wszyscy", state.bossFilter === "all")}${chip("bf", "alive", "Niepokonani", state.bossFilter === "alive")}${chip("bf", "felled", "Pokonani", state.bossFilter === "felled")}</span>`}
         <span class="it-chips tier-filters">${chip("bt", "", "Każda ranga", !state.bossTier)}${TIER_ORDER.map(t => { const n = all.filter(b => b.tier === t);
-          return n.length ? `<button class="chip tier-chip t-${t} ${state.bossTier === t ? "on" : ""}" data-bt="${t}" title="${esc(TIER[t].desc)}"><i>${TIER[t].glyph}</i>${TIER[t].name}<small>${n.filter(b => b.defeated).length}/${n.length}</small></button>` : ""; }).join("")}</span>
+          return n.length ? `<button class="chip tier-chip t-${t} ${state.bossTier === t ? "on" : ""}" data-bt="${t}" title="${esc(TIER[t].desc)}"><i>${TIER[t].glyph}</i>${TIER[t].name}<small>${frac(n.filter(b => b.defeated).length, n.length)}</small></button>` : ""; }).join("")}</span>
       </div>
       <div class="boss-layout"><div class="boss-groups">${state.bossRegion !== "all" ? `<div class="ra-active">Kraina: <b>${esc(state.bossRegion)}</b> <button class="chip" data-br="all">✕ pokaż wszystkie</button></div>` : ""}
       ${[...groups.entries()].sort((x, y) => g.order(x[0], y[0])).map(([k, items]) => {
         const tot = all.filter(b => g.key(b) === k && regionMatch(b.region, state.bossRegion) && (!state.bossTier || b.tier === state.bossTier) &&
           (!q || (b.name + " " + (b.name_en || "") + " " + b.region).toLowerCase().includes(q)));
-        return `<section class="region boss-group ${gk === "tier" ? "tg-" + k : ""}">${gk === "none" ? "" : `<div class="region-head">${g.head(k)}<span class="region-count">${tot.filter(b => b.defeated).length} / ${tot.length}</span><span class="region-line"></span></div>`}
+        return `<section class="region boss-group ${gk === "tier" ? "tg-" + k : ""}">${gk === "none" ? "" : `<div class="region-head">${g.head(k)}<span class="region-count">${frac(tot.filter(b => b.defeated).length, tot.length)}</span><span class="region-line"></span></div>`}
           <div class="grid">${items.map(bossCard).join("")}</div></section>`; }).join("") || '<p class="view-sub">Nic nie pasuje do filtrów.</p>'}</div>
       ${regionAside}</div></div>`;
     main.querySelectorAll("[data-bf]").forEach(b => b.onclick = () => { state.bossFilter = b.dataset.bf; viewBosses(); });
@@ -463,30 +481,35 @@
     const real = W.quests.length > 0;
     const quests = real ? W.quests.map(q => ({ id: q.id, name: q.name, npc: q.npc, icon: q.icon, dlc: q.dlc, missable: q.missable, confidence: q.confidence, parent: q.parent,
       // tryb bez spoilerów: niezaliczone kroki w wersji, która nie zdradza losów postaci (quest_spoilers.py)
-      steps: questSteps(q).map(s => { const safe = state.spoilers && !s.done;
-        return { text: (safe && s.text_safe) || s.text, where: s.where || "", done: s.done, skipped: s.skipped, alt: !!s.alt, end: !!s.end, next: (safe && s.next_safe) || (safe && s.text_safe) || s.next }; }),
-      locks: (q.locks || []).map(l => ({ text: (state.spoilers && l.warning_safe) || l.warning })) }))
+      steps: questSteps(q).map(s => { const safe = spoilers() && !s.done;
+        return { text: (safe && s.text_safe) || s.text, where: s.where || "", done: s.done, skipped: s.skipped, why: s.why, alt: !!s.alt, end: !!s.end, next: (safe && s.next_safe) || (safe && s.text_safe) || s.next }; }),
+      locks: (q.locks || []).map(l => ({ text: (spoilers() && l.warning_safe) || l.warning })) }))
       : D.quests.map(q => ({ ...q, icon: D.questIcons[q.id] }));
     for (const q of quests) { const ended = q.steps.some(s => s.end && s.done), i = ended ? -1 : q.steps.findIndex(s => !s.done && !s.alt);
       q.steps.forEach((s, k) => s.current = k === i);
       if (real) q.next = i >= 0 ? { text: q.steps[i].next || q.steps[i].text, hint: q.steps[i].where } : { text: "Quest ukończony", hint: "" }; }
-    const q = quests.find(x => x.id === state.quest) || quests[0];
-    for (let p = q.parent; p; p = quests.find(x => x.id === p)?.parent) state.qOpen.add(p);   // rozwiń przodków wybranego
     // status całego wątku (quest + jego podwątki): ukończony / w toku / nierozpoczęty
     const family = x => [x, ...quests.filter(c => c.parent === x.id).flatMap(family)];
     // zakończenie alternatywne (np. śmierć postaci) kończy wątek; postęp liczony bez kroków alternatywnych
     const qStatus = x => { const all = family(x).flatMap(f => f.steps), st = all.filter(s => !s.alt), d = st.filter(s => s.done).length;
       if (all.some(s => s.end && s.done)) return "done";
       return d && d === st.length ? "done" : d ? "active" : "new"; };
+    // „Mój postęp”: tylko wątki odkryte (choć jeden zrobiony krok); z kroków widać zrobione i bieżący
+    const seen = x => !state.mine || family(x).some(f => f.steps.some(s => s.done));
     const allRoots = quests.filter(x => !x.parent || !quests.some(p => p.id === x.parent));
-    const roots = allRoots.filter(gameOk), shown = roots.flatMap(family);
-    const blur = s => state.spoilers && !s.done && !s.current;
+    const roots = allRoots.filter(gameOk).filter(seen), shown = roots.flatMap(family);
+    const visible = x => state.mine ? x.steps.filter(s => s.done || s.current) : x.steps;
+    const q = quests.find(x => x.id === state.quest && seen(x) && gameOk(x)) || shown[0];
+    if (!q) { main.innerHTML = `<div class="view"><div class="view-head"><div><div class="eyebrow">Losy napotkanych dusz</div><h1 class="title">Questy</h1>
+      <div class="view-sub">Nie masz jeszcze żadnego odkrytego questu. Pojawi się tu, gdy zrobisz jego pierwszy krok.</div></div></div></div>`; return; }
+    for (let p = q.parent; p; p = quests.find(x => x.id === p)?.parent) state.qOpen.add(p);   // rozwiń przodków wybranego
+    const blur = s => spoilers() && !s.done && !s.current;
     const total = shown.reduce((a, x) => a + x.steps.filter(s => !s.alt).length, 0), doneAll = shown.reduce((a, x) => a + x.steps.filter(s => s.done && !s.alt).length, 0);
     main.innerHTML = `<div class="view">
       <div class="view-head"><div><div class="eyebrow">Losy napotkanych dusz</div><h1 class="title">Questy</h1>
         <div class="view-sub">${real ? `${pl(roots.length, "wątek", "wątki", "wątków")} · kroki odhaczają się z flag zapisu gry` : "Dane przykładowe, zbiór questów jeszcze się buduje."}</div></div>
         ${ring(doneAll, total, "kroków za tobą")}</div>
-      <div class="filters">${[["all", "Wszystkie"], ["active", "W toku"], ["new", "Nierozpoczęte"], ["done", "Ukończone"]]
+      <div class="filters">${[["all", "Wszystkie"], ["active", "W toku"], ...(state.mine ? [] : [["new", "Nierozpoczęte"]]), ["done", "Ukończone"]]
         .map(([k, l]) => `<button class="chip ${state.qFilter === k ? "on" : ""}" data-qf="${k}">${l}<small class="chip-n">${roots.filter(r => k === "all" || qStatus(r) === k).length}</small></button>`).join("")}</div>
       <div class="quests"><div class="qlist">${[["active", "W toku"], ["new", "Nierozpoczęte"], ["done", "Ukończone"]]
         .filter(([k]) => state.qFilter === "all" || state.qFilter === k).map(([k, l]) => { const list = roots.filter(r => qStatus(r) === k); if (!list.length) return "";
@@ -496,14 +519,14 @@
         ${q.parent ? `<button class="q-parent" data-q="${esc(q.parent)}">↖ Część questu: ${esc(quests.find(p => p.id === q.parent)?.name || q.parent)}</button>` : ""}
         <div class="q-head">${portrait(q.icon, "qd-portrait", "knight")}
         <div style="flex:1"><div class="eyebrow">${esc(q.npc)}</div><h2 class="q-title">${esc(q.name)}</h2></div>
-        <div class="view-sub">${q.steps.filter(s => s.done).length} z ${pl(q.steps.length, "kroku", "kroków", "kroków")}</div></div>
+        <div class="view-sub">${state.mine ? pl(q.steps.filter(s => s.done).length, "krok za tobą", "kroki za tobą", "kroków za tobą") : `${q.steps.filter(s => s.done).length} z ${pl(q.steps.length, "kroku", "kroków", "kroków")}`}</div></div>
         ${(q.locks || []).filter(l => l.text).map(l => `<p class="note warn" style="margin-top:20px">⚠ ${esc(l.text)}</p>`).join("")}
         ${q.missable ? `<p class="note warn" style="margin-top:12px">Ten quest można przegapić. Postępuj według kolejności kroków.</p>` : ""}
         <div class="next"><div class="eyebrow">Co dalej</div><div class="next-text">${linkify(q.next.text)}</div><div class="next-hint">${linkify(q.next.hint || "")}</div></div>
-        <ol class="timeline">${q.steps.map(s => `<li class="${s.done ? "done" : s.current ? "current" : "future"}${s.alt ? " alt" : ""}${s.skipped ? " skipped" : ""}"${s.skipped ? ' title="Postać jest już dalej, ten krok jest za tobą (zrobiony albo pominięty, gra tego nie zapisuje)"' : ""}><span class="diamond"></span>${s.skipped ? '<span class="alt-tag">za tobą</span>' : ""}${s.alt ? `<span class="alt-tag">${s.end ? "zakończenie" : "alternatywa"}</span>` : ""}
-          ${blur(s) ? `<span style="filter:blur(5px)">${esc(s.text)}</span>` : linkify(s.text)}<span class="where">${blur(s) ? "ukryte w trybie bez spoilerów" : linkify(s.where)}</span></li>`).join("")}</ol>
+        <ol class="timeline">${visible(q).map(s => `<li class="${s.done ? "done" : s.current ? "current" : "future"}${s.alt ? " alt" : ""}${s.skipped ? " skipped" : ""}"><span class="diamond"></span>${s.skipped ? '<span class="alt-tag">za tobą</span>' : ""}${s.alt ? `<span class="alt-tag">${s.end ? "zakończenie" : "alternatywa"}</span>` : ""}
+          ${blur(s) ? `<span style="filter:blur(5px)">${esc(s.text)}</span>` : linkify(s.text)}<span class="where">${blur(s) ? "ukryte w trybie bez spoilerów" : linkify(s.where)}</span>${s.why ? `<span class="why">${linkify(s.why)}</span>` : ""}</li>`).join("")}</ol>
         ${kidsOf(q.id).length ? `<div class="d-section"><h4>Powiązane wątki</h4>${kidsOf(q.id).map(k => { const d = k.steps.filter(s => s.done).length;
-          return `<button class="reward q-link" data-q="${esc(k.id)}"><span class="rw">${portrait(k.icon, "q-mini", "knight")}${esc(k.name)}</span><span>${d}/${k.steps.length}</span></button>`; }).join("")}</div>` : ""}
+          return `<button class="reward q-link" data-q="${esc(k.id)}"><span class="rw">${portrait(k.icon, "q-mini", "knight")}${esc(k.name)}</span><span>${frac(d, k.steps.length)}</span></button>`; }).join("")}</div>` : ""}
       </article></div></div>`;
     // klik w quest: wybiera go, a quest nadrzędny od razu rozwija (ponowny klik w już wybrany — zwija)
     main.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { const id = b.dataset.q;
@@ -513,7 +536,7 @@
       state.qOpen.has(id) ? state.qOpen.delete(id) : state.qOpen.add(id); viewQuests(); });
     main.querySelectorAll("[data-qf]").forEach(b => b.onclick = () => { state.qFilter = b.dataset.qf; viewQuests(); });
 
-    function kidsOf(id) { return quests.filter(c => c.parent === id); }
+    function kidsOf(id) { return quests.filter(c => c.parent === id && seen(c)); }
     function qNode(x, depth) {
       const kids = kidsOf(x.id), open = state.qOpen.has(x.id), d = x.steps.filter(s => s.done).length;
       const kd = kids.reduce((a, k) => a + k.steps.filter(s => s.done).length, 0), kt = kids.reduce((a, k) => a + k.steps.length, 0);
@@ -521,9 +544,9 @@
       return `<div class="qnode ${depth ? "child" : ""} ${kids.length ? "has-kids" : ""} ${open ? "open" : ""}">
         <div class="qrow">${kids.length ? `<button class="qtoggle ${open ? "open" : ""}" data-qt="${esc(x.id)}" aria-expanded="${open}" aria-label="${open ? "Zwiń" : "Rozwiń"} powiązane wątki">▸</button>` : `<span class="qtoggle-sp">${depth ? "↳" : ""}</span>`}
           <button class="qitem ${x.id === q.id ? "on" : ""} ${fin ? "finished" : ""} ${x.locks?.length && d < x.steps.length ? "warned" : ""}" data-q="${esc(x.id)}">
-            ${portrait(x.icon, "q-portrait", "knight")}<span class="qitem-name">${esc(x.name)}</span><span class="qitem-frac">${d}/${x.steps.length}</span>
-            <span class="qitem-npc">${esc(x.npc)}${x.dlc ? " · DLC" : ""}${kids.length ? ` · <em class="q-kids">${pl(kids.length, "wątek", "wątki", "wątków")} (${kd}/${kt})</em>` : ""}</span>
-            <span class="qbar"><i style="width:${d / Math.max(1, x.steps.length) * 100}%"></i></span></button></div>
+            ${portrait(x.icon, "q-portrait", "knight")}<span class="qitem-name">${esc(x.name)}</span><span class="qitem-frac">${frac(d, x.steps.length)}</span>
+            <span class="qitem-npc">${esc(x.npc)}${x.dlc ? " · DLC" : ""}${kids.length ? ` · <em class="q-kids">${pl(kids.length, "wątek", "wątki", "wątków")} (${frac(kd, kt)})</em>` : ""}</span>
+            ${state.mine ? "" : `<span class="qbar"><i style="width:${d / Math.max(1, x.steps.length) * 100}%"></i></span>`}</button></div>
         ${kids.length && open ? `<div class="qchildren">${kids.map(k => qNode(k, depth + 1)).join("")}</div>` : ""}</div>`;
     }
   }
@@ -735,7 +758,7 @@
       <input class="search it-q" type="search" placeholder="Szukaj przedmiotu…" value="${esc(f.q)}">
       <label class="it-lbl"><span>Grupuj</span>${sel("group", avail(GROUPS, cat), g)}</label>
       <label class="it-lbl"><span>Sortuj</span>${sel("sort", avail(SORTS, cat), so)}</label>
-      <span class="it-chips">${chip("own", "all", "Wszystkie", f.own)}${chip("own", "have", "Posiadane", f.own)}${chip("own", "missing", "Brakujące", f.own)}</span>
+      ${state.mine ? "" : `<span class="it-chips">${chip("own", "all", "Wszystkie", f.own)}${chip("own", "have", "Posiadane", f.own)}${chip("own", "missing", "Brakujące", f.own)}</span>`}
       ${affs.length ? `<span class="it-chips it-aff">${chip("aff", "", "Każdy żywioł", f.aff)}${affs.map(k => `<button class="chip aff-chip ${f.aff === k ? "on" : ""}" data-itc="aff" data-v="${k}" style="--c:${AFF[k][1]}">${AFF[k][0]}</button>`).join("")}</span>` : ""}
     </div>`;
   }
@@ -744,18 +767,18 @@
     const q = f.q.trim().toLowerCase();
     const idx = new Map(cat.list.map((it, i) => [it, i]));          // indeks do demonstracyjnego ukrywania (bez spoilerów)
     const list = cat.list.filter(it => (!q || it.name.toLowerCase().includes(q) || (it.name_en || "").toLowerCase().includes(q))
-      && (f.own === "all" || (f.own === "have") === !!have(it))
+      && (state.mine || f.own === "all" || (f.own === "have") === !!have(it))
       && (!f.aff || cat.id !== "weapons" || affinities(it).list.some(a => a.k === f.aff))).sort(sdef.f);
     if (!list.length) return `<p class="view-sub">Nic nie pasuje do filtrów.</p>`;
     const groups = new Map();
     for (const it of list) { const k = gdef.key(it); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(it); }
     return [...groups.entries()].sort((a, b) => gdef.order(a[0], b[0])).map(([k, l]) => {
       const label = gdef.label(k, cat.id), owned = l.filter(have).length;
-      return `<section class="igroup ${gdef === GROUPS.rarity ? "rg-" + k : ""}">${label ? `<div class="igroup-head"><span>${esc(label)}</span><small>${owned} / ${l.length}</small></div>` : ""}
+      return `<section class="igroup ${gdef === GROUPS.rarity ? "rg-" + k : ""}">${label ? `<div class="igroup-head"><span>${esc(label)}</span><small>${frac(owned, l.length)}</small></div>` : ""}
         <div class="igrid">${l.map(it => cellHTML(it, idx.get(it))).join("")}</div></section>`; }).join("");
   }
   function cellHTML(it, i) {
-    const h = have(it), hid = state.spoilers && h === false && (it.rarity || 0) >= 2 && !(state.revealed ??= new Set()).has("i:" + it.category + ":" + it.id) && (live.on || i % 3 === 0);
+    const h = have(it), hid = spoilers() && h === false && (it.rarity || 0) >= 2 && !(state.revealed ??= new Set()).has("i:" + it.category + ":" + it.id) && (live.on || i % 3 === 0);
     const f = hid ? { cls: "", style: "", gems: "" } : frame(it);
     return `<button class="icell ${f.cls} ${h ? "have" : ""} ${h === null ? "unknown" : ""} ${hid ? "hid" : ""}" style="${f.style}" data-item="${it.category}:${it.id}" title="${hid ? "Nieodkryty" : esc(it.name)}">
       <img src="${ICON(it.icon)}" alt="" loading="lazy">${f.gems}<span class="iname">${hid ? "· · ·" : esc(it.name)}</span>${it.dlc ? '<span class="dlc-dot" title="DLC"></span>' : ""}</button>`;
@@ -772,18 +795,18 @@
     main.innerHTML = `<div class="view"><div class="view-sub">Wczytywanie przedmiotów z gry…</div></div>`;
     const items = await load("items") || [];
     if (location.hash !== "#items") return;
-    const cats = CATS.map(c => { const l = items.filter(c.f).filter(gameOk); return { ...c, list: l, have: l.filter(have).length }; });
+    const cats = CATS.map(c => { const l = items.filter(c.f).filter(gameOk).filter(it => !state.mine || have(it)); return { ...c, list: l, have: l.filter(have).length }; });
     const cat = cats.find(c => c.id === state.cat);
     const done = cats.reduce((a, c) => a + c.have, 0), total = cats.reduce((a, c) => a + c.list.length, 0);
     main.innerHTML = `<div class="view">
       <div class="view-head"><div><div class="eyebrow">Skarbiec Zmatowiałego</div><h1 class="title">Przedmioty</h1>
-        <div class="view-sub">Złote masz. Ciemne wciąż gdzieś czekają. Kliknij, by zobaczyć, gdzie leżą.</div></div>
+        <div class="view-sub">${state.mine ? "Wszystko, co już masz. Kliknij, by zobaczyć szczegóły." : "Złote masz. Ciemne wciąż gdzieś czekają. Kliknij, by zobaczyć, gdzie leżą."}</div></div>
         ${ring(done, total, "posiadanych")}</div>
-      <div class="cats">${cats.map(c => `<button class="cat ${c.id === state.cat ? "on" : ""}" data-cat="${c.id}">${c.name}<small>${c.have}/${c.list.length}</small></button>`).join("")}</div>
+      <div class="cats">${cats.map(c => `<button class="cat ${c.id === state.cat ? "on" : ""}" data-cat="${c.id}">${c.name}<small>${frac(c.have, c.list.length)}</small></button>`).join("")}</div>
       ${itemToolbar(cat)}
       <div class="items-wrap"><div class="igroups">${itemGroups(cat)}</div>
       <aside class="cat-progress corners"><div class="eyebrow" style="margin-bottom:16px">Kolekcja</div>
-        ${cats.map(c => `<div class="cp-row"><span>${c.name}</span><span>${c.have} / ${c.list.length}</span><span class="qbar"><i style="width:${c.have / Math.max(1, c.list.length) * 100}%"></i></span></div>`).join("")}
+        ${cats.map(c => `<div class="cp-row"><span>${c.name}</span><span>${frac(c.have, c.list.length)}</span>${state.mine ? "" : `<span class="qbar"><i style="width:${c.have / Math.max(1, c.list.length) * 100}%"></i></span>`}</div>`).join("")}
         <div class="rule"></div><p class="view-sub" style="margin:0">${live.on ? (live.inventory ? "Stan posiadania z ekwipunku w save'ie." : "Ekwipunek z save'a jeszcze niedostępny, znamy tylko popioły wojny.") : "Stan posiadania w makiecie jest losowy."}</p></aside></div></div>`;
     main.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => { state.cat = b.dataset.cat; viewItems(); });
     bindItemToolbar(cat);
@@ -829,7 +852,7 @@
   // mapy gry: powierzchnia, podziemia (Siofra, Ainsel, Głębiny) i Królestwo Cieni — dostępne wg zakresu gry
   const MAPS = { M00: "Ziemie Pomiędzy", M01: "Podziemia", M10: "Królestwo Cieni (DLC)" };
   const mapsFor = g => (g === "dlc" ? ["M10"] : g === "base" ? ["M00", "M01"] : ["M00", "M01", "M10"])
-    .filter(k => !state.mapMine || !W.pieces?.[k] || travelArea(k));          // „Mój postęp”: tylko mapy, na których byłeś
+    .filter(k => !mapMine() || !W.pieces?.[k] || travelArea(k));          // „Mój postęp”: tylko mapy, na których byłeś
   // obszar mapy jak w grze: prostokąty otwartych fragmentów (zebrane mapy + obszar startowy) i okolice miejsc,
   // w których byłeś (łaski, zebrane przedmioty, pokonani bossowie, śmierci, pozycja) — [lewo, prawo, góra, dół]
   function travelArea(m) {
@@ -842,10 +865,9 @@
     const cx = (a[0] + a[1]) / 2, cy = (a[2] + a[3]) / 2, w = Math.max(a[1] - a[0], 1600) / 2, h = Math.max(a[3] - a[2], 1000) / 2;
     return [cx - w, cx + w, cy - h, cy + h];
   }
-  // „Mój postęp”: widok nie wychodzi poza obszar mapy, a najmniejsze przybliżenie wypełnia nim ekran
+  // widok nie wychodzi poza mapę z gry („Mój postęp”: poza odkryty obszar), a najmniejsze przybliżenie wypełnia nią ekran
   function applyArea(map, keep) {
-    const a = state.mapMine && travelArea(state.map);
-    if (!a) return false;
+    const a = (mapMine() && travelArea(state.map)) || [0, L0, 0, L0];
     const b = L.latLngBounds(ll(map, a[0], a[3]), ll(map, a[1], a[2]));
     map.options.maxBoundsViscosity = 1;
     map.setMaxBounds(b);
@@ -858,14 +880,13 @@
     if (!keep) map.setView(p && p.map === state.map && b.contains(ll(map, p.px, p.py)) ? ll(map, p.px, p.py) : b.getCenter(), Math.max(z, Math.min(3.5, MAXZ)), { animate: false });
     else if (map.getZoom() < z) map.setZoom(z, { animate: false });
     map.panInsideBounds(b, { animate: false });
-    return true;
   }
-  // warstwy wyłączone: osobno dla „Całej mapy” (bez drobnicy) i „Mojego postępu” (tam widać też runy, materiały…)
-  const offLayers = () => state.mapMine ? state.offMine : state.off;
+  // warstwy wyłączone: osobno dla zwykłego trybu (bez drobnicy) i „Mojego postępu” (tam widać też runy, materiały…)
+  const offLayers = () => state.mine ? state.offMine : state.off;
   function mapCounts() {
-    const m = state.map, c = {}, mine = state.mapMine, near = mine ? revealTest(m) : null;
-    // „Mój postęp”: zaliczone na tle wszystkich; miejsca i postacie (bez stanu) — tylko te w odkrytych okolicach
-    const add = (k, done, pos) => { if (mine && done == null && !near(pos)) return;
+    const m = state.map, c = {}, mine = state.mine, near = mine ? revealTest(m) : null;
+    // „Mój postęp”: tylko zaliczone; miejsca i postacie (bez stanu) tylko w odkrytych okolicach
+    const add = (k, done, pos) => { if (mine && (done === false || (done == null && !near(pos)))) return;
       c[k] ??= [0, 0]; c[k][1]++; if (done) c[k][0]++; };
     for (const g of W.graces) if (g.map === m) add("grace", isSet(g.flag, 60));
     for (const b of bossList()) if (b.map === m && !hiddenBoss(b)) add("boss", b.defeated);
@@ -881,7 +902,7 @@
     if (!avail.includes(state.map)) state.map = avail[0];
     const off = offLayers(), cnt = mapCounts(), on = k => !off.has(k);
     const row = (k, label, sw, tip) => cnt[k] ? `<button class="layer ${on(k) ? "on" : ""}" data-layer="${k}"${tip ? ` title="${esc(tip)}"` : ""}><span class="sw">${sw}</span>${esc(label)}
-      <span class="cnt">${cnt[k][0] ? `${cnt[k][0]}/` : ""}${cnt[k][1]}</span></button>` : "";
+      <span class="cnt">${layerCount(cnt[k])}</span></button>` : "";
     const group = (title, keys, body) => { const rows = body.filter(Boolean).join(""); if (!rows) return "";
       const allOn = keys.every(on); return `<div class="lgroup"><button class="lgroup-head" data-group="${keys.join(",")}">${esc(title)}<span>${allOn ? "ukryj" : "pokaż"} wszystkie</span></button>${rows}</div>`; };
     const dot = col => `<span class="sw-dot" style="background:${col}"></span>`;
@@ -889,9 +910,9 @@
     main.innerHTML = `<div class="mapview"><div class="mapcanvas" id="mapc"></div>
       <div class="map-panel corners"><div class="eyebrow">${MAPS[state.map]}</div><h2 class="title">Mapa</h2>
         ${avail.length > 1 ? `<div class="maptabs">${avail.map(k => `<button class="chip ${state.map === k ? "on" : ""}" data-m="${k}">${MAPS[k]}</button>`).join("")}</div>` : ""}
-        <div class="map-mode" role="group" aria-label="Tryb mapy"><button class="${state.mapMine ? "" : "on"}" data-mine="0">Cała mapa</button><button class="${state.mapMine ? "on" : ""}" data-mine="1" title="Tylko okolice, w których już byłeś, i to, co już zaliczyłeś">Mój postęp</button></div>
         <input class="search map-search" id="mq" type="search" placeholder="Szukaj: przedmiot, boss, miejsce…" value="${esc(state.mapQuery)}">
-        ${state.mapMine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
+        ${state.mapPeek ? `<p class="view-sub mine-note">Pokazuję miejsce poza odkrytym terenem. <button class="chip" id="peekBack">Wróć do mojego postępu</button></p>` : ""}
+        ${state.mine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
           : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'),
@@ -903,7 +924,7 @@
       </div>
       <div class="map-legend">◆ twoja pozycja z ostatniego zapisu · kółko myszy: przybliżenie · klik: szczegóły</div>
       <div class="map-zoom"><button id="zin" aria-label="Przybliż">+</button><button id="zout" aria-label="Oddal">−</button></div></div>`;
-    main.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { state.map = b.dataset.m; viewMap(); });
+    main.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { state.map = b.dataset.m; state.mapPeek = false; viewMap(); });
     // warstwy i grupy: tylko przełączenie znaczników i przycisków (bez przebudowy mapy i panelu)
     const syncGroups = () => main.querySelectorAll("[data-group]").forEach(h => {
       const ks = h.dataset.group.split(","); h.querySelector("span").textContent = `${ks.every(on) ? "ukryj" : "pokaż"} wszystkie`; });
@@ -914,7 +935,7 @@
       main.querySelectorAll("[data-layer]").forEach(l => l.classList.toggle("on", on(l.dataset.layer)));
       syncGroups(); refreshLayers(); });
     if ($("#hideDone")) $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
-    main.querySelectorAll("[data-mine]").forEach(b => b.onclick = () => { state.mapMine = b.dataset.mine === "1"; savePref("mapMine", state.mapMine ? "1" : "0"); viewMapKeep(); });
+    if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; viewMap(); };
     // wyszukiwanie: tylko znaczniki i żeton filtra (pole zostaje, mapa się nie przebudowuje)
     const syncChip = () => {
       $("#mqClear")?.remove();
@@ -929,12 +950,9 @@
     const keepView = viewMap.keep && bigMap && viewMap.keep.map === state.map ? { c: bigMap.getCenter(), z: bigMap.getZoom() } : null;
     if (bigMap) bigMap.remove();
     const map = bigMap = baseMap($("#mapc"), state.map);
-    map.setMaxBounds(L.latLngBounds(ll(map, -1500, L0 + 1500), ll(map, L0 + 1500, -1500)));
     const p = D.position;
     if (keepView) map.setView(keepView.c, keepView.z, { animate: false });
-    if (!applyArea(map, !!keepView) && !keepView) {                 // „Mój postęp”: widok wg odkrytego obszaru
-      if (p && state.map === p.map) map.setView(ll(map, p.px, p.py), 3.5); else map.setView(ll(map, 5600, 5600), 2.5);
-    }
+    applyArea(map, !!keepView);
     viewMap.keep = null;
     $("#zin").onclick = () => map.zoomIn(.75); $("#zout").onclick = () => map.zoomOut(.75);
     if (p && p.map === state.map) playerMarker = L.marker(ll(map, p.px, p.py), { icon: divIcon('<span class="mk-player"></span>', 28), zIndexOffset: 1000 })
@@ -946,7 +964,7 @@
     const map = bigMap; if (!map) return;
     for (const g of Object.values(mapLayers)) g.remove();
     mapLayers = {};
-    const m = state.map, q = state.mapQuery.trim().toLowerCase(), mine = state.mapMine, hide = state.hideDone && !mine, renderer = L.canvas({ padding: .4 });
+    const m = state.map, q = state.mapQuery.trim().toLowerCase(), mine = state.mine, hide = state.hideDone && !mine, renderer = L.canvas({ padding: .4 });
     const near = mine ? revealTest(m) : () => true;
     drawFog(map, m);
     const grp = k => mapLayers[k] ??= L.layerGroup();
@@ -1011,7 +1029,7 @@
   function drawFog(map, m) {
     if (fogLayer) { fogLayer.remove(); fogLayer = null; }
     const token = ++fogToken;
-    if (!state.mapMine) return;
+    if (!state.mine) return;
     if (W.pieces?.[m]) return pieceMask(m).then(data => {
       if (token !== fogToken || bigMap !== map) return;
       if (!data) return circleFog(map, m);
@@ -1070,9 +1088,9 @@
   }
   function goMap(o, spot) {
     if (!o?.map) return;
-    // „Mój postęp” ukrywa nieodkryte miejsca — przy przejściu do konkretnej rzeczy spoza odkrytych okolic pokaż całą mapę
-    const unveil = state.mapMine && (spot ? !isSet(spot.flag) : true) && !revealTest(o.map)(o);
-    if (unveil) state.mapMine = false;
+    // „Mój postęp”: rzecz spoza odkrytych okolic pokazujemy zaznaczeniem, bez granic widoku i bez wyłączania trybu
+    const unveil = mapMine() && (spot ? !isSet(spot.flag) : true) && !revealTest(o.map)(o);
+    if (unveil) state.mapPeek = true;
     ensureGame({ dlc: o.map === "M10" });
     if (location.hash === "#map") { closeDrawer(); if (state.map !== o.map || unveil) { state.map = o.map; viewMap(); } focusMap(o, spot); return; }
     state.map = o.map; navTo("#map", () => focusMap(o, spot));
@@ -1433,6 +1451,8 @@
 
   // zmiana trybu spoilerów: otwarte szczegóły (boss, przedmiot…) mogły pokazywać to, co teraz ma być ukryte
   $("#spoilerToggle").onchange = e => { state.spoilers = e.target.checked; closeDrawer(); render(); };
+  $("#mineToggle").onchange = e => setMine(e.target.checked);
+  syncMine();
   document.querySelectorAll("[data-game]").forEach(b => { b.classList.toggle("on", b.dataset.game === state.game); b.onclick = () => setGame(b.dataset.game); });
   $("#charSwitch").onclick = () => live.on && live.characters ? drawer(`<div class="eyebrow">Twoje save'y</div><div class="d-title" style="text-align:left">Postacie</div>
     ${live.characters.files.map(f => `<div class="d-section"><h4>${f.file === "co2" ? "Seamless Coop · ER0000.co2" : "Oficjalna gra · ER0000.sl2"}</h4>
@@ -1470,7 +1490,7 @@
       buildLayers();
       const c = mapCounts();
       document.querySelectorAll(".layer[data-layer]").forEach(b => { const n = c[b.dataset.layer], el = b.querySelector(".cnt");
-        if (n && el) el.textContent = `${n[0] ? n[0] + "/" : ""}${n[1]}`; });
+        if (n && el) el.textContent = layerCount(n); });
       const p = D.position;
       if (playerMarker && p && p.map === state.map) playerMarker.setLatLng(ll(bigMap, p.px, p.py));
       return;
@@ -1487,7 +1507,7 @@
     const v = (location.hash || "#bosses").slice(1);
     document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("active", a.dataset.view === v));
     if (v !== "map" && bigMap) { bigMap.remove(); bigMap = null; }
-    if (v !== "map") { state.mapQuery = ""; state.mapExact = null; }
+    if (v !== "map") { state.mapQuery = ""; state.mapExact = null; state.mapPeek = false; }
     if (v === "map" && keepMap && bigMap) { viewMapKeep(); return; }
     return (VIEWS[v] || viewBosses)();
   }
