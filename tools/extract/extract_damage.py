@@ -5,7 +5,7 @@ Układ pól z publicznych definicji Paramdex (soulsmods/Paramdex ER/Defs), rozmi
   bazowe (fizyczne, magia, ogień, błyskawice, święte), +0x24/0x28/0x2C/0x30/0x19C f32 skalowanie (Siła, Zręczność,
   Inteligencja, Wiara, Tajemność), +0xEC/0x17D/0x17E/0x17F/0x18E u8 krzywa CalcCorrectGraph dla każdego rodzaju obrażeń,
   +0xF2/0xF3/0xF4/0xF5/0x195 u8 wymagania, +0xDA s16 ReinforceParamWeapon, +0x22C s32 AttackElementCorrectParam,
-  +0x104 u8 rodzaj ciosu fizycznego (0 cięte, 1 obuchowe, 2 kłute, 3 zwykłe), +0x17C bit 1 broń podwójna.
+  +0x104 u8 rodzaj ciosu fizycznego (0 cięte, 1 obuchowe, 2 kłute, 3 zwykłe).
 - ReinforceParamWeapon (wiersz = typ + poziom): +0x00/0x04/0x08/0x0C/0x58 f32 mnożniki obrażeń, +0x1C/0x20/0x24/0x28/0x60
   f32 mnożniki skalowania.
 - AttackElementCorrectParam: 25 bitów od +0x00 (rodzaj obrażeń × atrybut), od +0x04 s16 nadpisane skalowanie (-1 = broni).
@@ -46,7 +46,7 @@ def main():
         out["weapons"][rid] = {"base": [struct.unpack_from("<H", r, o)[0] for o in BASE],
                                "scaling": [round(struct.unpack_from("<f", r, o)[0], 2) for o in SCALING],
                                "graph": [r[o] for o in GRAPH], "req": [r[o] for o in REQ],
-                               "reinforce": rtype, "element": elem, "attr": r[0x104], "dual": (r[0x17C] >> 1) & 1}
+                               "reinforce": rtype, "element": elem, "attr": r[0x104]}
         if rtype not in out["reinforce"]:
             out["reinforce"][rtype] = [[round(struct.unpack_from("<f", reinforce[rtype + lv], o)[0], 4) for o in REINFORCE_ATK + REINFORCE_SCALING]
                                        for lv in range(26) if rtype + lv in reinforce]

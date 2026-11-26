@@ -295,6 +295,10 @@ Zrobione dalej (też na main, niewydane): wizerunki z runami i wymianami, statys
 i liczba ciosów, karta postaci (sklep z licznikiem kupionych sztuk, usługi, łup po śmierci, znaki, portrety 3D),
 teleporty, znaki przywołania, podarunki z podprogramów rozmowy, audyt kompletności (docs/10-world-data.md).
 
+Dług (z przeglądu 2026-11-26): nagrody ze zdarzeń w `extract_sources.py` i nagrody bossów w `extract_world.py`
+czytają pulę z parametru wywołania po swojemu (`award_params`, jeden poziom), a teleporty i znaki przez
+`emevd.instances`/`resolve` (łańcuch wywołań). Do przeniesienia na `instances` z porównaniem wyników przed i po.
+
 Zostało przed wydaniem 0.2.0: poprawki z przeglądu kodu, notatki wydania i zgoda właściciela na publikację.
 Otwarte, bez rozstrzygnięcia z danych: 104 znaczniki mapy gry bez napisu (ikony 83, 84/85; nie wiadomo, co oznaczają,
 więc ich nie pokazujemy) i 183 pule łupu, których nic w grze nie wskazuje (prawdopodobnie wycięte).

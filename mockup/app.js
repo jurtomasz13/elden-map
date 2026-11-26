@@ -481,7 +481,7 @@
       ${hid ? '<p class="note">Imię i nagrody zobaczysz po pokonaniu (tryb bez spoilerów).</p>' : x.rewards.length ? `<div class="d-section"><h4>Nagrody</h4>${x.rewards.map(r => rewardRow(r, findItem(r.cat, r.id))).join("")}
         ${x.quest_rewards ? '<p class="view-sub" style="margin:8px 0 0">Nagroda zależy od etapu questu tej postaci.</p>' : ""}</div>` : ""}
       ${x.stats && !hid ? bossStatsHtml(x.stats) : ""}
-      ${live.on && x.stats ? '<div class="d-section" id="hitsBox"></div>' : ""}
+      ${live.on && x.stats && !hid ? '<div class="d-section" id="hitsBox"></div>' : ""}
       ${x.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
       () => { if (x.stats) fillHits(x.stats);
         if (x.map) miniMap($("#minimap"), x.map, x.px, x.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(x) }]); });
@@ -501,7 +501,7 @@
       <h5 class="sub-h">Odporność na statusy</h5><div class="neg-grid st">${statuses.map(([k, t]) =>
         `<span class="neg${t ? "" : " strong"}" title="${t ? "Próg po kolejnych wywołaniach statusu" : ""}">${esc(AFF[k][0])}<b>${t ? t.join(" → ") : "odporny"}</b></span>`).join("")}</div>
       <p class="view-sub" style="margin:8px 0 0">Najsłabszy na: ${esc([...weakDmg, ...weakSt].join(", ") || "brak wyraźnej słabości")}.
-        Wartości dla pierwszego przejścia, z plików gry; przy bossach z kilkoma fazami to pierwsza faza.</p></div>`;
+        Wartości dla pierwszego przejścia, z plików gry; przy bossach z kilkoma fazami to postać, której śmierć kończy walkę według gry (zwykle pierwsza faza).</p></div>`;
   }
   // ---------- the player's weapons against an enemy: attack rating, damage of one hit, hits to kill ----------
   // weapon_calc.json (tools/extract/extract_damage.py); the formula matches the MIT weapon calculator by ThomasJClark
@@ -1081,7 +1081,7 @@
       </div>
       <div class="map-legend">◆ twoja pozycja z ostatniego zapisu · kółko myszy: przybliżenie · klik: szczegóły</div>
       <div class="map-zoom"><button id="zin" aria-label="Przybliż">+</button><button id="zout" aria-label="Oddal">−</button></div></div>`;
-    main.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { state.map = b.dataset.m; state.mapPeek = false; viewMap(); });
+    main.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { state.map = b.dataset.m; state.mapPeek = false; state.mapFocus = null; viewMap(); });
     // warstwy i grupy: tylko przełączenie znaczników i przycisków (bez przebudowy mapy i panelu)
     const syncGroups = () => main.querySelectorAll("[data-group]").forEach(h => {
       const ks = h.dataset.group.split(","); h.querySelector("span").textContent = `${ks.every(on) ? "ukryj" : "pokaż"} wszystkie`; });
@@ -1096,7 +1096,7 @@
     if ($("#focusClear")) $("#focusClear").onclick = () => { state.mapFocus = null; $("#focusClear").remove(); buildLayers(); };
     if ($("#dropsClear")) $("#dropsClear").onclick = () => { state.mapDrops = null; state.mapFocus = null;
       if (state.mapPeek) { state.mapPeek = false; viewMap(); } else { $("#dropsClear").remove(); buildLayers(); } };
-    if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; state.mapDrops = null; viewMap(); };
+    if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; state.mapDrops = null; state.mapFocus = null; viewMap(); };
     // wyszukiwanie: tylko znaczniki i żeton filtra (pole zostaje, mapa się nie przebudowuje)
     const syncChip = () => {
       $("#mqClear")?.remove();
@@ -1308,7 +1308,7 @@
     const bits = r => r.qty > 0 && r.sold ? [...Array(r.qty.toString(2).length).keys()].map(k => r.sold + k) : [];
     const ids = [...new Set(rows.flatMap(r => [...bits(r), r.unlock]).filter(Boolean))];
     const flags = live.on && ids.length ? await readFlags(ids) : {};
-    return rows.map(r => ({ ...r, it: findItem(...r.item.split(":").map((v, i) => i ? +v : v)),
+    return rows.map(r => ({ ...r, it: itemByKey(r.item),
       bought: live.on ? bits(r).reduce((n, f, k) => n + (flags[f] ? 2 ** k : 0), 0) : 0,
       locked: live.on && !!r.unlock && !flags[r.unlock] })).filter(r => r.it);
   }
@@ -1323,8 +1323,7 @@
     const spots = [...new Map([...W.npcs.filter(n => n.name === name && n.map), ...W.pois.filter(p => npcMarker(p) && p.people.some(x => x[0] === name))]
       .map(p => [p.region_pl || p.map_id, p])).values()];
     const now = W.pois.filter(p => p.people?.some(x => x[0] === name && textOn(x)));
-    const fromSrc = test => Object.entries(SRC || {}).filter(([, s]) => test(s)).map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
-    const gifts = fromSrc(s => s.gifts?.some(g => g.who === name)), loot = fromSrc(s => s.enemies?.some(e => e.who === name));
+    const gifts = itemsFrom(s => s.gifts?.some(g => g.who === name)), loot = itemsFrom(s => s.enemies?.some(e => e.who === name));
     const drops = W.items.filter(t => t.enemy?.name === name), inv = W.invaders.filter(x => x.name === name && !hiddenInvader(x)), q = npcQuest({ name });
     const signs = W.summons.filter(s => s.name === name);
     const itemRow = (it, right) => listRow(`data-go="item:${it.category}:${it.id}"`, ICON(it.icon), esc(hiddenItem(it) ? "· · ·" : it.name), right);
@@ -1488,11 +1487,13 @@
   // jedna karta przedmiotu we wszystkich widokach; ctx.eq: założony egzemplarz z Postaci (ulepszenie, nasycenie),
   // ctx.spot: skarb z mapy, z którego ją otwarto
   // remembrance exchanges at Enia: items whose shop source is paid with this remembrance (item_sources.json)
-  const exchangesFor = name => Object.entries(SRC || {}).filter(([, s]) => s.shops?.some(sh => sh.trade === name))
-    .map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
+  // catalogue item of an item_sources.json key ("weapon:9000000"); items whose sources pass a test
+  const itemByKey = k => findItem(...k.split(":").map((v, i) => i ? +v : v));
+  const itemsFrom = test => Object.entries(SRC || {}).filter(([, s]) => test(s)).map(([k]) => itemByKey(k)).filter(Boolean);
+  const runesNote = it => it.runes ? `<p class="ib-note"><b>Runy za użycie:</b> ${fmt(it.runes)}${it.kind === "remembrance" ? ". Użyty wizerunek przepada, a wymiany już nie zrobisz." : ""}</p>` : "";
   function remembranceHTML(it) {
-    const ex = exchangesFor(it.name);
-    return `${it.runes ? `<p class="ib-note"><b>Runy za użycie:</b> ${fmt(it.runes)}. Użyty wizerunek przepada, a wymiany już nie zrobisz.</p>` : ""}
+    const ex = itemsFrom(s => s.shops?.some(sh => sh.trade === it.name));
+    return `${runesNote(it)}
       ${ex.length ? `<div class="d-section"><h4>Wymiana u Enii</h4>${ex.map(x => listRow(`data-go="item:${x.category}:${x.id}"`, ICON(x.icon),
         esc(hiddenItem(x) ? "· · ·" : x.name), have(x) ? "masz" : "")).join("")}
         <p class="view-sub" style="margin:8px 0 0">Jeden wizerunek wymienisz na jedną rzecz. Drugą dostaniesz po skopiowaniu wizerunku w wędrującym mauzoleum.</p></div>` : ""}`;
@@ -1514,7 +1515,7 @@
       <div class="d-stats"><div><b>${h ? "✓" : h === null ? "?" : "—"}</b><span>${h ? "Posiadane" : h === null ? "Nieznane" : "Brakujące"}</span></div><div><b>${spots.length}</b><span>Na mapie</span></div><div><b>${["–", "Zw.", "Rz.", "Leg."][it.rarity || 0]}</b><span>Rzadkość</span></div></div>
       ${it.info ? `<p class="ib-info">„${esc(it.info)}”<span>${it.kind === "seamless" ? "opis z moda" : "opis z gry"}</span></p>` : ""}
       ${note ? `<p class="ib-note"><b>Do czego służy:</b> ${esc(note)}</p>` : ""}
-      ${it.kind === "remembrance" ? remembranceHTML(it) : it.runes ? `<p class="ib-note"><b>Runy za użycie:</b> ${fmt(it.runes)}</p>` : ""}
+      ${it.kind === "remembrance" ? remembranceHTML(it) : runesNote(it)}
       ${srcHTML}
       ${linksHTML}
       ${effectsHTML(it)}

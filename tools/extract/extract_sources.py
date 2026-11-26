@@ -220,7 +220,8 @@ def main():
         sellers += [((a, b), t) for t in cand if n_ranges[t] == min(n_ranges[c] for c in cand)]
     for (a, b), talk in sellers:
         who, spot = talk_owner(talk)
-        if talk == 1000 or 110000 <= a <= 111399:   # menu miejsca łaski: przeróbka odzienia (za oryginalną część)
+        alteration = talk == 1000 or 110000 <= a <= 111399   # menu przeróbki odzienia (łaska, Boc): usługa, nie sklep postaci
+        if alteration:
             who, spot = "Przeróbka przy miejscu łaski", None
         if not who and talk // 1000000 == 800:     # skrypty 800… = koczowniczy kupcy (bez części o tym TalkID na mapie)
             who = "Koczowniczy kupiec"
@@ -236,7 +237,7 @@ def main():
                     shop_custom.add(eid)
                     stype, eid = lot_item(6, eid, custom)
                 kk = key(stype, eid) if stype else None
-                if kk:
+                if kk and not alteration:
                     stock[talk]["who"] = who or "Kupiec"
                     stock[talk]["rows"].append({"item": kk, "price": price if price > 0 and not trade else None, **({"trade": trade} if trade else {}),
                                                 "qty": struct.unpack_from("<h", row, 0x14)[0],

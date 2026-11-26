@@ -138,6 +138,11 @@ narysowany ręcznie w SVG. Prawdziwą mapę świata wyciągniemy później z pli
   Przejście na mapę z innej strony (karta bossa, przedmiotu, „Gdzie wypada”) włącza tryb skupienia: widać tylko
   szukaną rzecz, niezależnie od warstw, wyszukiwania, „Ukryj zaliczone” i „Mojego postępu”; chip „Pokazuję: … ·
   pokaż resztę ✕” go wyłącza. Nad warstwami jest przycisk „Ukryj wszystko / Pokaż wszystko”.
+- Mapa: warstwy „Teleporty” (klik: skąd i dokąd, czy brama otwarta, czego wymaga, przycisk „Przenieś do celu”)
+  i „Znaki przywołania” (klik: karta postaci). Postacie z portretem 3D mają okrągłą miniaturę zamiast kropki.
+- Karta postaci (klik w postać na mapie albo w znak): portret, gdzie jest teraz według gry, quest (dalej jednym
+  kliknięciem), usługi, sklep z ceną i stanem z save'a (kupione X z Y, wyprzedane, jeszcze niedostępne), podarunki,
+  łup po śmierci (z uwagą o dzwonku kulistym), znaki przywołania, najazdy, miejsca, w których bywa.
 - Karta bossa: statystyki z plików gry (PŻ, postawa, redukcja obrażeń, progi statusów), „Twoje bronie: ile ciosów”
   (bronie z ekwipunku, atrybuty z save'a), wizerunek z runami za użycie i wymianami u Enii. Najeźdźcy i przeciwnicy
   z jednorazowym łupem (skarabeusze) mają te same sekcje.

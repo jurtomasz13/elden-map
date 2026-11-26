@@ -211,7 +211,9 @@ class EntityPlaces:
 def event_scripts():
     """Event scripts of every level-0 tile plus "common" and "common_func": {scope: events}, for emevd.callers/instances."""
     scripts = {mid: E.load(f"/event/{mid}.emevd.dcx") or {} for mid in tile_ids() + ["common"]}
-    scripts["common_func"] = E.load("/event/common_func.emevd.dcx") or {}
+    scripts["common_func"] = E.load("/event/common_func.emevd.dcx")
+    if not scripts["common_func"]:
+        raise SystemExit("brak /event/common_func.emevd.dcx w plikach gry: bez niego nie ma teleportów ani znaków przywołania")
     return scripts
 
 
@@ -428,7 +430,7 @@ def main():
         its, flag = lot_chain(lot)
         if not its:
             return False
-        area, gx, gz = (int(v) for v in mid[1:].split("_")[:3])
+        area, gx, gz, _level = msb.tile(mid)
         treasures.append({"lot": lot, "flag": flag, "map_id": mid, "items": its,
                           "kind": min((i["kind"] for i in its), key=lambda k: KIND_PRIORITY.index(k) if k in KIND_PRIORITY else 99),
                           "dlc": area in DLC_AREAS,
@@ -648,8 +650,7 @@ def main():
         row = npc_rows.get(part["npc"])
         name = npc_pl.get(struct.unpack_from("<i", row, 0x0C)[0]) if row else None
         name = "Skarabeusz" if model in SCARAB_MODELS else name if name and "dummy" not in name.lower() else None
-        n_drops += place_lot(lot, mid, part["pos"], enemy={"entity": entity, "name": name, "model": model,
-                                                         **({"stats": enemy_stats(row, speffects, resist_correct)} if row else {})})
+        n_drops += place_lot(lot, mid, part["pos"], enemy={"name": name, **({"stats": enemy_stats(row, speffects, resist_correct)} if row else {})})
     print(f"  jednorazowe łupy przeciwników na mapie: {n_drops}")
 
     # ---------- miejsca ----------
@@ -744,11 +745,6 @@ def main():
         if not b["icon"] and b["name"]:
             b["icon"] = icon_by_name.get(re.sub(r"\s*\(.*\)$", "", b["name"]))
             b["icon_from"] = "namesake" if b["icon"] else None
-    # bez ikony: render modelu 3D z plików gry (tools/extract/render_portraits.py -> assets/renders/<model>.png)
-    for b in bosses:
-        if not b["icon"] and b.get("model") and os.path.exists(os.path.join(A.ROOT, "assets", "renders", b["model"] + ".png")):
-            b["render"] = b["model"]
-
     # region geograficznie: kraina najbliższej łaski na tej samej mapie (polskie nazwy z gry)
     graces = json.load(open(os.path.join(DATA, "graces.json"), encoding="utf-8"))
     # gra podstawowa: podkraina z menu podróży (Płaczący Półwysep, Nokron…) — widok bossów zagnieżdża ją w krainie;

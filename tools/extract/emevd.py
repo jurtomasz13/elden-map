@@ -70,8 +70,8 @@ def instances(scripts, calls, scope, eid, depth=0):
         if not own:
             out.append((cscope, args))
         elif depth < 5:
-            for _gscope, gargs in instances(scripts, calls, cscope, ceid, depth + 1):
-                out.append((cscope, resolve(bytes(8) + args, own, k, gargs)[8:]))
+            for gscope, gargs in instances(scripts, calls, cscope, ceid, depth + 1):
+                out.append((cscope if cscope.startswith("m") else gscope, resolve(bytes(8) + args, own, k, gargs)[8:]))
     return out
 
 

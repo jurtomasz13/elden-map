@@ -25,6 +25,13 @@ class WorldMapTest(unittest.TestCase):
     def setUpClass(cls):
         cls.wm = WorldMap.load()
 
+    def test_map_without_own_row_placed_by_row_leading_into_it(self):
+        # Kaplica Oczekiwania (m10_01) ma tylko wiersz z zamku Burzowego Całunu do siebie: (-514, 28, 200) w m10_00 to jej (0, 0, 0)
+        chapel = self.wm.to_map("m10_01_00_00", 10.0, 0.0, -5.0)
+        castle = self.wm.to_map("m10_00_00_00", -504.0, 28.0, 195.0)
+        self.assertIsNotNone(chapel)
+        self.assertEqual(chapel, castle)
+
     def test_distance_same_map_and_across_tiles(self):
         self.assertAlmostEqual(self.wm.distance("m10_00_00_00", (0, 0, 0), "m10_00_00_00", (3, 4, 0)), 5.0)
         self.assertAlmostEqual(self.wm.distance("m60_42_36_00", (125, 0, 0), "m60_43_36_00", (-125, 0, 0)), 6.0)

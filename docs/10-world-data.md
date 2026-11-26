@@ -129,17 +129,26 @@ Wyjątki (2026-11-25):
 - Łaski w lochach (194 z 422): `extract_data.py` liczy tylko m60/m61; `extract_world.py` przelicza resztę
   tym samym `World.to_map` co bossów i skarby i dopisuje do `graces.json`.
 - Krainy: podkraina z menu podróży (Płaczący Półwysep, Nokron…; w DLC tylko w lochach m20–m28), kraina
-  główna tylko dla otwartego świata DLC. Nazwy jak w grze („Cmentarna równina”, „Ziemie Wieży”).
+  główna tylko dla otwartego świata DLC. Nazwy jak w grze („Cmentarna równina”, „Ziemie Wieży”). Plik mapy bez
+  własnej łaski (np. Kaplica Oczekiwania) dostaje nazwę z PlaceName o numerze AA·1000 + BB·10 (m10_01 → 10010).
+- Mapa bez własnego wiersza (Kaplica Oczekiwania m10_01, 2026-11-26): ustawiana z wiersza, który do niej prowadzi,
+  czytanego odwrotnie (m10_00 (−514, 28, 200) = m10_01 (0, 0, 0)). Ta sama reguła w `World.to_overworld` i w
+  `backend/erbackend/worldmap.py` (test `test_map_without_own_row_placed_by_row_leading_into_it`). Dzięki niej na mapie
+  są też Duchy przodków i Bestia Eldenu.
 
 ## Pliki wynikowe
 
 | Plik | Liczba | Pola |
 |---|---|---|
-| `bosses_all.json` | 212 | id/flag, name (PL), name_en, location, region_pl, runes, map_id, dlc, icon, remembrance, rewards[], map/px/py/approx, named_by |
-| `item_locations.json` | 3401 | lot, flag, map_id, items[{cat,id,name,name_en,icon,count,kind}], kind, dlc, region_pl, map/px/py/approx |
+| `bosses_all.json` | 209 | id/flag, name (PL), name_en, location, region_pl, runes, map_id, dlc, icon, remembrance, rewards[], stats, model, chara_init, render, map/px/py/approx, named_by |
+| `item_locations.json` | 3664 | lot, flag, map_id, items[{cat,id,name,name_en,icon,count,kind}], kind, dlc, enemy{name, stats} (jednorazowy łup przeciwnika), region_pl, map/px/py/approx |
 | `pois.json` | 366 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py |
-| `npcs.json` | 326 | name, name_en, map_id, entity, talk, region_pl, map/px/py |
-| `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), rewards[], region_pl, map/px/py |
+| `npcs.json` | 245 | name, name_en, map_id, entity, talk, model, chara_init, render, region_pl, map/px/py |
+| `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), stats, rewards[], region_pl, map/px/py |
+| `warps.json` | 52 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
+| `summons.json` | 38 | name, helper (biały znak pomocnika), map_id, map/px/py/approx |
+| `talks.json` | 102 | TalkID → who, rows[{item, price, trade, qty, sold (licznik bitowy), unlock}], services[] |
+| `weapon_calc.json` | 1 | weapons (wiersz broni → base, scaling, graph, req, reinforce, element, attr), reinforce, element, graphs |
 | `enemies.json` | 19 887 | [mapa, px, py] każdego przeciwnika z łupem (numery wierszy w `item_sources.json` → `at`) |
 
 ## Braki
@@ -208,7 +217,8 @@ usunięty z gry w łatce 1.03 (`unobtainable` w `mockup/app.js`).
 statusów i postawa z `NpcParam` (układ z Paramdex), pomnożone przez stałe efekty postaci (`SpEffectParam`, m.in.
 skalowanie obszaru). Progi statusów po kolejnych wywołaniach to pierwszy próg plus przyrost z `ResistCorrectParam`.
 Sprawdzone z Fextralife: Margit 4174 PŻ, obrona 103, cięte −10, święte 40, statusy 316/414/704/1161; Godrick 6080;
-Radahn 9572; Malenia 18 473 (pierwsza faza). Przy bossach z kilkoma fazami to statystyki postaci z flagą bossa.
+Radahn 9572; Malenia 18 473 (pierwsza faza). Przy bossach z kilkoma fazami to statystyki postaci o encji bossa, której
+śmierć kończy walkę (zwykle pierwsza faza).
 
 Karta bossa i najeźdźcy liczy dla broni z ekwipunku (`weapon_calc.json`, `tools/extract/extract_damage.py`) siłę ataku
 z atrybutów z save'a: obrażenia bazowe × mnożnik ulepszenia × (1 + suma krzywa(atrybut) × skalowanie × mnożnik

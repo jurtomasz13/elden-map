@@ -83,7 +83,7 @@ def main():
                     items = sorted({struct.unpack_from("<i", x, 4)[0] for c, x in conds if c == (3, 4)})
                     need = struct.unpack_from("<I", call, 28)[0] if eid == 90005605 and len(call) >= 32 else 0
                     out.append({"kind": kind, "src": src, "dst": dst, **({"flag": need} if need else {}),
-                                **({"items": items} if items else {}), "script": f"{scope}:{eid}"})
+                                **({"items": items} if items else {})})
     with open(os.path.join(DATA, "warps.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=0)
     kinds = {}

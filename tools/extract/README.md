@@ -47,7 +47,10 @@ dłużej, bo trzeba odszyfrować nagłówki archiwów (cache w `assets/cache`).
 | `render_portraits.py` | portrety bossów bez ikony i postaci (NPC) → `assets/renders/<model>.png` / `npc_<CharaInit>.png` + pole `render` w `bosses_all.json` i `npcs.json` |
 | `render_character.py` | portret głowy postaci gracza (twarz, włosy, kolory z save'a + hełm) → `assets/renders/char_<plik>_<slot>.png`; wymaga działającego backendu |
 | `extract_curves.py` | krzywe statystyk (CalcCorrectGraph) → `stat_curves.json`, z nich miękkie progi atrybutów |
-| `extract_sources.py` | skąd zdobyć przedmioty: kupcy (ShopLineupParam + skrypty rozmów), łup z przeciwników, zdarzenia, bossowie → `item_sources.json` |
+| `extract_damage.py` | dane do liczenia siły ataku broni gracza (EquipParamWeapon, ReinforceParamWeapon, AttackElementCorrectParam, krzywe) → `weapon_calc.json` |
+| `extract_sources.py` | skąd zdobyć przedmioty: kupcy (ShopLineupParam + skrypty rozmów), łup z przeciwników, zdarzenia, bossowie → `item_sources.json`; sklep i usługi każdej postaci → `talks.json` |
+| `extract_warps.py` | teleporty ze skryptów zdarzeń (bramy, skrzynie-pułapki, przejścia) → `warps.json` |
+| `extract_summons.py` | znaki przywołania postaci ze skryptów zdarzeń → `summons.json` |
 | `quest_spoilers.py` | wersje kroków questów bez spoilerów (stosowane też w `build_quests.py`) |
 | `contact_sheet.mjs` | podgląd: kilka PNG w jednej siatce |
 | `build_quests.py` | questy NPC (`assets/data/quests.json`); `--verify` sprawdza flagi na postaciach przez backend ([docs/09](../../docs/09-quests.md)). Działa osobno od `run_all.py`, bo korzysta z pobranych danych społeczności |
