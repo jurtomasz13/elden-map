@@ -25,4 +25,4 @@ for cmd in STEPS:
     print(">>", " ".join(cmd[-1:]), flush=True)
     subprocess.run(cmd, cwd=HERE, check=True)
     print(f"   {time.time() - t:.0f} s", flush=True)
-print("Gotowe. Wyniki w assets/ (tylko lokalnie — zasoby gry, nie publikować).")
+print("Gotowe. Wyniki są w assets/ (tylko lokalnie: to zasoby gry, nie publikuj ich).")

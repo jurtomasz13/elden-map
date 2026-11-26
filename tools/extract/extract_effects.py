@@ -1,8 +1,8 @@
 """Ukryte statystyki przedmiotów: liczby z SpEffectParam przypiętego do talizmanu, zbroi i broni.
 
-Wynik: assets/data/item_effects.json — {"talisman:1000": [{"k": "maxHp", "label": "Maks. PŻ", "v": "+6%", "cond": null}, ...]}
+Wynik: assets/data/item_effects.json: {"talisman:1000": [{"k": "maxHp", "label": "Maks. PŻ", "v": "+6%", "cond": null}, ...]}
 
-Powiązania (przesunięcia w wierszach, układ pól z publicznych definicji parametrów — tu tylko liczby):
+Powiązania (przesunięcia w wierszach, układ pól z publicznych definicji parametrów, tu tylko liczby):
   EquipParamAccessory  +0x04 refId, +0x4C..+0x58 residentSpEffectId1–4
   EquipParamProtector  +0x28 / +0x2C / +0x30 residentSpEffectId 1–3
   EquipParamWeapon     +0x50 / +0x54 / +0x58 residentSpEffectId (efekt, gdy broń jest w ręce)

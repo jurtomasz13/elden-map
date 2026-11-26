@@ -220,7 +220,7 @@ def kraken_decompress(comp, raw_size, game_dir):
         from kraken_decompressor import decompress
     except ImportError as e:
         raise RuntimeError("Brak dekompresora Oodle Kraken: nie ma oo2core_6_win64.dll w folderze gry "
-                           f"({game_dir}) — ustaw ER_GAME_DIR albo ER_OODLE_LIB") from e
+                           f"({game_dir}). Ustaw ER_GAME_DIR albo ER_OODLE_LIB") from e
     out = decompress(bytes(comp), raw_size)
     assert len(out) == raw_size, f"kraken-decompressor zwrócił {len(out)} B, oczekiwano {raw_size}"
     return bytes(out)
@@ -273,7 +273,7 @@ def _helper_decompress(comp, raw_size, dll):
             if not wine:
                 raise RuntimeError("Do rozpakowania archiwów gry na Linuxie potrzebne jest Wine "
                                    "(np. CachyOS/Arch: sudo pacman -S wine; Ubuntu: sudo apt install wine) "
-                                   "— albo ER_OODLE_LIB z natywną biblioteką Oodle")
+                                   "albo ER_OODLE_LIB z natywną biblioteką Oodle")
             cmd = [wine, win_python(), _to_wine(helper), _to_wine(dll)]
         env = {**os.environ, "WINEDEBUG": "-all",
                "WINEDLLOVERRIDES": "mscoree=;mshtml=",       # bez okien z pytaniem o Wine Mono / Gecko
@@ -281,7 +281,7 @@ def _helper_decompress(comp, raw_size, dll):
                "WINEPREFIX": os.environ.get("ER_WINEPREFIX") or os.path.join(
                    os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"), "elden-map", "wine")}
         os.makedirs(os.path.dirname(env["WINEPREFIX"]), exist_ok=True)    # sam prefiks utworzy Wine
-        print("Uruchamiam Oodle z gry przez Wine (pierwszy raz Wine przygotowuje prefiks — chwilę to trwa)…",
+        print("Uruchamiam Oodle z gry przez Wine (za pierwszym razem Wine przygotowuje prefiks, to chwilę trwa)…",
               file=sys.stderr, flush=True)
         _helper = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
     p = _helper
@@ -289,7 +289,7 @@ def _helper_decompress(comp, raw_size, dll):
     p.stdin.flush()
     head = p.stdout.read(4)
     if len(head) < 4:
-        raise RuntimeError("Pomocnik Oodle (Wine) zakończył się — sprawdź, czy `wine --version` działa")
+        raise RuntimeError("Pomocnik Oodle (Wine) zakończył się. Sprawdź, czy działa `wine --version`")
     n = struct.unpack("<i", head)[0]
     if n != raw_size:
         raise RuntimeError(f"Oodle (Wine) zwrócił {n}, oczekiwano {raw_size}")
@@ -311,5 +311,5 @@ def zstd_decompress(comp):
         try:
             import zstandard
         except ImportError as e:
-            raise RuntimeError("Brak ZSTD — użyj Pythona 3.14+ albo: pip install zstandard") from e
+            raise RuntimeError("Brak ZSTD. Użyj Pythona 3.14+ albo zainstaluj: pip install zstandard") from e
         return zstandard.ZstdDecompressor().decompress(comp, max_output_size=1 << 31)

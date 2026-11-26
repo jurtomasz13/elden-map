@@ -1,4 +1,4 @@
-"""regulation.bin (parametry gry) i teksty (FMG) — tylko odczyt.
+"""regulation.bin (parametry gry) i teksty (FMG), tylko do odczytu.
 
 regulation.bin: AES-256-CBC (IV = pierwsze 16 bajtów), potem DCX (ZSTD) -> BND4 z plikami .param.
 Klucz jest stały dla Elden Ring (ten sam, którego używają narzędzia społeczności, np. SoulsFormats);

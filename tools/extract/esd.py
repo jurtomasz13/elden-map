@@ -1,4 +1,4 @@
-"""Parser skryptów rozmów (talk ESD, „fsSL”, format 64-bit) — tylko odczyt.
+"""Parser skryptów rozmów (talk ESD, „fsSL”, format 64-bit), tylko do odczytu.
 
 Układ (przesunięcia względem początku danych 0x6C, tabele jedna po drugiej):
   nagłówek 0x48 | grupy stanów N×0x20 {id, stany_off, liczba, …} | stany N×0x48 {id, warunki_off, n, wejście_off, n,
@@ -8,7 +8,7 @@ Liczności z nagłówka pliku (+0x28 grupy, +0x30 stany, +0x38 warunki, +0x40 po
 
 Wyrażenia (bajtkod): 0x00–0x7F liczba (b−64), 0x80 f32, 0x81 f64, 0x82 i32, 0x84–0x8A wywołanie funkcji z 0–6
 argumentami (identyfikator funkcji jest pod argumentami na stosie), 0xA1 koniec, 0xA5 tekst UTF-16;
-pozostałe bajty to operatory — tu zachowujemy je jako znaczniki.
+pozostałe bajty to operatory, tu zachowujemy je jako znaczniki.
 """
 import struct
 

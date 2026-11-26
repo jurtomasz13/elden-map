@@ -2,7 +2,7 @@
 
 Źródła w plikach gry:
 - Kupcy: ShopLineupParam (+0x00 ID przedmiotu, +0x04 cena, +0x17 typ: 0 broń, 1 zbroja, 2 talizman, 3 goods, 4 popiół wojny).
-  Który kupiec sprzedaje który zakres wierszy — ze skryptów rozmów `/script/talk/<mapa>.talkesdbnd.dcx` (t<TalkID>.esd):
+  Który kupiec sprzedaje który zakres wierszy: ze skryptów rozmów `/script/talk/<mapa>.talkesdbnd.dcx` (t<TalkID>.esd):
   wywołanie otwarcia sklepu ma argumenty (początek, koniec) zakresu wierszy; literał int w wyrażeniu ESD = bajt 0x82 + i32.
   TalkID → część MSB (dane wroga +0x10) → NpcParam (+0x0C nazwa) → imię kupca i miejsce na mapie.
 - Przeciwnicy: NpcParam +0x30 → ItemLotParam_enemy (łup losowy), +0x1C → ItemLotParam_map (łup jednorazowy).

@@ -1,16 +1,15 @@
 # Ekstraktor zasobów Elden Ring
 
-Wyciąga z **Twojej** instalacji gry (tylko odczyt) prawdziwą mapę świata, ikony przedmiotów,
-ekrany ładowania i dane (przedmioty, łaski, wizerunki bossów) z polskimi nazwami z gry.
-Bez pobierania czegokolwiek z internetu: klucze RSA są w `eldenring.exe`, dekompresja przez
-`oo2core_6_win64.dll` z folderu gry, AES przez Windows CNG (`bcrypt.dll`).
+Wyciąga z twojej instalacji gry (tylko do odczytu) prawdziwą mapę świata, ikony przedmiotów, ekrany ładowania
+i dane (przedmioty, łaski, wizerunki bossów) z polskimi nazwami z gry. Niczego nie pobiera z internetu: klucze RSA
+są w `eldenring.exe`, dekompresję robi `oo2core_6_win64.dll` z folderu gry, a AES Windows CNG (`bcrypt.dll`).
 
 ```powershell
 python tools/extract/run_all.py
 ```
 
-Wymaga Python 3.14+ (moduł `compression.zstd`) i Node 18+. Pełny przebieg trwa ok. 2–3 min
-(pierwszy raz dłużej: odszyfrowanie nagłówków archiwów, cache w `assets/cache`).
+Wymaga Pythona 3.14+ (moduł `compression.zstd`) i Node 18+. Pełny przebieg trwa ok. 2–3 min. Pierwszy raz trwa
+dłużej, bo trzeba odszyfrować nagłówki archiwów (cache w `assets/cache`).
 
 Ścieżka gry jest w `bhd.py` (`GAME_DIR`).
 
@@ -18,7 +17,7 @@ Wymaga Python 3.14+ (moduł `compression.zstd`) i Node 18+. Pełny przebieg trwa
 
 | Ścieżka | Co |
 |---|---|
-| `assets/map/M00/{z}/{x}/{y}.png` | Ziemie Pomiędzy — piramida kafli 256 px, zoom 0–6 (L0 = 10496 px) |
+| `assets/map/M00/{z}/{x}/{y}.png` | Ziemie Pomiędzy: piramida kafli 256 px, zoom 0–6 (L0 = 10496 px) |
 | `assets/map/M10/...` | Królestwo Cienia (DLC) |
 | `assets/map/M01/...`, `M11/...` | mapy podziemi (bazowa gra / DLC) |
 | `assets/map/meta.json` | rozmiary i zakres zoomu |
@@ -39,7 +38,7 @@ Wymaga Python 3.14+ (moduł `compression.zstd`) i Node 18+. Pełny przebieg trwa
 | `params.py` | `regulation.bin` (AES-256-CBC + ZSTD) i teksty |
 | `dds.mjs` | dekoder BC1/3/4/5/7 → PNG (bez zależności) |
 | `extract_map.py` + `build_tiles.mjs` | kafle mapy w wariancie „pełna mapa” → piramida |
-| `extract_map_pieces.py` + `build_map_pieces.mjs` | zasięg fragmentów mapy (maska) + flagi — mapa odkryta jak w grze |
+| `extract_map_pieces.py` + `build_map_pieces.mjs` | zasięg fragmentów mapy (maska) i flagi, żeby mapa odkrywała się jak w grze |
 | `extract_icons.py` + `build_icons.mjs` | ikony, ekrany ładowania, spis przedmiotów |
 | `extract_data.py` | łaski + przeliczenie współrzędnych |
 | `overlay_test.mjs`, `fit_offset.mjs` | narzędzia do weryfikacji/kalibracji przeliczenia |
@@ -47,10 +46,10 @@ Wymaga Python 3.14+ (moduł `compression.zstd`) i Node 18+. Pełny przebieg trwa
 | `flver.py` + `export_model.py` + `render.mjs` | modele 3D (FLVER2 z `chrbnd`, tekstury z `texbnd`, albedo z MATBIN) → programowy render PNG z przezroczystym tłem; `node render.mjs <katalog> <out.png> [rozmiar] [obrót] [full\|bust]` |
 | `render_bosses.py` | portrety bossów bez ikony → `assets/renders/<model>.png` + pole `render` w `bosses_all.json` |
 | `render_character.py` | portret głowy postaci gracza (twarz, włosy, kolory z save'a + hełm) → `assets/renders/char_<plik>_<slot>.png`; wymaga działającego backendu |
-| `extract_curves.py` | krzywe statystyk (CalcCorrectGraph) → `stat_curves.json` — miękkie progi atrybutów |
+| `extract_curves.py` | krzywe statystyk (CalcCorrectGraph) → `stat_curves.json`, z nich miękkie progi atrybutów |
 | `extract_sources.py` | skąd zdobyć przedmioty: kupcy (ShopLineupParam + skrypty rozmów), łup z przeciwników, zdarzenia, bossowie → `item_sources.json` |
 | `quest_spoilers.py` | wersje kroków questów bez spoilerów (stosowane też w `build_quests.py`) |
 | `contact_sheet.mjs` | podgląd: kilka PNG w jednej siatce |
-| `build_quests.py` | questy NPC (`assets/data/quests.json`); `--verify` sprawdza flagi na postaciach przez backend ([docs/09](../../docs/09-quests.md)). Osobno od `run_all.py`, bo korzysta z pobranych danych społeczności |
+| `build_quests.py` | questy NPC (`assets/data/quests.json`); `--verify` sprawdza flagi na postaciach przez backend ([docs/09](../../docs/09-quests.md)). Działa osobno od `run_all.py`, bo korzysta z pobranych danych społeczności |
 
-Szczegóły formatów i ustaleń: [docs/08-assets.md](../../docs/08-assets.md).
+Formaty i ustalenia opisuje [docs/08-assets.md](../../docs/08-assets.md).

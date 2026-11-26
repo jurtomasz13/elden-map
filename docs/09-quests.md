@@ -1,14 +1,14 @@
-# 09 — Questy NPC z flagami zdarzeń (stan 2026-11-23)
+# Questy NPC z flagami zdarzeń (stan 2026-11-23)
 
-Wynik: [`assets/data/quests.json`](../assets/data/quests.json) — **46 questów** (33 gra podstawowa, 13 DLC),
-**139 kroków**, 368 różnych flag. Generator: [`tools/extract/build_quests.py`](../tools/extract/build_quests.py).
+Wynik: [`assets/data/quests.json`](../assets/data/quests.json): 46 questów (33 gra podstawowa, 13 DLC),
+139 kroków, 368 różnych flag. Generator: [`tools/extract/build_quests.py`](../tools/extract/build_quests.py).
 
 ```powershell
 python tools/extract/build_quests.py            # generuje quests.json (gra + cache TGA)
 python tools/extract/build_quests.py --verify   # + sprawdza każdą flagę na 7 postaciach przez backend i ustawia confidence
 ```
 
-Backend czyta dane z `backend/data/quests.json` — plik w `assets/data/` trzeba tam skopiować
+Backend czyta dane z `backend/data/quests.json`, więc plik z `assets/data/` trzeba tam skopiować
 (albo dopisać krok do `backend/tools/build_data.py`). Tego nie zrobiłem, bo `backend/` miał zostać bez zmian.
 
 ## Źródła i licencje
@@ -16,17 +16,17 @@ Backend czyta dane z `backend/data/quests.json` — plik w `assets/data/` trzeba
 | Klucz (`sources`) | Co | Licencja / uwagi |
 |---|---|---|
 | `regulation` | `regulation.bin` z gry użytkownika: `ItemLotParam_map/_enemy`, pole `getItemFlagId` (flaga „przedmiot otrzymany”). Przedmioty dawane przez NPC mają loty 100000–119999 i flagi 400000–400999 | dane gry z lokalnej instalacji, czytane lokalnie, nic nie jest kopiowane do repo |
-| `tga-ct` | [The-Grand-Archives/Elden-Ring-CT-TGA](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA) (plik `VERSION` = 1.140, `master` z 2026-10-22): *Event Flag Manager* (flagi pokonania 208 bossów) i *Event Flags/Deprecated/NPCs* (opisane flagi stanu ~25 NPC) | **brak pliku licencji** w repozytorium (domyślnie wszelkie prawa zastrzeżone). Bierzemy tylko numery flag (fakty techniczne), lokalnie, z podaniem źródła. Kopia: `assets/cache/community/tga/` (poza gitem) |
+| `tga-ct` | [The-Grand-Archives/Elden-Ring-CT-TGA](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA) (plik `VERSION` = 1.140, `master` z 2026-10-22): *Event Flag Manager* (flagi pokonania 208 bossów) i *Event Flags/Deprecated/NPCs* (opisane flagi stanu ~25 NPC) | brak pliku licencji w repozytorium (domyślnie wszelkie prawa zastrzeżone). Bierzemy tylko numery flag (fakty techniczne), lokalnie, z podaniem źródła. Kopia: `assets/cache/community/tga/` (poza gitem) |
 | `talk-esd` | skrypty rozmów (`/script/talk/*.talkesdbnd.dcx`) i `NpcName` z gry | dane gry; użyte tylko do przypisania bloku flag stanu do konkretnego NPC |
 | `npc-block` | reguła „NPC opuścił stan początkowy” (patrz niżej) | wyprowadzone przeze mnie z TGA + porównania save'ów |
-| `save-verified` | sprawdzenie na save'ach użytkownika (plik `co2`, 7 postaci) | — |
-| `general-knowledge` | treść kroków, `where`, `next` — pisane własnymi słowami po polsku | do potwierdzenia w grze |
+| `save-verified` | sprawdzenie na save'ach użytkownika (plik `co2`, 7 postaci) | |
+| `general-knowledge` | treść kroków, `where`, `next`, pisane własnymi słowami po polsku | do potwierdzenia w grze |
 
-Pobrane, ale **nieużyte** w wyniku (licencje restrykcyjne lub dane niepewne):
+Pobrane, ale nieużyte w wyniku (licencje restrykcyjne lub dane niepewne):
 
 | Repo | Licencja | Dlaczego nie |
 |---|---|---|
-| [thefifthmatt/SoulsRandomizers](https://github.com/thefifthmatt/SoulsRandomizers) (`diste/Base/itemevents.txt` …) | *SoulsRandomizers License 1.0* — wszelkie prawa zastrzeżone, zakaz rozpowszechniania utworów pochodnych | posłużyło tylko jako wskazówka, że ID eventu = koniec bloku NPC (np. 3619 „Blaidd quest”); żadne dane z niego nie trafiły do JSON |
+| [thefifthmatt/SoulsRandomizers](https://github.com/thefifthmatt/SoulsRandomizers) (`diste/Base/itemevents.txt` …) | *SoulsRandomizers License 1.0*: wszelkie prawa zastrzeżone, zakaz rozpowszechniania utworów pochodnych | posłużyło tylko jako wskazówka, że ID eventu = koniec bloku NPC (np. 3619 „Blaidd quest”); żadne dane z niego nie trafiły do JSON |
 | [Hapfel1/er-save-manager](https://github.com/Hapfel1/er-save-manager) (`event_flags.json`) | od 22.07.2026 *Source-Available*, zakaz użycia w innym projekcie bez zgody (wcześniej MIT) | nie ma flag questów NPC |
 | [laszloprekop/ER-save-Reader](https://github.com/laszloprekop/ER-save-Reader) (`quest_chains.rs`, rosetta) | MIT / Apache-2.0 | flagi questów NPC oznaczone przez autora jako niezweryfikowane i niezgodne z naszymi save'ami |
 | [imCioco/ER_QuestPath-Lang](https://github.com/imCioco/ER_QuestPath-Lang) | MIT | tylko tłumaczenia tekstów, bez flag |
@@ -35,29 +35,29 @@ Licencje zapisane w `assets/cache/community/<źródło>/LICENSE*`. Teksty z Fext
 
 ## Jak liczone są kroki
 
-Krok ma `flags` i `mode`: `any` — wystarczy dowolna flaga (alternatywne zakończenia, np. Sellen: kris **albo**
-dzwonek Sellen), `all` — wszystkie (Gurranq: komplet nagród). Każda flaga w JSON pochodzi z jednego ze źródeł:
+Krok ma `flags` i `mode`: `any` znaczy, że wystarczy dowolna flaga (alternatywne zakończenia, np. Sellen: kris albo
+dzwonek Sellen), a `all`, że potrzebne są wszystkie (Gurranq: komplet nagród). Każda flaga w JSON pochodzi z jednego ze źródeł:
 
-1. **Przedmiot od NPC / z questa** (`regulation`) — najpewniejsze: flaga ustawia się, gdy gracz dostaje przedmiot
+1. Przedmiot od NPC / z questa (`regulation`). Najpewniejsze źródło: flaga ustawia się, gdy gracz dostaje przedmiot
    (np. 400391 = Karyjski odwrócony posąg od Ranni, 9502 = Run naprawy Księcia Śmierci). Flagi te są trwałe.
-2. **Boss pokonany** (`tga-ct`) — flaga `isDefeated` z TGA (np. 12040800 Astel, 21010800 Messmer).
-3. **Blok stanu NPC** (`npc-block`). Każdy NPC ma 20 kolejnych flag: `+0` przyjazny, `+1` wrogi, `+3` martwy,
+2. Boss pokonany (`tga-ct`): flaga `isDefeated` z TGA (np. 12040800 Astel, 21010800 Messmer).
+3. Blok stanu NPC (`npc-block`). Każdy NPC ma 20 kolejnych flag: `+0` przyjazny, `+1` wrogi, `+3` martwy,
    `+5…+18` etap/położenie (dokładnie jedna naraz), `+19` techniczna. Blok przypisany po rozmowie NPC:
    `t<ID>.esd` ↔ `NpcName` `1<ID>00` (np. t106 = Ranni → 3740, t418 = Leda → 4440). Znaczenie pojedynczych
    etapów jest w większości nieopisane, więc używam tylko reguły „NPC opuścił stan początkowy” (dowolna z `+6…+17`
-   albo `+3`), i to wyłącznie dla kroków „spotkaj NPC”. `+18` pomijam — u dwóch postaci jest ustawiona także w
+   albo `+3`), i to wyłącznie dla kroków „spotkaj NPC”. `+18` pomijam, bo u dwóch postaci jest ustawiona także w
    blokach bez NPC. Dla Yury `+6` jest stanem startowym (widać na nowej postaci), więc jest wyłączona.
-4. **Kroki kumulatywne** (`"cumulative": true`) — krok „spotkaj NPC” zalicza się też, gdy zaliczony jest
+4. Kroki kumulatywne (`"cumulative": true`): krok „spotkaj NPC” zalicza się też, gdy zaliczony jest
    dowolny późniejszy krok (skoro jest zakończenie, było i spotkanie). Ich `flags` zawierają flagi kolejnych kroków.
 
 Każdy krok ma `sources`; kroki z flagą opisaną w TGA mają dodatkowo `tga_labels`.
-`locks[]`: `{boss_en, boss_id, boss_flag, step, warning}` — `boss_id` dopasowane do `backend/data/bosses.json`
+`locks[]`: `{boss_en, boss_id, boss_flag, step, warning}`. `boss_id` jest dopasowane do `backend/data/bosses.json`
 po fladze pokonania (`boss-<flaga>`), `boss_flag` zostaje na wypadek zmiany identyfikatorów.
 
 ### Weryfikacja i `confidence`
 
 `--verify` czyta wszystkie 368 flag na 7 postaciach z `ER0000.co2` (backend `/api/flags`) i dla każdej postaci
-liczy wektor kroków. **Naruszenie** = zaliczony krok, przed którym jest niezaliczony.
+liczy wektor kroków. Naruszenie = zaliczony krok, przed którym jest niezaliczony.
 
 | Poziom | Warunek |
 |---|---|
@@ -66,12 +66,12 @@ liczy wektor kroków. **Naruszenie** = zaliczony krok, przed którym jest niezal
 | `medium` | ≤ 1 naruszenie |
 | `low` | więcej naruszeń albo flagi nieczytelne z save'a |
 
-Wynik: **30 `verified`, 16 `high`**, 0 `medium`/`low`. Na nowej postaci „chuj” (poz. 8) z 368 flag nie jest
+Wynik: 30 `verified`, 16 `high`, 0 `medium`/`low`. Na nowej postaci „chuj” (poz. 8) z 368 flag nie jest
 ustawiona żadna; „finali” ma 148, „boink” 125. Dla „finali” i „boink” pliki `sl2` i `co2` dają identyczne wartości wszystkich 368 flag.
 Wyniki dla każdej postaci są w JSON w `entries[].verification.chars`.
 
-`verified` znaczy: flagi są prawdziwe i zachowują się spójnie na save'ach. **Nie** znaczy, że tekst kroku jest
-sprawdzony w grze — opisy i podpowiedzi `next` pochodzą z wiedzy ogólnej.
+`verified` znaczy: flagi są prawdziwe i zachowują się spójnie na save'ach. Nie znaczy, że tekst kroku jest
+sprawdzony w grze. Opisy i podpowiedzi `next` pochodzą z wiedzy ogólnej.
 
 Pierwsza wersja miała naruszenia, które pomogły poprawić dane:
 
@@ -134,7 +134,7 @@ Kolumny postaci: `x` = krok zaliczony, `.` = nie (kolejno s1, s2, …).
 | queelign | Rycerz ognia Queelign | DLC | 2 | verified | `x.` | `xx` | `..` | regulation |
 | florissax | Florissax, starożytna smoczyca | DLC | 2 | high | `xx` | `..` | `..` | npc-block, regulation |
 
-Pozostałe postacie (grandes, prophet, Mokki, Ser Davick) też nie mają naruszeń — patrz `verification` w JSON.
+Pozostałe postacie (grandes, prophet, Mokki, Ser Davick) też nie mają naruszeń, patrz `verification` w JSON.
 
 Ikona questa = `icon` charakterystycznego przedmiotu z `items.json` (np. Ranni → Pierścień ciemnego księżyca 3050,
 Alexander → Odłamek Alexandra 18871). Nazwy NPC, miejsc i przedmiotów w tekstach są z plików gry (`polpl`); żeby
@@ -142,36 +142,36 @@ uniknąć błędnej odmiany, miejsca występują jako „w lokacji X”, a przed
 
 ## Czego brakuje / problemy
 
-1. **Kroki pośrednie bez flagi.** Wiele etapów to tylko rozmowa albo przejście NPC w inne miejsce (np. Ranni:
+1. Kroki pośrednie bez flagi. Wiele etapów to tylko rozmowa albo przejście NPC w inne miejsce (np. Ranni:
    przyjęcie służby w Wieży Ranni, Seluvis, Iji; Boc w Liurnii; Blaidd w więzieniu). Takie kroki nie mają flagi
    zaliczenia, ale flaga położenia NPC (`+5…+18`, sekcja „Bieżący krok według położenia postaci”) pokazuje, przy
    którym z nich postać czeka. Nieprzypisane zostały stany sprawdzane w wielu mapach naraz (logika ogólna, głównie
    `common.emevd`) i stany po zakończeniu wątku.
-2. **Brak questów:** Rennala, Shabriri (wspomniany przy Yurze), Enia / Dwa Palce, Hewg, Ensha, Albus i medaliony
+2. Brak questów: Rennala, Shabriri (wspomniany przy Yurze), Enia / Dwa Palce, Hewg, Ensha, Albus i medaliony
    Świętego Drzewa, Pidia, Miriel, Gostoc, Jerren (osobno), kupcy. Z DLC: Jolán pokryta tylko 2 krokami, St. Trina jest
    częścią questa Thiolliera, brak Logura, Lionela, Moonrithylla i questów „Ród poszukiwaczy” (dostawy Moore'a
-   400750–400755 usunięte z kroków, bo zabicie Moore'a zamyka quest bez dostaw — wspomniane w notatkach).
-3. **Kolejność i opisy z wiedzy ogólnej** — weryfikacja na save'ach sprawdza tylko kolejność i to, że nowa postać
+   400750–400755 usunięte z kroków, bo zabicie Moore'a zamyka quest bez dostaw; wspomniane w notatkach).
+3. Kolejność i opisy z wiedzy ogólnej. Weryfikacja na save'ach sprawdza tylko kolejność i to, że nowa postać
    ma zero; nie potwierdza, że tekst kroku dokładnie opisuje zdarzenie (np. kiedy Fia daje Podniszczony sztylet,
    co dokładnie odpala 400394 Miniatura Ranni). Pewność `verified` dotyczy flag, nie tekstu.
-4. **Ścieżki alternatywne.** Kroki „zakończenie” mają `mode:"any"` po wszystkich znanych wariantach (np. Millicenta:
-   pomoc/zdrada). Jeśli gracz zabije NPC wcześnie, późniejsze kroki zostaną niezaliczone na zawsze — aplikacja
+4. Ścieżki alternatywne. Kroki „zakończenie” mają `mode:"any"` po wszystkich znanych wariantach (np. Millicenta:
+   pomoc/zdrada). Jeśli gracz zabije NPC wcześnie, późniejsze kroki zostaną niezaliczone na zawsze, a aplikacja
    pokaże to jako quest niedokończony. Flaga śmierci (`npc_block + 3`) jest dostępna, gdyby UI miało pokazać
    „quest przerwany”.
-5. **Blokady (`locks`)** — 8 wpisów (Bestia Eldeńska dla trzech runów naprawy i Ranni, Rykard, Malenia, Messmer,
+5. Blokady (`locks`): 8 wpisów (Bestia Eldeńska dla trzech runów naprawy i Ranni, Rykard, Malenia, Messmer,
    Bayle). Treść ostrzeżeń jest z wiedzy ogólnej; „Messmer → Rogaty przybysz” jest sformułowane ostrożnie („może”).
-6. **TGA bez licencji** — używamy tylko numerów flag. Gdyby dane miały trafić do publicznego repo, warto zapytać
+6. TGA nie ma licencji. Używamy tylko numerów flag. Gdyby dane miały trafić do publicznego repo, warto zapytać
    autorów TGA albo zostawić w JSON tylko flagi z `regulation.bin` (to dane z gry użytkownika, generowane lokalnie).
-7. **Backend** czyta `backend/data/quests.json` (nadal pusty) — trzeba skopiować wynik albo zmienić
+7. Backend czyta `backend/data/quests.json` (nadal pusty), więc trzeba skopiować wynik albo zmienić
    `backend/tools/build_data.py`.
 
-## Tryb bez spoilerów — teksty kroków (2026-11-23)
+## Tryb bez spoilerów: teksty kroków (2026-11-23)
 
 Część kroków zdradzała losy postaci („Iji ginie”, „Podejdź do ciała Rogiera”, nagrody typu „Dzwonek kulisty X”
 po śmierci NPC, zwroty akcji jak Yura/Shabriri). `tools/extract/quest_spoilers.py` dodaje do takich kroków
 `text_safe` / `next_safe` (podpowiedź bez rozstrzygnięcia) i do ostrzeżeń `warning_safe`; `build_quests.py` stosuje to
-przy generowaniu, a `python tools/extract/quest_spoilers.py` — na gotowym `quests.json`. Frontend w trybie
-„bez spoilerów” pokazuje wersję bezpieczną dla kroków jeszcze niezaliczonych i w „Co dalej”; po zaliczeniu kroku — pełny
+przy generowaniu, a `python tools/extract/quest_spoilers.py` na gotowym `quests.json`. Frontend w trybie
+„bez spoilerów” pokazuje wersję bezpieczną dla kroków jeszcze niezaliczonych i w „Co dalej”, a po zaliczeniu kroku pełny
 tekst. Obecnie 28 kroków + 1 ostrzeżenie (Igon).
 
 ## Wejście do Królestwa Cieni (2026-11-25)
@@ -182,38 +182,38 @@ obszar startowy DLC (flaga 62002) lub pierwsza łaska DLC „Cmentarna Równina�
 Na mapie: znacznik „Wejście do DLC” przy łasce „Kokon Niebianina” (mapa podziemi) i „Początek Królestwa Cieni”
 (mapa DLC); kliknięcie otwiera wątek.
 
-## Pełne listy kroków (2026-11-25) — `quest_steps.py` + `quest_steps_pl.json`
+## Pełne listy kroków (2026-11-25): `quest_steps.py` + `quest_steps_pl.json`
 
-**45 questów, 427 kroków** (wcześniej 139), 160 z własną flagą. Opisy kroków z QuestPath (imCioco,
-[ER_QuestPath-Lang](https://github.com/imCioco/ER_QuestPath-Lang), MIT — `tools/extract/LICENSE.questpath.txt`),
+45 questów, 427 kroków (wcześniej 139), 160 z własną flagą. Opisy kroków z QuestPath (imCioco,
+[ER_QuestPath-Lang](https://github.com/imCioco/ER_QuestPath-Lang), MIT, `tools/extract/LICENSE.questpath.txt`),
 przetłumaczone na polski; nazwy własne w znacznikach `{p:}` `{i:}` `{n:}` → oficjalne polskie nazwy z gry
 (nieznalezione zostają po angielsku). Podpowiedzi QuestPath (`hint`) = wersje bez spoilerów (`text_safe`).
 - Kroki QuestPath dopasowane do naszych (`match`) przejmują flagi i identyfikatory (ostrzeżenia `locks` działają).
-- Flagi położenia NPC z TGA: **+5 w bloku to stan początkowy** (ustawiony od startu gry, sprawdzone na nowej
-  postaci) — nie oznacza spotkania; wykluczone, tak samo +6 u Yury.
+- Flagi położenia NPC z TGA: +5 w bloku to stan początkowy (ustawiony od startu gry, sprawdzone na nowej
+  postaci) i nie oznacza spotkania; wykluczone, tak samo +6 u Yury.
 - `later`: krok bez własnej flagi zalicza się, gdy zaliczony jest dalszy etap. Bez `alt` (wybory wykluczające się)
-  i bez `extra` (nasze kroki z flagą bez odpowiednika — wstawiane za poprzednim dopasowanym krokiem).
+  i bez `extra` (nasze kroki z flagą bez odpowiednika, wstawiane za poprzednim dopasowanym krokiem).
 - `end` (QuestPath s98/s99, np. śmierć NPC) kończy wątek.
-- Sprawdzone na 3 postaciach: nowa (poziom 13) — 2 kroki (prawdziwe), średnia i ukończona — bez luk poza
+- Sprawdzone na 3 postaciach: nowa (poziom 13) ma 2 kroki (prawdziwe), średnia i ukończona nie mają luk poza
   Rogierem (śmierć na końcu, kroki pośrednie bez flag).
 
-QuestPath (mod na Nexusie) trzyma logikę kroków w kodzie DLL — flag nie da się z niego odczytać (sprawdzone:
+QuestPath (mod na Nexusie) trzyma logikę kroków w kodzie DLL, więc flag nie da się z niego odczytać (sprawdzone:
 w zasobach są tylko tłumaczenia). Następny krok: flagi ze skryptów rozmów NPC w plikach gry (talk ESD,
-`tools/extract/talk_flags.py` — na razie lista flag bloku NPC używanych przez skrypt, np. Boc 3941–3948).
+`tools/extract/talk_flags.py`, na razie lista flag bloku NPC używanych przez skrypt, np. Boc 3941–3948).
 
-## Flagi ze skryptów rozmów NPC (2026-11-25) — `esd.py`, `talk_quests.py`, `quest_talk_flags.json`
+## Flagi ze skryptów rozmów NPC (2026-11-25): `esd.py`, `talk_quests.py`, `quest_talk_flags.json`
 
 Skrypty rozmów (`/script/talk/<mapa>.talkesdbnd.dcx` → `t<TalkID><wariant>.esd`, TalkID = cyfry 2–4 z NpcName
 `1<ID>xx`) czytane własnym parserem `tools/extract/esd.py` (format „fsSL” 64-bit: grupy stanów, stany, warunki,
-polecenia, argumenty, bajtkod wyrażeń). Polecenie **1/11 = ustaw flagę (numer, stan)**; argumenty `TalkParam`
-(np. 22300100) → `TalkParam` +0x04 = id kwestii w `TalkMsg`; opcje wyboru — `EventTextForTalk`.
+polecenia, argumenty, bajtkod wyrażeń). Polecenie 1/11 = ustaw flagę (numer, stan); argumenty `TalkParam`
+(np. 22300100) → `TalkParam` +0x04 = id kwestii w `TalkMsg`; opcje wyboru: `EventTextForTalk`.
 Rozmowa = grupa stanów: flagi ustawiane w niej + jej kwestie i opcje menu (`python tools/extract/talk_quests.py 223`).
 
-Wniosek: skrypty rozmów **nie ustawiają** flag z bloku NPC (3940…), tylko flagi przypisane do miejsc
+Wniosek: skrypty rozmów nie ustawiają flag z bloku NPC (3940…), tylko flagi przypisane do miejsc
 (np. Boc: 31159206 „Daj igłę do szycia” w Przybrzeżnej Jaskini, 1039519205 „Możesz mnie tak nazywać” w Liurnii,
 11109805… spotkanie w Leyndell). Przypisanie rozmów do kroków (156 kroków w 38 questach, 210 flag) zrobione
 na podstawie kwestii i sprawdzone stanem flag na 7 postaciach (`quest_talk_flags.json`: flaga + uzasadnienie).
-Po dołączeniu: 255 kroków z własną flagą (wcześniej 160); postać nowa — 2 kroki (prawdziwe), pozostałe bez luk
+Po dołączeniu: 255 kroków z własną flagą (wcześniej 160); postać nowa ma 2 kroki (prawdziwe), pozostałe nie mają luk
 poza Rogierem (wątek kończy się śmiercią, kroki pośrednie bez flag).
 
 ## Bieżący krok według położenia postaci (2026-11-26)

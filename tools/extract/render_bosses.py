@@ -1,7 +1,7 @@
 """Portrety bossów bez ikony: eksport modelu 3D z plików gry + programowy render do assets/renders/<model>.png.
 
 Uruchamiać po extract_world.py (potrzebne pole "model" w bosses_all.json). Uzupełnia pole "render".
-c0000 (postać ludzka składana z części zbroi) pomijamy — wymaga osobnego składania modelu.
+c0000 (postać ludzka składana z części zbroi) pomijamy, bo wymaga osobnego składania modelu.
 """
 import json
 import os

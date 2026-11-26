@@ -1,4 +1,4 @@
-"""FLVER2 (Elden Ring, wersja 0x2001A) — modele 3D: meshe, wierzchołki (pozycja, normalna, UV), ściany, materiały.
+"""FLVER2 (Elden Ring, wersja 0x2001A), modele 3D: meshe, wierzchołki (pozycja, normalna, UV), ściany, materiały.
 
 Układ (zgodny z SoulsFormats FLVER2):
   nagłówek 0x80: +0x0C offset danych, +0x14 liczby: dummy, materiały, kości, meshe, bufory wierzchołków,

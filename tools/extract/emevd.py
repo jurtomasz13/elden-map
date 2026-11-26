@@ -1,4 +1,4 @@
-"""EMEVD (Elden Ring) — skrypty zdarzeń: zdarzenia, instrukcje (bank, id, argumenty), parametry.
+"""EMEVD (Elden Ring), skrypty zdarzeń: zdarzenia, instrukcje (bank, id, argumenty), parametry.
 
 Nagłówek (64-bit, wersja 0xCD): 'EVD\\0', +0x10 liczba zdarzeń, +0x18 offset zdarzeń, +0x20 liczba instrukcji,
 +0x28 offset instrukcji, +0x50 liczba parametrów, +0x58 offset parametrów, +0x78 offset argumentów.

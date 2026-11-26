@@ -1,27 +1,27 @@
-# 08 — Zasoby z plików gry (mapa, ikony, dane)
+# Zasoby z plików gry (mapa, ikony, dane)
 
 Narzędzie: [tools/extract](../tools/extract/README.md), uruchomienie: `python tools/extract/run_all.py`.
 Wszystko pochodzi z lokalnej instalacji gry użytkownika (wersja pliku 2.7.2.0, z DLC), tylko odczyt.
-Wyniki w `assets/` są w `.gitignore`: to grafiki FromSoftware, **nie publikujemy ich**.
+Wyniki w `assets/` są w `.gitignore`: to grafiki FromSoftware, nie publikujemy ich.
 
 ## Łańcuch odczytu
 
-1. **Klucze RSA**: 5 bloków `-----BEGIN RSA PUBLIC KEY-----` (PKCS#1) w `eldenring.exe`, po jednym
+1. Klucze RSA: 5 bloków `-----BEGIN RSA PUBLIC KEY-----` (PKCS#1) w `eldenring.exe`, po jednym
    na archiwum `Data0–3` i `DLC`. Który klucz pasuje, sprawdzamy po magii `BHD5` po odszyfrowaniu.
-2. **Nagłówek BHD5**: surowe RSA (`pow(c, e, n)`) blokami po 256 B, wynik 255 B na blok.
+2. Nagłówek BHD5: surowe RSA (`pow(c, e, n)`) blokami po 256 B, wynik 255 B na blok.
    Cache odszyfrowanych nagłówków: `assets/cache/*.bhd5`.
-3. **Spis plików**: kubełki → wpisy po 40 B: `u64 hash, i32 rozmiar_z_paddingiem, i32 rozmiar,
+3. Spis plików: kubełki → wpisy po 40 B: `u64 hash, i32 rozmiar_z_paddingiem, i32 rozmiar,
    i64 offset_w_BDT, i64 offset_SHA, i64 offset_klucza_AES`. Około 120 tys. plików.
-4. **Hash ścieżki**: 64-bit, `h = h * 0x85 + znak`, małe litery, `/` na początku.
+4. Hash ścieżki: 64-bit, `h = h * 0x85 + znak`, małe litery, `/` na początku.
    Np. `/menu/71_maptile.tpfbdt`, `/menu/low/00_solo.tpfbhd`, `/msg/polpl/item.msgbnd.dcx`.
-5. **AES**: klucz 16 B + lista zakresów `[start, end)` w BDT, AES-128-ECB tylko na tych zakresach
+5. AES: klucz 16 B + lista zakresów `[start, end)` w BDT, AES-128-ECB tylko na tych zakresach
    (Windows CNG `bcrypt.dll` przez ctypes).
-6. **DCX**: `KRAK` (Oodle Kraken, `oo2core_6_win64.dll` z folderu gry), `ZSTD` (Python 3.14
+6. DCX: `KRAK` (Oodle Kraken, `oo2core_6_win64.dll` z folderu gry), `ZSTD` (Python 3.14
    `compression.zstd`), `DFLT` (zlib).
-7. **Kontenery**: BND4, BXF4 (nagłówek `.tpfbhd` + dane `.tpfbdt`), TPF (tekstury DDS),
+7. Kontenery: BND4, BXF4 (nagłówek `.tpfbhd` + dane `.tpfbdt`), TPF (tekstury DDS),
    FMG v2 (teksty). Uwaga: bajt formatu bindera bywa zapisany z odwróconą kolejnością bitów, więc
    parser próbuje obu wariantów i wybiera ten, w którym offsety mieszczą się w danych.
-8. **Tekstury**: DDS w BC7 (`DXGI 98`), mapy 256×256, ikony 512×512 (`/menu/low`) lub 1024×1024
+8. Tekstury: DDS w BC7 (`DXGI 98`), mapy 256×256, ikony 512×512 (`/menu/low`) lub 1024×1024
    (`/menu/hi`). Dekoder BC7 napisany od zera w JS (`dds.mjs`), z kontrolą spójności tablic podziału.
 
 ## Mapa świata
@@ -31,24 +31,24 @@ Wyniki w `assets/` są w `.gitignore`: to grafiki FromSoftware, **nie publikujem
 - Mapy: `M00` Ziemie Pomiędzy, `M01` podziemia, `M10` Królestwo Cienia (DLC), `M11` podziemia DLC.
 - Poziomy: L0 41×41 kafli (10 496 px), L1 31×31, L2 11×11, L3 6×6, L4 3×3. Używamy L0 i sami
   robimy piramidę zoom 0–6 (zoom 6 = L0).
-- **Oś Y kafli rośnie w górę** (północ): przy składaniu odwracamy.
-- **Bity wariantu = zebrane fragmenty mapy.** `00000000` to pusty pergamin. Pełna mapa to maska
+- Oś Y kafli rośnie w górę (północ): przy składaniu odwracamy.
+- Bity wariantu = zebrane fragmenty mapy. `00000000` to pusty pergamin. Pełna mapa to maska
   z `/menu/71_maptile.mtmskbnd.dcx` (XML, `id = poziom*10000 + x*100 + y`, `mask = ...`).
   Wybieramy wariant równy masce albo jej największy podzbiór. Bez tego wychodzą zdublowane
   i testowe (deweloperskie) kafle.
-- **Mapa odkryta jak w grze** (tryb „Mój postęp”): bit `i` wariantu = `i`-ty wiersz `WorldMapPieceParam`
+- Mapa odkryta jak w grze (tryb „Mój postęp”): bit `i` wariantu = `i`-ty wiersz `WorldMapPieceParam`
   danej mapy (M00: wiersze 0–69, M01: 100–199, M10: 1000–1069), flaga zebrania pod `+0x04`
   (62010–62053, 62004–62009 morze, 62060–62065 podziemia, 62080–62084 DLC).
   `extract_map_pieces.py` zapisuje dla każdego kafla i bitu parę wariantów różniących się tylko tym bitem,
   `build_map_pieces.mjs` porównuje je (bloki 8×8 px) i składa `assets/map/<M>/pieces.png` (1312 px; kanały
   R,G,B = bity 0–23) oraz `assets/map/blank.png` (pusta faktura). Strona zakrywa tą fakturą (CSS `mask-image`)
   miejsca, których nie odsłania żaden zebrany fragment. Flagi: `assets/data/map_pieces.json`.
-- **Obszar mapy** (jak w grze — dalej nie da się przesunąć ani oddalić): `+0x08` 4×f32 [lewo, prawo, góra, dół]
+- Obszar mapy (jak w grze: dalej nie da się przesunąć ani oddalić): `+0x08` 4×f32 [lewo, prawo, góra, dół]
   w pikselach mapy, suma prostokątów otwartych fragmentów + okolice miejsc, w których byłeś (łaski, zebrane
   przedmioty, pokonani bossowie, śmierci, pozycja). Wiersze 70 / 1070 (flagi 62000 / 62002) to obszar startowy
-  gry i DLC — 62002 ustawia się po wejściu do DLC, więc wtedy pojawia się mapa Królestwa Cieni. Podziemia nie
-  mają obszaru startowego — mapa pojawia się po pierwszej łasce lub wizycie. `+0x18` (63xxx) w save'ach nigdy
-  nie jest ustawiona — pomijamy. Sprawdzone na żywo (podstawione zapisy): fragment, nowa łaska w Caelid,
+  gry i DLC. 62002 ustawia się po wejściu do DLC, więc wtedy pojawia się mapa Królestwa Cieni. Podziemia nie
+  mają obszaru startowego, mapa pojawia się po pierwszej łasce lub wizycie. `+0x18` (63xxx) w save'ach nigdy
+  nie jest ustawiona, więc ją pomijamy. Sprawdzone na żywo (podstawione zapisy): fragment, nowa łaska w Caelid,
   pierwsza łaska w podziemiach i wejście do DLC aktualizują mapę bez przeładowania strony.
 
 ## Przeliczenie współrzędnych gry → piksele mapy
@@ -65,14 +65,14 @@ PlayerCoordinates + MapID, patrz [03](03-format-save.md)). Skala 1 px = 1 m.
 | M00 Ziemie Pomiędzy | 60 | 7168 | 6144 |
 | M10 Królestwo Cienia | 61 | 7168 | 6144 |
 
-**Jeden wzór dla obu map (2026-11-25):** kafle L0 mapy pokrywają się 1:1 z komórkami siatki świata —
+Jeden wzór dla obu map (2026-11-25): kafle L0 mapy pokrywają się 1:1 z komórkami siatki świata,
 OX = 28·256, OZ = 24·256 dla m60 i m61. Sprawdzone w pełnym przybliżeniu na wyraźnych budowlach:
-podstawka — most do Boskiej Wieży Pogrobna, Burzowa Brama, Kościół Elleha; DLC — Fort Napomnienia,
+w podstawce most do Boskiej Wieży Pogrobna, Burzowa Brama, Kościół Elleha; w DLC Fort Napomnienia,
 Katedra Manusa Metyra, Wieża Rabbatha, Kościół Błogosławieństwa, ruiny Unte, Kościół Pąka, schody Rauh,
 brama Zamku Ensis, Belurat i Donżon Cienia. Wcześniejsze stałe z dopasowania zgrubnego (`fit_offset.mjs`,
 siatka co 32 px, kryterium „łaska nie w morzu”) były błędne: M00 OZ 6112 (32 px za wysoko), M10 OX 7008 /
 OZ 6048 (160 px na wschód, 96 px na północ). Przedmioty Szczeliny i Szczeliny Kamiennego Sarkofagu „w morzu”
-to podziemne jaskinie pod wybrzeżem — tak ma być.
+to podziemne jaskinie pod wybrzeżem, tak ma być.
 
 Lochy legacy i podziemia: `WorldMapLegacyConvParam` (zob. `10-world-data.md`); podziemia M01 używają tego
 samego przeliczenia co M00.
@@ -95,7 +95,7 @@ samego przeliczenia co M00.
 | EquipParamAccessory | 0x26 | talizmany |
 | EquipParamGem | 0x34 | popioły wojny (ikony powtarzają się wg typu) |
 
-- **Statystyki** (`items.json` → `stats`), offsety ustalone na znanych przedmiotach (Sztylet, Długi miecz,
+- Statystyki (`items.json` → `stats`), offsety ustalone na znanych przedmiotach (Sztylet, Długi miecz,
   Claymore, Rzeki Krwi, Relikwiarzowy miecz, Bolt of Gransax, pieczęcie, Kometa Azura):
 
 | Parametr | Pole | Offset |
@@ -114,11 +114,11 @@ samego przeliczenia co M00.
 | | wymaganie inteligencji / wiary (u8) | 0x22 / 0x23 |
 
   Skalowanie w makiecie na litery jak w grze: S ≥ 175, A ≥ 140, B ≥ 90, C ≥ 60, D ≥ 25, E > 0.
-- **Opis z gry** (`info`): krótkie teksty `GoodsInfo`, `AccessoryInfo`, `ProtectorInfo`, `GemInfo` (PL).
+- Opis z gry (`info`): krótkie teksty `GoodsInfo`, `AccessoryInfo`, `ProtectorInfo`, `GemInfo` (PL).
   Notkę „Do czego służy” generuje makieta z kategorii i statystyk (`usageNote` w `mockup/app.js`).
-- Nazwy: `/msg/polpl/item.msgbnd.dcx` (+ `_dlc01`, `_dlc02`). Są **oficjalne polskie nazwy z gry**
+- Nazwy: `/msg/polpl/item.msgbnd.dcx` (+ `_dlc01`, `_dlc02`). Są oficjalne polskie nazwy z gry
   (np. „Butelka szkarłatnych łez”, „Wizerunek Gwiezdnej Plagi”) i angielskie (`engus`) do dopasowań.
-- Ikony bossów = ikony **wizerunków** (remembrances): goods 2950–2964 (gra bazowa) i
+- Ikony bossów = ikony wizerunków (remembrances): goods 2950–2964 (gra bazowa) i
   2002900–2002910 (DLC), mapowanie w `assets/data/bosses.json`.
 - Kółka questów: ikony przedmiotów kojarzonych z NPC, np. Odłamek Alexandra (talizman 1231,
   ikona 18871), Pierwotny błyskamień Sellen (goods 8144, ikona 3072).
@@ -145,7 +145,7 @@ Typ broni: `EquipParamWeapon +0x1A6` u16 wepType (1 sztylet, 3 miecz prosty, 5 w
 13 katana, 15 kłujący, 17 topór, 21 młot, 25 włócznia, 29 halabarda, 39 bicz, 50/51/53 łuki, 55 kusza, 57 kostur,
 61 pieczęć, 65/67/69 tarcze, 81–86 amunicja, 87 pochodnia, 88–95 typy DLC) → `stats.class`.
 Slot zbroi: `EquipParamProtector +0xD6` (0 głowa, 1 tułów, 2 ręce, 3 nogi) → `stats.slot`.
-W widoku Przedmioty: grupowanie (rzadkość — domyślnie, typ, skalowanie, żywioł/status, posiadanie), sortowanie
+W widoku Przedmioty: grupowanie (domyślnie rzadkość, poza tym typ, skalowanie, żywioł/status, posiadanie), sortowanie
 (rzadkość, nazwa, kolejność gry, atak, waga, wymagania, ochrona, koszt PF), filtry (szukaj, posiadane/brakujące, DLC, żywioł).
 
 UI łączy oba wymiary: kolor ramki = rzadkość (stal / srebro / złoto z ozdobnymi rogami), rogi ramki i „klejnoty”
@@ -157,7 +157,7 @@ UI łączy oba wymiary: kolor ramki = rzadkość (stal / srebro / złoto z ozdob
 Wiersze: 100 PŻ ← Witalność (25/40/60 → 800/1450/1900), 101 PS ← Umysł (15/35/60), 104 wytrzymałość ← Wytrwałość
 (15/30/50), 220 udźwig ← Wytrwałość (8/25/60 → 45/72/120/160), 0 skalowanie fizyczne (18/60/80), 4 skalowanie żywiołów
 (20/50/80), 6 statusy ← Tajemność (25/45/60). Sprawdzone na save'ach (np. Witalność 11 → 434 PŻ, Umysł 12 → 85 PS).
-**Nie każdy próg to cap**: frontend porównuje przyrost na punkt przed i po progu — spadek = miękki próg (podświetlenie
+Nie każdy próg to cap: frontend porównuje przyrost na punkt przed i po progu. Spadek = miękki próg (podświetlenie
 „blisko progu”, gdy brakuje ≤ 3 pkt), wzrost = przyspieszenie (PŻ po 25, PS po 15 i 35, Tajemność po 25).
 
 ## Rangi bossów (frontend)
@@ -178,10 +178,10 @@ Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobra
 - Meshe wariantów (`#NN#`, poza `#00#`) pomijane. Render: `render.mjs` (z-bufor, alpha test < 0,4, dwa światła,
   supersampling, kadr „bust” = górne 60% faktycznie narysowanej sylwetki).
 - Bossowie: model z nazwy części MSB (`c4340_9000`) dla encji bossa, zapasowo wróg o tej samej nazwie z NpcParam.
-  Wszystkie 11 bossów bez ikony ma portret (8 z własnego modelu, 3 ludzkie — niżej).
-- **Bossowie ludzcy (`c0000`: Leda, Łata, Hrabia Ymir)**: w MSB dane wroga `+0x18` = `CharaInitID`.
+  Wszystkie 11 bossów bez ikony ma portret (8 z własnego modelu, 3 ludzkie, opisane niżej).
+- Bossowie ludzcy (`c0000`: Leda, Łata, Hrabia Ymir): w MSB dane wroga `+0x18` = `CharaInitID`.
   `CharaInitParam`: `+0x20` hełm, `+0x24` zbroja, `+0x28` rękawice, `+0x2C` nogi (ID z EquipParamProtector),
-  `+0x10`/`+0x18` bronie. `FaceParam` ma wiersz o **tym samym ID**: `+0x00` model twarzy, `+0x01` skóra RGB, kolejne
+  `+0x10`/`+0x18` bronie. `FaceParam` ma wiersz o tym samym ID: `+0x00` model twarzy, `+0x01` skóra RGB, kolejne
   bajty jak w FaceData z save'a (cienie, policzki, oczy), `+0x3C` model włosów (`hr_a_NNNN`), `+0x3D` włosy RGB.
   Gdy część bossa nie ma CharaInit (Leda: atrapa `10003000`), bierzemy imiennika z tej samej mapy (`chara_init` w
   `bosses_all.json`). Render: `render_character.render_npc` → `assets/renders/npc_<CharaInitID>.png`.
@@ -189,18 +189,18 @@ Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobra
 ## Portret postaci gracza (głowa)
 
 `tools/extract/render_character.py` → `assets/renders/char_<sl2|co2>_<slot>.png` (wszystkie postacie w ~12 s;
-po zmianie hełmu trzeba uruchomić ponownie — UI dokleja `?h=<id hełmu>`, gdy renderu brak, pokazuje ikonę hełmu).
+po zmianie hełmu trzeba uruchomić ponownie; UI dokleja `?h=<id hełmu>`, gdy renderu brak, pokazuje ikonę hełmu).
 
-- **FaceData w save'ie** (blok `FACE`, wersja 4, rozmiar 0x120, szukany w slocie; offsety od magii):
+- FaceData w save'ie (blok `FACE`, wersja 4, rozmiar 0x120, szukany w slocie; offsety od magii):
   `+0x0C` model twarzy v → plik `/parts/fg_a_01{(v%100)//10}{v%10}` (0→0100, 20→0120, 101→0101, 151→0151;
   tak samo koduje `FaceParam +0x00`: wartości 0–52 i 100–152),
-  `+0x10` włosy → `/parts/hr_a_NNNN`, `+0x18` brwi, `+0x1C` zarost, `+0x30..` 64 bajty kształtu twarzy (morfy FaceGen — pomijane),
+  `+0x10` włosy → `/parts/hr_a_NNNN`, `+0x18` brwi, `+0x1C` zarost, `+0x30..` 64 bajty kształtu twarzy (morfy FaceGen, pomijane),
   `+0xB3` skóra RGB, `+0xDB` tęczówka RGB, `+0xF6` włosy RGB, `+0xFC` zarost RGB, `+0x102` brwi RGB.
-- **Hełm**: `EquipParamProtector +0xA4` u16 model → `/parts/hd_m_NNNN` (`hd_f_` tylko dla kilku); bajty `+0x136+NN` (NN 0–95)
+- Hełm: `EquipParamProtector +0xA4` u16 model → `/parts/hd_m_NNNN` (`hd_f_` tylko dla kilku); bajty `+0x136+NN` (NN 0–95)
   = ukryj meshe o nazwie `#NN#` w twarzy i włosach (np. kaptur ukrywa segmenty włosów 60–65).
-- Pliki twarzy zawierają całe ciało (materiały `_Body`/`SSStest`) — do portretu bierzemy tylko `_Face`.
+- Pliki twarzy zawierają całe ciało (materiały `_Body`/`SSStest`), do portretu bierzemy tylko `_Face`.
   Albedo twarzy = `FG_A_xxxx_a` z TPF części, barwione kolorem skóry z save'a.
-- **Włosy nie mają albedo** — gra barwi je w shaderze. Maska pasm = kanał alfa mapy normalnych
+- Włosy nie mają albedo, gra barwi je w shaderze. Maska pasm = kanał alfa mapy normalnych
   `AAT500_PCHair_n` / `PCHair3_n` z `/parts/common_body.tpf.dcx`; kolor z FaceData.
   Futro/pióropusze hełmów (materiał z „Hair” w części `HD_`) mają własne albedo.
 - Brak: morfów twarzy (twarz ma kształt bazowy szablonu), oczu i brwi; przy zamkniętych hełmach twarz bywa widoczna przez wizjer.
@@ -217,11 +217,11 @@ Na mapach świata 225 z 422 łask; reszta jest w lochach legacy i podziemiach.
 - Pozycji przedmiotów na mapie (wymaga MSB map + ItemLotParam_map).
 - Portretów NPC (gra ich nie ma; w zamian ikony przedmiotów). Możliwy render modeli `c0000` (części zbroi + twarz).
 
-## Ukryte statystyki przedmiotów (2026-11-25) — `extract_effects.py` → `item_effects.json`
+## Ukryte statystyki przedmiotów (2026-11-25): `extract_effects.py` → `item_effects.json`
 
 Talizman (`EquipParamAccessory` +0x4C..+0x58 resident, +0x04 refId), zbroja (`EquipParamProtector` +0x28/+0x2C/+0x30),
 broń w ręce (`EquipParamWeapon` +0x50/+0x54/+0x58) → `SpEffectParam` (912 B). Układ pól odczytany z publicznych
-definicji parametrów (Paramdex, bez licencji — w projekcie tylko przesunięcia, pliki nie są dołączane); zgodność
+definicji parametrów (Paramdex, bez licencji; w projekcie tylko przesunięcia, pliki nie są dołączane); zgodność
 sprawdzona rozmiarami wierszy wszystkich pięciu parametrów i znanymi przesunięciami statusów.
 - Zadawane obrażenia: `atkEnemyDmgCorrectRate_*` (+0x2A0..+0x2B0, przeciw wrogom) × `…AttackRate` × `…AttackPowerRate`;
   otrzymywane: `defEnemyDmgCorrectRate_*` (+0x274..) × `…DamageCutRate`. Wartości dla PvP (`…Player…`) pomijamy.
