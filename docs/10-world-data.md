@@ -41,7 +41,7 @@ Wyniki w `assets/data/` (lokalnie, poza repozytorium).
   talizman, czar…, potem dowolny poza złotymi runami; bez „gołych” zbroi `Głowa/Tułów…`, ID < 101000),
   a gdy boss nie ma własnej nagrody, ikona imiennika (kolejni Strażnicy Drzewa, Nocna Kawaleria).
   Ikonę ma 201 z 212 bossów, kolejnych 8 ma portret wyrenderowany z modelu 3D gry (pole `model`, `render`;
-  `render_bosses.py`, opis w [08-assets](08-assets.md)). Ludzcy bossowie (Leda, Łata, Hrabia Ymir, model `c0000`) są składani z części wg CharaInitParam + FaceParam. Wszystkich 212 bossów ma obrazek.
+  `render_portraits.py`, opis w [08-assets](08-assets.md)). Ludzcy bossowie (Leda, Łata, Hrabia Ymir, model `c0000`) są składani z części wg CharaInitParam + FaceParam. Wszystkich 212 bossów ma obrazek.
 - Popioły wojny i dzwonki kulisty mają w grze wspólne ikony według typu, to nie błąd danych.
 - Region: kraina najbliższej łaski (PL). Łaski DLC nie mają krainy w danych gry, więc jest brana z danych backendu (EN → PL przez PlaceName).
 

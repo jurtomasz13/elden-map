@@ -1176,7 +1176,8 @@
         .bindTooltip(`<b>${d.title}</b>${esc(d.sub)}<span class="tip-sub">klik: jak się tam dostać</span>`, { direction: "top", offset: [0, -14], className: "er-tip" })
         .on("click", () => goQuest("dlc-entry")).addTo(grp("dlc")); }
     for (const n of W.npcs) { if (n.map !== m || atRoundtable(n) || hasGameMarker(n) || !show(n, match(n.name, n.name_en) && near(n))) continue;
-      L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 })
+      (n.render ? L.marker(ll(map, n.px, n.py), { icon: divIcon(`<span class="mk-npc"><img src="${ICON("r:" + n.render)}" alt=""></span>`, 28), riseOnHover: true })
+        : L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 }))
         .bindTooltip(`<b>${esc(n.name)}</b>postać · klik: karta postaci`, { direction: "top", className: "er-tip" })
         .on("click", () => openNpc(n.name)).addTo(grp("npc")); }
     for (const t of W.items) { if (t.map !== m || atRoundtable(t)) continue;
@@ -1304,17 +1305,21 @@
   }
   const stockText = r => r.locked ? "jeszcze niedostępne" : r.qty <= 0 ? "" : r.bought >= r.qty ? "wyprzedane"
     : r.bought ? `kupione ${r.bought} z ${r.qty}` : `${r.qty} szt.`;
+  // portrait rendered from the game's 3D model (render_portraits.py); the last placement usually has the late-game look
+  const npcRender = name => W.npcs.filter(n => n.name === name && n.render).pop()?.render || null;
   async function openNpc(name) {
     await Promise.all([sourcesIndex(), itemsIndex()]);
     const stock = await shopRows(name);
-    const spots = [...W.npcs.filter(n => n.name === name && n.map), ...W.pois.filter(p => npcMarker(p) && p.people.some(x => x[0] === name))];
+    // one row per region: the same character stands in a few spots of one area during the quest
+    const spots = [...new Map([...W.npcs.filter(n => n.name === name && n.map), ...W.pois.filter(p => npcMarker(p) && p.people.some(x => x[0] === name))]
+      .map(p => [p.region_pl || p.map_id, p])).values()];
     const now = W.pois.filter(p => p.people?.some(x => x[0] === name && textOn(x)));
     const gifts = Object.entries(SRC || {}).filter(([, s]) => s.gifts?.some(g => g.who === name))
       .map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
     const drops = W.items.filter(t => t.enemy?.name === name), inv = W.invaders.filter(x => x.name === name && !hiddenInvader(x)), q = npcQuest({ name });
     const itemRow = (it, right) => listRow(`data-go="item:${it.category}:${it.id}"`, ICON(it.icon), esc(hiddenItem(it) ? "· · ·" : it.name), right);
-    const here = now[0] || spots[0];
-    drawer(`<div class="d-hero">${portrait(null, "hero-portrait", "knight")}<div class="eyebrow">Postać</div><div class="d-title">${esc(name)}</div>
+    const here = now[0] || spots[0], render = npcRender(name);
+    drawer(`<div class="d-hero">${portrait(render && "r:" + render, "hero-portrait", "knight")}<div class="eyebrow">Postać</div><div class="d-title">${esc(name)}</div>
       <div class="d-loc">${esc(here?.region_pl || "")}</div></div>
       ${now.length ? `<div class="d-section"><h4>Teraz</h4>${now.map(p => listRow(null, null, esc(p.name || "znacznik postaci z gry"), esc(p.region_pl || ""))).join("")}
         <p class="view-sub" style="margin:8px 0 0">Według mapy gry i flag z Twojego save'a.</p></div>` : ""}

@@ -412,7 +412,8 @@ def main():
                 if name_id > 0 and npc_pl.get(name_id):
                     pos = world.to_map(area, gx, gz, *p["pos"])
                     npcs.append({"name": npc_pl[name_id], "name_en": npc_en.get(name_id), "map_id": mid, "entity": p["entity"],
-                                 "talk": p["talk"], "pos": [round(c, 1) for c in p["pos"]], **(pos or {})})
+                                 "talk": p["talk"], "model": p["name"].split("_")[0], "chara_init": p["chara_init"] if (p["chara_init"] or 0) > 0 else None,
+                                 "pos": [round(c, 1) for c in p["pos"]], **(pos or {})})
         for t in m["treasures"]:
             if t["lot"] > 0 and t["pos"]:
                 place_lot(t["lot"], mid, t["pos"])
@@ -707,7 +708,7 @@ def main():
         if not b["icon"] and b["name"]:
             b["icon"] = icon_by_name.get(re.sub(r"\s*\(.*\)$", "", b["name"]))
             b["icon_from"] = "namesake" if b["icon"] else None
-    # bez ikony: render modelu 3D z plików gry (tools/extract/render_bosses.py -> assets/renders/<model>.png)
+    # bez ikony: render modelu 3D z plików gry (tools/extract/render_portraits.py -> assets/renders/<model>.png)
     for b in bosses:
         if not b["icon"] and b.get("model") and os.path.exists(os.path.join(A.ROOT, "assets", "renders", b["model"] + ".png")):
             b["render"] = b["model"]

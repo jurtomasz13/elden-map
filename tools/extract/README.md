@@ -44,7 +44,7 @@ dłużej, bo trzeba odszyfrować nagłówki archiwów (cache w `assets/cache`).
 | `overlay_test.mjs`, `fit_offset.mjs` | narzędzia do weryfikacji/kalibracji przeliczenia |
 | `msb.py` + `extract_world.py` | pliki map i skrypty zdarzeń: wszyscy bossowie, miejsca/lochy, przedmioty na mapie, NPC ([docs/10](../../docs/10-world-data.md)) |
 | `flver.py` + `export_model.py` + `render.mjs` | modele 3D (FLVER2 z `chrbnd`, tekstury z `texbnd`, albedo z MATBIN) → programowy render PNG z przezroczystym tłem; `node render.mjs <katalog> <out.png> [rozmiar] [obrót] [full\|bust]` |
-| `render_bosses.py` | portrety bossów bez ikony → `assets/renders/<model>.png` + pole `render` w `bosses_all.json` |
+| `render_portraits.py` | portrety bossów bez ikony i postaci (NPC) → `assets/renders/<model>.png` / `npc_<CharaInit>.png` + pole `render` w `bosses_all.json` i `npcs.json` |
 | `render_character.py` | portret głowy postaci gracza (twarz, włosy, kolory z save'a + hełm) → `assets/renders/char_<plik>_<slot>.png`; wymaga działającego backendu |
 | `extract_curves.py` | krzywe statystyk (CalcCorrectGraph) → `stat_curves.json`, z nich miękkie progi atrybutów |
 | `extract_sources.py` | skąd zdobyć przedmioty: kupcy (ShopLineupParam + skrypty rozmów), łup z przeciwników, zdarzenia, bossowie → `item_sources.json` |

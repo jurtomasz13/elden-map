@@ -52,13 +52,14 @@ _npc = None
 
 
 def npc_look(chara_init):
-    """Postać ludzka (c0000): CharaInitParam (+0x20 hełm, +0x24 zbroja…) + FaceParam o tym samym ID:
+    """Postać ludzka (c0000): CharaInitParam (+0x20 hełm, +0x24 zbroja…, +0xA4 wiersz FaceParam) + FaceParam:
     +0x00 model twarzy, +0x01 skóra RGB, +0x3C model włosów, +0x3D włosy RGB."""
     global _npc
     if _npc is None:
         ps = P.load_params()
         _npc = (dict(P.rows(ps["CharaInitParam"])[0]), dict(P.rows(ps["FaceParam"])[0]))
-    ci, fp = _npc[0].get(chara_init), _npc[1].get(chara_init)
+    ci = _npc[0].get(chara_init)
+    fp = ci and _npc[1].get(struct.unpack_from("<i", ci, 0xA4)[0])
     if not ci or not fp:
         return None
     return {"head": struct.unpack_from("<i", ci, 0x20)[0], "face": fp[0], "skin": list(fp[1:4]),
