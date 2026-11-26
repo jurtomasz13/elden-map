@@ -90,6 +90,13 @@ class WorldMap:
                 res = self.to_overworld(*dst, dp[0] + x - sp[0], dp[1] + y - sp[1], dp[2] + z - sp[2], depth + 1)
             if res:
                 return res
+        # a map with no row of its own (Chapel of Anticipation m10_01) is placed by a row leading into it, read backwards
+        if not cands:
+            for src, sp, dst, dp in self.conv:
+                if dst == (area, gx, gz) and src != dst:
+                    res = self.to_overworld(*src, sp[0] + x - dp[0], sp[1] + y - dp[1], sp[2] + z - dp[2], depth + 1)
+                    if res:
+                        return res
         return None
 
     def world(self, map_id: str, x: float, y: float, z: float) -> dict | None:
