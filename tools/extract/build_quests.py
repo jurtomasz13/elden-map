@@ -741,11 +741,6 @@ def build():
     icon_by_en = {}
     for it in items:
         icon_by_en.setdefault(it["name_en"], it["icon"])
-    backend_bosses = {}
-    bpath = os.path.join(ROOT, "backend", "data", "bosses.json")
-    if os.path.exists(bpath):
-        for b in json.load(open(bpath, encoding="utf-8")).get("entries", []):
-            backend_bosses[b.get("defeat_flag")] = b["id"]      # dopasowanie po fladze pokonania
     missing, errors = set(), []
     entries = []
     for q in QUESTS:
@@ -790,8 +785,7 @@ def build():
                 steps[n]["cumulative"] = True
         locks = []
         for lk in q["locks"]:
-            locks.append({"boss_en": lk["boss_en"], "boss_id": backend_bosses.get(bosses.get(lk["boss_en"])),
-                          "boss_flag": bosses.get(lk["boss_en"]), "step": lk["step"], "warning": lk["warning"]})
+            locks.append({"boss_en": lk["boss_en"], "boss_flag": bosses.get(lk["boss_en"]), "step": lk["step"], "warning": lk["warning"]})
         icon = icon_by_en.get(q["icon_en"])
         if icon is None:
             errors.append(f"{q['id']}: brak ikony dla '{q['icon_en']}'")

@@ -129,7 +129,7 @@ Generuje `tools/extract/extract_sources.py` (krok w `run_all.py`). Klucz `"<kate
   para kolejnych literałów = początek i koniec zakresu). **Rozmowy otwartego świata są we wspólnych archiwach**
   `m60_00_00_00`, `m61_00_00_00`, `m00_00_00_00`, nie per kafel. TalkID → część MSB (`+0x10`) → NpcParam → imię i miejsce.
   Wiersze z ceną 0–1 bez materiału to usługi (np. duplikowanie u kowala) — pomijane.
-- **Przeciwnicy** — `NpcParam +0x30` → `ItemLotParam_enemy` (łup losowy), `+0x1C` → `ItemLotParam_map` (jednorazowy).
+- Przeciwnicy: `NpcParam +0x30` → `ItemLotParam_enemy` (łup losowy), `+0x34` → `ItemLotParam_map` (jednorazowy).
   Szansa = waga (`+0x40` 8×u16) / suma wag w wierszu. Zwykli przeciwnicy **nie mają nazw w grze** (NpcName ma tylko 466
   postaci i bossów) — grupujemy po modelu i opisujemy krainą najbliższej łaski.
 - **Zdarzenia** (questy, najeźdźcy, podarunki): `AwardItemLot` (`2003[4]`/`2003[36]`) w skryptach map i `common`, także

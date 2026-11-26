@@ -75,6 +75,11 @@ class World:
         return None
 
 
+def item_index(items):
+    """(category, id) -> catalog item, including the other ids of the same item (`alt_ids`, extract_icons.py)."""
+    return {(i["category"], rid): i for i in items for rid in [i["id"], *i.get("alt_ids", [])]}
+
+
 def msb_paths():
     """Map files (MSB) present in the archives: names are guessed and checked by hash, the list is cached."""
     cache_path = os.path.join(A.ROOT, "assets", "cache", "msb_list.txt")
@@ -246,7 +251,7 @@ def main():
     region_pl.update({"liurnia": region_pl.get("liurnia of the lakes"), "altus plateau": region_pl.get("altus plateau"),
                       "mountaintops": region_pl.get("mountaintops of the giants"), "leyndell": region_pl.get("leyndell, royal capital")})
     items = json.load(open(os.path.join(DATA, "items.json"), encoding="utf-8"))
-    by_item = {(i["category"], i["id"]): i for i in items}
+    by_item = item_index(items)
     goods_type = {rid: r[0x3E] for rid, r in P.rows(ps["EquipParamGoods"])[0]}
     npc_rows = dict(P.rows(ps["NpcParam"])[0])
     lots = dict(P.rows(ps["ItemLotParam_map"])[0])
@@ -290,7 +295,7 @@ def main():
                 if name_id > 0 and npc_pl.get(name_id):
                     pos = world.to_map(area, gx, gz, *p["pos"])
                     npcs.append({"name": npc_pl[name_id], "name_en": npc_en.get(name_id), "map_id": mid, "entity": p["entity"],
-                                 "talk": p["talk"], **(pos or {})})
+                                 "talk": p["talk"], "pos": [round(c, 1) for c in p["pos"]], **(pos or {})})
         for t in m["treasures"]:
             if t["lot"] <= 0 or not t["pos"]:
                 continue
@@ -458,10 +463,11 @@ def main():
         if not name:
             continue
         area, gx, gz = r[0x20], r[0x21], r[0x22]
-        pos = world.to_map(area, gx, gz, *struct.unpack_from("<3f", r, 0x24))
+        local = struct.unpack_from("<3f", r, 0x24)
+        pos = world.to_map(area, gx, gz, *local)
         if pos:
             pois.append({"id": rid, "name": name, "category": poi_category(name), "map_id": f"m{area:02d}_{gx:02d}_{gz:02d}_00",
-                         "dlc": area in DLC_AREAS, **pos})
+                         "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in local], **pos})
 
     seen_poi, uniq = set(), []
     for p_ in pois:
@@ -532,12 +538,6 @@ def main():
 
     # region geograficznie: kraina najbliższej łaski na tej samej mapie (polskie nazwy z gry)
     graces = json.load(open(os.path.join(DATA, "graces.json"), encoding="utf-8"))
-    be = os.path.join(A.ROOT, "backend", "data", "graces.json")     # krainy łask DLC (EN) z danych backendu, po fladze
-    if os.path.exists(be):
-        dlc_region = {e["flag"]: e.get("region") for e in json.load(open(be, encoding="utf-8")).get("entries", [])}
-        for g in graces:
-            if not g.get("region") and dlc_region.get(g["flag"]):
-                g["region"] = region_pl.get(dlc_region[g["flag"]].lower()) or dlc_region[g["flag"]]
     # gra podstawowa: podkraina z menu podróży (Płaczący Półwysep, Nokron…) — widok bossów zagnieżdża ją w krainie;
     # DLC: w głównych lochach podkraina (Belurat, Enir-Ilim…), poza nimi kraina główna (drobne podkrainy DLC
     # nie mają miejsca w drzewie krain strony)
@@ -546,14 +546,13 @@ def main():
         return ((not g.get("dlc") or legacy_dlc) and g.get("subregion")) or g["region"]
     by_map = {}
     for g in graces:
-        if g.get("region") and g.get("map_id"):
-            by_map.setdefault(g["map_id"], []).append(sub_or_region(g))
+        if g.get("region") and g.get("map_id") and g.get("pos"):
+            by_map.setdefault(g["map_id"], []).append(g)
     graces = [g for g in graces if g.get("map") and g.get("region") and (g.get("map_id") or "")[:3] in ("m60", "m61")]   # tylko otwarty świat
     def nearest_region(o):
         mid = o.get("map_id") or ""
-        if mid[:3] not in ("m60", "m61") and by_map.get(mid):        # loch: kraina łask z tego samego pliku mapy
-            regs = by_map[mid]
-            return max(set(regs), key=regs.count)
+        if mid[:3] not in ("m60", "m61") and by_map.get(mid):        # loch: najbliższa łaska z tego samego pliku mapy
+            return sub_or_region(min(by_map[mid], key=lambda g: sum((a - b) ** 2 for a, b in zip(g["pos"], o["pos"]))))
         same = [g for g in graces if g["map"] == o.get("map")]
         if not same or o.get("px") is None:
             return None

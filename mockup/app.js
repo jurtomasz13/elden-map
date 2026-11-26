@@ -537,24 +537,26 @@
     { id: "aow", name: "Popioły wojny", f: i => i.category === "ash_of_war" && !/dummy/i.test(i.name) },
     { id: "spirits", name: "Prochy duchów", f: i => i.category === "goods" && (i.gtype === 7 || i.gtype === 8) && !/\+\d+\s*$/.test(i.name) },
   ];
+  // the same item can sit in the save under another id (`alt_ids`, extract_icons.py)
+  const isId = (it, id) => id === it.id || !!it.alt_ids?.includes(id);
   // posiadanie: ekwipunek z backendu (gdy już go podaje) → popioły wojny z flag → demo
   function have(i) {
     if (live.on && live.inventory) {
       const inv = live.inventory, pool = { weapon: inv.weapons, armor: inv.armor, talisman: inv.talismans, ash_of_war: inv.ashes,
         goods: [...(inv.goods || []), ...(inv.key_items || [])] }[i.category] || [];
       // broń: po base_id (ulepszenia/nasycenia); prochy duchów +1…+10: ID bazowe = ID − ID % 100
-      return pool.some(x => (x.base_id ?? x.id) === i.id || x.id === i.id || (i.category === "goods" && i.id % 100 === 0 && x.id - x.id % 100 === i.id && x.id >= 200000));
+      return pool.some(x => isId(i, x.base_id ?? x.id) || isId(i, x.id) || (i.category === "goods" && i.id % 100 === 0 && x.id - x.id % 100 === i.id && x.id >= 200000));
     }
     if (live.on) return live.aow?.has(i.name_en) ? live.aow.get(i.name_en) : null;
     return hashPct(i.id) < 38;
   }
-  const sameItem = (x, it) => x.cat === it.category && (x.id === it.id || (it.category === "weapon" && x.id - (x.id % 10000) === it.id));
+  const sameItem = (x, it) => x.cat === it.category && (isId(it, x.id) || (it.category === "weapon" && x.id - (x.id % 10000) === it.id));
   const whereItem = it => W.items.filter(t => t.items.some(x => sameItem(x, it)));
 
   /* ---------------- szczegóły przedmiotu: statystyki z gry, opis z gry, notka „do czego służy” ---------------- */
   let ITEMS = null;
   async function itemsIndex() {
-    if (!ITEMS) ITEMS = new Map((await load("items") || []).map(i => [`${i.category}:${i.id}`, i]));
+    if (!ITEMS) ITEMS = new Map((await load("items") || []).flatMap(i => [i.id, ...(i.alt_ids || [])].map(id => [`${i.category}:${id}`, i])));
     return ITEMS;
   }
   const findItem = (cat, id) => ITEMS?.get(`${cat}:${id}`) || ITEMS?.get(`${cat}:${id - (cat === "weapon" ? id % 10000 : 0)}`);

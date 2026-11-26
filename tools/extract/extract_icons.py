@@ -2,7 +2,9 @@
 
 Wynik:
   assets/cache/icons/<iconId>.dds, assets/cache/loading/<n>.dds  (potem build_icons.mjs -> PNG)
-  assets/data/items.json   — przedmioty: kategoria, id, nazwa (PL), iconId, DLC
+  assets/data/items.json   — przedmioty: kategoria, id, nazwa (PL), iconId, DLC; ten sam przedmiot pod kilkoma
+                             numerami (pusta i pełna flaszka, odnowiona wielka runa, kopie notatek) to jeden wpis,
+                             pozostałe numery w `alt_ids`
   assets/data/bosses.json  — wizerunki (remembrances) bossów -> iconId
 Ikony z /menu/low/00_solo (512 px, MENU_Knowledge_<iconId>); pola iconId w parametrach ustalone
 empirycznie (patrz docs/08-assets.md).
@@ -95,24 +97,28 @@ def main():
         rows, _ = P.rows(ps[param])
         base, dlc = texts.get(fmg, {}), {**texts.get(fmg + "_dlc01", {}), **texts.get(fmg + "_dlc02", {})}
         en = {**texts_en.get(fmg, {}), **texts_en.get(fmg + "_dlc01", {}), **texts_en.get(fmg + "_dlc02", {})}
-        seen = set()
+        seen = {}
         for rid, row in rows:
             name = (dlc.get(rid) or base.get(rid) or "").strip()
             if not name or name.startswith("[ERROR]"):
                 continue
             if cat == "weapon" and rid % 10000:        # pomijamy warianty ulepszeń/nasyceń
                 continue
-            if (cat, name) in seen:
+            # the same item under several ids (e.g. multiplayer fingers 100/170, restored great runes): one catalog
+            # entry, the other ids kept so the save still matches it
+            key = (name, en.get(rid, ""))
+            if key in seen:
+                seen[key].setdefault("alt_ids", []).append(rid)
                 continue
-            seen.add((cat, name))
             info_fmg = fmg.replace("Name", "Info")
             info = ({**texts.get(info_fmg, {}), **texts.get(info_fmg + "_dlc01", {}), **texts.get(info_fmg + "_dlc02", {})}.get(rid) or "").strip()
-            items.append({"category": cat, "id": rid, "name": name, "name_en": en.get(rid, ""),
-                          "icon": struct.unpack_from("<H", row, off)[0], "dlc": rid in dlc,
-                          "info": info if info and not info.startswith("[ERROR]") else None,
-                          "rarity": row[RARITY_OFF[cat]] if cat in RARITY_OFF else None,
-                          "gtype": row[0x3E] if cat == "goods" else None,       # typ goods (7/8 prochy duchów, 5/17 czary…)
-                          "stats": item_stats(cat, rid, row, magic, speffects)})
+            seen[key] = {"category": cat, "id": rid, "name": name, "name_en": en.get(rid, ""),
+                         "icon": struct.unpack_from("<H", row, off)[0], "dlc": rid in dlc,
+                         "info": info if info and not info.startswith("[ERROR]") else None,
+                         "rarity": row[RARITY_OFF[cat]] if cat in RARITY_OFF else None,
+                         "gtype": row[0x3E] if cat == "goods" else None,       # typ goods (7/8 prochy duchów, 5/17 czary…)
+                         "stats": item_stats(cat, rid, row, magic, speffects)}
+            items.append(seen[key])
     goods_icon = {it["id"]: it["icon"] for it in items if it["category"] == "goods"}
     bosses = [{"remembrance_id": gid, "boss_en": boss, "icon": goods_icon.get(gid),
                "remembrance": next((it["name"] for it in items if it["id"] == gid and it["category"] == "goods"), None)}

@@ -5,7 +5,7 @@
   Który kupiec sprzedaje który zakres wierszy — ze skryptów rozmów `/script/talk/<mapa>.talkesdbnd.dcx` (t<TalkID>.esd):
   wywołanie otwarcia sklepu ma argumenty (początek, koniec) zakresu wierszy; literał int w wyrażeniu ESD = bajt 0x82 + i32.
   TalkID → część MSB (dane wroga +0x10) → NpcParam (+0x0C nazwa) → imię kupca i miejsce na mapie.
-- Przeciwnicy: NpcParam +0x30 → ItemLotParam_enemy (łup losowy), +0x1C → ItemLotParam_map (łup jednorazowy).
+- Przeciwnicy: NpcParam +0x30 → ItemLotParam_enemy (łup losowy), +0x34 → ItemLotParam_map (łup jednorazowy).
   Wiersz puli: +0x00 8×i32 ID, +0x20 8×i32 kategoria, +0x40 8×u16 waga losowania (szansa = waga / suma wag), +0x8A liczba.
   Położenie przeciwników: części MSB z danym NpcParamID.
 - Bossowie: nagrody z bosses_all.json (po nazwie przedmiotu).
@@ -23,7 +23,7 @@ import formats as F  # noqa: E402
 import emevd  # noqa: E402
 import msb  # noqa: E402
 import params as P  # noqa: E402
-from extract_world import DATA, World, map_id_of, msb_paths  # noqa: E402
+from extract_world import DATA, World, item_index, map_id_of, msb_paths  # noqa: E402
 
 LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
 SHOP_TYPES = {0: "weapon", 1: "armor", 2: "talisman", 3: "goods", 4: "ash_of_war"}
@@ -36,7 +36,7 @@ def main():
     tp = P.load_texts("polpl")
     npc_names = {**tp.get("NpcName", {}), **tp.get("NpcName_dlc01", {}), **tp.get("NpcName_dlc02", {})}
     items = json.load(open(os.path.join(DATA, "items.json"), encoding="utf-8"))
-    by_item = {(i["category"], i["id"]): i for i in items}
+    by_item = item_index(items)
     by_name = {}
     for i in items:
         by_name.setdefault(i["name"], i)
@@ -62,7 +62,7 @@ def main():
         if cat == "weapon":
             iid -= iid % 10000
         it = by_item.get((cat, iid))
-        return f"{cat}:{iid}" if it and it.get("name") else None
+        return f"{cat}:{it['id']}" if it and it.get("name") else None
 
     def lot_entries(table, lot):
         """(klucz przedmiotu, szansa %, liczba) z puli i kolejnych wierszy (lot+1…)."""
@@ -109,7 +109,7 @@ def main():
         if not name or "dummy" in name.lower() or name.startswith("["):
             name = "#" + spots[0][1].get("model", "?")            # zwykli przeciwnicy nie mają nazw w grze — grupujemy po modelu
         drops = []
-        for off, table in ((0x30, lot_enemy), (0x1C, lot_map)):
+        for off, table in ((0x30, lot_enemy), (0x34, lot_map)):
             lot = struct.unpack_from("<i", r, off)[0]
             if lot > 0:
                 drops += lot_entries(table, lot)

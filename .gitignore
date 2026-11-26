@@ -16,6 +16,7 @@ __pycache__/
 venv/
 .pytest_cache/
 .claude/settings.local.json
+.claude/worktrees/
 .DS_Store
 Thumbs.db
 

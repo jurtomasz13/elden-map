@@ -89,7 +89,9 @@ def main():
     with open(os.path.join(out_dir, "manifest.json"), "w") as f:
         json.dump(manifest, f)
     flags = piece_flags()
-    with open(os.path.join(A.ROOT, "assets", "data", "map_pieces.json"), "w", encoding="utf-8") as f:
+    data_dir = os.path.join(A.ROOT, "assets", "data")
+    os.makedirs(data_dir, exist_ok=True)
+    with open(os.path.join(data_dir, "map_pieces.json"), "w", encoding="utf-8") as f:
         json.dump(flags, f)
     for k, v in manifest.items():
         if not k.startswith("_"):
