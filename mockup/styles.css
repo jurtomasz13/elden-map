@@ -946,3 +946,6 @@ body.quiet .view, body.quiet .view *, body.quiet .card, body.quiet .icell { anim
 /* kroki questów: zakończenie alternatywne (np. śmierć postaci) */
 .timeline li.alt { opacity: .8; }
 .alt-tag { display: inline-block; margin: 0 8px 2px 0; padding: 1px 7px; border: 1px solid var(--line-2); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+.timeline li.skipped { opacity: .55; }
+.timeline li.skipped .diamond { background: transparent; }

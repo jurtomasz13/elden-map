@@ -84,12 +84,18 @@
   }
   // krok zaliczony: własne flagi (any/all) albo dowolna flaga późniejszego etapu (`later`, quest_steps.py)
   // `gated` (sama flaga bossa) — liczy się dopiero po zaliczeniu poprzedniego kroku
+  // `here` (flagi położenia NPC): postać czeka przy tym kroku — to bieżący krok, a wcześniejsze bez dowodu są
+  // „za tobą” (zrobione albo pominięte — gra tego nie rozróżnia, ale nie są już do zrobienia)
   const questSteps = q => { let prev = true;
-    return q.steps.map(s => { const fl = s.flags || [];
+    const st = q.steps.map(s => { const fl = s.flags || [];
       const own = fl.length ? (s.mode === "all" ? fl.every(f => isSet(f, 50)) : fl.some(f => isSet(f, 50))) : false;
       const done = (own && (!s.gated || prev)) || (s.later || []).some(f => isSet(f, 50));
       if (!s.alt) prev = done;
-      return { ...s, done }; }); };
+      return { ...s, done, skipped: false }; });
+    let h = -1;
+    st.forEach((s, i) => { if (!s.alt && (s.here || []).some(f => isSet(f, 50))) h = i; });
+    for (let i = 0; i < h; i++) if (!st[i].alt && !st[i].done) { st[i].done = true; st[i].skipped = true; }
+    return st; };
 
   // Wejście do DLC: kokon Miquelli na arenie Mohga (Pałac Mohgwynów, podziemia). Wątek dopisywany do questów —
   // kroki z flag save'a (pokonani bossowie, łaski pałacu, obszar startowy DLC 62002 / pierwsza łaska DLC).
@@ -139,7 +145,7 @@
       api(`/api/session?${qs()}`).catch(() => null), api(`/api/deaths?${qs()}&limit=500`).catch(() => null)]);
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
-      ...W.quests.flatMap(q => q.steps.flatMap(s => s.flags || [])), ...Object.values(W.pieces || {}).flat().map(p => p.f)].filter(Boolean));
+      ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f)].filter(Boolean));
     const arr = [...ids], flags = {};
     for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
     live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
@@ -458,7 +464,7 @@
     const quests = real ? W.quests.map(q => ({ id: q.id, name: q.name, npc: q.npc, icon: q.icon, dlc: q.dlc, missable: q.missable, confidence: q.confidence, parent: q.parent,
       // tryb bez spoilerów: niezaliczone kroki w wersji, która nie zdradza losów postaci (quest_spoilers.py)
       steps: questSteps(q).map(s => { const safe = state.spoilers && !s.done;
-        return { text: (safe && s.text_safe) || s.text, where: s.where || "", done: s.done, alt: !!s.alt, end: !!s.end, next: (safe && s.next_safe) || (safe && s.text_safe) || s.next }; }),
+        return { text: (safe && s.text_safe) || s.text, where: s.where || "", done: s.done, skipped: s.skipped, alt: !!s.alt, end: !!s.end, next: (safe && s.next_safe) || (safe && s.text_safe) || s.next }; }),
       locks: (q.locks || []).map(l => ({ text: (state.spoilers && l.warning_safe) || l.warning })) }))
       : D.quests.map(q => ({ ...q, icon: D.questIcons[q.id] }));
     for (const q of quests) { const ended = q.steps.some(s => s.end && s.done), i = ended ? -1 : q.steps.findIndex(s => !s.done && !s.alt);
@@ -494,7 +500,7 @@
         ${(q.locks || []).filter(l => l.text).map(l => `<p class="note warn" style="margin-top:20px">⚠ ${esc(l.text)}</p>`).join("")}
         ${q.missable ? `<p class="note warn" style="margin-top:12px">Ten quest można przegapić — postępuj według kolejności kroków.</p>` : ""}
         <div class="next"><div class="eyebrow">Co dalej</div><div class="next-text">${linkify(q.next.text)}</div><div class="next-hint">${linkify(q.next.hint || "")}</div></div>
-        <ol class="timeline">${q.steps.map(s => `<li class="${s.done ? "done" : s.current ? "current" : "future"}${s.alt ? " alt" : ""}"><span class="diamond"></span>${s.alt ? `<span class="alt-tag">${s.end ? "zakończenie" : "alternatywa"}</span>` : ""}
+        <ol class="timeline">${q.steps.map(s => `<li class="${s.done ? "done" : s.current ? "current" : "future"}${s.alt ? " alt" : ""}${s.skipped ? " skipped" : ""}"${s.skipped ? ' title="Postać jest już dalej — ten krok jest za tobą (zrobiony albo pominięty, gra tego nie zapisuje)"' : ""}><span class="diamond"></span>${s.skipped ? '<span class="alt-tag">za tobą</span>' : ""}${s.alt ? `<span class="alt-tag">${s.end ? "zakończenie" : "alternatywa"}</span>` : ""}
           ${blur(s) ? `<span style="filter:blur(5px)">${esc(s.text)}</span>` : linkify(s.text)}<span class="where">${blur(s) ? "ukryte — tryb bez spoilerów" : linkify(s.where)}</span></li>`).join("")}</ol>
         ${kidsOf(q.id).length ? `<div class="d-section"><h4>Powiązane wątki</h4>${kidsOf(q.id).map(k => { const d = k.steps.filter(s => s.done).length;
           return `<button class="reward q-link" data-q="${esc(k.id)}"><span class="rw">${portrait(k.icon, "q-mini", "knight")}${esc(k.name)}</span><span>${d}/${k.steps.length}</span></button>`; }).join("")}</div>` : ""}

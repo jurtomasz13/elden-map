@@ -58,10 +58,12 @@ def main():
         for s in t["steps"]:
             mt = [by_step[m] for m in s.get("match") or [] if m in by_step]
             used |= {m for m in s.get("match") or [] if m in by_step}
-            # flagi położenia NPC: +5 w bloku (20 flag od wielokrotności 20) to stan początkowy, ustawiony od startu
-            # gry — nie znaczy „spotkałeś postać”; tak samo +6 u Yury (sprawdzone na nowej postaci)
-            # 3383/3387 — slot Iriny/Hyetty: „Irina nie żyje / Hyetta czeka przy klifach”, ustawia się przed spotkaniem Hyetty
-            extra = [f for f in s.get("flags") or [] if not (3000 <= f < 5000 and f % 20 == 5) and f not in (3626, 3383, 3387)]
+            # flagi z bloku NPC (20 flag od wielokrotności 20, opisy TGA): +5…+18 = GDZIE POSTAĆ TERAZ CZEKA — gra
+            # przestawia je sama (śmierć Iriny → Hyetta przy klifach, Godrick → Gideon w komnacie), więc nie znaczą „krok
+            # zrobiony”, tylko „to jest bieżący krok, wcześniejsze są za tobą” (`here`). +1 wrogość, +3 śmierć — zaliczenie.
+            tga = list(s.get("flags") or [])
+            here = [f for f in tga if 3000 <= f < 5000 and 5 <= f % 20 <= 18]
+            extra = [f for f in tga if f not in here]
             own = list(dict.fromkeys([f for m in mt for f in m.get("flags") or []] + extra))
             mode = "all" if len(mt) == 1 and mt[0].get("mode") == "all" and not s.get("flags") else "any"
             sid = mt[0]["id"] if len(mt) == 1 and mt[0]["id"] not in {x["id"] for x in steps} else f"p{s['qp']}"
@@ -69,7 +71,7 @@ def main():
             if s.get("warn"):
                 nxt = f"{nxt} ⚠ {fill(s['warn'])}".strip()
             steps.append({"id": sid, "text": fill(s["text"]), "where": fill(s.get("where")) or "", "next": nxt,
-                          "text_safe": fill(s.get("safe")) or None, "flags": own, "mode": mode, "alt": bool(s.get("alt")) or s["qp"] >= 90,
+                          "text_safe": fill(s.get("safe")) or None, "flags": own, "here": here, "mode": mode, "alt": bool(s.get("alt")) or s["qp"] >= 90,
                           "end": s["qp"] >= 90,                          # QuestPath s98/s99 = zakończenie (np. śmierć NPC)
                           "sources": ["questpath"] + (["regulation"] if mt else [])})
         # niedopasowany krok z flagą: zostaje (sprawdzalny postęp) w swoim pierwotnym miejscu — zaraz po kroku, do którego

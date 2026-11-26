@@ -215,3 +215,12 @@ Wniosek: skrypty rozmów **nie ustawiają** flag z bloku NPC (3940…), tylko fl
 na podstawie kwestii i sprawdzone stanem flag na 7 postaciach (`quest_talk_flags.json`: flaga + uzasadnienie).
 Po dołączeniu: 255 kroków z własną flagą (wcześniej 160); postać nowa — 2 kroki (prawdziwe), pozostałe bez luk
 poza Rogierem (wątek kończy się śmiercią, kroki pośrednie bez flag).
+
+## Bieżący krok według położenia postaci (2026-11-26)
+
+Flagi z bloku NPC od +5 do +18 (opisy TGA) mówią, gdzie postać teraz czeka. Gra przestawia je sama, także bez
+rozmowy (np. po śmierci Iriny Hyetta czeka przy klifach), więc nie znaczą „krok zrobiony”. Trafiają do pola `here`
+kroku: jeśli postać czeka przy kroku N, to N jest bieżący, a wcześniejsze kroki bez dowodu są oznaczone „za tobą”
+(zrobione albo pominięte, save tego nie rozróżnia, ale nie są już do zrobienia). Flagi +1 (wrogość) i +3 (śmierć)
+zostają flagami zaliczenia. Opisy TGA znają tylko część położeń; pozostałe przesunięcia bloku (np. Aleksander +8,
++10) nie są jeszcze przypisane do kroków.
