@@ -39,7 +39,7 @@ dłużej, bo trzeba odszyfrować nagłówki archiwów (cache w `assets/cache`).
 | `dds.mjs` | dekoder BC1/3/4/5/7 → PNG (bez zależności) |
 | `extract_map.py` + `build_tiles.mjs` | kafle mapy w wariancie „pełna mapa” → piramida |
 | `extract_map_pieces.py` + `build_map_pieces.mjs` | zasięg fragmentów mapy (maska) i flagi, żeby mapa odkrywała się jak w grze |
-| `extract_icons.py` + `build_icons.mjs` | ikony, ekrany ładowania, spis przedmiotów |
+| `extract_icons.py` + `build_icons.mjs` | ikony przedmiotów, ikony miejsc na mapie, ekrany ładowania, spis przedmiotów |
 | `extract_data.py` | łaski + przeliczenie współrzędnych |
 | `overlay_test.mjs`, `fit_offset.mjs` | narzędzia do weryfikacji/kalibracji przeliczenia |
 | `msb.py` + `extract_world.py` | pliki map i skrypty zdarzeń: wszyscy bossowie, miejsca/lochy, przedmioty na mapie, NPC ([docs/10](../../docs/10-world-data.md)) |

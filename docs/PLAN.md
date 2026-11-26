@@ -58,10 +58,9 @@ jest to, co już wiadomo, i to, co trzeba zbadać. Numery to proponowana kolejno
    W atlasie ikon są też nieużywane przez parametry wersje (Belurat bez chmury, Leyndell w popiele, Donżon Cienia).
    Jeśli gra je podmienia, robi to w kodzie programu; trzeba sprawdzić w grze. Do tego 118 napisów z imionami postaci
    (np. Blaidd, Ranni) z flagami pokaż/ukryj, czyli spoilery questów.
-   Projekt czyta dziś z `WorldMapPointParam` tylko pozycję i pierwszy napis.
    Propozycja: dane napisów i ikon z flagami w `extract_world.py`, strona wybiera napis i ikonę według flag (w „Moim
    postępie” z save'a, w zwykłym trybie przełącznik przed/po). Ikony miejsc wycięte z atlasów gry.
-6. Okrągły Stół. Miejsca i przedmioty z Okrągłego Stołu wiszą teraz w pustym miejscu na mapie.
+6. Okrągły Stół. Miejsca i przedmioty z Okrągłego Stołu wisiały w pustym miejscu na mapie.
    Zbadane: 24 punkty (20 NPC, 3 skarby, łaska) leżą w morzu na zachód od Limgrave. To położenie jest z danych gry
    (`WorldMapLegacyConvParam`, m11_10 → m60_40_35) i gra pokazuje tam ikonę łaski Okrągłego Stołu (ikona 48).
    Propozycja: jeden znacznik z ikoną Okrągłego Stołu w tym miejscu, po kliknięciu lista postaci, skarbów i łaski.
@@ -185,6 +184,12 @@ nasze, opisy po angielsku z pliku moda, ikona zastępcza.
 Zrobione 2026-11-26: krok 4 (punkty 7 i 8). Najeźdźcy (25, bez Moore'a) jako warstwa mapy z kartą i nagrodami,
 w karcie przedmiotu źródło „Nagroda za najeźdźcę”. Łup z przeciwników: wszystkie miejsca bez limitów (`enemies.json`),
 przycisk w karcie przedmiotu pokazuje je na mapie (filtr „Gdzie wypada”).
+
+Zrobione 2026-11-26: krok 5 (punkty 5 i 6). Miejsca mają ikony z gry i napisy zależne od flag. W zwykłym trybie
+mapy wybór „Stan świata: jak w save'ie / przed / po” (krater, Leyndell w popiele, Enir-Ilim), w „Moim postępie” zawsze
+z save'a. Twierdza Okrągłego Stołu to jedna ikona z listą postaci, najeźdźcy i skarbów. Zostaje: imiona postaci z mapy gry
+(118 napisów) i ikony bez wpisu w parametrach (Leyndell szary, Belurat i Donżon Cienia bez czarnej chmury), dopóki
+nie sprawdzimy w grze, kiedy się pojawiają.
 
 1. Błędy, osobne szybkie wydanie dla kolegi: kolejność kroków przygotowania danych (punkt 1), przedmioty pomijane
    przez `extract_icons.py` (punkt 10), pula łupu NPC z NpcParam +0x34 (punkt 8).

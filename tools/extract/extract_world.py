@@ -2,9 +2,10 @@
 
 Wynik (assets/data/):
   bosses_all.json      wszyscy bossowie (GameAreaParam): flaga pokonania, runy, nazwy PL/EN, region, pozycja, ikona
-  pois.json            miejsca z WorldMapPointParam (lochy, ruiny, kościoły…) z kategorią
+  pois.json            miejsca z WorldMapPointParam (lochy, ruiny, kościoły…): kategoria, ikona, napisy zależne od flag
   item_locations.json  skarby z plików map (MSB): pula łupu, flaga podniesienia, przedmioty, kategoria, pozycja
   npcs.json            NPC z dialogiem (MSB: wróg z TalkID) z nazwą PL i pozycją
+  invaders.json        najeźdźcy (czerwone fantomy NPC) z flagą pokonania, nagrodami i pozycją
 Pozycje: mapy m60/m61 przeliczane wprost (map_transform), lochy przez WorldMapLegacyConvParam
 (łańcuchy aż do m60/m61). Małe lochy (katakumby, jaskinie, tunele, lochy DLC) ląduje przy wejściu (`approx`).
 Podziemia (m12): dokładnie, na osobnej mapie M01. Farum Azula (m13): w wirze burzy (stała FARUM).
@@ -496,21 +497,34 @@ def main():
                        **(pos or {})})
 
     # ---------- miejsca ----------
+    # WorldMapPointParam: +0x04 flaga pokazania punktu (6001 = zawsze), +0x0C ikona MENU_MAP_<id>, +0x30 + 12·i do 8 napisów
+    # (tekst, flaga włączenia, flaga wyłączenia; flaga < 10 = zawsze), +0x90 + i rodzaj napisu (0 miejsce, 1 postać).
+    # Napisy z flagami to stany świata (krater po Radahnie: 9417, Leyndell w popiele: 118) i prośby Wulkanicznego Dworu.
+    map_icons = {int(k) for k in json.load(open(os.path.join(A.ROOT, "assets", "cache", "mapicons", "layout.json"), encoding="utf-8"))}
     pois = []
     for rid, r in P.rows(ps["WorldMapPointParam"])[0]:
-        name = places.get(struct.unpack_from("<i", r, 0x30)[0])
-        if not name:
+        names = []
+        for i in range(8):
+            tid, on, off = struct.unpack_from("<3i", r, 0x30 + 12 * i)
+            if r[0x90 + i] == 0 and places.get(tid):
+                names.append([places[tid].strip(), on if on >= 10 else 0, off if off >= 10 else 0])
+        if not names:
             continue
+        name = names[0][0]
         area, gx, gz = r[0x20], r[0x21], r[0x22]
         local = struct.unpack_from("<3f", r, 0x24)
         pos = world.to_map(area, gx, gz, *local)
+        show, icon = struct.unpack_from("<i", r, 0x04)[0], struct.unpack_from("<H", r, 0x0C)[0]
         if pos:
             pois.append({"id": rid, "name": name, "category": poi_category(name), "map_id": f"m{area:02d}_{gx:02d}_{gz:02d}_00",
-                         "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in local], **pos})
+                         "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in local], "flag": 0 if show == 6001 else show,
+                         "icon": icon if icon in map_icons else None,
+                         **({"names": names} if len(names) > 1 or names[0][1] or names[0][2] else {}), **pos})
 
+    # powtórzony wiersz w tym samym punkcie odpada, chyba że ma inne napisy z flagami (np. Wielka Winda Rold)
     seen_poi, uniq = set(), []
     for p_ in pois:
-        k = (p_["name"].strip(), p_.get("map"), round(p_.get("px") or 0, -1), round(p_.get("py") or 0, -1))
+        k = (p_["name"], p_.get("map"), round(p_.get("px") or 0, -1), round(p_.get("py") or 0, -1), json.dumps(p_.get("names")))
         if k not in seen_poi:
             seen_poi.add(k)
             uniq.append(p_)

@@ -123,6 +123,11 @@ samego przeliczenia co M00.
 - Kółka questów: ikony przedmiotów kojarzonych z NPC, np. Odłamek Alexandra (talizman 1231,
   ikona 18871), Pierwotny błyskamień Sellen (goods 8144, ikona 3072).
 
+Ikony miejsc na mapie: atlasy `SB_MapCursor`, `SB_MapCursor_02`, `SB_MapCursor_03_dlc` (BC7 2048×1024)
+z `/menu/hi/01_common.tpf.dcx`, współrzędne wycinków `MENU_MAP_<id>` w plikach `.layout` (XML) z
+`/menu/hi/01_common.sblytbnd.dcx`. `extract_icons.py` zapisuje atlasy i `layout.json` do `assets/cache/mapicons`,
+`build_icons.mjs` wycina 97 ikon do `assets/map/icons/<id>.png`. Ikona 48 to Twierdza Okrągłego Stołu.
+
 ## Rzadkość i żywioły przedmiotów (ramki w UI)
 
 Ustalone porównaniem znanych przedmiotów (2026-11-23), zapisywane w `items.json` jako `rarity` i `stats.status`:

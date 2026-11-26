@@ -7,6 +7,7 @@ Wynik:
                            pozostałe numery w `alt_ids`; przedmioty moda Seamless Coop
                            (gdy jest w folderze gry): nazwy nasze, opisy z jego pliku locale
   assets/data/bosses.json  wizerunki (remembrances) bossów -> iconId
+  assets/cache/mapicons/   atlasy ikon miejsc na mapie + layout.json (potem build_icons.mjs -> assets/map/icons)
 Ikony z /menu/low/00_solo (512 px, MENU_Knowledge_<iconId>); pola iconId w parametrach ustalone
 empirycznie (patrz docs/08-assets.md).
 """
@@ -105,6 +106,27 @@ def seamless_items():
             for rid, (key, pl) in SEAMLESS.items()]
 
 
+def map_icons(out_dir):
+    """Ikony miejsc na mapie świata: atlasy SB_MapCursor* z /menu/hi/01_common (DDS) i współrzędne wycinków
+    MENU_MAP_<id> z plików .layout (XML) → assets/cache/mapicons/<atlas>.dds + layout.json {id: [atlas, x, y, w, h]}."""
+    os.makedirs(out_dir, exist_ok=True)
+    _, tpf = A.find("/menu/hi/01_common.tpf.dcx")
+    atlases = {n: d for n, d, _ in F.tpf(tpf) if n.startswith("SB_MapCursor")}
+    for n, d in atlases.items():
+        with open(os.path.join(out_dir, n + ".dds"), "wb") as f:
+            f.write(d)
+    _, bnd = A.find("/menu/hi/01_common.sblytbnd.dcx")
+    layout = {}
+    for _, n, d in F.bnd4(bnd):
+        atlas = os.path.basename(n.replace("\\", "/")).removesuffix(".layout")
+        if atlas in atlases:
+            for m in re.finditer(r'MENU_MAP_(\d+)\.png" x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)"', d.decode("utf-8")):
+                layout[int(m.group(1))] = [atlas, *map(int, m.groups()[1:])]
+    with open(os.path.join(out_dir, "layout.json"), "w", encoding="utf-8") as f:
+        json.dump(layout, f)
+    return len(layout)
+
+
 def main():
     root = A.ROOT
     icon_dir = os.path.join(root, "assets", "cache", "icons")
@@ -185,7 +207,8 @@ def main():
                 fixed += 1
     with open(os.path.join(data_dir, "items.json"), "w", encoding="utf-8") as f:
         json.dump(items, f, ensure_ascii=False, indent=0)
-    print(f"przedmioty {len(items)}, ikony {n_icons} (z {len(used)} używanych), ekrany ładowania {n_load}, "
+    n_map = map_icons(os.path.join(root, "assets", "cache", "mapicons"))
+    print(f"przedmioty {len(items)}, ikony {n_icons} (z {len(used)} używanych), ikony miejsc na mapie {n_map}, ekrany ładowania {n_load}, "
           f"zastępcze ikony: {fixed}")
 
 

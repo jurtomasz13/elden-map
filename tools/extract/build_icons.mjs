@@ -30,3 +30,17 @@ for (const [kind, maxW, opaque] of [["icons", 256, false], ["loading", 1280, tru
   }
   console.log(kind, "gotowe:", n);
 }
+
+// ikony miejsc na mapie: wycinki z atlasów (extract_icons.py → assets/cache/mapicons) → assets/map/icons/<id>.png
+{
+  const src = path.join(ROOT, "assets/cache/mapicons"), dst = path.join(ROOT, "assets/map/icons");
+  fs.mkdirSync(dst, { recursive: true });
+  const layout = JSON.parse(fs.readFileSync(path.join(src, "layout.json"), "utf8")), atlas = {};
+  for (const [id, [name, x, y, w, h]] of Object.entries(layout)) {
+    const a = atlas[name] ??= decodeDDS(fs.readFileSync(path.join(src, name + ".dds")));
+    const out = new Uint8Array(w * h * 4);
+    for (let r = 0; r < h; r++) out.set(a.rgba.subarray(((y + r) * a.w + x) * 4, ((y + r) * a.w + x + w) * 4), r * w * 4);
+    fs.writeFileSync(path.join(dst, id + ".png"), encodePNG(w, h, out, false));
+  }
+  console.log("ikony miejsc gotowe:", Object.keys(layout).length);
+}

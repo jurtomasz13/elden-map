@@ -4,13 +4,14 @@
   const main = $("#main");
   const ASSETS = "../assets";
   // ikona z gry (numer) albo portret wyrenderowany z modelu 3D ("r:c4340" -> assets/renders/c4340.png)
+  const MAP_ICON = id => `${ASSETS}/map/icons/${id}.png`;          // ikony miejsc na mapie (atlasy menu gry)
   const ICON = id => typeof id === "string" && id.startsWith("r:") ? `${ASSETS}/renders/${id.slice(2)}.png` : `${ASSETS}/icons/${id}.png`;
   const L0 = 10496, MAXZ = 6;
   const fmt = n => (n ?? 0).toLocaleString("pl-PL");
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const pref = (k, d) => { try { return localStorage.getItem("er." + k) ?? d; } catch { return d; } };
   const savePref = (k, v) => { try { localStorage.setItem("er." + k, v); } catch { /* prywatne okno */ } };
-  const state = { spoilers: true, game: pref("game", "all"), mine: pref("mine", "1") === "1", mapPeek: false, offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
+  const state = { spoilers: true, game: pref("game", "all"), mine: pref("mine", "1") === "1", mapPeek: false, world: pref("world", "save"), offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
     hideDone: false, mapQuery: "", qOpen: new Set(), qFilter: "all", off: new Set(["golden_rune", "material", "consumable", "ammo", "upgrade", "note", "npc", "poi:landmark"]) };
 
   // zakres gry dla wszystkich widoków (przełącznik w górnym pasku): wszystko / podstawka / DLC
@@ -164,7 +165,8 @@
       api(`/api/session?${qs()}`).catch(() => null), api(`/api/deaths?${qs()}&limit=500`).catch(() => null)]);
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
-      ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f), ...W.invaders.map(x => x.flag)].filter(Boolean));
+      ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f), ...W.invaders.map(x => x.flag),
+      ...Object.keys(WORLD).map(Number), ...W.pois.flatMap(p => (p.names || []).flatMap(n => [n[1], n[2]]))].filter(Boolean));
     const arr = [...ids], flags = {};
     for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
     live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
@@ -434,11 +436,26 @@
       }
     }
     let best = null, bd = 1e18;
-    for (const g of W.graces) if (g.map === o.map && g.px != null && ok(g) && !arena(g)) { const d = (g.px - o.px) ** 2 + (g.py - o.py) ** 2; if (d < bd) { bd = d; best = g; } }
+    for (const g of W.graces) if (g.map === o.map && g.px != null && ok(g) && !arena(g) && (atRoundtable(g) === atRoundtable(o))) { const d = (g.px - o.px) ** 2 + (g.py - o.py) ** 2; if (d < bd) { bd = d; best = g; } }
     return best && { ...best, dist: Math.round(Math.sqrt(bd)) };
   }
+  // wiersz listy w szufladzie: `attrs` (np. data-go) robi z niego przycisk; ikona, nazwa i opis po prawej
+  const listRow = (attrs, img, label, right) => `<${attrs ? `button class="reward xreward" ${attrs}` : `div class="reward"`}><span class="rw">${img ? `<img src="${img}">` : ""}${label}</span><span>${right}${attrs ? " ›" : ""}</span></${attrs ? "button" : "div"}>`;
   // wiersz nagrody (boss, najeźdźca): klik otwiera kartę przedmiotu, gdy jest w katalogu
-  const rewardRow = (r, it) => `<${it ? `button class="reward xreward" data-go="item:${it.category}:${it.id}"` : `div class="reward"`}><span class="rw">${r.icon != null ? `<img src="${ICON(r.icon)}">` : ""}${esc(r.name)}</span><span>${KINDS[r.kind]?.[0] || ""}${it ? " ›" : ""}</span></${it ? "button" : "div"}>`;
+  const rewardRow = (r, it) => listRow(it && `data-go="item:${it.category}:${it.id}"`, r.icon != null && ICON(r.icon), esc(r.name), KINDS[r.kind]?.[0] || "");
+  // Twierdza Okrągłego Stołu: postacie, najeźdźca i skarby z m11_10 w jednej liście (gra nie ma mapy wnętrza)
+  const roundtable = () => ({ grace: W.graces.find(atRoundtable), invaders: W.invaders.filter(atRoundtable), spots: W.items.filter(atRoundtable),
+    npcs: W.npcs.filter((n, i, all) => atRoundtable(n) && all.findIndex(x => atRoundtable(x) && x.name === n.name) === i) });
+  function openRoundtable() {
+    const { grace: g, npcs, invaders, spots } = roundtable();
+    drawer(`<div class="d-hero"><span class="portrait hero-portrait item"><img src="${MAP_ICON(48)}" alt=""></span>
+      <div class="d-title">Twierdza Okrągłego Stołu</div><div class="d-loc">${isSet(g.flag, 60) ? "odkryta" : "jeszcze nieodkryta"}</div></div>
+      <p class="view-sub" style="margin:10px 0 0">Gra nie ma mapy wnętrza Twierdzy, dostajesz się tam tylko szybką podróżą do łaski ${esc(g.name)}.</p>
+      ${npcs.length ? `<div class="d-section"><h4>Postacie</h4>${npcs.map(n => { const q = npcQuest(n); return listRow(q && `data-go="quest:${esc(q.id)}"`, null, esc(n.name), q ? "quest" : ""); }).join("")}</div>` : ""}
+      ${invaders.length ? `<div class="d-section"><h4>Najeźdźcy</h4>${invaders.map(x => listRow(`data-go="invader:${x.id}"`, null, hiddenInvader(x) ? "Nieznany najeźdźca" : esc(x.name), isSet(x.flag) ? "pokonany" : "niepokonany")).join("")}</div>` : ""}
+      ${spots.length ? `<div class="d-section"><h4>Skarby</h4>${spots.map((t, i) => listRow(`data-rt-spot="${i}"`, t.items[0]?.icon != null && ICON(t.items[0].icon), esc(t.items.map(x => x.name).join(", ")), isSet(t.flag) ? "zebrane" : "do zebrania")).join("")}</div>` : ""}`,
+      () => document.querySelectorAll("[data-rt-spot]").forEach(b => b.onclick = () => openSpot(spots[+b.dataset.rtSpot])));
+  }
   // najeźdźca: bez spoilerów imię i nagrody widać dopiero po pokonaniu
   const hiddenInvader = x => spoilers() && !isSet(x.flag);
   function openInvader(x) {
@@ -714,9 +731,9 @@
       <div class="d-title" style="text-align:left;font-size:23px">Skarb: ${pl(t.items.length, "przedmiot", "przedmioty", "przedmiotów")}</div>
       <p class="view-sub" style="margin:10px 0 0">${spotNote(t)}</p>
       <div class="rule"></div>
-      <div class="d-section">${t.items.map((x, i) => found[i] ? `<button class="reward xreward" data-spot-item="${i}">${hiddenItem(found[i]) ? `<span class="rw">· · ·</span><span>${esc(CATS.find(c => c.f(found[i]))?.name || "")} ›</span>`
-        : `<span class="rw"><img src="${ICON(found[i].icon)}">${esc(found[i].name)}</span><span>${esc(KINDS[found[i].kind]?.[0] || "")} ›</span>`}</button>`
-        : `<div class="reward"><span>${esc(x.name || "Nieznany przedmiot")}</span><span></span></div>`).join("")}</div>`,
+      <div class="d-section">${t.items.map((x, i) => !found[i] ? listRow(null, null, esc(x.name || "Nieznany przedmiot"), "")
+        : hiddenItem(found[i]) ? listRow(`data-spot-item="${i}"`, null, "· · ·", esc(CATS.find(c => c.f(found[i]))?.name || ""))
+        : listRow(`data-spot-item="${i}"`, ICON(found[i].icon), esc(found[i].name), esc(KINDS[found[i].kind]?.[0] || ""))).join("")}</div>`,
       () => document.querySelectorAll("[data-spot-item]").forEach(b => b.onclick = () => openItem(found[+b.dataset.spotItem], { spot: t })));
   }
   // ---------- przedmioty: grupowanie / sortowanie / filtry ----------
@@ -880,6 +897,15 @@
     const cx = (a[0] + a[1]) / 2, cy = (a[2] + a[3]) / 2, w = Math.max(a[1] - a[0], 1600) / 2, h = Math.max(a[3] - a[2], 1000) / 2;
     return [cx - w, cx + w, cy - h, cy + h];
   }
+  // stany świata na mapie (grafika mapy się nie zmienia, zmieniają się napisy i ikony miejsc): w „Moim postępie” z save'a,
+  // w zwykłym trybie do wyboru: z save'a, przed albo po zmianach
+  const WORLD = { 9417: "krater po Radahnie", 118: "Leyndell w popiele po Malikecie", 62890: "Enir-Ilim w DLC" };
+  const worldSet = f => state.mine || state.world === "save" || !(f in WORLD) ? isSet(f) : state.world === "after";
+  // napis miejsca: ostatni włączony i niewyłączony (WorldMapPointParam); null = miejsca jeszcze (albo już) nie ma na mapie
+  const poiName = p => p.names ? p.names.filter(([, on, off]) => (!on || worldSet(on)) && !(off && worldSet(off))).pop()?.[0] ?? null : p.name;
+  const poiShown = p => poiName(p) !== null && (!(p.flag in WORLD) || worldSet(p.flag));
+  // Twierdza Okrągłego Stołu (m11_10): gra pokazuje ją jedną ikoną w morzu na zachód od Pogrobna; jej punkty zbieramy w liście
+  const atRoundtable = o => (o.map_id || "").startsWith("m11_10");
   // widok nie wychodzi poza mapę z gry („Mój postęp”: poza odkryty obszar), a najmniejsze przybliżenie wypełnia nią ekran
   function applyArea(map, keep) {
     const a = (mapMine() && travelArea(state.map)) || [0, L0, 0, L0];
@@ -903,12 +929,12 @@
     // „Mój postęp”: tylko zaliczone; miejsca i postacie (bez stanu) tylko w odkrytych okolicach
     const add = (k, done, pos) => { if (mine && (done === false || (done == null && !near(pos)))) return;
       c[k] ??= [0, 0]; c[k][1]++; if (done) c[k][0]++; };
-    for (const g of W.graces) if (g.map === m) add("grace", isSet(g.flag, 60));
+    for (const g of W.graces) if (g.map === m) add("grace", isSet(g.flag, 60));               // Twierdza: jeden znacznik w warstwie łask
     for (const b of bossList()) if (b.map === m && !hiddenBoss(b)) add("boss", b.defeated);
-    for (const x of W.invaders) if (x.map === m) add("invader", isSet(x.flag), x);
-    for (const p of W.pois) if (p.map === m) add("poi:" + p.category, null, p);
-    for (const t of W.items) if (t.map === m) add(t.kind, isSet(t.flag));
-    for (const n of W.npcs) if (n.map === m) add("npc", null, n);
+    for (const x of W.invaders) if (x.map === m && !atRoundtable(x)) add("invader", isSet(x.flag), x);
+    for (const p of W.pois) if (p.map === m && poiShown(p)) add("poi:" + p.category, null, p);
+    for (const t of W.items) if (t.map === m && !atRoundtable(t)) add(t.kind, isSet(t.flag));
+    for (const n of W.npcs) if (n.map === m && !atRoundtable(n)) add("npc", null, n);
     for (const d of dlcMarks(m)) add("dlc", mine ? null : d.done, d);
     const nd = (D.deathPoints || []).filter(d => d.map === m).length; if (nd) c.deaths = [0, nd];
     return c;
@@ -930,7 +956,9 @@
         ${state.mapDrops ? `<button class="chip on map-filter-chip" id="dropsClear">Gdzie wypada: ${esc(state.mapDrops.title)} (${state.mapDrops.pts.filter(p => p[0] === state.map).length}) ✕</button>` : ""}
         ${state.mapPeek ? `<p class="view-sub mine-note">Pokazuję miejsce poza odkrytym terenem. <button class="chip" id="peekBack">Wróć do mojego postępu</button></p>` : ""}
         ${state.mine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
-          : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
+          : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>
+          <div class="world-seg"><span>Stan świata</span><div class="game-seg" role="group" aria-label="Stan świata" title="Zmiany na mapie w trakcie gry: ${Object.values(WORLD).join(", ")}">
+            ${[["save", "Jak w save'ie"], ["before", "Przed"], ["after", "Po"]].map(([k, l]) => `<button class="${state.world === k ? "on" : ""}" data-world="${k}">${l}</button>`).join("")}</div></div>`}
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "invader", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC, które najeżdżają twój świat"),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
@@ -952,6 +980,7 @@
       main.querySelectorAll("[data-layer]").forEach(l => l.classList.toggle("on", on(l.dataset.layer)));
       syncGroups(); refreshLayers(); });
     if ($("#hideDone")) $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
+    main.querySelectorAll("[data-world]").forEach(b => b.onclick = () => { state.world = b.dataset.world; savePref("world", state.world); viewMapKeep(); });
     if ($("#dropsClear")) $("#dropsClear").onclick = () => { state.mapDrops = null;
       if (state.mapPeek) { state.mapPeek = false; viewMap(); } else { $("#dropsClear").remove(); buildLayers(); } };
     if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; state.mapDrops = null; viewMap(); };
@@ -990,7 +1019,13 @@
     drawFog(map, m);
     const grp = k => mapLayers[k] ??= L.layerGroup();
     const match = (...names) => !q || names.some(n => state.mapExact ? (n || "").toLowerCase() === q : (n || "").toLowerCase().includes(q));
-    for (const g of W.graces) { if (g.map !== m || !match(g.name, g.region)) continue; const v = isSet(g.flag, 60); if ((hide && v) || (mine && !v)) continue;
+    const rt = roundtable(), rtg = rt.grace, rtFound = isSet(rtg.flag, 60);
+    if (rtg.map === m && (!mine || rtFound) && !(hide && rtFound) && match("okrągły stół", "twierdza", rtg.name,
+      ...rt.npcs.flatMap(n => [n.name, n.name_en]), ...rt.invaders.flatMap(x => [x.name, x.name_en]), ...rt.spots.flatMap(t => t.items.flatMap(i => [i.name, i.name_en]))))
+      L.marker(ll(map, rtg.px, rtg.py), { icon: divIcon(`<span class="mk-place"><img src="${MAP_ICON(48)}" alt=""></span>`, 44), zIndexOffset: 700, riseOnHover: true })
+        .bindTooltip(`<b>Twierdza Okrągłego Stołu</b><span class="tip-sub">klik: postacie, skarby i łaska</span>`, { direction: "top", offset: [0, -18], className: "er-tip" })
+        .on("click", openRoundtable).addTo(grp("grace"));
+    for (const g of W.graces) { if (g.map !== m || atRoundtable(g) || !match(g.name, g.region)) continue; const v = isSet(g.flag, 60); if ((hide && v) || (mine && !v)) continue;
       L.marker(ll(map, g.px, g.py), { icon: divIcon(`<span class="mk-grace ${v ? "on" : ""}"></span>`, 22) })
         .bindTooltip(`<b>${esc(g.name || "Miejsce łaski")}</b>${esc(g.region || "")} · ${v ? "odkryte" : "nieodkryte"}`, { direction: "top", offset: [0, -8], className: "er-tip" }).addTo(grp("grace")); }
     for (const b of bossList()) { if (b.map !== m || !match(b.name, b.name_en) || (hide && b.defeated) || (mine && !b.defeated) || hiddenBoss(b)) continue;
@@ -998,7 +1033,7 @@
         .bindTooltip(`<b>${esc(b.name)}</b>${b.defeated ? "pokonany" : "niepokonany"} · ${pl(b.runes || 0, "run", "runy", "runów")}${b.approx ? " · w lochu" : ""}`, { direction: "top", offset: [0, -16], className: "er-tip" })
         .on("click", () => openBoss(b.id)).addTo(grp("boss")); }
     for (const x of W.invaders) { const done = isSet(x.flag), hid = hiddenInvader(x);
-      if (x.map !== m || !match(hid ? "" : x.name, hid ? "" : x.name_en, "najeźdźca") || (hide && done) || (mine && !done)) continue;
+      if (x.map !== m || atRoundtable(x) || !match(hid ? "" : x.name, hid ? "" : x.name_en, "najeźdźca") || (hide && done) || (mine && !done)) continue;
       L.marker(ll(map, x.px, x.py), { icon: divIcon(`<span class="mk-invader ${done ? "done" : ""}"></span>`, 24), riseOnHover: true })
         .bindTooltip(`<b>${hid ? "Najeźdźca" : esc(x.name)}</b>${done ? "pokonany" : "niepokonany"}${hid || !x.rewards.length ? "" : " · " + esc(x.rewards[0].name) + (x.rewards.length > 1 ? " i inne" : "")}`, { direction: "top", offset: [0, -10], className: "er-tip" })
         .on("click", () => openInvader(x)).addTo(grp("invader")); }
@@ -1006,18 +1041,20 @@
     for (const [pm, px, py] of state.mapDrops?.pts || []) if (pm === m)
       L.circleMarker(ll(map, px, py), { pane: "drops", radius: 8, color: "#fff4e0", weight: 2, fillColor: "#e0483a", fillOpacity: 1 })
         .bindTooltip(`<b>${esc(state.mapDrops.title)}</b>tu się pojawia`, { direction: "top", className: "er-tip" }).addTo(grp("drops"));
-    for (const pnt of W.pois) { if (pnt.map !== m || !match(pnt.name) || !near(pnt)) continue;
-      L.marker(ll(map, pnt.px, pnt.py), { icon: divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
-        .bindTooltip(`<b>${esc(pnt.name)}</b>${esc(POI[pnt.category]?.[0] || "")}`, { direction: "top", offset: [0, -8], className: "er-tip" }).addTo(grp("poi:" + pnt.category)); }
+    for (const pnt of W.pois) { const name = poiName(pnt), icon = pnt.icon;
+      if (pnt.map !== m || !poiShown(pnt) || !match(name) || !near(pnt)) continue;
+      L.marker(ll(map, pnt.px, pnt.py), { icon: icon != null ? divIcon(`<span class="mk-place"><img src="${MAP_ICON(icon)}" alt=""></span>`, 36)
+        : divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
+        .bindTooltip(`<b>${esc(name)}</b>${esc(POI[pnt.category]?.[0] || "")}`, { direction: "top", offset: [0, -12], className: "er-tip" }).addTo(grp("poi:" + pnt.category)); }
     for (const d of dlcMarks(m)) { if (!match("wejście do dlc", "dlc", d.name) || (mine && !near(d))) continue;
       L.marker(ll(map, d.px, d.py), { icon: divIcon(`<span class="mk-dlc ${d.done ? "done" : ""}">✦</span>`, 30), zIndexOffset: 800, riseOnHover: true })
         .bindTooltip(`<b>${d.title}</b>${esc(d.sub)}<span class="tip-sub">klik: jak się tam dostać</span>`, { direction: "top", offset: [0, -14], className: "er-tip" })
         .on("click", () => goQuest("dlc-entry")).addTo(grp("dlc")); }
-    for (const n of W.npcs) { if (n.map !== m || !match(n.name, n.name_en) || !near(n)) continue;
+    for (const n of W.npcs) { if (n.map !== m || atRoundtable(n) || !match(n.name, n.name_en) || !near(n)) continue;
       L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 })
         .bindTooltip(`<b>${esc(n.name)}</b>${npcQuest(n) ? "postać · klik: quest „" + esc(npcQuest(n).name) + "”" : "postać"}`, { direction: "top", className: "er-tip" })
         .on("click", () => { const q = npcQuest(n); if (q) goQuest(q.id); }).addTo(grp("npc")); }
-    for (const t of W.items) { if (t.map !== m || !match(...t.items.map(i => i.name), ...t.items.map(i => i.name_en))) continue;
+    for (const t of W.items) { if (t.map !== m || atRoundtable(t) || !match(...t.items.map(i => i.name), ...t.items.map(i => i.name_en))) continue;
       const done = isSet(t.flag); if ((hide && done) || (mine && !done)) continue;
       const col = KINDS[t.kind]?.[1] || "#999";
       L.circleMarker(ll(map, t.px, t.py), { renderer, radius: q ? 7 : 4.5, color: done ? "#3a2d1e" : "#1a140c", weight: 1, fillColor: col, fillOpacity: done ? .3 : .95 })
