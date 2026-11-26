@@ -611,7 +611,8 @@ def main():
         row = npc_rows.get(part["npc"])
         name = npc_pl.get(struct.unpack_from("<i", row, 0x0C)[0]) if row else None
         name = "Skarabeusz" if model in SCARAB_MODELS else name if name and "dummy" not in name.lower() else None
-        n_drops += place_lot(lot, mid, part["pos"], enemy={"entity": entity, "name": name, "model": model})
+        n_drops += place_lot(lot, mid, part["pos"], enemy={"entity": entity, "name": name, "model": model,
+                                                         **({"stats": enemy_stats(row, speffects, resist_correct)} if row else {})})
     print(f"  jednorazowe łupy przeciwników na mapie: {n_drops}")
 
     # ---------- miejsca ----------

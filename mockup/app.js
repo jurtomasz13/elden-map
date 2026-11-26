@@ -814,11 +814,12 @@
     drawer(`<div class="eyebrow">${esc(KINDS[t.kind]?.[0] || "")}</div>
       <div class="d-title" style="text-align:left;font-size:23px">${t.enemy ? "Łup" : "Skarb"}: ${pl(t.items.length, "przedmiot", "przedmioty", "przedmiotów")}</div>
       <p class="view-sub" style="margin:10px 0 0">${spotNote(t)}</p>
+      ${t.enemy?.stats ? bossStatsHtml(t.enemy.stats) : ""}${live.on && t.enemy?.stats ? '<div class="d-section" id="hitsBox"></div>' : ""}
       <div class="rule"></div>
       <div class="d-section">${t.items.map((x, i) => !found[i] ? listRow(null, null, esc(x.name || "Nieznany przedmiot"), "")
         : hiddenItem(found[i]) ? listRow(`data-spot-item="${i}"`, null, "· · ·", esc(CATS.find(c => c.f(found[i]))?.name || ""))
         : listRow(`data-spot-item="${i}"`, ICON(found[i].icon), esc(found[i].name), esc(KINDS[found[i].kind]?.[0] || ""))).join("")}</div>`,
-      () => document.querySelectorAll("[data-spot-item]").forEach(b => b.onclick = () => openItem(found[+b.dataset.spotItem], { spot: t })));
+      () => { if (t.enemy?.stats) fillHits(t.enemy.stats); document.querySelectorAll("[data-spot-item]").forEach(b => b.onclick = () => openItem(found[+b.dataset.spotItem], { spot: t })); });
   }
   // ---------- przedmioty: grupowanie / sortowanie / filtry ----------
   const WEP_TYPE = { 1: "Sztylety", 3: "Miecze proste", 5: "Wielkie miecze", 7: "Kolosalne miecze", 9: "Miecze zakrzywione", 11: "Wielkie miecze zakrzywione",
@@ -1415,6 +1416,7 @@
     drawer(`<div class="d-hero"><span class="portrait hero-portrait item ${fr.cls} ${h ? "" : "alive"}" style="${fr.style}"><img src="${ICON(it.icon)}" alt="">${fr.gems}</span>
       <div class="eyebrow">${cat ? cat.name : esc(KINDS[it.kind]?.[0] || "")}${it.dlc ? " · DLC" : ""}</div><div class="d-title">${esc(it.name + up)}</div><div class="d-loc">${esc(it.name_en)}</div>${rarityTags(it, raw)}</div>
       ${t ? `<div class="d-section"><h4>To miejsce</h4><p class="view-sub" style="margin:0">${spotNote(t)}</p></div>` : ""}
+      ${t?.enemy?.stats ? bossStatsHtml(t.enemy.stats) : ""}${live.on && t?.enemy?.stats ? '<div class="d-section" id="hitsBox"></div>' : ""}
       <div class="d-stats"><div><b>${h ? "✓" : h === null ? "?" : "—"}</b><span>${h ? "Posiadane" : h === null ? "Nieznane" : "Brakujące"}</span></div><div><b>${spots.length}</b><span>Na mapie</span></div><div><b>${["–", "Zw.", "Rz.", "Leg."][it.rarity || 0]}</b><span>Rzadkość</span></div></div>
       ${it.info ? `<p class="ib-info">„${esc(it.info)}”<span>${it.kind === "seamless" ? "opis z moda" : "opis z gry"}</span></p>` : ""}
       ${note ? `<p class="ib-note"><b>Do czego służy:</b> ${esc(note)}</p>` : ""}
@@ -1427,9 +1429,9 @@
         return `<div class="reward"><span>${esc(t.region_pl || t.map_id)}${ng ? ` · przy łasce „${esc(ng.name)}”` : ""}</span><span>${isSet(t.flag) ? "zebrane" : "do zebrania"}</span></div>`; }).join("")}${spots.length > 6 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(spots.length - 6, "miejsce", "miejsca", "miejsc")}. Wszystkie pokaże mapa (kliknij mini-mapę).</p>` : ""}</div>`
         : srcHTML || linksHTML ? "" : '<p class="note">Nie leży na mapie i nie znamy jeszcze źródła w danych gry (np. łup ze zwłok przy obiekcie albo podarunek postaci).</p>'}
       ${here?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
-      () => here?.map && miniMap($("#minimap"), here.map, here.px, here.py, it.icon, [
+      () => { if (t?.enemy?.stats) fillHits(t.enemy.stats); if (here?.map) miniMap($("#minimap"), here.map, here.px, here.py, it.icon, [
         { label: spots.length > 1 ? "To miejsce" : "Pokaż na mapie", primary: true, run: () => goMap(here, here) },
-        ...(spots.length > 1 ? [{ label: `Wszystkie miejsca (${spots.length})`, run: () => { goMap({ ...spots[0] }); state.mapFocus = null; state.mapQuery = it.name; state.mapExact = true; viewMapKeep(); } }] : [])]));
+        ...(spots.length > 1 ? [{ label: `Wszystkie miejsca (${spots.length})`, run: () => { goMap({ ...spots[0] }); state.mapFocus = null; state.mapQuery = it.name; state.mapExact = true; viewMapKeep(); } }] : [])]); });
   }
   /* ---------------- postać: założony ekwipunek (z save'a) ---------------- */
   const CLASS_PL = { vagabond: "Włóczęga", warrior: "Wojownik", hero: "Bohater", bandit: "Bandyta", astrologer: "Astrolog", prophet: "Prorok",
