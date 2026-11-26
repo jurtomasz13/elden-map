@@ -454,8 +454,7 @@ a { color: inherit; text-decoration: none; }
 /* ---------- mapa: panel filtrów ---------- */
 .map-panel { width: 300px; max-height: calc(100% - 48px); display: flex; flex-direction: column; }
 .map-search { width: 100%; margin: 14px 0 8px; }
-.hide-done { display: flex; gap: 8px; align-items: center; font-size: 16.5px; color: var(--muted); cursor: pointer; margin-bottom: 8px; }
-.hide-done input { accent-color: #c9aa71; }
+.hide-done { margin: 4px 0 8px; }
 .layers-scroll { overflow: auto; margin: 0 -8px; padding: 0 8px; scrollbar-color: var(--ash-3) transparent; }
 .lgroup { margin-top: 12px; }
 .lgroup-head { width: 100%; display: flex; justify-content: space-between; align-items: baseline; font-family: var(--display); font-size: 13px; letter-spacing: .26em;

@@ -964,7 +964,8 @@
         ${state.mapDrops ? `<button class="chip on map-filter-chip" id="dropsClear">Gdzie wypada: ${esc(state.mapDrops.title)} (${state.mapDrops.pts.filter(p => p[0] === state.map).length}) ✕</button>` : ""}
         ${state.mapPeek ? `<p class="view-sub mine-note">Pokazuję miejsce poza odkrytym terenem. <button class="chip" id="peekBack">Wróć do mojego postępu</button></p>` : ""}
         ${state.mine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
-          : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
+          : `<label class="toggle hide-done" title="Ukrywa zebrane przedmioty, pokonanych bossów i odkryte miejsca łaski"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}>
+            <span class="toggle-track"><span class="toggle-thumb"></span></span><span class="toggle-label">Ukryj zaliczone</span></label>`}
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "invader", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC, które najeżdżają twój świat"),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
