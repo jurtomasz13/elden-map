@@ -20,7 +20,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import emevd as E  # noqa: E402
 import params as P  # noqa: E402
-from extract_world import DATA, EntityPlaces, World, tile_ids  # noqa: E402
+from extract_world import DATA, EntityPlaces, World, event_scripts, scope_tile  # noqa: E402
 
 PLAYER = 10000
 WARP_PLAYER, CUTSCENE_WARP, SHORT_WARP = (2003, 14), {(2002, 11), (2002, 12), (2002, 13)}, {(2004, 40), (2004, 41), (2004, 42), (2004, 74)}
@@ -31,8 +31,7 @@ SKIP = {("common", 950)}     # one Limgrave event with 8 branches (flags 951/900
 
 def main():
     world = World(P.load_params())
-    scripts = {mid: E.load(f"/event/{mid}.emevd.dcx") or {} for mid in tile_ids() + ["common"]}
-    scripts["common_func"] = E.load("/event/common_func.emevd.dcx") or {}
+    scripts = event_scripts()
     calls = E.callers(scripts)
     where = EntityPlaces(world).where
 
@@ -47,7 +46,7 @@ def main():
                     continue
                 for caller, call in E.instances(scripts, calls, scope, eid):
                     args = E.resolve(a, ev["params"], k, call)
-                    here = tuple(int(v) for v in caller[1:].split("_")[:3]) if caller.startswith("m") else None
+                    here = scope_tile(caller)
                     if op == WARP_PLAYER:
                         area, block, region, _i, dent, _popup = struct.unpack_from("<4BIi", args)
                         dtile = (area, block, region)

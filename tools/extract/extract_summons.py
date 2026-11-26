@@ -13,7 +13,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import emevd as E  # noqa: E402
 import params as P  # noqa: E402
-from extract_world import DATA, EntityPlaces, World, tile_ids  # noqa: E402
+from extract_world import DATA, EntityPlaces, World, event_scripts, scope_tile  # noqa: E402
 
 PLACE_SIGN = (2003, 25)
 
@@ -24,8 +24,7 @@ def main():
     t = P.load_texts("polpl")
     names = {**t.get("NpcName", {}), **t.get("NpcName_dlc01", {}), **t.get("NpcName_dlc02", {})}
     places = EntityPlaces(World(ps))
-    scripts = {mid: E.load(f"/event/{mid}.emevd.dcx") or {} for mid in tile_ids() + ["common"]}
-    scripts["common_func"] = E.load("/event/common_func.emevd.dcx") or {}
+    scripts = event_scripts()
     calls = E.callers(scripts)
     out, seen = [], set()
     for scope, events in scripts.items():
@@ -35,7 +34,7 @@ def main():
                     continue
                 for caller, call in E.instances(scripts, calls, scope, eid):
                     sign_type, entity, area = E.ints(E.resolve(a, ev["params"], k, call))[:3]
-                    tile = tuple(int(v) for v in caller[1:].split("_")[:3]) if caller.startswith("m") else None
+                    tile = scope_tile(caller)
                     npc = places.npc(entity)
                     name = names.get(struct.unpack_from("<i", npc_rows[npc], 0x0C)[0]) if npc in npc_rows else None
                     pos = places.where(area, tile) or places.where(entity, tile)

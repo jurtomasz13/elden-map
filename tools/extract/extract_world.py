@@ -19,6 +19,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 import archive as A  # noqa: E402
+import emevd as E  # noqa: E402
 import msb  # noqa: E402
 import params as P  # noqa: E402
 from extract_data import TRANSFORM  # noqa: E402
@@ -205,6 +206,18 @@ class EntityPlaces:
     def npc(self, entity):
         """NpcParam id of the enemy part with this entity, or None."""
         return next((h[3] for h in self.places.get(entity, []) if h[3]), None)
+
+
+def event_scripts():
+    """Event scripts of every level-0 tile plus "common" and "common_func": {scope: events}, for emevd.callers/instances."""
+    scripts = {mid: E.load(f"/event/{mid}.emevd.dcx") or {} for mid in tile_ids() + ["common"]}
+    scripts["common_func"] = E.load("/event/common_func.emevd.dcx") or {}
+    return scripts
+
+
+def scope_tile(scope):
+    """(area, x, z) of the map a script belongs to, None for common scripts."""
+    return msb.tile(scope)[:3] if scope.startswith("m") else None
 
 
 def tile_ids():
@@ -449,7 +462,6 @@ def main():
     #  a) wywołania wspólnych funkcji przyznających łup (common_func: AwardItemLot / AwardItemsIncludingClients
     #     z parametrem), pula czytana z dokładnej pozycji argumentu, i tylko gdy w tym samym wywołaniu jest flaga bossa;
     #  b) zdarzenia mapy z literalnym AwardItemLot, które sprawdzają flagę tego bossa (i tylko jednego bossa).
-    import emevd as E
     award_src = award_params(E.load("/event/common_func.emevd.dcx") or {})
     boss_name_by_entity, reward_by_flag, name_near_flag, global_flag, reward_by_global = {}, {}, {}, {}, {}
     invasions, invader_lots, quest_lots = {}, {}, {}        # flaga pokonania -> encja / pule nagród
