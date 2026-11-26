@@ -19,6 +19,7 @@ STEPS = [
     [sys.executable, "-X", "utf8", "render_portraits.py"],  # portrety 3D bossów bez ikony i postaci (renderuje tylko brakujące)
     [sys.executable, "-X", "utf8", "extract_sources.py"],   # skąd zdobyć przedmioty (kupcy, wrogowie, bossowie, zdarzenia)
     [sys.executable, "-X", "utf8", "extract_warps.py"],     # teleporty: bramy, skrzynie-pułapki, przejścia (skrypty zdarzeń)
+    [sys.executable, "-X", "utf8", "extract_summons.py"],   # znaki przywołania postaci (skrypty zdarzeń)
     [sys.executable, "-X", "utf8", "extract_effects.py"],   # ukryte statystyki talizmanów, zbroi i broni (SpEffectParam)
 ]
 

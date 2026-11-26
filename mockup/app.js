@@ -41,7 +41,7 @@
   // dane wyciągnięte z gry (tools/extract)
   const cache = {};
   const load = name => cache[name] ??= fetch(`${ASSETS}/data/${name}.json`, { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
-  const W = { bosses: [], pois: [], items: [], npcs: [], graces: [], quests: [], invaders: [], warps: [] };
+  const W = { bosses: [], pois: [], items: [], npcs: [], graces: [], quests: [], invaders: [], warps: [], summons: [] };
 
   /* ---------------- słowniki ---------------- */
   const KINDS = {
@@ -150,8 +150,9 @@
           flags: [62002, ...(arrival ? [arrival.flag] : [])], mode: "any", where: DLC_COCOON } ] };
   }
   async function loadWorld() {
-    const [b, p, it, n, g, q, tr, mp, fx, inv, wp] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces", "item_effects", "invaders", "warps"].map(load));
+    const [b, p, it, n, g, q, tr, mp, fx, inv, wp, sm] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces", "item_effects", "invaders", "warps", "summons"].map(load));
     W.warps = wp || [];                                    // teleporty ze skryptów zdarzeń (extract_warps.py)
+    W.summons = sm || [];                                  // znaki przywołania postaci (extract_summons.py)
     W.invaders = inv || [];                                // najeźdźcy (czerwone fantomy NPC, extract_world.py)
     W.pieces = mp || {};
     W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
@@ -1040,6 +1041,7 @@
     for (const b of bossList()) if (b.map === m && !hiddenBoss(b)) add("boss", b.defeated);
     for (const x of W.invaders) if (x.map === m && !atRoundtable(x)) add("invader", isSet(x.flag), x);
     for (const w of W.warps) if (w.src.map === m) add("teleport", null, w.src);
+    for (const s of W.summons) if (s.map === m) add("summon", null, s);
     for (const p of W.pois) if (p.map === m && poiShown(p)) add(poiLayer(p), null, p);
     for (const t of W.items) if (t.map === m && !atRoundtable(t)) add(t.kind, isSet(t.flag));
     for (const n of W.npcs) if (n.map === m && !atRoundtable(n) && !hasGameMarker(n)) add("npc", null, n);
@@ -1069,8 +1071,9 @@
             <span class="toggle-track"><span class="toggle-thumb"></span></span><span class="toggle-label">Ukryj zaliczone</span></label>`}
         <button class="chip all-layers" id="allLayers">${Object.keys(cnt).some(on) ? "Ukryj wszystko" : "Pokaż wszystko"}</button>
         <div class="layers-scroll">
-        ${group("Na mapie", ["grace", "boss", "invader", "npc", "teleport", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC: najeźdźcy i pojedynki ze znaku przywołania"),
-          row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("teleport", "Teleporty", '<span class="sw-poi">⟲</span>', "Bramy, skrzynie-pułapki i inne przejścia, które przenoszą w inne miejsce"), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
+        ${group("Na mapie", ["grace", "boss", "invader", "npc", "teleport", "summon", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC: najeźdźcy i pojedynki ze znaku przywołania"),
+          row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("teleport", "Teleporty", '<span class="sw-poi">⟲</span>', "Bramy, skrzynie-pułapki i inne przejścia, które przenoszą w inne miejsce"),
+          row("summon", "Znaki przywołania", '<span class="sw-poi">✧</span>', "Znaki, którymi przyzywasz postać do pomocy (np. Nepheli przy Godricku) albo do pojedynku"), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
         ${group("Miejsca i lochy", poiKeys, Object.entries(POI).map(([k, [l, g]]) => row("poi:" + k, l, `<span class="sw-poi">${g}</span>`)))}
         ${KIND_GROUPS.map(([title, keys]) => group(title, keys, keys.map(k => row(k, KINDS[k][0], dot(KINDS[k][1]))))).join("")}
         </div>
@@ -1158,6 +1161,12 @@
       L.marker(ll(map, w.src.px, w.src.py), { icon: divIcon('<span class="mk-poi mk-warp">⟲</span>', 22), riseOnHover: true })
         .bindTooltip(`<b>${WARP[w.kind]}</b>${to ? "do: " + esc(to.name) : "przenosi w inne miejsce"}<span class="tip-sub">klik: dokąd prowadzi</span>`, { direction: "top", offset: [0, -10], className: "er-tip" })
         .on("click", () => openWarp(w)).addTo(grp("teleport")); }
+    for (const s of W.summons) { if (s.map !== m || !show(s, match(s.name, "znak przywołania") && near(s))) continue;
+      const boss = bossList().filter(b => b.map === m && !hiddenBoss(b)).map(b => [b, Math.hypot(b.px - s.px, b.py - s.py)]).filter(([, d]) => d < 150).sort((x, y) => x[1] - y[1])[0]?.[0];
+      L.marker(ll(map, s.px, s.py), { icon: divIcon('<span class="mk-poi mk-sign">✧</span>', 22), riseOnHover: true })
+        .bindTooltip(`<b>${esc(s.name)}</b>${s.helper ? "znak pomocnika" : "znak przywołania"}${boss ? " · przy bossie: " + esc(boss.name) : ""}<span class="tip-sub">klik: karta postaci</span>`,
+          { direction: "top", offset: [0, -10], className: "er-tip" })
+        .on("click", () => openNpc(s.name)).addTo(grp("summon")); }
     // „Gdzie wypada”: wszystkie miejsca przeciwników z wybranym łupem (z karty przedmiotu)
     for (const [pm, px, py] of state.mapDrops?.pts || []) if (pm === m)
       L.circleMarker(ll(map, px, py), { pane: "drops", radius: 8, color: "#fff4e0", weight: 2, fillColor: "#e0483a", fillOpacity: 1 })
@@ -1317,6 +1326,7 @@
     const fromSrc = test => Object.entries(SRC || {}).filter(([, s]) => test(s)).map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
     const gifts = fromSrc(s => s.gifts?.some(g => g.who === name)), loot = fromSrc(s => s.enemies?.some(e => e.who === name));
     const drops = W.items.filter(t => t.enemy?.name === name), inv = W.invaders.filter(x => x.name === name && !hiddenInvader(x)), q = npcQuest({ name });
+    const signs = W.summons.filter(s => s.name === name);
     const itemRow = (it, right) => listRow(`data-go="item:${it.category}:${it.id}"`, ICON(it.icon), esc(hiddenItem(it) ? "· · ·" : it.name), right);
     const here = now[0] || spots[0], render = npcRender(name);
     drawer(`<div class="d-hero">${portrait(render && "r:" + render, "hero-portrait", "knight")}<div class="eyebrow">Postać</div><div class="d-title">${esc(name)}</div>
@@ -1333,10 +1343,13 @@
       ${drops.length || loot.length ? `<div class="d-section"><h4>Po śmierci zostawia</h4>${drops.flatMap(t => t.items.map(x => findItem(x.cat, x.id)).filter(Boolean).map(it => itemRow(it, isSet(t.flag) ? "zebrane" : "")))
           .concat(loot.map(it => itemRow(it, have(it) ? "masz" : ""))).join("")}
         ${loot.some(it => it.kind === "bell_bearing") ? '<p class="view-sub" style="margin:8px 0 0">Dzwonek kulisty oddany Cieniom bliźniaczej służki w Twierdzy Okrągłego Stołu odblokowuje u nich towar tej postaci.</p>' : ""}</div>` : ""}
+      ${signs.length ? `<div class="d-section"><h4>Znaki przywołania</h4>${signs.map((s, i) => listRow(`data-npc-sign="${i}"`, null, esc(s.region_pl || nearestGrace(s)?.name || s.map_id),
+          s.helper ? "pomoc · na mapie" : "na mapie")).join("")}</div>` : ""}
       ${inv.length ? `<div class="d-section"><h4>Najazdy</h4>${inv.map(x => listRow(`data-go="invader:${x.id}"`, null, esc(x.name), isSet(x.flag) ? "pokonany" : "niepokonany")).join("")}</div>` : ""}
       ${spots.length ? `<div class="d-section"><h4>Gdzie bywa</h4>${spots.slice(0, 8).map((p, i) => listRow(`data-npc-spot="${i}"`, null, esc(p.region_pl || p.map_id || ""), "na mapie")).join("")}</div>` : ""}
       ${here?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
       () => { document.querySelectorAll("[data-npc-spot]").forEach(b => b.onclick = () => goMap({ ...spots[+b.dataset.npcSpot], name }));
+        document.querySelectorAll("[data-npc-sign]").forEach(b => b.onclick = () => goMap({ ...signs[+b.dataset.npcSign], name: name + ": znak" }));
         if (here?.map) miniMap($("#minimap"), here.map, here.px, here.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap({ ...here, name }) }]); });
   }
   // ---------- teleports (warps.json): where they lead, what they need; a button moves the map to the destination ----------

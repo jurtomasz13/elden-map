@@ -20,7 +20,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import emevd as E  # noqa: E402
 import params as P  # noqa: E402
-from extract_world import DATA, World, maps, tile_ids  # noqa: E402
+from extract_world import DATA, EntityPlaces, World, tile_ids  # noqa: E402
 
 PLAYER = 10000
 WARP_PLAYER, CUTSCENE_WARP, SHORT_WARP = (2003, 14), {(2002, 11), (2002, 12), (2002, 13)}, {(2004, 40), (2004, 41), (2004, 42), (2004, 74)}
@@ -34,19 +34,7 @@ def main():
     scripts = {mid: E.load(f"/event/{mid}.emevd.dcx") or {} for mid in tile_ids() + ["common"]}
     scripts["common_func"] = E.load("/event/common_func.emevd.dcx") or {}
     calls = E.callers(scripts)
-    places = {}                                   # entity -> [(map id, (area, x, z), local position)]
-    for _path, tile, mid, m in maps():
-        for o in m["parts"] + m["regions"]:
-            if o["entity"]:
-                places.setdefault(o["entity"], []).append((mid, tile, o["pos"]))
-
-    def where(entity, tile):
-        hits = sorted(places.get(entity, []), key=lambda h: h[1] != tile)
-        if not hits:
-            return None
-        mid, t, pos = hits[0]
-        px = world.to_map(*t, *pos)
-        return px and {"map_id": mid, **px}
+    where = EntityPlaces(world).where
 
     out, seen = [], set()
     for scope, events in scripts.items():

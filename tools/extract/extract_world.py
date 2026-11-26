@@ -183,6 +183,30 @@ def maps():
             yield path, (area, gx, gz), msb.map_id(area, gx, gz), m
 
 
+class EntityPlaces:
+    """Entity id -> page position of a map part or region (also point regions) holding it, for scripted objects."""
+
+    def __init__(self, world):
+        self.world, self.places = world, {}
+        for _path, tile, mid, m in maps():
+            for o in m["parts"] + m["regions"]:
+                if o["entity"]:
+                    self.places.setdefault(o["entity"], []).append((mid, tile, o["pos"], o.get("npc")))
+
+    def where(self, entity, tile=None):
+        """{map_id, map, px, py, approx} of the entity, preferring the given level-0 tile (area, x, z); None if unknown."""
+        hits = sorted(self.places.get(entity, []), key=lambda h: h[1] != tile)
+        if not hits:
+            return None
+        mid, t, pos, _npc = hits[0]
+        px = self.world.to_map(*t, *pos)
+        return px and {"map_id": mid, **px}
+
+    def npc(self, entity):
+        """NpcParam id of the enemy part with this entity, or None."""
+        return next((h[3] for h in self.places.get(entity, []) if h[3]), None)
+
+
 def tile_ids():
     """Level-0 tile ids (mAA_XX_YY_00) covered by the map files; event and talk scripts exist only for these."""
     return sorted({msb.map_id(*msb.tile(p)[:3]) for p in msb_paths()})

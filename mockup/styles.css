@@ -472,6 +472,7 @@ a { color: inherit; text-decoration: none; }
 .sw-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid #1a140c; box-shadow: 0 0 5px rgba(0,0,0,.5); }
 .sw-poi, .mk-poi { color: #e8dcb8; font-size: 15.5px; line-height: 1; }
 .mk-poi.mk-warp { color: #cdb6ff; border-color: #8f74c9; }
+.mk-poi.mk-sign { color: #f4e3a8; border-color: #c9aa71; }
 .mk-npc { display: block; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1.5px solid #cfe3ea; background: #2f4a5a; }
 .leaflet-marker-pane .mk-npc img { width: 100%; height: 100%; max-width: none !important; object-fit: cover; object-position: 50% 15%; }
 .mk-place { display: block; width: 100%; height: 100%; cursor: pointer; }
