@@ -1290,11 +1290,11 @@
     state.map = o.map; navTo("#map", () => focusMap(o, spot));
   }
   // ---------- NPC card: where they stand, quest, shop, gifts, drops (opened from the map; the quest is one click further) ----------
-  // shop stock per talk script (shops.json, extract_sources.py): sold-out and unlock flags read from the save
+  // shop and services per talk script (talks.json, extract_sources.py): sold-out and unlock flags read from the save
+  const npcTalks = async name => { const all = await load("talks") || {}, talks = new Set(W.npcs.filter(n => n.name === name).map(n => String(n.talk)));
+    return Object.entries(all).filter(([t, s]) => talks.has(t) || (!talks.size && s.who === name)).map(([, s]) => s); };
   async function shopRows(name) {
-    const shops = await load("shops") || {}, talks = new Set(W.npcs.filter(n => n.name === name).map(n => String(n.talk)));
-    const rows = [...new Map(Object.entries(shops).filter(([t, s]) => talks.has(t) || (!talks.size && s.who === name))
-      .flatMap(([, s]) => s.rows).map(r => [r.item, r])).values()];
+    const rows = [...new Map((await npcTalks(name)).flatMap(s => s.rows).map(r => [r.item, r])).values()];
     // bought pieces are a binary counter in the flags from `sold` on: flag sold+k is worth 2^k (extract_sources.py)
     const bits = r => r.qty > 0 && r.sold ? [...Array(r.qty.toString(2).length).keys()].map(k => r.sold + k) : [];
     const ids = [...new Set(rows.flatMap(r => [...bits(r), r.unlock]).filter(Boolean))];
@@ -1309,13 +1309,13 @@
   const npcRender = name => W.npcs.filter(n => n.name === name && n.render).pop()?.render || null;
   async function openNpc(name) {
     await Promise.all([sourcesIndex(), itemsIndex()]);
-    const stock = await shopRows(name);
+    const stock = await shopRows(name), services = [...new Set((await npcTalks(name)).flatMap(s => s.services || []))];
     // one row per region: the same character stands in a few spots of one area during the quest
     const spots = [...new Map([...W.npcs.filter(n => n.name === name && n.map), ...W.pois.filter(p => npcMarker(p) && p.people.some(x => x[0] === name))]
       .map(p => [p.region_pl || p.map_id, p])).values()];
     const now = W.pois.filter(p => p.people?.some(x => x[0] === name && textOn(x)));
-    const gifts = Object.entries(SRC || {}).filter(([, s]) => s.gifts?.some(g => g.who === name))
-      .map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
+    const fromSrc = test => Object.entries(SRC || {}).filter(([, s]) => test(s)).map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
+    const gifts = fromSrc(s => s.gifts?.some(g => g.who === name)), loot = fromSrc(s => s.enemies?.some(e => e.who === name));
     const drops = W.items.filter(t => t.enemy?.name === name), inv = W.invaders.filter(x => x.name === name && !hiddenInvader(x)), q = npcQuest({ name });
     const itemRow = (it, right) => listRow(`data-go="item:${it.category}:${it.id}"`, ICON(it.icon), esc(hiddenItem(it) ? "· · ·" : it.name), right);
     const here = now[0] || spots[0], render = npcRender(name);
@@ -1324,12 +1324,15 @@
       ${now.length ? `<div class="d-section"><h4>Teraz</h4>${now.map(p => listRow(null, null, esc(p.name || "znacznik postaci z gry"), esc(p.region_pl || ""))).join("")}
         <p class="view-sub" style="margin:8px 0 0">Według mapy gry i flag z Twojego save'a.</p></div>` : ""}
       ${q ? questLinks([q]) : ""}
+      ${services.length ? `<div class="d-section"><h4>Usługi</h4><div class="rtags">${services.map(s => `<span class="rtag">${esc(s)}</span>`).join("")}</div></div>` : ""}
       ${stock.length ? `<div class="d-section"><h4>Sklep</h4>${stock.filter(r => !(spoilers() && r.locked)).map(r => itemRow(r.it, [r.trade ? "za: " + esc(r.trade) : r.price ? pl(r.price, "run", "runy", "runów") : "",
           stockText(r)].filter(Boolean).join(" · "))).join("")}
         ${live.on ? `<p class="view-sub" style="margin:8px 0 0">Stan z Twojego save'a: ile sztuk z limitu już kupiłeś; „jeszcze niedostępne” pojawi się
           później (np. po oddaniu dzwonka kulistego)${spoilers() ? ", w trybie bez spoilerów ukryte" : ""}.</p>` : ""}</div>` : ""}
       ${gifts.length ? `<div class="d-section"><h4>Daje w rozmowie</h4>${gifts.map(it => itemRow(it, have(it) ? "masz" : "")).join("")}</div>` : ""}
-      ${drops.length ? `<div class="d-section"><h4>Po śmierci zostawia</h4>${drops.flatMap(t => t.items.map(x => findItem(x.cat, x.id)).filter(Boolean).map(it => itemRow(it, isSet(t.flag) ? "zebrane" : ""))).join("")}</div>` : ""}
+      ${drops.length || loot.length ? `<div class="d-section"><h4>Po śmierci zostawia</h4>${drops.flatMap(t => t.items.map(x => findItem(x.cat, x.id)).filter(Boolean).map(it => itemRow(it, isSet(t.flag) ? "zebrane" : "")))
+          .concat(loot.map(it => itemRow(it, have(it) ? "masz" : ""))).join("")}
+        ${loot.some(it => it.kind === "bell_bearing") ? '<p class="view-sub" style="margin:8px 0 0">Dzwonek kulisty oddany Cieniom bliźniaczej służki w Twierdzy Okrągłego Stołu odblokowuje u nich towar tej postaci.</p>' : ""}</div>` : ""}
       ${inv.length ? `<div class="d-section"><h4>Najazdy</h4>${inv.map(x => listRow(`data-go="invader:${x.id}"`, null, esc(x.name), isSet(x.flag) ? "pokonany" : "niepokonany")).join("")}</div>` : ""}
       ${spots.length ? `<div class="d-section"><h4>Gdzie bywa</h4>${spots.slice(0, 8).map((p, i) => listRow(`data-npc-spot="${i}"`, null, esc(p.region_pl || p.map_id || ""), "na mapie")).join("")}</div>` : ""}
       ${here?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,

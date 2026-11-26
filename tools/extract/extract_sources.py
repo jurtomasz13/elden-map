@@ -33,6 +33,12 @@ import params as P  # noqa: E402
 from talk_quests import ints  # noqa: E402
 from extract_world import DATA, World, award_params, item_index, lot_ids, lot_item, lot_slots, maps, tile_ids  # noqa: E402
 
+# usługi postaci: polecenia skryptu rozmowy (bank 1), numery z publicznego katalogu poleceń ESD, sprawdzone na znanych
+# postaciach (Hewg: wzmacnianie, popioły, powielanie; Roderika: duchy; Rennala: odrodzenie, wygląd; Enia: wizerunki)
+SERVICES = {24: "Wzmacnianie broni", 48: "Popioły wojny na broni", 143: "Powielanie popiołów wojny", 136: "Ulepszanie prochów duchów",
+            111: "Wymiana wizerunków", 148: "Zbroje pokonanych bossów", 113: "Odrodzenie (nowy rozkład atrybutów)",
+            81: "Zmiana wyglądu", 31: "Rozwój poziomu", 46: "Skup przedmiotów", 135: "Smocza Komunia", 142: "Przeróbka odzienia",
+            144: "Kukiełki duchów", 146: "Powielanie wizerunków", 151: "Koloseum", 131: "Uczy gestu"}
 SHOP_TYPES = {0: "weapon", 1: "armor", 2: "talisman", 3: "goods", 4: "ash_of_war", 5: "custom_weapon"}
 # ShopLineupParam +0x18 rodzaj kosztu (wniosek z przedmiotów w wierszach): 1 = Serce smoka (ołtarze Smoczej Komunii),
 # 5 = Serce Bayle'a (dwie inkantacje Bayle'a); 4 = powielanie popiołu wojny (usługa, nie źródło)
@@ -137,6 +143,7 @@ def main():
     # ---------- kupcy: zakresy sklepów ze skryptów rozmów ----------
     shop_owner = defaultdict(list)           # (start, end) -> talk ids whose script opens this range
     gift_talks = defaultdict(set)            # pula -> {talk id}, przedmioty dawane w rozmowie
+    services = defaultdict(set)              # talk id -> usługi z poleceń rozmowy
     talk_tiles = {}                          # talk id -> kafel otwartego świata z flag skryptu (rozmowa bez postaci na mapie)
     talk_files = set(tile_ids()) | {"m60_00_00_00", "m61_00_00_00", "m00_00_00_00"}      # rozmowy z otwartego świata są we wspólnych archiwach
     for mid in sorted(talk_files):
@@ -155,10 +162,12 @@ def main():
                     if talk not in shop_owner[(a, b)]:
                         shop_owner[(a, b)].append(talk)
             for _, _, entry, conds in esd.Esd(d).states():
-                for b, _, a in list(entry) + [c for _, pc in conds for c in pc]:
+                for b, cmd, a in list(entry) + [c for _, pc in conds for c in pc]:
                     v = ints(a)
                     if b == 6 and len(v) == 1 and v[0] in lot_map:
                         gift_talks[v[0]].add(talk)
+                    if b == 1 and cmd in SERVICES:
+                        services[talk].add(SERVICES[cmd])
             # flagi 10XXYY…/20XXYY… należą do kafla m60_XX_YY / m61_XX_YY (np. Wielki Dzban: 1047419201 → m60_47_41)
             tiles = [(59 + v // 1000000000, v // 1000000 % 100, v // 10000 % 100) for v in lits
                      if 1000000000 <= v < 2100000000 and v // 100000000 in (10, 20)]
@@ -194,7 +203,7 @@ def main():
     # towar każdego sklepu (TalkID -> wiersze): ShopLineupParam +0x0C licznik kupionych sztuk zapisany bitami we
     # flagach od tej flagi (F+k = 2^k, tyle bitów, ile trzeba na limit; sprawdzone na 6 postaciach), +0x10 flaga
     # odblokowania (np. po oddaniu dzwonka), +0x14 limit sztuk (-1 bez limitu); stan z save'a czyta strona
-    stock = defaultdict(lambda: {"who": None, "rows": []})
+    stock = defaultdict(lambda: {"who": None, "rows": []})      # talks.json: sklep i usługi każdego skryptu rozmowy
     # A range is also listed by scripts that are not its seller: shared ones without a character on the map
     # (800001100), Kalé's 800006000 holds two nomadic merchants' ranges, the Twin Maiden Husks hold every bell-bearing
     # shop. The seller is the placed character whose script opens the fewest ranges (a merchant's own script).
@@ -320,7 +329,11 @@ def main():
                                      ("enemies", e), ("events", ev)) if v}
     with open(os.path.join(DATA, "item_sources.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
-    with open(os.path.join(DATA, "shops.json"), "w", encoding="utf-8") as f:
+    for talk, svc in services.items():
+        if talk_parts.get(talk):
+            stock[talk]["who"] = stock[talk]["who"] or talk_owner(talk)[0]
+            stock[talk]["services"] = sorted(svc)
+    with open(os.path.join(DATA, "talks.json"), "w", encoding="utf-8") as f:
         json.dump(stock, f, ensure_ascii=False, separators=(",", ":"))
     with open(os.path.join(DATA, "enemies.json"), "w", encoding="utf-8") as f:
         json.dump(placed, f, separators=(",", ":"))
