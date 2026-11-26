@@ -2,10 +2,11 @@
 z naszymi krokami z flagami (`assets/data/quests.json` z build_quests.py).
 
 - Krok QuestPath, który opisuje to samo co nasz krok (`match`), dostaje jego flagi i identyfikator (ostrzeżenia
-  `locks` dalej wskazują właściwy krok); dodatkowe flagi położenia NPC (TGA) z `flags`.
+  `locks` dalej wskazują właściwy krok); dodatkowe flagi zaliczenia z `flags`.
 - `later` = flagi wszystkich późniejszych kroków (bez zakończeń alternatywnych `alt`): krok bez własnej flagi zalicza
   się, gdy zaliczony jest dowolny dalszy etap (skoro jest dalszy etap, ten był wcześniej).
-- Nasze kroki z flagami, których nie dopasowano, zostają na końcu (żeby nie zgubić sprawdzalnego postępu).
+- Nasze kroki z flagami, których nie dopasowano, zostają w swoim pierwotnym miejscu (sprawdzalny postęp).
+- `here` = flagi położenia NPC z `quest_npc_states.json`: postać czeka przy tym kroku.
 - Questy z `merge` (np. Ymir + Jolán) łączone w jeden; ich wątki podrzędne wskazują na wynikowy quest.
 
 Źródło tekstów: QuestPath by imCioco (https://github.com/imCioco/ER_QuestPath-Lang, licencja MIT) — tłumaczenie
@@ -29,6 +30,8 @@ BOSS_FLAGS = ({b["flag"] for b in json.load(open(_BOSSES, encoding="utf-8"))} |
               {f for b in json.load(open(_BOSSES, encoding="utf-8")) for f in b.get("alt_flags") or []}) if os.path.exists(_BOSSES) else set()
 TALK_SRC = os.path.join(os.path.dirname(__file__), "quest_talk_flags.json")
 TALK = json.load(open(TALK_SRC, encoding="utf-8")) if os.path.exists(TALK_SRC) else {}
+STATES_SRC = os.path.join(os.path.dirname(__file__), "quest_npc_states.json")
+STATES = json.load(open(STATES_SRC, encoding="utf-8")) if os.path.exists(STATES_SRC) else {}
 
 
 def main():
@@ -58,20 +61,14 @@ def main():
         for s in t["steps"]:
             mt = [by_step[m] for m in s.get("match") or [] if m in by_step]
             used |= {m for m in s.get("match") or [] if m in by_step}
-            # flagi z bloku NPC (20 flag od wielokrotności 20, opisy TGA): +5…+18 = GDZIE POSTAĆ TERAZ CZEKA — gra
-            # przestawia je sama (śmierć Iriny → Hyetta przy klifach, Godrick → Gideon w komnacie), więc nie znaczą „krok
-            # zrobiony”, tylko „to jest bieżący krok, wcześniejsze są za tobą” (`here`). +1 wrogość, +3 śmierć — zaliczenie.
-            tga = list(s.get("flags") or [])
-            here = [f for f in tga if 3000 <= f < 5000 and 5 <= f % 20 <= 18]
-            extra = [f for f in tga if f not in here]
-            own = list(dict.fromkeys([f for m in mt for f in m.get("flags") or []] + extra))
+            own = list(dict.fromkeys([f for m in mt for f in m.get("flags") or []] + list(s.get("flags") or [])))
             mode = "all" if len(mt) == 1 and mt[0].get("mode") == "all" and not s.get("flags") else "any"
             sid = mt[0]["id"] if len(mt) == 1 and mt[0]["id"] not in {x["id"] for x in steps} else f"p{s['qp']}"
             nxt = fill(s.get("next")) or ""
             if s.get("warn"):
                 nxt = f"{nxt} ⚠ {fill(s['warn'])}".strip()
             steps.append({"id": sid, "text": fill(s["text"]), "where": fill(s.get("where")) or "", "next": nxt,
-                          "text_safe": fill(s.get("safe")) or None, "flags": own, "here": here, "mode": mode, "alt": bool(s.get("alt")) or s["qp"] >= 90,
+                          "text_safe": fill(s.get("safe")) or None, "flags": own, "mode": mode, "alt": bool(s.get("alt")) or s["qp"] >= 90,
                           "end": s["qp"] >= 90,                          # QuestPath s98/s99 = zakończenie (np. śmierć NPC)
                           "sources": ["questpath"] + (["regulation"] if mt else [])})
         # niedopasowany krok z flagą: zostaje (sprawdzalny postęp) w swoim pierwotnym miejscu — zaraz po kroku, do którego
@@ -123,6 +120,18 @@ def main():
     for q in out:
         if q.get("parent") in removed:
             q["parent"] = removed[q["parent"]]
+    # Block flags +5..+18 say where the NPC waits now. The game moves them on its own (Irina's death puts Hyetta at the
+    # cliffs), so they mean "this is the current step, earlier ones are behind you", not "step done".
+    by_id = {q["id"]: q for q in out}
+    for qid, steps_states in STATES.items():
+        q = by_id.get(qid)
+        if not q or not q.get("npc_block"):
+            raise SystemExit(f"quest_npc_states.json: quest {qid} nie istnieje albo nie ma bloku flag NPC")
+        step_of = {s["id"]: s for s in q["steps"]}
+        for sid, offsets in steps_states.items():
+            if sid not in step_of:
+                raise SystemExit(f"quest_npc_states.json: quest {qid} nie ma kroku {sid}")
+            step_of[sid]["here"] = [q["npc_block"] + o for o in offsets]
     order = {q["id"]: i for i, q in enumerate(data["entries"])}
     out.sort(key=lambda q: order.get(q["id"], 10 ** 6))
     data["entries"] = out

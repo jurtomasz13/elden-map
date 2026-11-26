@@ -75,8 +75,11 @@ class World:
         return None
 
 
-def discover_msbs(cache_path):
-    """Lista plików map (MSB) istniejących w archiwach — nazwy zgadywane i sprawdzane hashem."""
+def msb_paths():
+    """Map files (MSB) present in the archives: names are guessed and checked by hash, the list is cached."""
+    cache_path = os.path.join(A.ROOT, "assets", "cache", "msb_list.txt")
+    if os.path.exists(cache_path):
+        return [ln.strip() for ln in open(cache_path, encoding="utf-8") if ln.strip()]
     import bhd
     arcs = [A.Archive(n) for n in bhd.ARCHIVES]
     found = []
@@ -87,7 +90,7 @@ def discover_msbs(cache_path):
                 p = f"/map/mapstudio/m{area:02d}_{a:02d}_{b:02d}_00.msb.dcx"
                 if any(A.path_hash(p) in arc.files for arc in arcs):
                     found.append(p)
-    with open(cache_path, "w") as f:
+    with open(cache_path, "w", encoding="utf-8") as f:
         f.write("\n".join(found))
     return found
 
@@ -269,8 +272,7 @@ def main():
         return out, struct.unpack_from("<I", r, 0x80)[0]
 
     # ---------- przejście po wszystkich plikach map ----------
-    msb_cache = os.path.join(A.ROOT, "assets", "cache", "msb_list.txt")
-    msb_list = ([ln.strip() for ln in open(msb_cache) if ln.strip()] if os.path.exists(msb_cache) else discover_msbs(msb_cache))
+    msb_list = msb_paths()
     treasures, npcs, enemies_by_entity, enemies_by_name = [], [], {}, {}
     for i, path in enumerate(msb_list):
         m = msb.load(path)

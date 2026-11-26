@@ -23,7 +23,7 @@ import formats as F  # noqa: E402
 import emevd  # noqa: E402
 import msb  # noqa: E402
 import params as P  # noqa: E402
-from extract_world import DATA, World, discover_msbs, map_id_of  # noqa: E402
+from extract_world import DATA, World, map_id_of, msb_paths  # noqa: E402
 
 LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
 SHOP_TYPES = {0: "weapon", 1: "armor", 2: "talisman", 3: "goods", 4: "ash_of_war"}
@@ -80,8 +80,7 @@ def main():
         return out
 
     # ---------- przejście po mapach: przeciwnicy i kupcy (części z TalkID) ----------
-    msb_cache = os.path.join(A.ROOT, "assets", "cache", "msb_list.txt")
-    msb_list = [ln.strip() for ln in open(msb_cache) if ln.strip()] if os.path.exists(msb_cache) else discover_msbs(msb_cache)
+    msb_list = msb_paths()
     enemy_spots = defaultdict(list)          # npc id -> [(map_id, pos dict)]
     talk_parts = defaultdict(list)           # talk id -> [(map_id, npc, pos)]
     for path in msb_list:

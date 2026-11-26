@@ -38,11 +38,8 @@ def all_scripts():
             r = A.find(f"/script/talk/{mid}.talkesdbnd.dcx")
             if not r:
                 continue
-            try:
-                for _, n, d in F.bnd4(r[1]):
-                    _ALL[f"{mid}/{os.path.basename(n.replace(chr(92), '/'))}"] = d
-            except Exception:
-                continue
+            for _, n, d in F.bnd4(r[1]):
+                _ALL[f"{mid}/{os.path.basename(n.replace(chr(92), '/'))}"] = d
     return _ALL
 
 

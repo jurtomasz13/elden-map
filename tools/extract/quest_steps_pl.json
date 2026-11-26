@@ -44,9 +44,6 @@
     "match": [
      "irina-edgar:s3"
     ],
-    "flags": [
-     3408
-    ],
     "alt": false
    },
    {
@@ -85,9 +82,6 @@
     "match": [
      "roderika:s1"
     ],
-    "flags": [
-     3705
-    ],
     "alt": false
    },
    {
@@ -98,9 +92,6 @@
     "warn": null,
     "where": "{p:Roundtable Hold}",
     "match": [],
-    "flags": [
-     3707
-    ],
     "alt": false
    },
    {
@@ -146,9 +137,6 @@
     "match": [
      "roderika:s2"
     ],
-    "flags": [
-     3708
-    ],
     "alt": false
    }
   ]
@@ -171,9 +159,6 @@
     "where": "{p:Waypoint Ruins}",
     "match": [
      "sellen:s1"
-    ],
-    "flags": [
-     3465
     ],
     "alt": false
    },
@@ -302,9 +287,6 @@
     "warn": null,
     "where": "{p:Mistwood Outskirts}",
     "match": [],
-    "flags": [
-     3585
-    ],
     "alt": false
    },
    {
@@ -328,9 +310,6 @@
     "warn": null,
     "where": "{p:Fort Haight}",
     "match": [],
-    "flags": [
-     3586
-    ],
     "alt": false
    },
    {
@@ -389,9 +368,6 @@
     "warn": null,
     "where": "{p:Agheel Lake North}",
     "match": [],
-    "flags": [
-     3945
-    ],
     "alt": false
    },
    {
@@ -402,9 +378,6 @@
     "warn": null,
     "where": "{p:Coastal Cave}",
     "match": [],
-    "flags": [
-     3946
-    ],
     "alt": false
    },
    {
@@ -651,9 +624,6 @@
     "warn": null,
     "where": "{p:Church of Irith}",
     "match": [],
-    "flags": [
-     3805
-    ],
     "alt": false
    },
    {
@@ -705,9 +675,6 @@
     "match": [
      "patches:s1"
     ],
-    "flags": [
-     3685
-    ],
     "alt": false
    },
    {
@@ -751,9 +718,6 @@
     "warn": null,
     "where": "{p:Scenic Isle}",
     "match": [],
-    "flags": [
-     3687
-    ],
     "alt": false
    },
    {
@@ -878,10 +842,6 @@
     "warn": "Jeśli go nie ma, wczytaj obszar ponownie i upewnij się, że opuścił {p:Shaded Castle}. Jeśli {n:Tanith} już nie żyje, podróż do łaski {p:Rykard, Lord of Blasphemy} powinna odesłać go do {p:Murkwater Cave}.",
     "where": "{p:Murkwater Cave}",
     "match": [],
-    "flags": [
-     3692,
-     3694
-    ],
     "alt": false
    },
    {
@@ -1126,9 +1086,6 @@
     "warn": "Porozmawiaj z nią, zanim postawisz stopę w lokacji {p:Volcano Manor}. Jeśli najpierw dołączysz do Dworu, stracisz na resztę rozgrywki postać {n:Blackguard Big Boggart} i cały jego quest, a z nim {i:Boiled Prawn} i {i:Boiled Crab}.",
     "where": "{p:Laskyar Ruins}",
     "match": [],
-    "flags": [
-     3425
-    ],
     "alt": false
    },
    {
@@ -1479,10 +1436,6 @@
     "match": [
      "d:s1"
     ],
-    "flags": [
-     4045,
-     4046
-    ],
     "alt": false
    },
    {
@@ -1504,9 +1457,6 @@
     "warn": null,
     "where": "{p:Roundtable Hold}",
     "match": [],
-    "flags": [
-     4047
-    ],
     "alt": false
    },
    {
@@ -1729,9 +1679,6 @@
     "match": [
      "diallos:s1"
     ],
-    "flags": [
-     3445
-    ],
     "alt": false
    },
    {
@@ -1742,9 +1689,6 @@
     "warn": "Znajdź Diallosa, zanim ukończysz lokację {p:Volcano Manor}. Jeśli ją wyczyścisz wcześniej, nigdy nie pojawi się w ruinach, a jego historia przepadnie w tej rozgrywce.",
     "where": "{p:Academy Gate Town}",
     "match": [],
-    "flags": [
-     3446
-    ],
     "alt": false
    },
    {
@@ -1755,9 +1699,6 @@
     "warn": null,
     "where": "{p:Roundtable Hold}",
     "match": [],
-    "flags": [
-     3447
-    ],
     "alt": false
    },
    {
@@ -2116,9 +2057,6 @@
     "match": [
      "rogier:s1"
     ],
-    "flags": [
-     3905
-    ],
     "alt": false
    },
    {
@@ -2129,9 +2067,6 @@
     "warn": null,
     "where": "{p:Roundtable Hold}",
     "match": [],
-    "flags": [
-     3907
-    ],
     "alt": false
    },
    {
@@ -2256,9 +2191,6 @@
     "warn": null,
     "where": "{p:Stormveil Castle}",
     "match": [],
-    "flags": [
-     4225
-    ],
     "alt": false
    },
    {
@@ -2271,9 +2203,6 @@
     "match": [
      "nepheli:s1"
     ],
-    "flags": [
-     4226
-    ],
     "alt": false
    },
    {
@@ -2284,9 +2213,6 @@
     "warn": null,
     "where": "{p:Village of the Albinaurics}",
     "match": [],
-    "flags": [
-     4227
-    ],
     "alt": false
    },
    {
@@ -2380,9 +2306,6 @@
     "match": [
      "hyetta:s1"
     ],
-    "flags": [
-     3387
-    ],
     "alt": false
    },
    {
@@ -2404,9 +2327,6 @@
     "warn": null,
     "where": "{p:Purified Ruins}",
     "match": [],
-    "flags": [
-     3388
-    ],
     "alt": false
    },
    {
@@ -2417,9 +2337,6 @@
     "warn": null,
     "where": "{p:Gate Town Bridge}",
     "match": [],
-    "flags": [
-     3389
-    ],
     "alt": false
    },
    {
@@ -2555,9 +2472,6 @@
     "match": [
      "alexander:s1"
     ],
-    "flags": [
-     3665
-    ],
     "alt": false
    },
    {
@@ -2568,9 +2482,6 @@
     "warn": null,
     "where": "{p:Gael Tunnel}",
     "match": [],
-    "flags": [
-     3666
-    ],
     "alt": false
    },
    {
@@ -2679,9 +2590,6 @@
     "match": [
      "yura:s1"
     ],
-    "flags": [
-     3626
-    ],
     "alt": false
    },
    {
@@ -2736,9 +2644,6 @@
     "warn": null,
     "where": "{p:Murkwater Cave}",
     "match": [],
-    "flags": [
-     3625
-    ],
     "alt": false
    },
    {
@@ -2749,9 +2654,6 @@
     "warn": "Dopiero wygrana w tej walce popycha Yurę dalej. Zrób to przed wyprawą na {p:Mountaintops of the Giants} — po dotarciu do {p:Zamor Ruins} jego znak znika, a reszta historii przepada.",
     "where": "{p:Main Academy Gate}",
     "match": [],
-    "flags": [
-     3627
-    ],
     "alt": false
    },
    {
@@ -2984,9 +2886,6 @@
     "warn": null,
     "where": "{p:The First Step}",
     "match": [],
-    "flags": [
-     3185
-    ],
     "alt": false
    },
    {
@@ -2998,9 +2897,6 @@
     "where": "{p:Rose Church}",
     "match": [
      "varre:s1"
-    ],
-    "flags": [
-     3188
     ],
     "alt": false
    },
@@ -3014,9 +2910,6 @@
     "match": [
      "varre:s2"
     ],
-    "flags": [
-     3189
-    ],
     "alt": false
    },
    {
@@ -3028,9 +2921,6 @@
     "where": "{p:Rose Church}",
     "match": [
      "varre:s3"
-    ],
-    "flags": [
-     3190
     ],
     "alt": false
    },
@@ -4728,9 +4618,6 @@
     "where": "{p:Boilprawn Shack}",
     "match": [
      "boggart:s1"
-    ],
-    "flags": [
-     4145
     ],
     "alt": false
    },

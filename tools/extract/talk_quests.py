@@ -1,12 +1,10 @@
 """Flagi postępu questów ze skryptów rozmów NPC (talk ESD) — z każdą flagą kwestie z tej samej rozmowy.
 
     python tools/extract/talk_quests.py 223            # TalkID postaci (NpcName 1<ID>00), wypis do konsoli
-    python tools/extract/talk_quests.py --all OUT.json  # wszyscy NPC z questów → JSON do przypisania kroków
 
 Rozmowa = grupa stanów w skrypcie. Dla każdej grupy: flagi ustawiane na 1 (polecenie 1/11 SetEventFlag),
 flagi sprawdzane w warunkach, kwestie (TalkMsg) i opcje menu (EventTextForTalk) — z argumentów poleceń.
 """
-import json
 import os
 import struct
 import sys
@@ -70,44 +68,48 @@ def groups(E):
     return st_of
 
 
-def analyse(talk_id, talk, menu):
+def conversations(talk_id, talk, menu):
+    """Group id -> flags set to 1, flags checked in conditions, spoken line ids and menu option ids (all variants)."""
     res = {}
-    for name, d in TF.scripts(talk_id).items():
-        try:
-            E = esd.Esd(d)
-        except Exception:
-            continue
+    for d in TF.scripts(talk_id).values():
+        E = esd.Esd(d)
         gof = groups(E)
-        for s, sid, entry, conds in E.states():
+        for s, _, entry, conds in E.states():
             g = res.setdefault(gof.get(s), {"sets": set(), "checks": set(), "lines": [], "menu": []})
-            cmds = list(entry) + [c for _, pc in conds for c in pc]
-            for b, i, a in cmds:
+            for b, i, a in list(entry) + [c for _, pc in conds for c in pc]:
                 if (b, i) == (1, 11) and len(a) == 2 and isinstance(a[0], int) and a[1] == 1:
                     g["sets"].add(a[0])
                 for x in ints(a):
-                    if x in talk and talk[x] not in g["lines"]:
+                    if x in talk and x not in g["lines"]:
                         g["lines"].append(x)
                     elif x in menu and x not in g["menu"]:
                         g["menu"].append(x)
             for ex, _ in conds:
-                for fid, args in esd.calls(ex):
-                    for x in ints(args):
-                        if x >= 1000:
-                            g["checks"].add(x)
-    out = []
-    for gid, g in res.items():
-        if not g["sets"]:
-            continue
-        out.append({"group": gid, "sets": sorted(g["sets"]),
-                    "lines": [talk[x][:220] for x in g["lines"][:6]], "menu": [menu[x] for x in g["menu"][:4]]})
+                for _, args in esd.calls(ex):
+                    g["checks"] |= {x for x in ints(args) if x >= 1000}
+    return res
+
+
+def analyse(talk_id, talk, menu):
+    """Conversations that set flags: the flags with the lines and menu options of the same conversation."""
+    return [{"group": gid, "sets": sorted(g["sets"]),
+             "lines": [talk[x][:220] for x in g["lines"][:6]], "menu": [menu[x] for x in g["menu"][:4]]}
+            for gid, g in conversations(talk_id, talk, menu).items() if g["sets"]]
+
+
+def state_lines(talk_id, talk, menu, block):
+    """NPC block offset (0..19) -> lines of conversations whose conditions check that flag (what the NPC says there)."""
+    out = {}
+    for g in conversations(talk_id, talk, menu).values():
+        for f in g["checks"]:
+            if block <= f < block + 20:
+                lst = out.setdefault(f - block, [])
+                lst += [talk[x][:150] for x in g["lines"] if talk[x][:150] not in lst][:5 - len(lst)]
     return out
 
 
 if __name__ == "__main__":
     talk, menu = texts()
-    if sys.argv[1] == "--all":
-        import build_quests  # noqa: F401
-        raise SystemExit("--all: użyj z listą TalkID (patrz talk_quests_all w docs)")
     for g in analyse(int(sys.argv[1]), talk, menu):
         print(f"\n[{g['group']}] ustawia {g['sets']}")
         for ln in g["menu"]:

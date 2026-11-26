@@ -143,10 +143,10 @@ uniknąć błędnej odmiany, miejsca występują jako „w lokacji X”, a przed
 ## Czego brakuje / problemy
 
 1. **Kroki pośrednie bez flagi.** Wiele etapów to tylko rozmowa albo przejście NPC w inne miejsce (np. Ranni:
-   przyjęcie służby w Wieży Ranni, Seluvis, Iji; Boc w Liurnii; Blaidd w więzieniu). Flagi etapów `+5…+18` istnieją,
-   ale ich znaczenie (które miejsce) jest opisane tylko dla części NPC w TGA. Skan EMEVD map pokazał, że etapy są
-   ustawiane głównie w `common.emevd`, więc samo „która mapa używa flagi” nie wystarcza. Następny krok: rozkodować
-   eventy `30xx–45xx` z `common.emevd` (warunki → który etap) albo opisać etapy, porównując save przed i po rozmowie.
+   przyjęcie służby w Wieży Ranni, Seluvis, Iji; Boc w Liurnii; Blaidd w więzieniu). Takie kroki nie mają flagi
+   zaliczenia, ale flaga położenia NPC (`+5…+18`, sekcja „Bieżący krok według położenia postaci”) pokazuje, przy
+   którym z nich postać czeka. Nieprzypisane zostały stany sprawdzane w wielu mapach naraz (logika ogólna, głównie
+   `common.emevd`) i stany po zakończeniu wątku.
 2. **Brak questów:** Rennala, Shabriri (wspomniany przy Yurze), Enia / Dwa Palce, Hewg, Ensha, Albus i medaliony
    Świętego Drzewa, Pidia, Miriel, Gostoc, Jerren (osobno), kupcy. Z DLC: Jolán pokryta tylko 2 krokami, St. Trina jest
    częścią questa Thiolliera, brak Logura, Lionela, Moonrithylla i questów „Ród poszukiwaczy” (dostawy Moore'a
@@ -222,5 +222,20 @@ Flagi z bloku NPC od +5 do +18 (opisy TGA) mówią, gdzie postać teraz czeka. G
 rozmowy (np. po śmierci Iriny Hyetta czeka przy klifach), więc nie znaczą „krok zrobiony”. Trafiają do pola `here`
 kroku: jeśli postać czeka przy kroku N, to N jest bieżący, a wcześniejsze kroki bez dowodu są oznaczone „za tobą”
 (zrobione albo pominięte, save tego nie rozróżnia, ale nie są już do zrobienia). Flagi +1 (wrogość) i +3 (śmierć)
-zostają flagami zaliczenia. Opisy TGA znają tylko część położeń; pozostałe przesunięcia bloku (np. Aleksander +8,
-+10) nie są jeszcze przypisane do kroków.
+zostają flagami zaliczenia.
+
+Opisy TGA znają tylko część położeń, więc resztę ustalono z plików gry. `tools/extract/npc_states.py` dla każdej
+flagi bloku podaje mapy, których skrypty zdarzeń (`/event/<mapa>.emevd.dcx`) ją sprawdzają, oraz kwestie, które postać
+mówi w tym stanie (`talk_quests.state_lines`):
+
+    python tools/extract/npc_states.py 220 3660    # TalkID postaci i początek jej bloku flag
+
+Mapa, której skrypt sprawdza flagę stanu, to zwykle miejsce, gdzie gra wtedy stawia postać (Aleksander +6: tylne
+wejście do tunelu Gael, +8: pole bitwy z Radahnem). Mapy wspólne dla wielu stanów naraz to logika ogólna, nie
+położenie. Przypisanie stanu do kroku jest w `tools/extract/quest_npc_states.json` (id questu → id kroku → lista
+przesunięć; 40 questów, 111 kroków, 115 stanów), a `quest_steps.py` dopisuje te flagi do `here`. Stany „odszedł”,
+„nie żyje” i „quest skończony” nie są przypisane do zwykłych kroków.
+
+Sprawdzone na 7 postaciach: żadna nie ma bieżącego kroku przed krokiem potwierdzonym flagą rozmowy albo przedmiotu
+w sposób, który zmieniłby widok. Zostają przypadki, gdzie flaga położenia jest starsza niż ostatnia potwierdzona
+rozmowa (Boc, Patches, Szubrawiec, Moore, Florissax, Kenneth). Przyczyna nie jest ustalona. Wtedy bieżący jest pierwszy niezaliczony krok po potwierdzonych, tak jak bez `here`.
