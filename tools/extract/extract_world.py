@@ -35,6 +35,12 @@ INVASION, INVADER_DEATH, FLAG_REWARD, QUEST_REWARDS = 90005790, 90005792, 900057
 # z tym samym warunkiem w jednej mapie to seria pojedynków (trzej Rycerze wielkiego naczynia przy Wielkim Dzbanie),
 # a trzeci argument to flaga pokonania rycerza (sprawdzone na save'ach: 1047410230-232)
 SUMMON_SIGN = 90005793
+# jednorazowy łup przeciwnika: wspólne zdarzenie (flaga, encja, pula, …) daje pulę przy jego śmierci (np. skarabeusze);
+# poza tym przeciwnik z mapy, którego EntityID ma własny wiersz ItemLotParam_map z flagą, upuszcza ten wiersz
+# (sprawdzone na save'ach: flagi takich pul są ustawione po zabiciu, np. Margit 10000850)
+ENEMY_DROP = (90005300, 90005301)
+# modele skarabeuszy (gra nie ma ich nazwy w NpcName; łupy zgodne z listą na Fextralife: popioły wojny, ponure kamienie)
+SCARAB_MODELS = {"c4190", "c4191", "c4192"}
 # Moore w DLC ma 6 takich wywołań; nie wiadomo, czy to prawdziwe inwazje, więc go pomijamy, dopóki nie sprawdzimy w grze
 SKIP_INVADERS_EN = {"Moore"}
 # kategorie w wierszach puli łupu (ItemLotParam); 6 = gotowa broń z EquipParamCustomWeapon (+0x00 broń bazowa),
@@ -81,6 +87,13 @@ class World:
                 res = self.to_overworld(*dst, dp[0] + x - sp[0], dp[1] + y - sp[1], dp[2] + z - sp[2], depth + 1)
             if res:
                 return res
+        # a map with no row of its own (Chapel of Anticipation m10_01) is placed by a row leading into it, read backwards
+        if not cands:
+            for src, sp, dst, dp, _ in self.conv:
+                if dst == (area, gx, gz) and src != dst:
+                    res = self.to_overworld(*src, sp[0] + x - dp[0], sp[1] + y - dp[1], sp[2] + z - dp[2], depth + 1)
+                    if res:
+                        return res
         return None
 
     def to_map(self, area, gx, gz, x, y, z):
@@ -336,6 +349,19 @@ def main():
             its += lot_items(lid)[0]
         return its, flag
 
+    def place_lot(lot, mid, local, **extra):
+        """A one-time reward on the map (treasure or an enemy's drop) -> item_locations.json; False when the lot is empty."""
+        its, flag = lot_chain(lot)
+        if not its:
+            return False
+        area, gx, gz = (int(v) for v in mid[1:].split("_")[:3])
+        treasures.append({"lot": lot, "flag": flag, "map_id": mid, "items": its,
+                          "kind": min((i["kind"] for i in its), key=lambda k: KIND_PRIORITY.index(k) if k in KIND_PRIORITY else 99),
+                          "dlc": area in DLC_AREAS,
+                          "pos": [round(c, 1) for c in local],    # lokalnie w pliku mapy (do łask w tym samym lochu)
+                          **extra, **(world.to_map(area, gx, gz, *local) or {})})
+        return True
+
     # ---------- przejście po wszystkich plikach map ----------
     treasures, npcs, enemies_by_entity, enemies_by_name = [], [], {}, {}
     for _path, (area, gx, gz), mid, m in maps():
@@ -351,17 +377,8 @@ def main():
                     npcs.append({"name": npc_pl[name_id], "name_en": npc_en.get(name_id), "map_id": mid, "entity": p["entity"],
                                  "talk": p["talk"], "pos": [round(c, 1) for c in p["pos"]], **(pos or {})})
         for t in m["treasures"]:
-            if t["lot"] <= 0 or not t["pos"]:
-                continue
-            its, flag = lot_chain(t["lot"])
-            if not its:
-                continue
-            pos = world.to_map(area, gx, gz, *t["pos"])
-            treasures.append({"lot": t["lot"], "flag": flag, "map_id": mid, "items": its,
-                              "kind": min((i["kind"] for i in its), key=lambda k: KIND_PRIORITY.index(k) if k in KIND_PRIORITY else 99),
-                              "dlc": area in DLC_AREAS,
-                              "pos": [round(c, 1) for c in t["pos"]],    # lokalnie w pliku mapy (do łask w tym samym lochu)
-                              **(pos or {})})
+            if t["lot"] > 0 and t["pos"]:
+                place_lot(t["lot"], mid, t["pos"])
 
     # ---------- skrypty zdarzeń (EMEVD): nazwy bossów i nagrody ----------
     # Wspólne zdarzenia: 90005870 (pasek życia bossa: encja, ID nazwy w NpcName),
@@ -375,6 +392,7 @@ def main():
     boss_name_by_entity, reward_by_flag, name_near_flag, global_flag, reward_by_global = {}, {}, {}, {}, {}
     invasions, invader_lots, quest_lots = {}, {}, {}        # flaga pokonania -> encja / pule nagród
     duels = {}                                              # (mapa, warunek) -> [(flaga pokonania, encja)] znaków przywołania
+    enemy_drop = {}                                         # encja przeciwnika -> pula dawana przy jego śmierci
     # bossowie polowi (Nocna Kawaleria, Ptak śmierci…): wiersz GameAreaParam ma numer encji bossa, a śmierć zapisuje
     # wspólne zdarzenie 90005860/90005861(flaga pokonania, …, encja, …) pod inną flagą (…800 / …850)
     field_defeat = {}
@@ -398,6 +416,8 @@ def main():
                                 field_defeat.setdefault(v, cargs[0])
                     if cid == INVASION and len(cargs) >= 5:              # (warunek, flaga pokonania, obszar, obszar, encja, …)
                         invasions.setdefault(cargs[1], cargs[4])
+                    elif cid in ENEMY_DROP and len(cargs) >= 3 and cargs[2] in lots:
+                        enemy_drop.setdefault(cargs[1], cargs[2])
                     elif cid == SUMMON_SIGN and len(cargs) >= 4:
                         duels.setdefault((mid, cargs[0]), []).append((cargs[2], cargs[3]))
                     elif cid == INVADER_DEATH and len(cargs) >= 5 and cargs[4] in lots and cargs[4] > 0:   # (flaga, obszar, obszar, encja, pula, …)
@@ -540,6 +560,21 @@ def main():
                        "alt_flags": [flag + 200000000] if 1000000000 <= flag < 1100000000 and (flag + 200000000) // 1000 in flag_blocks() else [],
                        **(pos or {})})
 
+    # ---------- jednorazowe łupy przeciwników: znaczniki jak skarby, z nazwą przeciwnika ----------
+    treasure_lots = {t["lot"] for t in treasures}
+    not_drops = {b["id"] for b in bosses} | {b["flag"] for b in bosses} | {x["id"] for x in invaders}
+    n_drops = 0
+    for entity, (mid, part) in sorted(enemies_by_entity.items()):
+        lot = enemy_drop.get(entity) or (entity if entity in lots and struct.unpack_from("<I", lots[entity], 0x80)[0] else 0)
+        if not lot or lot in treasure_lots or entity in not_drops or not part["pos"]:
+            continue
+        model = part["name"].split("_")[0]
+        row = npc_rows.get(part["npc"])
+        name = npc_pl.get(struct.unpack_from("<i", row, 0x0C)[0]) if row else None
+        name = "Skarabeusz" if model in SCARAB_MODELS else name if name and "dummy" not in name.lower() else None
+        n_drops += place_lot(lot, mid, part["pos"], enemy={"entity": entity, "name": name, "model": model})
+    print(f"  jednorazowe łupy przeciwników na mapie: {n_drops}")
+
     # ---------- miejsca ----------
     # WorldMapPointParam: +0x04 flaga pokazania punktu (6001 = zawsze), +0x0C ikona MENU_MAP_<id>, +0x30 + 12·i do 8 napisów
     # (tekst, flaga włączenia, flaga wyłączenia; flaga < 10 = zawsze), +0x90 + i rodzaj napisu (0 miejsce z PlaceName,
@@ -654,6 +689,9 @@ def main():
         mid = o.get("map_id") or ""
         if mid[:3] not in ("m60", "m61") and by_map.get(mid):        # loch: najbliższa łaska z tego samego pliku mapy
             return sub_or_region(min(by_map[mid], key=lambda g: sum((a - b) ** 2 for a, b in zip(g["pos"], o["pos"]))))
+        # a map without graces (Chapel of Anticipation m10_01): PlaceName of the file, id AA*1000 + BB*10
+        if mid[:3] not in ("m60", "m61") and places.get(int(mid[1:3]) * 1000 + int(mid[4:6]) * 10):
+            return places[int(mid[1:3]) * 1000 + int(mid[4:6]) * 10].strip()
         same = [g for g in graces if g["map"] == o.get("map")]
         if not same or o.get("px") is None:
             return None

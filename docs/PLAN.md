@@ -235,3 +235,46 @@ Przy każdym rekomendacja.
 10. Ikona strony: rekomendacja złoty romb.
 11. Tryb bez spoilerów w karcie przedmiotu otwartej z bossa, questu albo mapy: rekomendacja działa tak samo jak
     w zakładce Przedmioty (jedna karta, jedno zachowanie).
+
+## Plan 2: statystyki bossów, wizerunki, asortyment kupców (2026-11-26)
+
+Prośba właściciela: wizerunki i przedmioty za nie, ile run dają, ukryte statystyki bossów (odporności, na co słabi,
+czym ich bić) i asortyment kupców z tym, co jeszcze zostało do kupienia. Badanie zrobione, kodu jeszcze nie ma.
+
+### Co już jest
+- Karta bossa: runy za pokonanie i nazwa wizerunku.
+- Wymiany u Enii: 101 przedmiotów ma źródło „za Wizerunek…”, ale tylko w karcie przedmiotu. Wizerunek i boss nie
+  pokazują, co można za nie dostać.
+- Kupcy: źródło „kupiec” w karcie przedmiotu. Nie ma listy towaru kupca.
+
+### Zbadane (pliki gry, układ pól z Paramdex, sprawdzone na danych)
+- `NpcParam` (0x2E0 B, zgodne z rozmiarem wiersza): `+0x24` PŻ, `+0x1A4..+0x1C0` mnożniki obrażeń (zwykłe, cięte,
+  obuchowe, kłute, magia, ogień, błyskawice, święte), `+0x108..` odporności na statusy (trucizna, zgnilizna,
+  krwotok, śmierć, odmrożenie `+0x1E0`, sen `+0x126`, szaleństwo `+0x128`; 999 = odporny), `+0x2A8` postawa,
+  `+0x4C` i dalej efekty specjalne, `resistCorrectId_*` (wzrost odporności po każdym wywołaniu statusu,
+  `ResistCorrectParam`).
+- Skalowanie obszaru: jeden z efektów bossa (`SpEffectParam`, 0x390 B) mnoży PŻ (`+0x10`) i odporności
+  (`+0x108..`, `+0x2B4`, `+0x340`, `+0x344`). Sprawdzone na Margicie: 2521 × 1,656 = 4174 PŻ, cięte −10, święte 40,
+  statusy 154 × 2,053 = 316, sen i szaleństwo odporny, postawa 80. Wszystko zgodne z Fextralife.
+- Wizerunki: `EquipParamGoods +0x14` to runy za użycie (Złota runa [1] = 200, zgodne z grą; Wizerunek Zszywańca
+  20 000).
+- Kupcy: `ShopLineupParam +0x0C` flaga wyprzedania, `+0x10` flaga odblokowania (np. po oddaniu dzwonka), `+0x14`
+  liczba sztuk (−1 bez limitu). Flagi wyprzedania backend czyta z save'a.
+
+### Proponowane kroki
+1. Statystyki bossa w karcie bossa: PŻ, osiem rodzajów obrażeń z oznaczeniem „słaby / odporny”, statusy z progami
+   po kolejnych wywołaniach albo „odporny”, postawa. Dane z `NpcParam` i efektu skalowania, w `bosses_all.json`.
+   Bossowie z kilkoma postaciami (duety, dwie fazy) mają każdą postać osobno.
+2. „Czym bić”: rodzaje obrażeń i statusy, na które boss jest najsłabszy, plus bronie z Twojego ekwipunku, które je
+   zadają (rodzaj ataku i status broni są już w danych przedmiotów). Gra nie ma listy „najlepszych broni”.
+3. Wizerunki: w karcie wizerunku i bossa runy za użycie i lista wymian u Enii z zaznaczeniem, co już masz.
+4. Asortyment kupca: karta kupca (z mapy i ze źródła „kupiec” w karcie przedmiotu) z listą towaru, ceną albo
+   wymianą, limitem sztuk i stanem z save'a: wyprzedane, jeszcze nie odblokowane, dostępne.
+
+### Pytania do właściciela (z rekomendacją)
+1. NG+: rekomendacja na razie wartości dla pierwszego przejścia (tak jak grasz), skalowanie NG+ później.
+2. Bronie „czym bić”: rekomendacja tylko z Twojego ekwipunku, bez list społeczności (licencja, zgadywanie).
+3. Kupcy: rekomendacja stan „wyprzedane / do kupienia / zablokowane”. Gra zapisuje flagę wyprzedania; czy pamięta
+   też, ile sztuk z kilku już kupiłeś, sprawdzę przy implementacji na save'ach.
+4. Tryb bez spoilerów: rekomendacja statystyki bossa widać zawsze, gdy boss jest odkryty (tak jak dziś jego karta);
+   towar kupca zablokowany do odblokowania pokazujemy jako „???”.

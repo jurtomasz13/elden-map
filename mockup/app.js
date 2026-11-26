@@ -730,9 +730,11 @@
     return "";
   }
   // opis miejsca skarbu (zebrane, kraina, najbliższa łaska), w karcie przedmiotu i w liście skarbu
+  // a one-time drop of a specific enemy (scarab, NPC…) is drawn like a treasure; who drops it
+  const dropFrom = t => t.enemy ? (t.enemy.name ? `: ${esc(t.enemy.name)}` : " z przeciwnika") : "";
   function spotNote(t) {
     const ng = nearestGrace(t);
-    return `${isSet(t.flag) ? "Zebrane" : "Do zebrania"}${t.region_pl ? " · " + esc(t.region_pl) : ""}${ng ? ` · najbliższa łaska „${esc(ng.name)}” (${ng.inside ? "w tym samym lochu, " : ""}${ng.dist} m)` : ""}${t.approx ? ". Znacznik na mapie stoi przy wejściu do lochu." : "."}`;
+    return `${dropFrom(t) ? `Jednorazowy łup${dropFrom(t)}. ` : ""}${isSet(t.flag) ? "Zebrane" : "Do zebrania"}${t.region_pl ? " · " + esc(t.region_pl) : ""}${ng ? ` · najbliższa łaska „${esc(ng.name)}” (${ng.inside ? "w tym samym lochu, " : ""}${ng.dist} m)` : ""}${t.approx ? ". Znacznik na mapie stoi przy wejściu do lochu." : "."}`;
   }
   // skarb z mapy: jeden przedmiot od razu w karcie; kilka: lista, klik otwiera kartę
   async function openSpot(t) {
@@ -740,7 +742,7 @@
     const found = t.items.map(x => findItem(x.cat, x.id));
     if (found.length === 1 && found[0]) return openItem(found[0], { spot: t });
     drawer(`<div class="eyebrow">${esc(KINDS[t.kind]?.[0] || "")}</div>
-      <div class="d-title" style="text-align:left;font-size:23px">Skarb: ${pl(t.items.length, "przedmiot", "przedmioty", "przedmiotów")}</div>
+      <div class="d-title" style="text-align:left;font-size:23px">${t.enemy ? "Łup" : "Skarb"}: ${pl(t.items.length, "przedmiot", "przedmioty", "przedmiotów")}</div>
       <p class="view-sub" style="margin:10px 0 0">${spotNote(t)}</p>
       <div class="rule"></div>
       <div class="d-section">${t.items.map((x, i) => !found[i] ? listRow(null, null, esc(x.name || "Nieznany przedmiot"), "")
@@ -1093,7 +1095,7 @@
       L.circleMarker(ll(map, t.px, t.py), { renderer, radius: q ? 7 : 4.5, color: dim ? "#8a7a5a" : "#1a140c", weight: 1, fillColor: col, fillOpacity: dim ? .5 : .95 })
         .on("click", () => selectSpot(t))
         .bindTooltip(`${t.items.map(i => `<span class="tip-item">${i.icon != null ? `<img src="${ICON(i.icon)}">` : ""}<b>${esc(i.name || "?")}</b>${i.count > 1 ? ` ×${i.count}` : ""}</span>`).join("")}
-          <span class="tip-sub">${KINDS[t.kind]?.[0] || ""}${t.region_pl ? " · " + esc(t.region_pl) : ""}${done ? " · zebrane" : ""}${t.approx ? " · w lochu" : ""}</span>`, { direction: "top", className: "er-tip" })
+          <span class="tip-sub">${KINDS[t.kind]?.[0] || ""}${t.region_pl ? " · " + esc(t.region_pl) : ""}${t.enemy ? " · łup" + dropFrom(t) : ""}${done ? " · zebrane" : ""}${t.approx ? " · w lochu" : ""}</span>`, { direction: "top", className: "er-tip" })
         .addTo(grp(t.kind)); }
     if (live.on) for (const d of (D.deathPoints || []).filter(d => d.map === m))
       L.circleMarker(ll(map, d.px, d.py), { renderer, radius: d.last ? 8 : 5, color: "#f0c9a0", weight: d.last ? 1.5 : 0, fillColor: "#9b3428", fillOpacity: .7 })
