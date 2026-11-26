@@ -9,7 +9,8 @@ Układ ustalony na plikach gry (zgodny z SoulsFormats MSBE):
   zdarzenie: i64 nazwa, i32 eventId, i32 typ, i32 indeks, i32 ?, i64 dane bazowe, i64 dane typu
           skarb (typ 4): dane typu +0x08 indeks części, +0x10 ItemLotID
   region: i64 nazwa, i32 typ, i32 indeks, u32 kształt, f32[3] pozycja (+0x14), f32[3] obrót w stopniach (+0x20), …,
-          i64 dane kształtu (+0x48): circle/sphere r; cylinder r, h; rect szer., głęb.; box szer., głęb., wys.
+          i64 dane kształtu (+0x48): circle/sphere r; cylinder r, h; rect szer., głęb.; box szer., głęb., wys.;
+          i64 dane bazowe (+0x50): i32 indeks części aktywującej, u32 EntityID (cel teleportów to zwykle punkt)
 Otwarty świat ma też pliki większej skali mAA_XX_YY_01 (kafel 2×2) i _02 (4×4): ich pozycje przeliczamy na układ
 kafla poziomu 0 o numerach XX·2^L, YY·2^L (przesunięcie środka 128·(2^L − 1)), zob. tile().
 """
@@ -82,12 +83,11 @@ def parse(d, shift=0):
     for x in lists.get("POINT_PARAM_ST", ()):
         name_off, _typ, _idx, shape = struct.unpack_from("<qiiI", d, x)
         shape = SHAPES.get(shape, shape)
-        shape_off = struct.unpack_from("<q", d, x + 0x48)[0]
+        shape_off, base_off = struct.unpack_from("<2q", d, x + 0x48)
         n = SHAPE_DIMS.get(shape)
-        if not n or not shape_off:
-            continue
         px, py, pz = struct.unpack_from("<3f", d, x + 0x14)
         regions.append({"name": wstr(x + name_off), "shape": shape, "pos": (px + shift, py, pz + shift),
                         "rot_y": struct.unpack_from("<f", d, x + 0x24)[0],
-                        "dims": struct.unpack_from(f"<{n}f", d, x + shape_off)})
+                        "dims": struct.unpack_from(f"<{n}f", d, x + shape_off) if n and shape_off else (),
+                        "entity": struct.unpack_from("<I", d, x + base_off + 4)[0] if base_off else 0})
     return {"parts": parts, "treasures": treasures, "regions": regions}

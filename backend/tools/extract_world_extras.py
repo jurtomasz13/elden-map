@@ -41,7 +41,7 @@ def find_arena(regions, p):
     import sys as _s
     _s.path.insert(0, os.path.join(ROOT, "backend"))
     from erbackend.worldmap import inside_shape
-    buddy = [r for r in regions if "バディ" in r["name"]]
+    buddy = [r for r in regions if "バディ" in r["name"] and r["dims"]]
     hit = next((r for r in buddy if inside_shape(region_shape(r), p, 2.0)), None)
     match = "inside"
     if hit is None:

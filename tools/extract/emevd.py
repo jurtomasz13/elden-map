@@ -42,3 +42,43 @@ def load(path):
 
 def ints(args):
     return list(struct.unpack_from(f"<{len(args) // 4}i", args)) if len(args) >= 4 else []
+
+
+def callers(scripts):
+    """(scope, event id) -> [(caller scope, caller event id, instruction index, call args after the event id)].
+
+    `scripts` maps a scope (map id or "common", "common_func") to parsed events; 2000[0] starts an event of the same
+    script, 2000[6] one of common_func."""
+    out = {}
+    for scope, events in scripts.items():
+        for eid, ev in events.items():
+            for k, (bank, iid, a) in enumerate(ev["instrs"]):
+                if bank == 2000 and iid in (0, 6) and len(a) >= 8:
+                    target = struct.unpack_from("<I", a, 4)[0]
+                    out.setdefault(("common_func" if iid == 6 else scope, target), []).append((scope, eid, k, a[8:]))
+    return out
+
+
+def instances(scripts, calls, scope, eid, depth=0):
+    """[(scope that starts it, argument bytes)] for every place an event is started; a caller's own parameters are
+    filled from its callers in turn (up to 5 levels). An event without parameters has one instance with no args."""
+    if not scripts[scope][eid]["params"]:
+        return [(scope, b"")]
+    out = []
+    for cscope, ceid, k, args in calls.get((scope, eid), []):
+        own = [p for p in scripts[cscope][ceid]["params"] if p[0] == k]
+        if not own:
+            out.append((cscope, args))
+        elif depth < 5:
+            for _gscope, gargs in instances(scripts, calls, cscope, ceid, depth + 1):
+                out.append((cscope, resolve(bytes(8) + args, own, k, gargs)[8:]))
+    return out
+
+
+def resolve(args, params, k, call):
+    """Arguments of instruction k with its parameters copied from the bytes the event was started with."""
+    a = bytearray(args)
+    for pi, tgt, src, n in params:
+        if pi == k:
+            a[tgt:tgt + n] = call[src:src + n]
+    return bytes(a)

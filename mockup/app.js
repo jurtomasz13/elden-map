@@ -1287,12 +1287,16 @@
     const shops = await load("shops") || {}, talks = new Set(W.npcs.filter(n => n.name === name).map(n => String(n.talk)));
     const rows = [...new Map(Object.entries(shops).filter(([t, s]) => talks.has(t) || (!talks.size && s.who === name))
       .flatMap(([, s]) => s.rows).map(r => [r.item, r])).values()];
-    const ids = [...new Set(rows.flatMap(r => [r.sold, r.unlock]).filter(Boolean))];
+    // bought pieces are a binary counter in the flags from `sold` on: flag sold+k is worth 2^k (extract_sources.py)
+    const bits = r => r.qty > 0 && r.sold ? [...Array(r.qty.toString(2).length).keys()].map(k => r.sold + k) : [];
+    const ids = [...new Set(rows.flatMap(r => [...bits(r), r.unlock]).filter(Boolean))];
     const flags = live.on && ids.length ? await readFlags(ids) : {};
     return rows.map(r => ({ ...r, it: findItem(...r.item.split(":").map((v, i) => i ? +v : v)),
-      state: !live.on ? null : r.unlock && !flags[r.unlock] ? "locked" : r.qty > 0 && r.sold && flags[r.sold] ? "sold" : "open" })).filter(r => r.it);
+      bought: live.on ? bits(r).reduce((n, f, k) => n + (flags[f] ? 2 ** k : 0), 0) : 0,
+      locked: live.on && !!r.unlock && !flags[r.unlock] })).filter(r => r.it);
   }
-  const SHOP_STATE = { locked: "jeszcze niedostępne", sold: "wyprzedane", open: "" };
+  const stockText = r => r.locked ? "jeszcze niedostępne" : r.qty <= 0 ? "" : r.bought >= r.qty ? "wyprzedane"
+    : r.bought ? `kupione ${r.bought} z ${r.qty}` : `${r.qty} szt.`;
   async function openNpc(name) {
     await Promise.all([sourcesIndex(), itemsIndex()]);
     const stock = await shopRows(name);
@@ -1308,10 +1312,10 @@
       ${now.length ? `<div class="d-section"><h4>Teraz</h4>${now.map(p => listRow(null, null, esc(p.name || "znacznik postaci z gry"), esc(p.region_pl || ""))).join("")}
         <p class="view-sub" style="margin:8px 0 0">Według mapy gry i flag z Twojego save'a.</p></div>` : ""}
       ${q ? questLinks([q]) : ""}
-      ${stock.length ? `<div class="d-section"><h4>Sklep</h4>${stock.filter(r => !(spoilers() && r.state === "locked")).map(r => itemRow(r.it, [r.trade ? "za: " + esc(r.trade) : r.price ? pl(r.price, "run", "runy", "runów") : "",
-          r.qty > 0 ? `${r.qty} szt.` : "", SHOP_STATE[r.state] || ""].filter(Boolean).join(" · "))).join("")}
-        ${live.on ? `<p class="view-sub" style="margin:8px 0 0">Stan z Twojego save'a: „wyprzedane” to towar z limitem, który już kupiłeś do końca; „jeszcze niedostępne”
-          pojawi się później (np. po oddaniu dzwonka kulistego)${spoilers() ? ", w trybie bez spoilerów ukryte" : ""}.</p>` : ""}</div>` : ""}
+      ${stock.length ? `<div class="d-section"><h4>Sklep</h4>${stock.filter(r => !(spoilers() && r.locked)).map(r => itemRow(r.it, [r.trade ? "za: " + esc(r.trade) : r.price ? pl(r.price, "run", "runy", "runów") : "",
+          stockText(r)].filter(Boolean).join(" · "))).join("")}
+        ${live.on ? `<p class="view-sub" style="margin:8px 0 0">Stan z Twojego save'a: ile sztuk z limitu już kupiłeś; „jeszcze niedostępne” pojawi się
+          później (np. po oddaniu dzwonka kulistego)${spoilers() ? ", w trybie bez spoilerów ukryte" : ""}.</p>` : ""}</div>` : ""}
       ${gifts.length ? `<div class="d-section"><h4>Daje w rozmowie</h4>${gifts.map(it => itemRow(it, have(it) ? "masz" : "")).join("")}</div>` : ""}
       ${drops.length ? `<div class="d-section"><h4>Po śmierci zostawia</h4>${drops.flatMap(t => t.items.map(x => findItem(x.cat, x.id)).filter(Boolean).map(it => itemRow(it, isSet(t.flag) ? "zebrane" : ""))).join("")}</div>` : ""}
       ${inv.length ? `<div class="d-section"><h4>Najazdy</h4>${inv.map(x => listRow(`data-go="invader:${x.id}"`, null, esc(x.name), isSet(x.flag) ? "pokonany" : "niepokonany")).join("")}</div>` : ""}

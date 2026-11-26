@@ -191,13 +191,21 @@ def main():
 
     shops = defaultdict(list)
     shop_custom = set()                      # gotowe bronie w sklepach (do popiołów wojny niżej)
-    # towar każdego sklepu (TalkID -> wiersze): ShopLineupParam +0x0C flaga wyprzedania, +0x10 flaga odblokowania
-    # (np. po oddaniu dzwonka), +0x14 liczba sztuk (-1 bez limitu); stan z save'a czyta strona przez /api/flags
+    # towar każdego sklepu (TalkID -> wiersze): ShopLineupParam +0x0C licznik kupionych sztuk zapisany bitami we
+    # flagach od tej flagi (F+k = 2^k, tyle bitów, ile trzeba na limit; sprawdzone na 6 postaciach), +0x10 flaga
+    # odblokowania (np. po oddaniu dzwonka), +0x14 limit sztuk (-1 bez limitu); stan z save'a czyta strona
     stock = defaultdict(lambda: {"who": None, "rows": []})
-    # a range is also listed by shared scripts without a character on the map (e.g. 800001100 for nomadic merchants);
-    # when a script of a placed character opens it too (Kalé 800006000), that character is the seller
-    sellers = [((a, b), t) for (a, b), talks in shop_owner.items()
-               for t in ([t for t in talks if talk_parts.get(t)] or talks)]
+    # A range is also listed by scripts that are not its seller: shared ones without a character on the map
+    # (800001100), Kalé's 800006000 holds two nomadic merchants' ranges, the Twin Maiden Husks hold every bell-bearing
+    # shop. The seller is the placed character whose script opens the fewest ranges (a merchant's own script).
+    n_ranges = defaultdict(int)
+    for talks in shop_owner.values():
+        for t in talks:
+            n_ranges[t] += 1
+    sellers = []
+    for (a, b), talks in shop_owner.items():
+        cand = [t for t in talks if talk_parts.get(t)] or talks
+        sellers += [((a, b), t) for t in cand if n_ranges[t] == min(n_ranges[c] for c in cand)]
     for (a, b), talk in sellers:
         who, spot = talk_owner(talk)
         if talk == 1000 or 110000 <= a <= 111399:   # menu miejsca łaski: przeróbka odzienia (za oryginalną część)
