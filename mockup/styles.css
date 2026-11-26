@@ -222,6 +222,13 @@ a { color: inherit; text-decoration: none; }
 .steps li:last-child::after { display: none; }
 .note { border-left: 2px solid var(--gold); padding: 10px 14px; background: rgba(201,170,113,.06); font-style: italic; color: var(--bone); }
 .note.warn { border-color: var(--blood); background: rgba(155,52,40,.09); }
+.sub-h { font-family: var(--display); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; font-weight: 400; }
+.neg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.neg-grid.st { grid-template-columns: repeat(2, 1fr); }
+.neg { display: flex; justify-content: space-between; gap: 6px; padding: 5px 8px; border: 1px solid var(--line); font-size: 15px; color: var(--muted); }
+.neg b { color: var(--bone); font-weight: 400; }
+.neg.weak { border-color: var(--moss-hi); } .neg.weak b { color: var(--moss-hi); }
+.neg.strong b { color: var(--dim); }
 .reward { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--line); }
 .reward span:last-child { color: var(--muted); font-style: italic; }
 .minimap { height: 170px; border: 1px solid var(--line-2); position: relative; overflow: hidden; }

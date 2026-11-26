@@ -477,6 +477,23 @@
       ${x.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
       () => x.map && miniMap($("#minimap"), x.map, x.px, x.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(x) }]));
   }
+  // hidden enemy stats from the game files (NpcParam + area scaling, bosses_all.json `stats`)
+  const PHYS = { standard: "Zwykłe", slash: "Cięte", strike: "Obuchowe", pierce: "Kłute" };
+  const dmgName = k => PHYS[k] || AFF[k][0];
+  function bossStatsHtml(st) {
+    const neg = Object.entries(st.absorb), lo = Math.min(...neg.map(n => n[1])), hi = Math.max(...neg.map(n => n[1]));
+    const statuses = Object.entries(st.status), open = statuses.filter(([, t]) => t).sort((a, b) => a[1][0] - b[1][0]);
+    const weakDmg = lo < hi ? neg.filter(([, v]) => v === lo).map(([k]) => dmgName(k)) : [];
+    const weakSt = open.filter(([, t]) => t[0] <= open[0][1][0] * 1.25).map(([k]) => AFF[k][0]);
+    return `<div class="d-section"><h4>Statystyki</h4>
+      <div class="d-stats"><div><b>${fmt(st.hp)}</b><span>Punkty życia</span></div><div><b>${st.poise}</b><span>Postawa</span></div></div>
+      <h5 class="sub-h">Redukcja obrażeń</h5><div class="neg-grid">${neg.map(([k, v]) =>
+        `<span class="neg${v === lo && lo < hi ? " weak" : v >= 40 ? " strong" : ""}">${esc(dmgName(k))}<b>${v}%</b></span>`).join("")}</div>
+      <h5 class="sub-h">Odporność na statusy</h5><div class="neg-grid st">${statuses.map(([k, t]) =>
+        `<span class="neg${t ? "" : " strong"}" title="${t ? "Próg po kolejnych wywołaniach statusu" : ""}">${esc(AFF[k][0])}<b>${t ? t.join(" → ") : "odporny"}</b></span>`).join("")}</div>
+      <p class="view-sub" style="margin:8px 0 0">Najsłabszy na: ${esc([...weakDmg, ...weakSt].join(", ") || "brak wyraźnej słabości")}.
+        Wartości dla pierwszego przejścia, z plików gry; przy bossach z kilkoma fazami to pierwsza faza.</p></div>`;
+  }
   function openBoss(id) {
     const b = bossList().find(x => x.id === id);
     if (hiddenBoss(b)) return drawer(`<div class="d-hero">${portrait(null, "hero-portrait alive", "knight")}<div class="d-title">Nieznany wróg</div>
@@ -496,6 +513,7 @@
         ${b.approx && !ng?.inside ? "<li>Boss jest w lochu, znacznik stoi przy wejściu.</li>" : b.approx ? "<li>Znacznik na mapie stoi przy wejściu do lochu.</li>" : ""}${hint ? `<li>${esc(hint)}</li>` : ""}
         ${!ng && !hint ? "<li>Pozycja tego bossa nie jest jeszcze przeliczona na mapę świata.</li>" : ""}</ol></div>
       ${b.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}
+      ${b.stats ? bossStatsHtml(b.stats) : ""}
       ${questLinks(bossQuests(b))}
       ${b.rewards?.length ? `<div class="d-section"><h4>Nagrody</h4>${b.rewards.map(r => rewardRow(r, itemByName(r.name))).join("")}</div>` : ""}
       ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div class="reward"><span class="rw"><img src="${ICON(b.icon)}">${esc(b.remembrance)}</span><span></span></div></div>` : ""}`,

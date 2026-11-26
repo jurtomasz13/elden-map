@@ -11,6 +11,7 @@ Pozycje: mapy m60/m61 przeliczane wprost (map_transform), lochy przez WorldMapLe
 Podziemia (m12): dokładnie, na osobnej mapie M01. Farum Azula (m13): w wirze burzy (stała FARUM).
 """
 import json
+import math
 import os
 import re
 import struct
@@ -52,6 +53,37 @@ def lot_slots(row):
     """(item id, category code, weight, count) for the 8 slots of an ItemLotParam row."""
     return zip(struct.unpack_from("<8i", row, 0), struct.unpack_from("<8i", row, 0x20), struct.unpack_from("<8H", row, 0x40),
                row[0x8A:0x92])
+
+
+# NpcParam (0x2E0 B, Paramdex NPC_PARAM_ST): +0x24 HP, +0x1A4.. 8x f32 damage multipliers (1.1 = takes 10% more),
+# status resistances (999 = immune) and ResistCorrectParam row raising the threshold after each proc, +0x2A8 poise.
+# Resident special effects (+0x4C 8x, +0x178 8x, +0x1E8 16x) include the area scaling that multiplies HP and
+# resistances (SpEffectParam +0x10 maxHpRate, regist*ChangeRate). Checked on Margit against Fextralife:
+# 2521 HP x 1.656 = 4174, slash -10, holy 40, statuses 316/414/704/1161, sleep and madness immune, poise 80.
+ABSORB = ("standard", "slash", "strike", "pierce", "magic", "fire", "lightning", "holy")
+STATUS = {"poison": (0x108, 0x08, 0x108), "rot": (0x10A, 0x1D0, 0x10C), "bleed": (0x10C, 0x2B4, 0x110),
+          "death": (0x10E, 0x2B8, 0x114), "frost": (0x1E0, 0x2BC, 0x2B4), "sleep": (0x126, 0x2C0, 0x340),
+          "madness": (0x128, 0x2C4, 0x344)}    # NpcParam resist, NpcParam resistCorrectId, SpEffectParam rate
+
+
+def enemy_stats(row, speffects, resist_correct):
+    """HP, damage negation (%), status thresholds after 0..3 procs (None = immune) and poise of one NpcParam row."""
+    effects = [speffects[e] for e in (*struct.unpack_from("<8i", row, 0x4C), *struct.unpack_from("<8i", row, 0x178),
+                                      *struct.unpack_from("<16i", row, 0x1E8)) if e > 0 and e in speffects]
+    scale = lambda off: math.prod(struct.unpack_from("<f", e, off)[0] for e in effects)  # noqa: E731
+    status = {}
+    for name, (off, corr_off, rate_off) in STATUS.items():
+        base = struct.unpack_from("<H", row, off)[0]
+        if base >= 999:
+            status[name] = None
+            continue
+        first = base * scale(rate_off)
+        corr = resist_correct.get(struct.unpack_from("<i", row, corr_off)[0])
+        steps = struct.unpack_from("<5f", corr, 0)[:3] if corr and struct.unpack_from("<5f", corr, 0x14) == (1.0,) * 5 else ()
+        status[name] = [round(first)] + [round(first + p) for p in steps]   # next threshold = first + increment
+    return {"hp": int(struct.unpack_from("<I", row, 0x24)[0] * scale(0x10)),
+            "absorb": {k: round((1 - v) * 100) for k, v in zip(ABSORB, struct.unpack_from("<8f", row, 0x1A4))},
+            "status": status, "poise": round(struct.unpack_from("<f", row, 0x2A8)[0])}
 
 
 def lot_item(code, iid, custom):
@@ -322,6 +354,7 @@ def main():
     items = json.load(open(os.path.join(DATA, "items.json"), encoding="utf-8"))
     by_item = item_index(items)
     npc_rows = dict(P.rows(ps["NpcParam"])[0])
+    speffects, resist_correct = dict(P.rows(ps["SpEffectParam"])[0]), dict(P.rows(ps["ResistCorrectParam"])[0])
     lots = dict(P.rows(ps["ItemLotParam_map"])[0])
     custom = dict(P.rows(ps["EquipParamCustomWeapon"])[0])
 
@@ -550,7 +583,8 @@ def main():
         same = sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != msb.map_id(area, gx, gz)) if nid else []
         chara_init = next((e[1]["chara_init"] for e in ([ent] if ent else []) + same if e and (e[1].get("chara_init") or 0) > 0), None) if model == "c0000" else None
         flag = field_defeat.get(rid, rid)
-        bosses.append({"id": rid, "flag": flag, "name": name_pl or name_en, "name_en": name_en, "location": loc, "region": region,
+        npc_id = next((e[1]["npc"] for e in ([ent] if ent else []) + same if e and e[1]["npc"] in npc_rows), None)
+        bosses.append({**({"stats": enemy_stats(npc_rows[npc_id], speffects, resist_correct)} if npc_id else {}),"id": rid, "flag": flag, "name": name_pl or name_en, "name_en": name_en, "location": loc, "region": region,
                        "region_pl": region_pl.get((region or "").lower()) or region,
                        "runes": runes, "map_id": msb.map_id(area, gx, gz), "dlc": area in DLC_AREAS or bool(c and c["group"].startswith("DLC")),
                        "icon": (rem and rem.get("icon")) or (drop and drop["icon"]), "remembrance": rem and rem.get("remembrance"),
