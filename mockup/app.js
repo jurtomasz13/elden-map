@@ -40,7 +40,7 @@
   // dane wyciągnięte z gry (tools/extract)
   const cache = {};
   const load = name => cache[name] ??= fetch(`${ASSETS}/data/${name}.json`, { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
-  const W = { bosses: [], pois: [], items: [], npcs: [], graces: [], quests: [] };
+  const W = { bosses: [], pois: [], items: [], npcs: [], graces: [], quests: [], invaders: [] };
 
   /* ---------------- słowniki ---------------- */
   const KINDS = {
@@ -143,7 +143,8 @@
           flags: [62002, ...(arrival ? [arrival.flag] : [])], mode: "any", where: DLC_COCOON } ] };
   }
   async function loadWorld() {
-    const [b, p, it, n, g, q, tr, mp, fx] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces", "item_effects"].map(load));
+    const [b, p, it, n, g, q, tr, mp, fx, inv] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces", "item_effects", "invaders"].map(load));
+    W.invaders = inv || [];                                // najeźdźcy (czerwone fantomy NPC, extract_world.py)
     W.pieces = mp || {};
     W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
     // bossowie bez nazwy w plikach gry (np. Wyszczerbiony Drake na szczycie) zostają — nazwę dopisze backend (tabela CE)
@@ -163,7 +164,7 @@
       api(`/api/session?${qs()}`).catch(() => null), api(`/api/deaths?${qs()}&limit=500`).catch(() => null)]);
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
-      ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f)].filter(Boolean));
+      ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f), ...W.invaders.map(x => x.flag)].filter(Boolean));
     const arr = [...ids], flags = {};
     for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
     live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
@@ -436,6 +437,21 @@
     for (const g of W.graces) if (g.map === o.map && g.px != null && ok(g) && !arena(g)) { const d = (g.px - o.px) ** 2 + (g.py - o.py) ** 2; if (d < bd) { bd = d; best = g; } }
     return best && { ...best, dist: Math.round(Math.sqrt(bd)) };
   }
+  // wiersz nagrody (boss, najeźdźca): klik otwiera kartę przedmiotu, gdy jest w katalogu
+  const rewardRow = (r, it) => `<${it ? `button class="reward xreward" data-go="item:${it.category}:${it.id}"` : `div class="reward"`}><span class="rw">${r.icon != null ? `<img src="${ICON(r.icon)}">` : ""}${esc(r.name)}</span><span>${KINDS[r.kind]?.[0] || ""}${it ? " ›" : ""}</span></${it ? "button" : "div"}>`;
+  // najeźdźca: bez spoilerów imię i nagrody widać dopiero po pokonaniu
+  const hiddenInvader = x => spoilers() && !isSet(x.flag);
+  function openInvader(x) {
+    const done = isSet(x.flag), hid = hiddenInvader(x);
+    drawer(`<div class="d-hero">${portrait(null, "hero-portrait" + (done ? "" : " alive"), "knight")}<div class="eyebrow">Najeźdźca${x.dlc ? " · DLC" : ""}</div>
+      <div class="d-title">${hid ? "Nieznany najeźdźca" : esc(x.name)}</div><div class="d-loc">${esc(x.region_pl || "")}</div></div>
+      <div class="d-stats"><div><b>${done ? "✓" : "—"}</b><span>${done ? "Pokonany" : "Niepokonany"}</span></div><div><b>${hid ? "?" : x.rewards.length}</b><span>Nagrody</span></div></div>
+      <p class="view-sub" style="margin:10px 0 0">Czerwony fantom, który najeżdża twój świat w tej okolicy. Pokonany już nie wraca.</p>
+      ${hid ? '<p class="note">Imię i nagrody zobaczysz po pokonaniu (tryb bez spoilerów).</p>' : x.rewards.length ? `<div class="d-section"><h4>Nagrody</h4>${x.rewards.map(r => rewardRow(r, findItem(r.cat, r.id))).join("")}
+        ${x.quest_rewards ? '<p class="view-sub" style="margin:8px 0 0">Nagroda zależy od etapu questu tej postaci.</p>' : ""}</div>` : ""}
+      ${x.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
+      () => x.map && miniMap($("#minimap"), x.map, x.px, x.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(x) }]));
+  }
   function openBoss(id) {
     const b = bossList().find(x => x.id === id);
     if (hiddenBoss(b)) return drawer(`<div class="d-hero">${portrait(null, "hero-portrait alive", "knight")}<div class="d-title">Nieznany wróg</div>
@@ -456,8 +472,7 @@
         ${!ng && !hint ? "<li>Pozycja tego bossa nie jest jeszcze przeliczona na mapę świata.</li>" : ""}</ol></div>
       ${b.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}
       ${questLinks(bossQuests(b))}
-      ${b.rewards?.length ? `<div class="d-section"><h4>Nagrody</h4>${b.rewards.map(r => { const it = itemByName(r.name);
-        return `<${it ? `button class="reward xreward" data-go="item:${it.category}:${it.id}"` : `div class="reward"`}><span class="rw">${r.icon != null ? `<img src="${ICON(r.icon)}">` : ""}${esc(r.name)}</span><span>${KINDS[r.kind]?.[0] || ""}${it ? " ›" : ""}</span></${it ? "button" : "div"}>`; }).join("")}</div>` : ""}
+      ${b.rewards?.length ? `<div class="d-section"><h4>Nagrody</h4>${b.rewards.map(r => rewardRow(r, itemByName(r.name))).join("")}</div>` : ""}
       ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div class="reward"><span class="rw"><img src="${ICON(b.icon)}">${esc(b.remembrance)}</span><span></span></div></div>` : ""}`,
       () => b.map && miniMap($("#minimap"), b.map, b.px, b.py, b.icon, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(b) }]));
   }
@@ -848,7 +863,7 @@
       el.querySelectorAll("[data-mm]").forEach(b => b.onclick = ev => { ev.stopPropagation(); const k = b.dataset.mm; close(); if (k !== "x") actions[+k].run(); });
     });
   }
-  let bigMap, mapLayers = {}, playerMarker = null;
+  let bigMap, mapLayers = {}, playerMarker = null, mapRenderer = null;
   // mapy gry: powierzchnia, podziemia (Siofra, Ainsel, Głębiny) i Królestwo Cieni — dostępne wg zakresu gry
   const MAPS = { M00: "Ziemie Pomiędzy", M01: "Podziemia", M10: "Królestwo Cieni (DLC)" };
   const mapsFor = g => (g === "dlc" ? ["M10"] : g === "base" ? ["M00", "M01"] : ["M00", "M01", "M10"])
@@ -890,6 +905,7 @@
       c[k] ??= [0, 0]; c[k][1]++; if (done) c[k][0]++; };
     for (const g of W.graces) if (g.map === m) add("grace", isSet(g.flag, 60));
     for (const b of bossList()) if (b.map === m && !hiddenBoss(b)) add("boss", b.defeated);
+    for (const x of W.invaders) if (x.map === m) add("invader", isSet(x.flag), x);
     for (const p of W.pois) if (p.map === m) add("poi:" + p.category, null, p);
     for (const t of W.items) if (t.map === m) add(t.kind, isSet(t.flag));
     for (const n of W.npcs) if (n.map === m) add("npc", null, n);
@@ -911,11 +927,12 @@
       <div class="map-panel corners"><div class="eyebrow">${MAPS[state.map]}</div><h2 class="title">Mapa</h2>
         ${avail.length > 1 ? `<div class="maptabs">${avail.map(k => `<button class="chip ${state.map === k ? "on" : ""}" data-m="${k}">${MAPS[k]}</button>`).join("")}</div>` : ""}
         <input class="search map-search" id="mq" type="search" placeholder="Szukaj: przedmiot, boss, miejsce…" value="${esc(state.mapQuery)}">
+        ${state.mapDrops ? `<button class="chip on map-filter-chip" id="dropsClear">Gdzie wypada: ${esc(state.mapDrops.title)} (${state.mapDrops.pts.filter(p => p[0] === state.map).length}) ✕</button>` : ""}
         ${state.mapPeek ? `<p class="view-sub mine-note">Pokazuję miejsce poza odkrytym terenem. <button class="chip" id="peekBack">Wróć do mojego postępu</button></p>` : ""}
         ${state.mine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
           : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
         <div class="layers-scroll">
-        ${group("Na mapie", ["grace", "boss", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'),
+        ${group("Na mapie", ["grace", "boss", "invader", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC, które najeżdżają twój świat"),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
         ${group("Miejsca i lochy", poiKeys, Object.entries(POI).map(([k, [l, g]]) => row("poi:" + k, l, `<span class="sw-poi">${g}</span>`)))}
         ${KIND_GROUPS.map(([title, keys]) => group(title, keys, keys.map(k => row(k, KINDS[k][0], dot(KINDS[k][1]))))).join("")}
@@ -935,7 +952,9 @@
       main.querySelectorAll("[data-layer]").forEach(l => l.classList.toggle("on", on(l.dataset.layer)));
       syncGroups(); refreshLayers(); });
     if ($("#hideDone")) $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
-    if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; viewMap(); };
+    if ($("#dropsClear")) $("#dropsClear").onclick = () => { state.mapDrops = null;
+      if (state.mapPeek) { state.mapPeek = false; viewMap(); } else { $("#dropsClear").remove(); buildLayers(); } };
+    if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; state.mapDrops = null; viewMap(); };
     // wyszukiwanie: tylko znaczniki i żeton filtra (pole zostaje, mapa się nie przebudowuje)
     const syncChip = () => {
       $("#mqClear")?.remove();
@@ -950,6 +969,8 @@
     const keepView = viewMap.keep && bigMap && viewMap.keep.map === state.map ? { c: bigMap.getCenter(), z: bigMap.getZoom() } : null;
     if (bigMap) bigMap.remove();
     const map = bigMap = baseMap($("#mapc"), state.map);
+    mapRenderer = L.canvas({ padding: .4 });
+    map.createPane("drops").style.zIndex = 640;                     // „Gdzie wypada”: nad ikonami innych znaczników
     const p = D.position;
     if (keepView) map.setView(keepView.c, keepView.z, { animate: false });
     applyArea(map, !!keepView);
@@ -964,7 +985,7 @@
     const map = bigMap; if (!map) return;
     for (const g of Object.values(mapLayers)) g.remove();
     mapLayers = {};
-    const m = state.map, q = state.mapQuery.trim().toLowerCase(), mine = state.mine, hide = state.hideDone && !mine, renderer = L.canvas({ padding: .4 });
+    const m = state.map, q = state.mapQuery.trim().toLowerCase(), mine = state.mine, hide = state.hideDone && !mine, renderer = mapRenderer;
     const near = mine ? revealTest(m) : () => true;
     drawFog(map, m);
     const grp = k => mapLayers[k] ??= L.layerGroup();
@@ -976,6 +997,15 @@
       L.marker(ll(map, b.px, b.py), { icon: divIcon(`<span class="mk-boss ${b.defeated ? "done" : ""}">${b.icon != null ? `<img src="${ICON(b.icon)}">` : ""}</span>`, 34), riseOnHover: true })
         .bindTooltip(`<b>${esc(b.name)}</b>${b.defeated ? "pokonany" : "niepokonany"} · ${pl(b.runes || 0, "run", "runy", "runów")}${b.approx ? " · w lochu" : ""}`, { direction: "top", offset: [0, -16], className: "er-tip" })
         .on("click", () => openBoss(b.id)).addTo(grp("boss")); }
+    for (const x of W.invaders) { const done = isSet(x.flag), hid = hiddenInvader(x);
+      if (x.map !== m || !match(hid ? "" : x.name, hid ? "" : x.name_en, "najeźdźca") || (hide && done) || (mine && !done)) continue;
+      L.marker(ll(map, x.px, x.py), { icon: divIcon(`<span class="mk-invader ${done ? "done" : ""}"></span>`, 24), riseOnHover: true })
+        .bindTooltip(`<b>${hid ? "Najeźdźca" : esc(x.name)}</b>${done ? "pokonany" : "niepokonany"}${hid || !x.rewards.length ? "" : " · " + esc(x.rewards[0].name) + (x.rewards.length > 1 ? " i inne" : "")}`, { direction: "top", offset: [0, -10], className: "er-tip" })
+        .on("click", () => openInvader(x)).addTo(grp("invader")); }
+    // „Gdzie wypada”: wszystkie miejsca przeciwników z wybranym łupem (z karty przedmiotu)
+    for (const [pm, px, py] of state.mapDrops?.pts || []) if (pm === m)
+      L.circleMarker(ll(map, px, py), { pane: "drops", radius: 8, color: "#fff4e0", weight: 2, fillColor: "#e0483a", fillOpacity: 1 })
+        .bindTooltip(`<b>${esc(state.mapDrops.title)}</b>tu się pojawia`, { direction: "top", className: "er-tip" }).addTo(grp("drops"));
     for (const pnt of W.pois) { if (pnt.map !== m || !match(pnt.name) || !near(pnt)) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
         .bindTooltip(`<b>${esc(pnt.name)}</b>${esc(POI[pnt.category]?.[0] || "")}`, { direction: "top", offset: [0, -8], className: "er-tip" }).addTo(grp("poi:" + pnt.category)); }
@@ -1150,13 +1180,15 @@
     else if (k === "bossmap") { const b = bossList().find(x => x.id === +v); if (b) goMap(b); }
     else if (k === "spot") { const t = W.items[+v]; if (t) goMap(t, t); }
     else if (k === "pin") { const o = pins[+v]; if (o) goMap(o); }
+    else if (k === "drops") showDrops(drops[+v]);
+    else if (k === "invader") { const x = W.invaders.find(i => i.id === +v); if (x) openInvader(x); }
     else if (k === "quest") goQuest(v);
     else if (k === "place") { const pl = refIndex()?.places.get(v); if (pl) goMap(pl); }
   });
   // ---------- jak zdobyć: bossowie, kupcy, łup z przeciwników, nagrody ze zdarzeń (extract_sources.py) ----------
   let SRC = null;
   async function sourcesIndex() { if (!SRC) SRC = await load("item_sources") || {}; return SRC; }
-  const pins = [];                                         // miejsca do przejścia na mapę (data-go="pin:N")
+  const pins = [], drops = [];                             // miejsca do przejścia na mapę (data-go="pin:N"), grupy przeciwników ("drops:N")
   const pinGo = o => { pins.push(o); return `data-go="pin:${pins.length - 1}"`; };
   function sourcesHTML(it) {
     const src = SRC?.[`${it.category}:${it.id}`]; if (!src) return "";
@@ -1167,13 +1199,29 @@
       if (sh.who.startsWith("Przeróbka")) { rows.push(`<button class="xbtn x-shop" disabled>✂ Przeróbka odzienia<small>przy miejscu łaski${sh.trade ? " · z: " + esc(sh.trade) : ""}</small></button>`); continue; }
       rows.push(`<button class="xbtn x-shop" ${sh.map ? pinGo(sh) : "disabled"}>⚖ ${sh.trade ? "Wymiana" : "U kupca"}<small>${esc(sh.who)}${sh.trade ? " · za: " + esc(sh.trade)
         : sh.price >= 10 ? " · " + pl(sh.price, "run", "runy", "runów") : ""}${sh.map ? " · ⌖ na mapie" : ""}</small></button>`); }
-    for (const e of src.enemies || []) { const sp = e.spots?.[0], ng = sp && nearestGrace(sp);
-      rows.push(`<button class="xbtn x-enemy" ${sp ? pinGo(sp) : "disabled"}>☠ Łup z przeciwnika<small>${e.who ? esc(e.who) : "przeciwnik"}${ng ? " · " + esc(ng.region || ng.name) : ""} · szansa ${num(e.chance)}%${e.count > 1 ? " · " + pl(e.count, "egzemplarz", "egzemplarze", "egzemplarzy") : ""}</small></button>`); }
+    for (const id of src.invaders || []) { const x = W.invaders.find(v => v.id === id); if (!x) continue; const hid = hiddenInvader(x);
+      rows.push(`<button class="xbtn x-boss" data-go="invader:${x.id}">☠ Nagroda za najeźdźcę<small>${hid ? "nieznany najeźdźca" : esc(x.name)}${x.region_pl ? " · " + esc(x.region_pl) : ""}</small></button>`); }
+    for (const e of src.enemies || []) { drops.push({ title: e.who ? `${it.name} (${e.who})` : it.name, at: e.at });
+      rows.push(`<button class="xbtn x-enemy" ${e.at.length ? `data-go="drops:${drops.length - 1}"` : "disabled"}>☠ Łup z przeciwnika<small>${e.who ? esc(e.who) : "przeciwnik"} · szansa ${num(e.chance)}% · ${pl(e.count, "przeciwnik", "przeciwników", "przeciwników")}${e.at.length ? " · ⌖ pokaż na mapie" : ""}</small></button>`); }
     for (const ev of src.events || []) {
       if (ev.map_id === "common" || !ev.map) { rows.push(`<button class="xbtn x-event" disabled>✦ Nagroda ze zdarzenia<small>za postęp w grze lub queście</small></button>`); continue; }
       const ng = nearestGrace(ev);
-      rows.push(`<button class="xbtn x-event" ${pinGo(ev)}>✦ Nagroda ze zdarzenia<small>quest, postać lub najeźdźca${ng ? " · okolice: " + esc(ng.name) : ""} · ⌖ na mapie</small></button>`); }
+      rows.push(`<button class="xbtn x-event" ${pinGo(ev)}>✦ Nagroda ze zdarzenia<small>quest albo postać${ng ? " · okolice: " + esc(ng.name) : ""} · ⌖ na mapie</small></button>`); }
     return rows.length ? `<div class="d-section"><h4>Jak zdobyć</h4><div class="xlinks">${rows.join("")}</div></div>` : "";
+  }
+  // wszystkie miejsca przeciwników z danym łupem na mapie (enemies.json wczytywany dopiero tutaj, ok. 0,4 MB)
+  async function showDrops(g) {
+    const all = await load("enemies"), pts = all && g.at.map(i => all[i]);
+    if (!pts || pts.some(p => !p)) return banner("Brak miejsc przeciwników", "Plik enemies.json nie pasuje do danych. Przygotuj dane od nowa.");
+    const per = {}; for (const p of pts) per[p[0]] = (per[p[0]] || 0) + 1;
+    const m = Object.entries(per).sort((a, b) => b[1] - a[1])[0][0];
+    state.mapDrops = { title: g.title, pts };
+    if (state.mine && pts.some(([pm, px, py]) => !revealTest(pm)({ px, py }))) state.mapPeek = true;
+    ensureGame({ dlc: m === "M10" });
+    state.map = m;
+    const fit = () => { const here = pts.filter(p => p[0] === m).map(p => ll(bigMap, p[1], p[2]));
+      if (bigMap && here.length) bigMap.fitBounds(L.latLngBounds(here).pad(.3), { maxZoom: 4.5, animate: false }); };
+    if (location.hash === "#map") { closeDrawer(); viewMap(); fit(); } else navTo("#map", fit);
   }
   // ukryte statystyki z SpEffectParam: talizmany, zbroje, bronie (gdy w ręce)
   function effectsHTML(it) {
@@ -1186,7 +1234,7 @@
   // jedna karta przedmiotu we wszystkich widokach; ctx.eq: założony egzemplarz z Postaci (ulepszenie, nasycenie),
   // ctx.spot: skarb z mapy, z którego ją otwarto
   function openItem(it, ctx = {}) {
-    pins.length = 0;
+    pins.length = 0; drops.length = 0;
     if (!ctx.eq && hiddenItem(it)) return drawer(`<div class="d-hero"><span class="portrait hero-portrait item alive"></span><div class="d-title">Nieodkryty przedmiot</div>
         <div class="d-loc">${esc(CATS.find(c => c.f(it))?.name || "")} · ${["", "zwykły", "rzadki", "legendarny"][it.rarity || 0]}</div></div><div class="rule"></div>
         <p class="note">Jeszcze go nie masz. Tryb bez spoilerów ukrywa rzadkie i legendarne przedmioty, których nie zdobyłeś.</p>
@@ -1503,7 +1551,7 @@
     const v = (location.hash || "#bosses").slice(1);
     document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("active", a.dataset.view === v));
     if (v !== "map" && bigMap) { bigMap.remove(); bigMap = null; }
-    if (v !== "map") { state.mapQuery = ""; state.mapExact = null; state.mapPeek = false; }
+    if (v !== "map") { state.mapQuery = ""; state.mapExact = null; state.mapPeek = false; state.mapDrops = null; }
     if (v === "map" && keepMap && bigMap) { viewMapKeep(); return; }
     return (VIEWS[v] || viewBosses)();
   }

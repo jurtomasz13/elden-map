@@ -439,6 +439,10 @@ a { color: inherit; text-decoration: none; }
 .sw-boss { background: #1a1712; box-shadow: 0 0 0 1.5px #9b3428; }
 .sw-quest { background: #14202a; box-shadow: 0 0 0 1.5px #9fc3d0; }
 .sw-death { background: #9b3428; opacity: .7; }
+.sw-invader { display: inline-block; width: 11px; height: 11px; transform: rotate(45deg); background: #b3261e; box-shadow: 0 0 6px #e0483a; }
+.mk-invader { display: block; width: 16px; height: 16px; margin: 4px; transform: rotate(45deg); background: radial-gradient(#ff8a70, #b3261e 70%);
+  box-shadow: 0 0 0 1.5px #2a0d0a, 0 0 12px rgba(224,72,58,.8); cursor: pointer; }
+.mk-invader.done { background: #4a2a25; box-shadow: 0 0 0 1.5px #c9aa71; }
 
 /* ---------- mapa: panel filtrów ---------- */
 .map-panel { width: 300px; max-height: calc(100% - 48px); display: flex; flex-direction: column; }

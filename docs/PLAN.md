@@ -182,6 +182,10 @@ pokazuje listę. Rodzaj przedmiotu jest w katalogu (`kind`), więc notki „Do c
 inkantacji i prochów spoza mapy. Przedmioty Seamless Coop: osobna zakładka poza licznikami kolekcji, polskie nazwy
 nasze, opisy po angielsku z pliku moda, ikona zastępcza.
 
+Zrobione 2026-11-26: krok 4 (punkty 7 i 8). Najeźdźcy (25, bez Moore'a) jako warstwa mapy z kartą i nagrodami,
+w karcie przedmiotu źródło „Nagroda za najeźdźcę”. Łup z przeciwników: wszystkie miejsca bez limitów (`enemies.json`),
+przycisk w karcie przedmiotu pokazuje je na mapie (filtr „Gdzie wypada”).
+
 1. Błędy, osobne szybkie wydanie dla kolegi: kolejność kroków przygotowania danych (punkt 1), przedmioty pomijane
    przez `extract_icons.py` (punkt 10), pula łupu NPC z NpcParam +0x34 (punkt 8).
 2. Globalny „Mój postęp” (14) razem z filtrami mapy (4), granicami mapy (3) i powodem „za tobą” (2).

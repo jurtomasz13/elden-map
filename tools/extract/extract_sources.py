@@ -7,8 +7,10 @@
   TalkID → część MSB (dane wroga +0x10) → NpcParam (+0x0C nazwa) → imię kupca i miejsce na mapie.
 - Przeciwnicy: NpcParam +0x30 → ItemLotParam_enemy (łup losowy), +0x34 → ItemLotParam_map (łup jednorazowy).
   Wiersz puli: +0x00 8×i32 ID, +0x20 8×i32 kategoria, +0x40 8×u16 waga losowania (szansa = waga / suma wag), +0x8A liczba.
-  Położenie przeciwników: części MSB z danym NpcParamID.
+  Położenie przeciwników: wszystkie części MSB z danym NpcParamID → assets/data/enemies.json ([mapa, px, py] raz na
+  część), a grupa w item_sources.json ma tylko numery wierszy tego pliku (`at`).
 - Bossowie: nagrody z bosses_all.json (po nazwie przedmiotu).
+- Najeźdźcy: nagrody z invaders.json (extract_world.py); ich pule nie są już osobnym „zdarzeniem”.
 """
 import json
 import os
@@ -23,11 +25,10 @@ import formats as F  # noqa: E402
 import emevd  # noqa: E402
 import msb  # noqa: E402
 import params as P  # noqa: E402
-from extract_world import DATA, World, item_index, map_id_of, msb_paths  # noqa: E402
+from extract_world import DATA, World, item_index, lot_ids, map_id_of, msb_paths  # noqa: E402
 
 LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
 SHOP_TYPES = {0: "weapon", 1: "armor", 2: "talisman", 3: "goods", 4: "ash_of_war"}
-MAX_SPOTS, MAX_ENEMIES = 4, 6
 
 
 def main():
@@ -66,9 +67,9 @@ def main():
 
     def lot_entries(table, lot):
         """(klucz przedmiotu, szansa %, liczba) z puli i kolejnych wierszy (lot+1…)."""
-        out, k = [], 0
-        while lot + k in table and k < 8:
-            r = table[lot + k]
+        out = []
+        for lid in lot_ids(table, lot):
+            r = table[lid]
             ids, cats = struct.unpack_from("<8i", r, 0), struct.unpack_from("<8i", r, 0x20)
             pts, nums = struct.unpack_from("<8H", r, 0x40), r[0x8A:0x92]
             tot = sum(pts) or 1
@@ -76,12 +77,11 @@ def main():
                 kk = key(LOT_CATS.get(c), iid) if iid and LOT_CATS.get(c) else None
                 if kk and pt:
                     out.append((kk, round(pt / tot * 100, 1), n or 1))
-            k += 1
         return out
 
     # ---------- przejście po mapach: przeciwnicy i kupcy (części z TalkID) ----------
     msb_list = msb_paths()
-    enemy_spots = defaultdict(list)          # npc id -> [(map_id, pos dict)]
+    enemy_spots = defaultdict(list)          # npc id -> [(map_id, pos dict)], każda część raz
     talk_parts = defaultdict(list)           # talk id -> [(map_id, npc, pos)]
     for path in msb_list:
         m = msb.load(path)
@@ -93,13 +93,14 @@ def main():
             if p["type"] != "enemy" or not p.get("npc"):
                 continue
             pos = world.to_map(area, gx, gz, *p["pos"]) or {}
-            pos = {**pos, "pos": [round(c, 1) for c in p["pos"]], "model": p["name"].split("_")[0]}
+            pos = {**pos, "model": p["name"].split("_")[0]}
             enemy_spots[p["npc"]].append((mid, pos))
             if p.get("talk") not in (None, -1, 0):
                 talk_parts[p["talk"]].append((mid, p["npc"], pos))
 
-    # ---------- łup z przeciwników ----------
-    enemies = defaultdict(lambda: defaultdict(lambda: {"chance": 0, "count": 0, "spots": [], "maps": set()}))
+    # ---------- łup z przeciwników: wszystkie miejsca, grupy po imieniu albo modelu ----------
+    placed = []                              # enemies.json: [mapa, px, py] przeciwników z łupem
+    enemies = defaultdict(lambda: defaultdict(lambda: {"chance": 0, "count": 0, "at": [], "npcs": set()}))
     for npc, spots in enemy_spots.items():
         r = npc_rows.get(npc)
         if not r:
@@ -113,14 +114,21 @@ def main():
             lot = struct.unpack_from("<i", r, off)[0]
             if lot > 0:
                 drops += lot_entries(table, lot)
+        if not drops:
+            continue
+        at = []
+        for mid, pos in spots:
+            if pos.get("map"):
+                placed.append([pos["map"], pos["px"], pos["py"]])
+                at.append(len(placed) - 1)
         for kk, chance, _n in drops:
             e = enemies[kk][name]
             e["chance"] = max(e["chance"], chance)
+            if npc in e["npcs"]:                 # ten sam przedmiot w dwóch wierszach puli: miejsca liczone raz
+                continue
+            e["npcs"].add(npc)
             e["count"] += len(spots)
-            for mid, pos in spots:
-                e["maps"].add(mid)
-                if pos.get("map") and len(e["spots"]) < MAX_SPOTS:
-                    e["spots"].append({"map": pos["map"], "px": pos["px"], "py": pos["py"], "map_id": mid, "pos": pos["pos"]})
+            e["at"] += at
 
     # ---------- kupcy: zakresy sklepów ze skryptów rozmów ----------
     shop_owner = {}                          # (start, end) -> talk id
@@ -130,11 +138,7 @@ def main():
         r = A.find(f"/script/talk/{mid}.talkesdbnd.dcx")
         if not r:
             continue
-        try:
-            ents = F.bnd4(r[1])
-        except Exception:
-            continue
-        for _, n, d in ents:
+        for _, n, d in F.bnd4(r[1]):
             mt = re.search(r"t(\d+)\.esd", n)
             if not mt:
                 continue
@@ -172,7 +176,7 @@ def main():
                     shops[kk].append({"who": who or "Kupiec", "price": price if price > 0 and not trade else None,
                                       **({"trade": trade} if trade else {}), **(spot or {})})
 
-    # ---------- nagrody ze skryptów zdarzeń (questy, najeźdźcy, podarunki NPC): AwardItemLot ----------
+    # ---------- nagrody ze skryptów zdarzeń (questy, podarunki NPC): AwardItemLot ----------
     treasure_lots = {t["lot"] for t in json.load(open(os.path.join(DATA, "item_locations.json"), encoding="utf-8"))}
 
     def award_params(evs):
@@ -204,9 +208,11 @@ def main():
                         k = 8 + src
                         if k + 4 <= len(args):
                             event_award[struct.unpack_from("<i", args, k)[0]].add(mid)
+    invaders = json.load(open(os.path.join(DATA, "invaders.json"), encoding="utf-8"))
+    invader_lots = {lot for x in invaders for lot in x["lots"]}
     events_src = defaultdict(list)
     for lot, mids in event_award.items():
-        if lot <= 0 or lot in treasure_lots or lot not in lot_map:
+        if lot <= 0 or lot in treasure_lots or lot in invader_lots or lot not in lot_map:
             continue
         for kk, chance, _n in lot_entries(lot_map, lot):
             for mid in sorted(mids):
@@ -226,18 +232,29 @@ def main():
                 if b["id"] not in boss_src[kk]:
                     boss_src[kk].append(b["id"])
 
+    # ---------- najeźdźcy ----------
+    invader_src = defaultdict(list)
+    for x in invaders:
+        for rw in x["rewards"]:
+            kk = key(rw["cat"], rw["id"])
+            if kk and x["id"] not in invader_src[kk]:
+                invader_src[kk].append(x["id"])
+
     out = {}
-    for kk in set(enemies) | set(shops) | set(boss_src) | set(events_src):
+    for kk in set(enemies) | set(shops) | set(boss_src) | set(events_src) | set(invader_src):
         e = sorted(({"who": None if n.startswith("#") else n, "model": n[1:] if n.startswith("#") else None,
-                     "chance": v["chance"], "count": v["count"], "spots": v["spots"], "maps": len(v["maps"])}
-                    for n, v in enemies.get(kk, {}).items()), key=lambda x: (x["who"] is None, -x["chance"], -x["count"]))[:MAX_ENEMIES]
+                     "chance": v["chance"], "count": v["count"], "at": v["at"]}
+                    for n, v in enemies.get(kk, {}).items()), key=lambda x: (x["who"] is None, -x["chance"], -x["count"]))
         ev = [{"map_id": m, **(world.to_map(int(m[1:3]), int(m[4:6]), int(m[7:9]), 0, 0, 0) or {})} if m != "common" else {"map_id": m}
               for m in events_src.get(kk, [])][:4]
-        out[kk] = {k: v for k, v in (("bosses", boss_src.get(kk)), ("shops", shops.get(kk)), ("enemies", e), ("events", ev)) if v}
+        out[kk] = {k: v for k, v in (("bosses", boss_src.get(kk)), ("invaders", invader_src.get(kk)), ("shops", shops.get(kk)),
+                                     ("enemies", e), ("events", ev)) if v}
     with open(os.path.join(DATA, "item_sources.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+    with open(os.path.join(DATA, "enemies.json"), "w", encoding="utf-8") as f:
+        json.dump(placed, f, separators=(",", ":"))
     print(f"źródła przedmiotów: {len(out)} (kupcy {len(shops)}, z przeciwników {len(enemies)}, za bossów {len(boss_src)}, "
-          f"ze zdarzeń {len(events_src)}); "
+          f"za najeźdźców {len(invader_src)}, ze zdarzeń {len(events_src)}); miejsca przeciwników z łupem {len(placed)}; "
           f"zakresy sklepów {len(shop_owner)}, z nazwą kupca {sum(1 for (a, b), t in shop_owner.items() if talk_parts.get(t))}")
 
 

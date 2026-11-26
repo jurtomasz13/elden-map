@@ -72,6 +72,14 @@ pomniejsze Złote Drzewa, wioski).
 Wrogowie z TalkID ≠ −1 w MSB + `NpcParam +0x0C` (nameId) → `NpcName` (PL). 304 postacie (z duplikatami
 w różnych fazach questów).
 
+### Najeźdźcy (czerwone fantomy NPC)
+Inwazja to wywołanie wspólnego zdarzenia `90005790` (common_func) w skrypcie mapy przez `InitializeCommonEvent`:
+argumenty po ID zdarzenia: warunek, flaga pokonania, obszar, obszar, encja części MSB. Nagrody: `90005792` (flaga, obszar,
+obszar, encja, pula), `90005774` (flaga, pula, flaga otrzymania) i `90005768` (Queelign: flaga, pula, flaga, pula…,
+zależne od etapu questu). Pula to łańcuch wierszy `ItemLotParam_map` (lot, lot+1…), tak jak skarby. `NpcParam +0x133`
+(teamType 27) nie wystarcza, bo mają go też czerwone postacie z pojedynków. Moore (6 wywołań w DLC) jest pominięty,
+dopóki nie sprawdzimy w grze, czy to prawdziwe inwazje.
+
 ### Lochy → mapa świata: `WorldMapLegacyConvParam` (196 wierszy, 48 B)
 `+0x04` src area/gx/gz, `+0x08` src pozycja, `+0x14` dst area/gx/gz, `+0x18` dst pozycja, `+0x24` punkt bazowy.
 Punkt `src` w lochu odpowiada `dst` na kaflu świata; łańcuchy (`m35`→`m11`→`m60`) rozwiązywane rekurencyjnie
@@ -102,6 +110,8 @@ Wyjątki (2026-11-25):
 | `item_locations.json` | 3401 | lot, flag, map_id, items[{cat,id,name,name_en,icon,count,kind}], kind, dlc, region_pl, map/px/py/approx |
 | `pois.json` | 289 | id, name, category, map_id, dlc, region_pl, map/px/py |
 | `npcs.json` | 326 | name, name_en, map_id, entity, talk, region_pl, map/px/py |
+| `invaders.json` | 25 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, rewards[], region_pl, map/px/py |
+| `enemies.json` | 19 887 | [mapa, px, py] każdego przeciwnika z łupem (numery wierszy w `item_sources.json` → `at`) |
 
 ## Braki
 
@@ -131,8 +141,10 @@ Generuje `tools/extract/extract_sources.py` (krok w `run_all.py`). Klucz `"<kate
   Wiersze z ceną 0–1 bez materiału to usługi (np. duplikowanie u kowala), pomijane.
 - Przeciwnicy: `NpcParam +0x30` → `ItemLotParam_enemy` (łup losowy), `+0x34` → `ItemLotParam_map` (jednorazowy).
   Szansa = waga (`+0x40` 8×u16) / suma wag w wierszu. Zwykli przeciwnicy nie mają nazw w grze (NpcName ma tylko 466
-  postaci i bossów), więc grupujemy po modelu i opisujemy krainą najbliższej łaski.
-- Zdarzenia (questy, najeźdźcy, podarunki): `AwardItemLot` (`2003[4]`/`2003[36]`) w skryptach map i `common`, także
+  postaci i bossów), więc grupujemy po modelu. Grupa ma wszystkie miejsca (`at`: numery wierszy `enemies.json`),
+  a `count` liczy każdą część raz, nawet gdy przedmiot jest w dwóch wierszach puli.
+- Najeźdźcy: nagrody z `invaders.json` (`invaders`: lista encji); ich pule nie są liczone jako zdarzenia.
+- Zdarzenia (questy, podarunki): `AwardItemLot` (`2003[4]`/`2003[36]`) w skryptach map i `common`, także
   z parametrem przez `InitializeEvent`/`InitializeCommonEvent` (bajt źródłowy z tablicy parametrów). Pomijamy pule skarbów
   leżących na mapie.
 - Bossowie: nagrody z `bosses_all.json`.

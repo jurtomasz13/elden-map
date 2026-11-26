@@ -28,6 +28,10 @@ UNDERGROUND = {"M00": "M01"}                                # podziemia (m12: Si
 # WorldMapLegacyConvParam (punkt bazowy m13 -> m60_51_43), skala 1:1; najbliższy wiersz (10/132) prowadził na Szczyty.
 FARUM = {"px": 8488.9, "py": 4835.7, "scale": 1.0, "x": 0.0, "z": 0.0}
 DLC_AREAS = {20, 21, 22, 25, 28, 40, 41, 42, 43, 61}
+# najeźdźcy (czerwone fantomy NPC): wspólne zdarzenia z common_func wywoływane w skryptach map
+INVASION, INVADER_DEATH, FLAG_REWARD, QUEST_REWARDS = 90005790, 90005792, 90005774, 90005768
+# Moore w DLC ma 6 takich wywołań; nie wiadomo, czy to prawdziwe inwazje, więc go pomijamy, dopóki nie sprawdzimy w grze
+SKIP_INVADERS_EN = {"Moore"}
 LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
 
 
@@ -73,6 +77,14 @@ class World:
                 return {"map": UNDERGROUND.get(key, key) if area == 12 else key, "px": round(gx * 256 + x + 128 - t["ox"], 1),
                         "py": round(t["size"] - (gz * 256 + z + 128 - t["oz"]), 1), "approx": bool(approx)}
         return None
+
+
+def lot_ids(table, lot):
+    """Pula i kolejne wiersze (lot+1, lot+2…, najwyżej 8): gra daje je razem, np. cały zestaw zbroi z jednego miejsca."""
+    out = []
+    while lot + len(out) in table and len(out) < 8:
+        out.append(lot + len(out))
+    return out
 
 
 def item_index(items):
@@ -275,6 +287,12 @@ def main():
                         "count": nums[i] or 1, "kind": it["kind"]})
         return out, struct.unpack_from("<I", r, 0x80)[0]
 
+    def lot_chain(lot_id):
+        its, flag = lot_items(lot_id)
+        for lid in lot_ids(lots, lot_id)[1:]:
+            its += lot_items(lid)[0]
+        return its, flag
+
     # ---------- przejście po wszystkich plikach map ----------
     msb_list = msb_paths()
     treasures, npcs, enemies_by_entity, enemies_by_name = [], [], {}, {}
@@ -298,12 +316,7 @@ def main():
         for t in m["treasures"]:
             if t["lot"] <= 0 or not t["pos"]:
                 continue
-            its, flag = lot_items(t["lot"])
-            k = 1                                      # kolejne pule (lot+1, lot+2…) to dodatkowe przedmioty z tego samego miejsca
-            while t["lot"] + k in lots and k < 8:
-                more, _ = lot_items(t["lot"] + k)
-                its += more
-                k += 1
+            its, flag = lot_chain(t["lot"])
             if not its:
                 continue
             pos = world.to_map(area, gx, gz, *t["pos"])
@@ -329,6 +342,7 @@ def main():
             if (bank, iid) in ((2003, 4), (2003, 36)):
                 award_src.setdefault(eid, []).extend(p[2] for p in ev["params"] if p[0] == k)
     boss_name_by_entity, reward_by_flag, name_near_flag, global_flag, reward_by_global = {}, {}, {}, {}, {}
+    invasions, invader_lots, quest_lots = {}, {}, {}        # flaga pokonania -> encja / pule nagród
     global_flag_weak = {}
     ga_flags = {rid for rid, _ in P.rows(ps["GameAreaParam"])[0] if rid > 1000 and not 9999990 <= rid <= 9999999}
     for path in msb_list:
@@ -342,6 +356,14 @@ def main():
                 if (bank, iid) == (2000, 6) and len(x) >= 2:          # InitializeCommonEvent(0, id, args...)
                     cid, args = x[1], a[8:]
                     cargs = E.ints(args)
+                    if cid == INVASION and len(cargs) >= 5:              # (warunek, flaga pokonania, obszar, obszar, encja, …)
+                        invasions.setdefault(cargs[1], cargs[4])
+                    elif cid == INVADER_DEATH and len(cargs) >= 5 and cargs[4] in lots and cargs[4] > 0:   # (flaga, obszar, obszar, encja, pula, …)
+                        invader_lots.setdefault(cargs[0], []).append(cargs[4])
+                    elif cid == FLAG_REWARD and len(cargs) >= 2 and cargs[1] in lots and cargs[1] > 0:     # (flaga, pula, flaga otrzymania)
+                        invader_lots.setdefault(cargs[0], []).append(cargs[1])
+                    elif cid == QUEST_REWARDS and cargs:                  # (flaga, pula, flaga, pula, …): nagroda zależna od questu
+                        quest_lots.setdefault(cargs[0], []).extend(v for v in cargs[1::2] if v > 0 and v in lots)
                     if cid == 90005870 and len(cargs) >= 2 and cargs[1] in npc_pl:
                         boss_name_by_entity.setdefault(cargs[0], cargs[1])
                     if cid in award_src:
@@ -391,6 +413,24 @@ def main():
         if gf in reward_by_global:
             reward_by_flag.setdefault(boss_flag, []).extend(reward_by_global[gf])
     print(f"  EMEVD: funkcje nagród {len(award_src)}, nazwy {len(boss_name_by_entity)}, nagrody {len(reward_by_flag)}, nazwy przy fladze {len(name_near_flag)}")
+
+    # ---------- najeźdźcy: część mapy o encji z wywołania inwazji, nagrody z zdarzeń jej flagi pokonania ----------
+    invaders = []
+    for flag, entity in sorted(invasions.items()):
+        mid, part = enemies_by_entity.get(entity, (None, None))
+        row = npc_rows.get(part["npc"]) if part else None
+        if not row:
+            raise SystemExit(f"najeźdźca: brak części mapy albo NpcParam dla encji {entity} (flaga {flag})")
+        nid = struct.unpack_from("<i", row, 0x0C)[0]
+        if npc_en.get(nid) in SKIP_INVADERS_EN:
+            continue
+        area, gx, gz = (int(v) for v in mid[1:].split("_")[:3])
+        lots_ = list(dict.fromkeys(invader_lots.get(flag, []) + quest_lots.get(flag, [])))
+        invaders.append({"id": entity, "flag": flag, "name": npc_pl.get(nid), "name_en": npc_en.get(nid), "map_id": mid,
+                         "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in part["pos"]], "lots": lots_,
+                         "quest_rewards": flag in quest_lots,
+                         "rewards": [x for lot in lots_ for x in lot_chain(lot)[0]],
+                         **(world.to_map(area, gx, gz, *part["pos"]) or {})})
 
     # ---------- bossowie ----------
     ct = ct_boss_flags(os.path.join(A.ROOT, "assets", "cache", "ct_boss_flags.json"))
@@ -557,7 +597,7 @@ def main():
             return None
         g = min(same, key=lambda g: (g["px"] - o["px"]) ** 2 + (g["py"] - o["py"]) ** 2)
         return sub_or_region(g)
-    for coll in (bosses, treasures, pois, npcs):
+    for coll in (bosses, treasures, pois, npcs, invaders):
         for o in coll:
             o["region_pl"] = nearest_region(o) or o.get("region_pl")
             if o["region_pl"] == "Land of the Tower":                 # brak polskiej nazwy w grze
@@ -586,12 +626,13 @@ def main():
         json.dump(all_graces, f, ensure_ascii=False, indent=0)
     print(f"łaski w lochach umieszczone na mapie: {placed}, bez pozycji: {sum(1 for g in all_graces if not g.get('map'))}")
 
-    for fn, data in (("bosses_all", bosses), ("pois", pois), ("item_locations", treasures), ("npcs", npcs)):
+    for fn, data in (("bosses_all", bosses), ("pois", pois), ("item_locations", treasures), ("npcs", npcs), ("invaders", invaders)):
         with open(os.path.join(DATA, fn + ".json"), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
     placed = lambda L: sum(1 for x in L if x.get("map"))
     print(f"bossowie {len(bosses)} (z nazwą {sum(1 for b in bosses if b['name'])}, na mapie {placed(bosses)}, z ikoną {sum(1 for b in bosses if b['icon'])})")
-    print(f"miejsca {len(pois)}, skarby {len(treasures)} (na mapie {placed(treasures)}), NPC {len(npcs)} (na mapie {placed(npcs)})")
+    print(f"miejsca {len(pois)}, skarby {len(treasures)} (na mapie {placed(treasures)}), NPC {len(npcs)} (na mapie {placed(npcs)}), "
+          f"najeźdźcy {len(invaders)} (na mapie {placed(invaders)}, z nagrodą {sum(1 for x in invaders if x['rewards'])})")
 
 
 if __name__ == "__main__":
