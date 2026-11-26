@@ -135,7 +135,12 @@ narysowany ręcznie w SVG. Prawdziwą mapę świata wyciągniemy później z pli
   (`state.revealed`) i nie wyłącza trybu. Niezaliczone kroki questów pokazują wersję bez spoilerów.
 - Mapa: wyszukiwanie pokazuje chip „Filtr: … ✕”, który znika po wyjściu z mapy. „Wszystkie miejsca” z przedmiotu
   filtruje po dokładnej nazwie. Kliknięcie mini-mapy w szczegółach otwiera okienko „Pokazać na dużej mapie?”.
-  Kliknięcie NPC z questem otwiera quest.
+  Przejście na mapę z innej strony (karta bossa, przedmiotu, „Gdzie wypada”) włącza tryb skupienia: widać tylko
+  szukaną rzecz, niezależnie od warstw, wyszukiwania, „Ukryj zaliczone” i „Mojego postępu”; chip „Pokazuję: … ·
+  pokaż resztę ✕” go wyłącza. Nad warstwami jest przycisk „Ukryj wszystko / Pokaż wszystko”.
+- Karta bossa: statystyki z plików gry (PŻ, postawa, redukcja obrażeń, progi statusów), „Twoje bronie: ile ciosów”
+  (bronie z ekwipunku, atrybuty z save'a), wizerunek z runami za użycie i wymianami u Enii. Najeźdźcy i przeciwnicy
+  z jednorazowym łupem (skarabeusze) mają te same sekcje.
 - Postacie: ręczny wybór przypina postać, a „Śledź automatycznie” wraca do postaci, której save zmienił się
   ostatnio.
 - Bossowie: grupy według rangi (domyślnie), krainy albo statusu, panel krain po prawej z podkrainami, niepokonani
