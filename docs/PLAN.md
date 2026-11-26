@@ -278,3 +278,24 @@ czym ich bić) i asortyment kupców z tym, co jeszcze zostało do kupienia. Bada
    też, ile sztuk z kilku już kupiłeś, sprawdzę przy implementacji na save'ach.
 4. Tryb bez spoilerów: rekomendacja statystyki bossa widać zawsze, gdy boss jest odkryty (tak jak dziś jego karta);
    towar kupca zablokowany do odblokowania pokazujemy jako „???”.
+
+### Stan prac nad Planem 2 (wersja 0.2.0, ustalona z właścicielem)
+
+Właściciel chce, żeby mapa i karty pokazywały wszystko, co da się wyczytać z gry, także rzeczy, których nie
+wymienił. Po każdej partii zmian: audyt kompletności od strony danych gry (każda jednorazowa nagroda, każdy obiekt
+na mapie z unikatowymi danymi), z liczbami pokrycia.
+
+Zrobione (commity na main, niewydane):
+- Jednorazowe łupy przeciwników na mapie (90005300/90005301 i pula o numerze encji): 248 znaczników, 94 skarabeusze.
+- Kaplica Oczekiwania i mapy bez własnego przejścia (odwrócony wiersz WorldMapLegacyConvParam), w tools i backendzie.
+- Statystyki bossów na karcie bossa (punkt 1 planu), sprawdzone z Fextralife.
+- Mapa: przycisk ukryj/pokaż wszystko, tryb skupienia po przejściu z innej strony.
+
+Do zrobienia, w tej kolejności:
+1. Wizerunki: runy za użycie (EquipParamGoods +0x14) i wymiany u Enii w karcie wizerunku i bossa.
+2. Karta wroga: Twoje bronie i teoretyczna liczba ciosów (badanie wzoru obrażeń w toku).
+3. Karta NPC zamiast przejścia do questu: ikona albo render, opis, sklep z asortymentem i stanem z save'a, usługi,
+   powiązania (quest, łup, podarunki, gdzie bywa). Klik w NPC na mapie otwiera kartę, z niej przejście do questu.
+4. Teleporty na mapie (Waygate'y, skrzynie-pułapki, inne): znacznik, karta z miejscem docelowym, przycisk do celu.
+5. Pełny audyt kompletności i uzupełnienie braków.
+6. Przegląd kodu, dokumentacja (docs/10-world-data.md, 06-design), wydanie 0.2.0 po zgodzie.
