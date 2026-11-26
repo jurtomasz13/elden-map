@@ -24,9 +24,9 @@
    {
     "qp": 2,
     "text": "Dostarcz list {n:Edgar} na murach {p:Castle Morne}.",
-    "next": "Zanieś {i:Irina's Letter} do {n:Edgar} na blanki {p:Castle Morne} — idź pomostem od placu zamkowego.",
+    "next": "Zanieś {i:Irina's Letter} do {n:Edgar} na blanki {p:Castle Morne}. Idź pomostem od placu zamkowego.",
     "safe": "List Iriny wskazuje na mury Zamku Morne.",
-    "warn": "Możesz pokonać {n:Leonine Misbegotten} przed rozmową z {n:Edgar} i nie zepsujesz questa — po prostu oddaj mu list później.",
+    "warn": "Możesz pokonać {n:Leonine Misbegotten} przed rozmową z {n:Edgar} i nie zepsujesz questa. Po prostu oddaj mu list później.",
     "where": "{p:Castle Morne}",
     "match": [
      "irina-edgar:s2"
@@ -37,7 +37,7 @@
    {
     "qp": 3,
     "text": "Pokonaj {n:Leonine Misbegotten}, porozmawiaj z {n:Edgar} i wróć tam, gdzie siedziała {n:Irina}.",
-    "next": "Pokonaj {n:Leonine Misbegotten} u podnóża {p:Castle Morne} i ponownie porozmawiaj z {n:Edgar} na murach. Potem wróć tam, gdzie siedziała {n:Irina} — zastaniesz Edgara opłakującego ją.",
+    "next": "Pokonaj {n:Leonine Misbegotten} u podnóża {p:Castle Morne} i ponownie porozmawiaj z {n:Edgar} na murach. Potem wróć tam, gdzie siedziała {n:Irina}: zastaniesz Edgara opłakującego ją.",
     "safe": "Walki w Zamku Morne jeszcze się nie skończyły. Dolny brzeg i mury wciąż wymagają uwagi.",
     "warn": null,
     "where": "{p:Castle Morne}",
@@ -87,8 +87,8 @@
    {
     "qp": 2,
     "text": "Odszukaj Roderikę przy kominku w lokacji {p:Roundtable Hold} i odbierz od niej {i:Golden Seed}.",
-    "next": "Roderika przenosi się do lokacji {p:Roundtable Hold}, gdy przyniesiesz jej {i:Chrysalids' Memento} (leży na stosie szczepionych zwłok w lokacji {p:Stormveil Castle}) albo dotrzesz do miejsca łaski poza {p:Limgrave} i {p:Weeping Peninsula}. Porozmawiaj z nią przy kominku – da ci {i:Golden Seed} (albo zostawi je w chacie). Pamiątkę możesz jej oddać także w Twierdzy.",
-    "safe": "Roderiki warto poszukać przy kominku w Twierdzy Okrągłego Stołu.",
+    "next": "Roderika przenosi się do lokacji {p:Roundtable Hold}, gdy przyniesiesz jej {i:Chrysalids' Memento} (leży na stosie szczepionych zwłok w lokacji {p:Stormveil Castle}) albo dotrzesz do miejsca łaski poza {p:Limgrave} i {p:Weeping Peninsula}. Porozmawiaj z nią przy kominku. Da ci {i:Golden Seed} (albo zostawi je w chacie). Pamiątkę możesz jej oddać także w Twierdzy.",
+    "safe": "Poszukaj Roderiki przy kominku w Twierdzy Okrągłego Stołu.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
     "match": [],
@@ -96,7 +96,7 @@
    },
    {
     "qp": 3,
-    "text": "Porozmawiaj o Roderice z kowalem – {n:Blacksmith Hewg}.",
+    "text": "Porozmawiaj o Roderice z kowalem ({n:Blacksmith Hewg}).",
     "next": "Zapytaj kowala {n:Blacksmith Hewg} o Roderikę. Zauważy, że ma ona dar do strojenia duchów.",
     "safe": "Kowal z Twierdzy może dostrzec w Roderice coś, czego ona sama nie widzi.",
     "warn": null,
@@ -129,7 +129,7 @@
    },
    {
     "qp": 6,
-    "text": "Odpocznij w miejscu łaski – Roderika stanie przy kowalu jako stroicielka duchów.",
+    "text": "Odpocznij w miejscu łaski. Roderika stanie przy kowalu jako stroicielka duchów.",
     "next": "Odpocznij w miejscu łaski. Roderika przeniesie się obok kowala {n:Blacksmith Hewg} i od tej pory może wzmacniać twoje prochy duchów. Jej {i:Crimson Hood} możesz podnieść przy stosie poczwarek w lokacji {p:Stormveil Castle}.",
     "safe": "Po odpoczynku Twierdza może wyglądać trochę inaczej.",
     "warn": null,
@@ -165,7 +165,7 @@
    {
     "qp": 2,
     "text": "Odnajdź Azura, zostań uczniem Sellen i złam pieczęć {p:Sellia Hideaway}, by uwolnić Lusata.",
-    "next": "Odnajdź {n:Primeval Sorcerer Azur} w {p:Hermit Village} na {p:Mt. Gelmir} (da ci {i:Comet Azur}), wróć do Sellen i zgódź się zostać jej uczniem w poszukiwaniu pradawnego nurtu — dopiero wtedy naprawdę cię przyjmie i wręczy {i:Sellian Sealbreaker}. Użyj go w {p:Sellia Hideaway} (wejście to iluzoryczna ściana za największym nagrobkiem na zboczu nad {p:Church of the Plague}, na północny wschód od {p:Sellia, Town of Sorcery}), odbierz od {n:Master Lusat} {i:Stars of Ruin} i zdaj Sellen relację.",
+    "next": "Odnajdź {n:Primeval Sorcerer Azur} w {p:Hermit Village} na {p:Mt. Gelmir} (da ci {i:Comet Azur}), wróć do Sellen i zgódź się zostać jej uczniem w poszukiwaniu pradawnego nurtu. Dopiero wtedy naprawdę cię przyjmie i wręczy {i:Sellian Sealbreaker}. Użyj go w {p:Sellia Hideaway} (wejście to iluzoryczna ściana za największym nagrobkiem na zboczu nad {p:Church of the Plague}, na północny wschód od {p:Sellia, Town of Sorcery}), odbierz od {n:Master Lusat} {i:Stars of Ruin} i zdaj Sellen relację.",
     "safe": "Trop Sellen prowadzi do pradawnego czarownika, który ukrył się w wiosce pustelników na górze Gelmir.",
     "warn": null,
     "where": "{p:Sellia Hideaway}",
@@ -181,7 +181,7 @@
     "text": "Po pokonaniu Radahna odnajdź prawdziwe ciało Sellen w {p:Witchbane Ruins}.",
     "next": "Po pokonaniu {n:Starscourge Radahn} porozmawiaj z Sellen w {p:Waypoint Ruins}: wyjawi, że jej prawdziwe ciało leży skute pod {p:Witchbane Ruins} na {p:Weeping Peninsula}. Odnajdź je tam, by otrzymać {i:Sellen's Primal Glintstone}.",
     "safe": "Ten, kto trzyma gwiazdy w miejscu, blokuje drogę Sellen.",
-    "warn": "Nie uderzaj skutego ciała — zniszczenie go zabija Sellen i kończy jej wątek.",
+    "warn": "Nie uderzaj skutego ciała. Zniszczenie go zabija Sellen i kończy jej wątek.",
     "where": "{p:Witchbane Ruins}",
     "match": [
      "sellen:s4"
@@ -203,7 +203,7 @@
    {
     "qp": 5,
     "text": "Umieść {i:Sellen's Primal Glintstone} w ciele marionetki w tajnej piwnicy Seluvisa.",
-    "next": "Zanieś {i:Sellen's Primal Glintstone} do tajnej piwnicy {n:Seluvis} — ukryte wejście jest wśród małych ruin tuż na północ od {p:Ranni's Rise} w {p:Three Sisters}. Umieść błyskamień w ciele marionetki i porozmawiaj z odrodzoną Sellen — wyruszy do Akademii.",
+    "next": "Zanieś {i:Sellen's Primal Glintstone} do tajnej piwnicy {n:Seluvis}. Ukryte wejście jest wśród małych ruin tuż na północ od {p:Ranni's Rise} w {p:Three Sisters}. Umieść błyskamień w ciele marionetki i porozmawiaj z odrodzoną Sellen. Wyruszy do Akademii.",
     "safe": "Trop Sellen prowadzi pod Trzy siostry, do ruin na północ od wieży Ranni.",
     "warn": null,
     "where": "{p:Three Sisters}",
@@ -216,7 +216,7 @@
     "text": "Przed Wielką Biblioteką wybierz znak przywołania Jerrena i pokonaj Sellen.",
     "next": "W {p:Raya Lucaria Grand Library} wybierz znak przywołania Jerrena i pokonaj Sellen. Potem porozmawiaj z Jerrenem przy bramie.",
     "safe": "Przed Wielką Biblioteką czekają dwa znaki przywołania.",
-    "warn": "Punkt rozgałęzienia — dwa znaki przywołania przed Wielką Biblioteką decydują, kto przeżyje. Wybór Jerrena kończy tu wątek Sellen.",
+    "warn": "Punkt rozgałęzienia: dwa znaki przywołania przed Wielką Biblioteką decydują, kto przeżyje. Wybór Jerrena kończy tu wątek Sellen.",
     "where": "{p:Raya Lucaria Grand Library}",
     "match": [],
     "flags": [],
@@ -225,9 +225,9 @@
    {
     "qp": 7,
     "text": "Przed Wielką Biblioteką wybierz znak przywołania Sellen i pokonaj Jerrena.",
-    "next": "W {p:Raya Lucaria Grand Library} wybierz znak przywołania Sellen i pokonaj {n:Witch-Hunter Jerren} — upuści {i:Eccentric Set}. Potem porozmawiaj z Sellen w środku: da ci {i:Glintstone Kris} i doda do oferty {i:Shard Spiral}.",
+    "next": "W {p:Raya Lucaria Grand Library} wybierz znak przywołania Sellen i pokonaj {n:Witch-Hunter Jerren}. Upuści {i:Eccentric Set}. Potem porozmawiaj z Sellen w środku: da ci {i:Glintstone Kris} i doda do oferty {i:Shard Spiral}.",
     "safe": "Przed Wielką Biblioteką czekają dwa znaki przywołania.",
-    "warn": "Punkt rozgałęzienia — wybór Sellen oznacza śmierć Jerrena.",
+    "warn": "Punkt rozgałęzienia: wybór Sellen oznacza śmierć Jerrena.",
     "where": "{p:Raya Lucaria Grand Library}",
     "match": [
      "sellen:s5"
@@ -239,7 +239,7 @@
     "qp": 8,
     "text": "Odpocznij i wróć do Wielkiej Biblioteki, gdzie Sellen stała się szkołą rytych magów.",
     "next": "Odpocznij przy łasce, a potem wróć do {p:Raya Lucaria Grand Library}: Sellen przemieniła się w szkołę rytych czarowników. Obok niej leży {i:Witch's Glintstone Crown}, a ona wciąż sprzedaje swoje czary.",
-    "safe": "Po odpoczynku warto jeszcze raz zajrzeć do Wielkiej Biblioteki.",
+    "safe": "Po odpoczynku zajrzyj jeszcze raz do Wielkiej Biblioteki.",
     "warn": null,
     "where": "{p:Raya Lucaria Grand Library}",
     "match": [],
@@ -249,7 +249,7 @@
    {
     "qp": 9,
     "text": "Zdobądź {i:Witch's Glintstone Crown} w Wielkiej Bibliotece.",
-    "next": "Niezależnie od wyniku pojedynku {i:Witch's Glintstone Crown} czeka w {p:Raya Lucaria Grand Library} — zdejmiesz ją z ciała Sellen, jeśli walczyłeś przeciw niej, albo podniesiesz obok szkoły rytych magów, jeśli walczyłeś po jej stronie.",
+    "next": "Niezależnie od wyniku pojedynku {i:Witch's Glintstone Crown} czeka w {p:Raya Lucaria Grand Library}. Zdejmiesz ją z ciała Sellen, jeśli walczyłeś przeciw niej, albo podniesiesz obok szkoły rytych magów, jeśli walczyłeś po jej stronie.",
     "safe": "Cokolwiek stało się z Sellen, coś po niej zostało w Wielkiej Bibliotece.",
     "warn": null,
     "where": "{p:Raya Lucaria Grand Library}",
@@ -292,7 +292,7 @@
    {
     "qp": 2,
     "text": "Oczyść {p:Fort Haight} z wrogów i wróć do {n:Kenneth Haight} po nagrodę.",
-    "next": "Oczyść {p:Fort Haight} — zabij dowodzącego nim rycerza Godricka — i zamelduj się u {n:Kenneth Haight}. W nagrodę otrzymasz {i:Erdsteel Dagger}.",
+    "next": "Oczyść {p:Fort Haight} (zabij dowodzącego nim rycerza Godricka) i zamelduj się u {n:Kenneth Haight}. W nagrodę otrzymasz {i:Erdsteel Dagger}.",
     "safe": "{n:Kenneth Haight} martwi się o {p:Fort Haight}, leżący na południe za {p:Mistwood}.",
     "warn": null,
     "where": "{p:Fort Haight}",
@@ -316,7 +316,7 @@
     "qp": 4,
     "text": "Po pokonaniu {n:Godrick the Grafted} porozmawiaj z {n:Kenneth Haight} w {p:Fort Haight}.",
     "next": "Po pokonaniu {n:Godrick the Grafted} porozmawiaj z {n:Kenneth Haight} w {p:Fort Haight}. Nie mając prawowitego pana, któremu mógłby służyć, martwi się o przyszłość Limgrave.",
-    "safe": "Skoro władca {p:Stormveil Castle} odszedł, warto znów zajrzeć do {p:Fort Haight}.",
+    "safe": "Skoro władca {p:Stormveil Castle} odszedł, zajrzyj znów do {p:Fort Haight}.",
     "warn": null,
     "where": "{p:Fort Haight}",
     "match": [],
@@ -326,9 +326,9 @@
    {
     "qp": 5,
     "text": "Po questach {n:Nepheli Loux} i pokonaniu {n:Morgott, the Omen King} porozmawiaj z obojgiem w sali tronowej {p:Stormveil Castle}.",
-    "next": "Doprowadź do końca wątek {n:Nepheli Loux} (oddaj jej prochy Króla Burzowego Jastrzębia w {p:Roundtable Hold}), a potem pokonaj {n:Morgott, the Omen King} w {p:Leyndell, Royal Capital}. Odpocznij przy łasce Godricka w {p:Stormveil Castle} — {n:Kenneth Haight} i {n:Nepheli Loux} pojawią się w sali tronowej. Porozmawiaj z nimi.",
+    "next": "Doprowadź do końca wątek {n:Nepheli Loux} (oddaj jej prochy Króla Burzowego Jastrzębia w {p:Roundtable Hold}), a potem pokonaj {n:Morgott, the Omen King} w {p:Leyndell, Royal Capital}. Odpocznij przy łasce Godricka w {p:Stormveil Castle}. {n:Kenneth Haight} i {n:Nepheli Loux} pojawią się w sali tronowej. Porozmawiaj z nimi.",
     "safe": "Przyszłość Limgrave może się rozstrzygnąć tam, gdzie niegdyś zasiadał dawny władca zamku.",
-    "warn": "Wymaga pokonania {n:Godrick the Grafted} i {n:Morgott, the Omen King} oraz ukończenia wątku {n:Nepheli Loux} — nie zabijaj ani Kennetha, ani Nepheli.",
+    "warn": "Wymaga pokonania {n:Godrick the Grafted} i {n:Morgott, the Omen King} oraz ukończenia wątku {n:Nepheli Loux}. Nie zabijaj ani Kennetha, ani Nepheli.",
     "where": "{p:Stormveil Castle}",
     "match": [
      "kenneth:s2"
@@ -338,7 +338,7 @@
    },
    {
     "qp": 99,
-    "text": "{n:Kenneth Haight} nie żyje — jego wątek się kończy.",
+    "text": "{n:Kenneth Haight} nie żyje. Jego wątek się kończy.",
     "next": "Quest zakończony. {n:Kenneth Haight} nie żyje (jeśli go zabiłeś).",
     "safe": "Ta historia dobiegła końca.",
     "warn": "Zabicie Kennetha daje {i:Golden Seed}, ale na zawsze kończy jego wątek (wątek {n:Nepheli Loux} na tym nie cierpi).",
@@ -363,7 +363,7 @@
    {
     "qp": 1,
     "text": "Uwolnij {n:Boc}, uderzając w krzak przy łasce {p:Agheel Lake North}.",
-    "next": "Przy miejscu łaski {p:Agheel Lake North} ktoś woła o pomoc z małego krzaku przy drodze — uderz w niego raz, by uwolnić {n:Boc}.",
+    "next": "Przy miejscu łaski {p:Agheel Lake North} ktoś woła o pomoc z małego krzaku przy drodze. Uderz w niego raz, by uwolnić {n:Boc}.",
     "safe": "Wołanie o pomoc przy północnym brzegu Jeziora Agheel dochodzi z miejsca tuż przy drodze.",
     "warn": null,
     "where": "{p:Agheel Lake North}",
@@ -383,7 +383,7 @@
    {
     "qp": 3,
     "text": "Pokonaj wodzów półludzi w {p:Coastal Cave} i oddaj {n:Boc} {i:Sewing Needle}.",
-    "next": "Pokonaj dwóch wodzów ({n:Demi-Human Chief}) w {p:Coastal Cave} — zostawiają {i:Tailoring Tools} i {i:Sewing Needle}. Oddaj igłę Bocowi, a ten nabierze otuchy i zostanie twoim krawcem.",
+    "next": "Pokonaj dwóch wodzów ({n:Demi-Human Chief}) w {p:Coastal Cave}. Zostawiają {i:Tailoring Tools} i {i:Sewing Needle}. Oddaj igłę Bocowi, a ten nabierze otuchy i zostanie twoim krawcem.",
     "safe": "Jaskinia Boca na zachodnim wybrzeżu wciąż skrywa to, co mu odebrano.",
     "warn": null,
     "where": "{p:Coastal Cave}",
@@ -396,7 +396,7 @@
    {
     "qp": 4,
     "text": "Zdobądź {i:Gold Sewing Needle} ze skrzyni w {p:Church of Vows}.",
-    "next": "Weź {i:Gold Sewing Needle} ze skrzyni w {p:Church of Vows} we wschodniej części {p:Liurnia of the Lakes} i zanieś ją Bocowi do jego kolejnego postoju. Boc przenosi się w miarę twojej podróży — najpierw na {p:Lake-Facing Cliffs} — i musisz odpocząć przy jego miejscu łaski, by się pojawił.",
+    "next": "Weź {i:Gold Sewing Needle} ze skrzyni w {p:Church of Vows} we wschodniej części {p:Liurnia of the Lakes} i zanieś ją Bocowi do jego kolejnego postoju. Boc przenosi się w miarę twojej podróży (najpierw na {p:Lake-Facing Cliffs}) i musisz odpocząć przy jego miejscu łaski, by się pojawił.",
     "safe": "W kościele na wschodnim brzegu jeziora Liurnii czeka coś cennego dla krawca.",
     "warn": null,
     "where": "{p:Church of Vows}",
@@ -430,7 +430,7 @@
    },
    {
     "qp": 99,
-    "text": "Boc nie żyje — quest zakończony.",
+    "text": "Boc nie żyje. Quest zakończony.",
     "next": "Quest zakończony. {n:Boc} nie żyje.",
     "safe": null,
     "warn": null,
@@ -465,10 +465,10 @@
    },
    {
     "qp": 2,
-    "text": "Zapytaj kupca {n:Merchant Kalé} o wycie – nauczy cię gestu {i:Snap}.",
+    "text": "Zapytaj kupca {n:Merchant Kalé} o wycie. Nauczy cię gestu {i:Snap}.",
     "next": "Zapytaj kupca {n:Merchant Kalé} w lokacji {p:Church of Elleh} o wycie. Nauczy cię gestu {i:Snap}.",
     "safe": "Kupiec w kościele w Limgrave wie coś o tym wyciu.",
-    "warn": "Jeśli kupiec {n:Merchant Kalé} nie żyje, gra sama nada ci gest {i:Snap} – quest toczy się dalej normalnie.",
+    "warn": "Jeśli kupiec {n:Merchant Kalé} nie żyje, gra sama nada ci gest {i:Snap}, a quest toczy się dalej normalnie.",
     "where": "{p:Church of Elleh}",
     "match": [],
     "flags": [],
@@ -476,8 +476,8 @@
    },
    {
     "qp": 3,
-    "text": "Użyj gestu {i:Snap} przy ruinach w lesie, gdy słychać wycie – Blaidd zejdzie do ciebie.",
-    "next": "Użyj gestu {i:Snap} w pobliżu lokacji {p:Mistwood Ruins}, gdy rozlega się wycie. Blaidd zeskoczy, by z tobą porozmawiać – poluje na Darriwila.",
+    "text": "Użyj gestu {i:Snap} przy ruinach w lesie, gdy słychać wycie. Blaidd zejdzie do ciebie.",
+    "next": "Użyj gestu {i:Snap} w pobliżu lokacji {p:Mistwood Ruins}, gdy rozlega się wycie. Blaidd zeskoczy, by z tobą porozmawiać. Poluje na Darriwila.",
     "safe": "Wycie w lesie może odpowiedzieć na znajomy gest.",
     "warn": null,
     "where": "{p:Mistwood Ruins}",
@@ -490,7 +490,7 @@
     "text": "Przywołaj Blaidda w lokacji {p:Forlorn Hound Evergaol} i pokonajcie razem Darriwila.",
     "next": "Spotkaj Blaidda przy lokacji {p:Forlorn Hound Evergaol} w południowym Limgrave i przywołaj go w środku, by razem pokonać {n:Bloodhound Knight Darriwil}. Blaidd cię nagrodzi i poleci ci doradcę wojennego {n:War Counselor Iji}, którego znajdziesz przy drodze do lokacji {p:Caria Manor} w północno-zachodniej Liurnii.",
     "safe": "Zwierzyna Blaidda zaprowadziła go do wiecznego więzienia na południu Limgrave.",
-    "warn": "Pokonanie Darriwila przed spotkaniem Blaidda nie psuje questu – po rozmowie z Blaiddem po prostu wróć do wiecznego więzienia.",
+    "warn": "Pokonanie Darriwila przed spotkaniem Blaidda nie psuje questu. Po rozmowie z Blaiddem po prostu wróć do wiecznego więzienia.",
     "where": "{p:Forlorn Hound Evergaol}",
     "match": [
      "blaidd:s1"
@@ -502,8 +502,8 @@
     "qp": 5,
     "text": "Znajdź Blaidda w głębinach rzeki {p:Siofra River} i pomóż mu znaleźć drogę do Nokronu.",
     "next": "Po wstąpieniu na służbę u {n:Ranni the Witch} znajdź Blaidda w ruinach przy duchowym źródle niedaleko łaski {p:Siofra River Bank}. Wypytaj {n:Preceptor Seluvis}, a potem udaj się z jego polecenia do czarodziejki {n:Sorceress Sellen}. Jej radę dotyczącą gwiazd zanieś Blaiddowi.",
-    "safe": "Blaidd szuka drogi do wiecznego miasta – gdzieś pod studnią w lesie.",
-    "warn": "Jeśli festiwal Radahna już się zaczął, Blaidd pomija Siofrę i czeka w lokacji {p:Redmane Castle} – ten krok zostaje po prostu pominięty.",
+    "safe": "Blaidd szuka drogi do wiecznego miasta, gdzieś pod studnią w lesie.",
+    "warn": "Jeśli festiwal Radahna już się zaczął, Blaidd pomija Siofrę i czeka w lokacji {p:Redmane Castle}. Ten krok zostaje po prostu pominięty.",
     "where": "{p:Siofra River Bank}",
     "match": [],
     "flags": [],
@@ -512,7 +512,7 @@
    {
     "qp": 6,
     "text": "Udaj się na festiwal Radahna w lokacji {p:Redmane Castle} i porozmawiaj tam z Blaiddem.",
-    "next": "Wyrusz do lokacji {p:Redmane Castle} na festiwal Radahna (zaczyna się, gdy wejdziesz na {p:Altus Plateau} – np. przez {p:Grand Lift of Dectus} – albo zbliżysz się do zamku). Porozmawiaj z Blaiddem wśród czempionów.",
+    "next": "Wyrusz do lokacji {p:Redmane Castle} na festiwal Radahna (zaczyna się, gdy wejdziesz na {p:Altus Plateau}, np. przez {p:Grand Lift of Dectus}, albo zbliżysz się do zamku). Porozmawiaj z Blaiddem wśród czempionów.",
     "safe": "W zamku na południu Caelid festiwal gromadzi czempionów.",
     "warn": null,
     "where": "{p:Redmane Castle}",
@@ -524,8 +524,8 @@
     "qp": 7,
     "text": "Pokonaj {n:Starscourge Radahn} i porozmawiaj z Blaiddem przy łasce na polu bitwy.",
     "next": "Pokonaj {n:Starscourge Radahn} i porozmawiaj z Blaiddem przy miejscu łaski {p:Starscourge Radahn} w lokacji {p:Wailing Dunes}. Poprosi, byś spotkał się z nim tam, gdzie spadająca gwiazda uderzyła w ziemię.",
-    "safe": "Po festiwalu warto jeszcze raz rzucić okiem na pole bitwy pod spadłą gwiazdą.",
-    "warn": "Opuszczenie lokacji {p:Wailing Dunes} po pokonaniu Radahna przesądza o losie Blaidda – niezależnie od tego, czy z nim rozmawiałeś. Porozmawiaj z nim, zanim odejdziesz.",
+    "safe": "Po festiwalu rzuć jeszcze raz okiem na pole bitwy pod spadłą gwiazdą.",
+    "warn": "Opuszczenie lokacji {p:Wailing Dunes} po pokonaniu Radahna przesądza o losie Blaidda, niezależnie od tego, czy z nim rozmawiałeś. Porozmawiaj z nim, zanim odejdziesz.",
     "where": "{p:Wailing Dunes}",
     "match": [
      "blaidd:s2"
@@ -546,10 +546,10 @@
    },
    {
     "qp": 9,
-    "text": "Wróć do lokacji {p:Forlorn Hound Evergaol} i stań na pieczęci – Blaidd jest tam uwięziony.",
-    "next": "Blaidd nigdy nie dociera do krateru. Wróć do lokacji {p:Forlorn Hound Evergaol} w południowym Limgrave i stań na pieczęci – Blaidd siedzi uwięziony w środku. Powie ci, że zamknął go tam Iji, i nie rozumie dlaczego.",
+    "text": "Wróć do lokacji {p:Forlorn Hound Evergaol} i stań na pieczęci. Blaidd jest tam uwięziony.",
+    "next": "Blaidd nigdy nie dociera do krateru. Wróć do lokacji {p:Forlorn Hound Evergaol} w południowym Limgrave i stań na pieczęci. Blaidd siedzi uwięziony w środku. Powie ci, że zamknął go tam Iji, i nie rozumie dlaczego.",
     "safe": "Wieczne więzienie, w którym zakończyło się polowanie, więzi teraz kogoś innego.",
-    "warn": "Nic w grze cię tu nie kieruje. Blaidd zostaje w więzieniu tylko do czasu, aż quest Ranni przejdzie dalej niż {p:Lake of Rot} – potem ten etap przepada.",
+    "warn": "Nic w grze cię tu nie kieruje. Blaidd zostaje w więzieniu tylko do czasu, aż quest Ranni przejdzie dalej niż {p:Lake of Rot}. Potem ten etap przepada.",
     "where": "{p:Forlorn Hound Evergaol}",
     "match": [],
     "flags": [],
@@ -579,10 +579,10 @@
    },
    {
     "qp": 12,
-    "text": "Po zakończeniu historii Ranni wróć pod {p:Ranni's Rise} – czeka tam oszalały, wrogi Blaidd.",
-    "next": "Gdy padnie {n:Astel, Naturalborn of the Void}, a Ranni odejdzie, wróć do lokacji {p:Ranni's Rise} w {p:Three Sisters}. Blaidd czeka przed wejściem – nie jest już sobą i zaatakuje, gdy tylko cię zobaczy.",
+    "text": "Po zakończeniu historii Ranni wróć pod {p:Ranni's Rise}. Czeka tam oszalały, wrogi Blaidd.",
+    "next": "Gdy padnie {n:Astel, Naturalborn of the Void}, a Ranni odejdzie, wróć do lokacji {p:Ranni's Rise} w {p:Three Sisters}. Blaidd czeka przed wejściem. Nie jest już sobą i zaatakuje, gdy tylko cię zobaczy.",
     "safe": "Gdy droga Ranni dobiegnie końca, wilk będzie czekał przy jej wieży.",
-    "warn": "Pojawia się tu niezależnie od tego, co jeszcze zrobiłeś w jego historii. Jeśli cię zauważy, a nie jesteś gotów, uciekaj do wieży i wjedź windą – po chwili Blaidd się zresetuje.",
+    "warn": "Pojawia się tu niezależnie od tego, co jeszcze zrobiłeś w jego historii. Jeśli cię zauważy, a nie jesteś gotów, uciekaj do wieży i wjedź windą. Po chwili Blaidd się zresetuje.",
     "where": "{p:Ranni's Rise}",
     "match": [],
     "flags": [
@@ -593,7 +593,7 @@
    {
     "qp": 13,
     "text": "Pokonaj Blaidda przed lokacją {p:Ranni's Rise} i zabierz jego miecz oraz zbroję.",
-    "next": "Pokonaj Blaidda przed lokacją {p:Ranni's Rise}. Zostawi {i:Royal Greatsword} oraz {i:Blaidd's Armor}, {i:Blaidd's Gauntlets} i {i:Blaidd's Greaves}. Brakującej do kompletu {i:Black Wolf Mask} nie ma przy nim – leży w pobliżu lokacji {p:Seluvis's Rise}.",
+    "next": "Pokonaj Blaidda przed lokacją {p:Ranni's Rise}. Zostawi {i:Royal Greatsword} oraz {i:Blaidd's Armor}, {i:Blaidd's Gauntlets} i {i:Blaidd's Greaves}. Brakującej do kompletu {i:Black Wolf Mask} nie ma przy nim. Leży w pobliżu lokacji {p:Seluvis's Rise}.",
     "safe": "Ta historia może skończyć się tylko w jeden sposób.",
     "warn": null,
     "where": "{p:Ranni's Rise}",
@@ -618,8 +618,8 @@
   "steps": [
    {
     "qp": 1,
-    "text": "Porozmawiaj z Thopsem w {p:Church of Irith} — prosi o klucz do Akademii.",
-    "next": "Porozmawiaj z {n:Sorcerer Thops} w {p:Church of Irith} w południowej {p:Liurnia of the Lakes}. Prosi o błyskamienny klucz, by móc wrócić do Akademii. Twojego klucza (z ciała strzeżonego przez {n:Glintstone Dragon Smarag} na zachód od Akademii) nie da się mu oddać — potrzebuje własnego.",
+    "text": "Porozmawiaj z Thopsem w {p:Church of Irith}. Prosi o klucz do Akademii.",
+    "next": "Porozmawiaj z {n:Sorcerer Thops} w {p:Church of Irith} w południowej {p:Liurnia of the Lakes}. Prosi o błyskamienny klucz, by móc wrócić do Akademii. Twojego klucza (z ciała strzeżonego przez {n:Glintstone Dragon Smarag} na zachód od Akademii) nie da się mu oddać. Potrzebuje własnego.",
     "safe": "Pokorny czarownik modli się w kościele na urwisku tuż nad Burzowym Zamkiem.",
     "warn": null,
     "where": "{p:Church of Irith}",
@@ -642,7 +642,7 @@
    {
     "qp": 99,
     "text": "Znajdź martwego Thopsa w sali wykładowej Akademii.",
-    "next": "Thops wrócił do Akademii. Siedzi w pomieszczeniu łaski {p:Schoolhouse Classroom} — martwy, pochylony nad biurkiem. Zostawia swój dzwonek kulisty, {i:Academy Glintstone Staff} i {i:Thops's Barrier}.",
+    "next": "Thops wrócił do Akademii. Siedzi w pomieszczeniu łaski {p:Schoolhouse Classroom}, martwy, pochylony nad biurkiem. Zostawia swój dzwonek kulisty, {i:Academy Glintstone Staff} i {i:Thops's Barrier}.",
     "safe": "Ten, kto tęsknił za Akademią, w końcu do niej wrócił.",
     "warn": null,
     "where": "{p:Schoolhouse Classroom}",
@@ -668,7 +668,7 @@
    {
     "qp": 1,
     "text": "Otwórz skrzynię na końcu {p:Murkwater Cave}, pokonaj {n:Patches} do połowy zdrowia i przyjmij jego kapitulację.",
-    "next": "Dojdź na koniec {p:Murkwater Cave}, mijając bandytów, i otwórz skrzynię, by rozpocząć walkę. {n:Patches} poddaje się, gdy straci połowę zdrowia — przestań atakować, by przyjąć kapitulację. Dostaniesz od niego dwie Złote Runy i gest {i:Grovel for Mercy}.",
+    "next": "Dojdź na koniec {p:Murkwater Cave}, mijając bandytów, i otwórz skrzynię, by rozpocząć walkę. {n:Patches} poddaje się, gdy straci połowę zdrowia. Przestań atakować, by przyjąć kapitulację. Dostaniesz od niego dwie Złote Runy i gest {i:Grovel for Mercy}.",
     "safe": "Ktoś pilnuje skrzyni ze skarbem na końcu {p:Murkwater Cave}.",
     "warn": "Jeśli będziesz go bić, gdy próbuje się poddać, znów stanie się wrogi. Zabicie go w tej walce odbiera ci jego sklep do końca rozgrywki, choć jego dzwonek kulisty można oddać {n:Twin Maiden Husks}.",
     "where": "{p:Murkwater Cave}",
@@ -679,8 +679,8 @@
    },
    {
     "qp": 2,
-    "text": "Porozmawiaj z oszczędzonym {n:Patches} — niezależnie od odpowiedzi stanie się przyjazny.",
-    "next": "Po przyjęciu kapitulacji porozmawiaj z {n:Patches}. Zapyta, czy mu wybaczasz — każda odpowiedź jest dobra, i tak stanie się przyjazny — i zaprosi cię, byś wrócił później, gdy otworzy sklep.",
+    "text": "Porozmawiaj z oszczędzonym {n:Patches}. Niezależnie od odpowiedzi stanie się przyjazny.",
+    "next": "Po przyjęciu kapitulacji porozmawiaj z {n:Patches}. Zapyta, czy mu wybaczasz. Każda odpowiedź jest dobra, i tak stanie się przyjazny. Potem zaprosi cię, byś wrócił później, gdy otworzy sklep.",
     "safe": "Człowiek, którego właśnie oszczędziłeś, ma coś do powiedzenia na swoją obronę.",
     "warn": null,
     "where": "{p:Murkwater Cave}",
@@ -690,8 +690,8 @@
    },
    {
     "qp": 3,
-    "text": "Otwórz nową skrzynię w obozie {n:Patches} — pułapka przeniesie cię do {p:Mistwood Ruins}.",
-    "next": "Wróć do obozu {n:Patches}, gdy jego sklep będzie już otwarty. Stoi tam nowa skrzynia, o którą możesz go zapytać — otwórz ją, a zastawiona przez niego pułapka teleportuje cię do {p:Mistwood Ruins}.",
+    "text": "Otwórz nową skrzynię w obozie {n:Patches}. Pułapka przeniesie cię do {p:Mistwood Ruins}.",
+    "next": "Wróć do obozu {n:Patches}, gdy jego sklep będzie już otwarty. Stoi tam nowa skrzynia, o którą możesz go zapytać. Otwórz ją, a zastawiona przez niego pułapka teleportuje cię do {p:Mistwood Ruins}.",
     "safe": "W obozie Łaty stoi druga skrzynia, a on dziwnie spokojnie podchodzi do tego, że chcesz ją otworzyć.",
     "warn": null,
     "where": "{p:Murkwater Cave}",
@@ -713,7 +713,7 @@
    {
     "qp": 5,
     "text": "Znajdź {n:Patches} przy łasce {p:Scenic Isle} w Liurnii i wybierz opcję „Skoro o tym mowa…”, by usłyszeć o {n:Rya}.",
-    "next": "Po dotarciu do Liurnii {n:Patches} rozbija obóz przy miejscu łaski {p:Scenic Isle}, na wzniesionej wysepce w południowej części mokradeł. Wybierz opcję „Skoro o tym mowa…” — wspomni o dziewczynie imieniem {n:Rya}, którą widział na trakcie i która jego zdaniem potrzebuje pomocy. To opcjonalne, ale tak się o niej dowiesz.",
+    "next": "Po dotarciu do Liurnii {n:Patches} rozbija obóz przy miejscu łaski {p:Scenic Isle}, na wzniesionej wysepce w południowej części mokradeł. Wybierz opcję „Skoro o tym mowa…”. Wspomni o dziewczynie imieniem {n:Rya}, którą widział na trakcie i która jego zdaniem potrzebuje pomocy. To opcjonalne, ale tak się o niej dowiesz.",
     "safe": "Łata przeniósł się do {p:Liurnia of the Lakes} i ma do przekazania plotki.",
     "warn": null,
     "where": "{p:Scenic Isle}",
@@ -723,7 +723,7 @@
    {
     "qp": 6,
     "text": "Wybierz opcję „Rozmowa” u {n:Patches} na {p:Scenic Isle} i wysłuchaj rady o Żelaznej Dziewicy pod kołem wodnym Akademii.",
-    "next": "Wybierz u {n:Patches} na {p:Scenic Isle} opcję „Rozmowa”. Poleci ci, byś dał się pochwycić {n:Abductor Virgin} na dnie wielkiego koła wodnego pośrodku {p:Raya Lucaria Academy} — twierdzi, że jej moc przeniesienia zrzuci cię u stóp Drzewa Złota.",
+    "next": "Wybierz u {n:Patches} na {p:Scenic Isle} opcję „Rozmowa”. Poleci ci, byś dał się pochwycić {n:Abductor Virgin} na dnie wielkiego koła wodnego pośrodku {p:Raya Lucaria Academy}. Twierdzi, że jej moc przeniesienia zrzuci cię u stóp Drzewa Złota.",
     "safe": "Łata ma radę podróżną związaną z wielkim kołem wodnym Akademii.",
     "warn": null,
     "where": "{p:Scenic Isle}",
@@ -733,9 +733,9 @@
    },
    {
     "qp": 7,
-    "text": "Daj się pochwycić Żelaznej Dziewicy w {p:Raya Lucaria Academy} — trafisz do komnat inkwizycji {p:Volcano Manor}.",
-    "next": "Pozwól, by {n:Abductor Virgin} cię pochwyciła. Zamiast do Drzewa Złota trafisz do ognistych komnat inkwizycji {p:Volcano Manor} i nie możesz się teleportować, dopóki nie odpoczniesz przy miejscu łaski. Przebicie się na zewnątrz — obok pary {n:Abductor Virgin} — to jedna z dróg na {p:Altus Plateau}.",
-    "safe": "Żelazna dziewica pod kołem wodnym Akademii naprawdę dokądś prowadzi — tylko nie tam, gdzie ci powiedziano.",
+    "text": "Daj się pochwycić Żelaznej Dziewicy w {p:Raya Lucaria Academy}. Trafisz do komnat inkwizycji {p:Volcano Manor}.",
+    "next": "Pozwól, by {n:Abductor Virgin} cię pochwyciła. Zamiast do Drzewa Złota trafisz do ognistych komnat inkwizycji {p:Volcano Manor} i nie możesz się teleportować, dopóki nie odpoczniesz przy miejscu łaski. Przebicie się na zewnątrz (obok pary {n:Abductor Virgin}) to jedna z dróg na {p:Altus Plateau}.",
+    "safe": "Żelazna dziewica pod kołem wodnym Akademii naprawdę dokądś prowadzi, tylko nie tam, gdzie ci powiedziano.",
     "warn": "Danie się nabrać jest opcjonalne. Reszta historii {n:Patches} przebiega tak samo w obu przypadkach.",
     "where": "{p:Raya Lucaria Academy}",
     "match": [],
@@ -745,7 +745,7 @@
    {
     "qp": 8,
     "text": "Znajdź {n:Patches} na {p:Mt. Gelmir} na zachód od łaski {p:First Mt. Gelmir Campsite} i porozmawiaj z nim.",
-    "next": "Gdy postawisz stopę na {p:Altus Plateau}, {n:Patches} przenosi się na {p:Mt. Gelmir}, w pobliże urwiska na zachód od miejsca łaski {p:First Mt. Gelmir Campsite}. Porozmawiaj z nim — zapewnia, że nie robi nic podejrzanego, i kieruje cię na szlak tęczowych kamieni.",
+    "next": "Gdy postawisz stopę na {p:Altus Plateau}, {n:Patches} przenosi się na {p:Mt. Gelmir}, w pobliże urwiska na zachód od miejsca łaski {p:First Mt. Gelmir Campsite}. Porozmawiaj z nim. Zapewnia, że nie robi nic podejrzanego, i kieruje cię na szlak tęczowych kamieni.",
     "safe": "Łata rozbił obóz na {p:Mt. Gelmir}, na zachód od {p:First Mt. Gelmir Campsite}.",
     "warn": "Póki tu obozuje, jego sklep jest zamknięty.",
     "where": "{p:First Mt. Gelmir Campsite}",
@@ -756,7 +756,7 @@
    {
     "qp": 9,
     "text": "Idź szlakiem tęczowych kamieni na krawędź urwiska na {p:Mt. Gelmir}, a potem wróć do {n:Patches}.",
-    "next": "Podążaj za tęczowymi kamieniami aż na skraj urwiska. W przerywniku {n:Patches} zrzuca cię w dół i każe trzymać się z dala od {p:Volcano Manor}. Wróć potem do niego na górę — ostrzeże cię ponownie i nauczy gestu {i:Calm Down!}, jeśli jeszcze go nie masz.",
+    "next": "Podążaj za tęczowymi kamieniami aż na skraj urwiska. W przerywniku {n:Patches} zrzuca cię w dół i każe trzymać się z dala od {p:Volcano Manor}. Wróć potem do niego na górę. Ostrzeże cię ponownie i nauczy gestu {i:Calm Down!}, jeśli jeszcze go nie masz.",
     "safe": "Tęczowe kamienie na {p:Mt. Gelmir} wymagają nieco ostrożności.",
     "warn": null,
     "where": "{p:Mt. Gelmir}",
@@ -767,7 +767,7 @@
    {
     "qp": 10,
     "text": "Dołącz do {p:Volcano Manor} i znajdź {n:Patches} handlującego w korytarzu wejściowym.",
-    "next": "Przyjmij propozycję {n:Tanith} i dołącz do {p:Volcano Manor}. {n:Patches} pojawia się w korytarzu wejściowym na północny zachód od miejsca łaski i znów handluje — porozmawiaj z nim tam.",
+    "next": "Przyjmij propozycję {n:Tanith} i dołącz do {p:Volcano Manor}. {n:Patches} pojawia się w korytarzu wejściowym na północny zachód od miejsca łaski i znów handluje. Porozmawiaj z nim tam.",
     "safe": "W {p:Volcano Manor} może się znaleźć miejsce dla starego znajomego.",
     "warn": null,
     "where": "{p:Volcano Manor}",
@@ -815,7 +815,7 @@
     "text": "Wczytaj obszar ponownie i odbierz od {n:Patches} {i:Magma Whip Candlestick}.",
     "next": "Wczytaj obszar ponownie i porozmawiaj z {n:Patches} jeszcze raz. Niechętnie wręczy ci w nagrodę {i:Magma Whip Candlestick}.",
     "safe": "Łata wciąż jest ci winien zapłatę za tamtą przysługę.",
-    "warn": "Odbierz nagrodę, zanim {n:Patches} opuści {p:Volcano Manor} — odchodzi, gdy zabijesz bossa tego obszaru, {n:God-Devouring Serpent} — inaczej przepadnie.",
+    "warn": "Odbierz nagrodę, zanim {n:Patches} opuści {p:Volcano Manor}, bo inaczej przepadnie. Odchodzi, gdy zabijesz bossa tego obszaru ({n:God-Devouring Serpent}).",
     "where": "{p:Volcano Manor}",
     "match": [
      "patches:s3"
@@ -828,7 +828,7 @@
     "text": "Po upadku {n:Rykard, Lord of Blasphemy} znajdź rannego {n:Patches} w {p:Shaded Castle} i odbierz {i:Dancer's Castanets}.",
     "next": "Po pokonaniu {n:Rykard, Lord of Blasphemy} znajdź {n:Patches} leżącego bez sił w {p:Shaded Castle}, na moście prowadzącym do {n:Elemer of the Briar}. Wręczy ci {i:Dancer's Castanets} i poprosi, byś oddał je {n:Tanith}.",
     "safe": "Łata pojawił się w {p:Shaded Castle}, przed salą bossa.",
-    "warn": "Nie atakuj go tutaj. Ginie od każdego, nawet najsłabszego ciosu, zostawia swoje rzeczy i quest się kończy — tracisz gest {i:Patches' Crouch}.",
+    "warn": "Nie atakuj go tutaj. Ginie od każdego, nawet najsłabszego ciosu, zostawia swoje rzeczy i quest się kończy. Tracisz gest {i:Patches' Crouch}.",
     "where": "{p:Shaded Castle}",
     "match": [],
     "flags": [],
@@ -837,7 +837,7 @@
    {
     "qp": 16,
     "text": "Pokonaj {n:Elemer of the Briar}, wróć do {p:Murkwater Cave} i przyjmij ostatnią kapitulację {n:Patches}.",
-    "next": "Pokonaj {n:Elemer of the Briar}, a {n:Patches} ostatni raz wróci do {p:Murkwater Cave} jako boss. Niemal od razu się poddaje — odczekaj kilka sekund i przyjmij kapitulację, a nauczy cię gestu {i:Patches' Crouch}. Po ponownym wczytaniu obszaru jego sklep znów działa.",
+    "next": "Pokonaj {n:Elemer of the Briar}, a {n:Patches} ostatni raz wróci do {p:Murkwater Cave} jako boss. Niemal od razu się poddaje: odczekaj kilka sekund i przyjmij kapitulację, a nauczy cię gestu {i:Patches' Crouch}. Po ponownym wczytaniu obszaru jego sklep znów działa.",
     "safe": "Łata wrócił tam, gdzie spotkaliście się po raz pierwszy.",
     "warn": "Jeśli go nie ma, wczytaj obszar ponownie i upewnij się, że opuścił {p:Shaded Castle}. Jeśli {n:Tanith} już nie żyje, podróż do łaski {p:Rykard, Lord of Blasphemy} powinna odesłać go do {p:Murkwater Cave}.",
     "where": "{p:Murkwater Cave}",
@@ -846,7 +846,7 @@
    },
    {
     "qp": 99,
-    "text": "{n:Patches} nie żyje — jego wątek się kończy.",
+    "text": "{n:Patches} nie żyje. Jego wątek się kończy.",
     "next": "Quest zakończony. {n:Patches} nie żyje.",
     "safe": "Ta historia dobiegła końca.",
     "warn": null,
@@ -873,7 +873,7 @@
     "text": "Dotrzyj do {p:Ranni's Rise} przez {p:Caria Manor} i przysięgnij służbę {n:Ranni the Witch}.",
     "next": "Dotrzyj do {p:Three Sisters}, przechodząc {p:Caria Manor} (pokonaj {n:Royal Knight Loretta}), następnie wejdź do {p:Ranni's Rise} i oddaj się na służbę {n:Ranni the Witch}.",
     "safe": "Wiedźma ma swoją wieżę na Trzech Siostrach, za karyjskim dworem.",
-    "warn": "Jeśli w {p:Redmane Castle} trwa już festiwal Radahna, Ranni nie będzie w wieży na kolejnym etapie — potrzebny jest {n:Blaidd}, a on nie opuści festiwalu. Festiwal zaczyna się sam po aktywowaniu {p:Grand Lift of Dectus} lub dowolnego miejsca łaski na {p:Altus Plateau}, a Ranni wraca po pokonaniu {n:Starscourge Radahn}. Jeśli zamiast tego każe ci odejść, wspominając o przeklętym znaku na porzuconym ciele, najpierw porozmawiaj z {n:Rogier} w {p:Roundtable Hold}, a potem wróć do niej.",
+    "warn": "Jeśli w {p:Redmane Castle} trwa już festiwal Radahna, Ranni nie będzie w wieży na kolejnym etapie. Potrzebny jest {n:Blaidd}, a on nie opuści festiwalu. Festiwal zaczyna się sam po aktywowaniu {p:Grand Lift of Dectus} lub dowolnego miejsca łaski na {p:Altus Plateau}, a Ranni wraca po pokonaniu {n:Starscourge Radahn}. Jeśli zamiast tego każe ci odejść, wspominając o przeklętym znaku na porzuconym ciele, najpierw porozmawiaj z {n:Rogier} w {p:Roundtable Hold}, a potem wróć do niej.",
     "where": "{p:Ranni's Rise}",
     "match": [],
     "flags": [],
@@ -882,7 +882,7 @@
    {
     "qp": 2,
     "text": "Wysłuchaj zadania {n:Ranni the Witch}: odzyskaj skarb {p:Nokron, Eternal City}.",
-    "next": "Wysłuchaj polecenia Ranni: masz odzyskać ukryty skarb {p:Nokron, Eternal City}. Prosi też, byś porozmawiał z trojgiem jej sług — {n:Blaidd}, {n:War Counselor Iji} i {n:Preceptor Seluvis} — którzy czekają niżej.",
+    "next": "Wysłuchaj polecenia Ranni: masz odzyskać ukryty skarb {p:Nokron, Eternal City}. Prosi też, byś porozmawiał z trojgiem jej sług ({n:Blaidd}, {n:War Counselor Iji} i {n:Preceptor Seluvis}), którzy czekają niżej.",
     "safe": "Ranni ma dla ciebie zadanie w swojej wieży.",
     "warn": null,
     "where": "{p:Ranni's Rise}",
@@ -893,7 +893,7 @@
    {
     "qp": 3,
     "text": "Porozmawiaj z projekcjami {n:Blaidd}, {n:War Counselor Iji} i {n:Preceptor Seluvis} w {p:Ranni's Rise}.",
-    "next": "Wyczerp dialogi widmowych projekcji {n:Blaidd}, {n:War Counselor Iji} i {n:Preceptor Seluvis}, które pojawiają się w {p:Ranni's Rise} — mgła zamyka wieżę, a szybka podróż jest zablokowana, dopóki wszyscy trzej nie skończą. Potem wróć do Ranni, która uprzedza, że zapada w długi sen.",
+    "next": "Wyczerp dialogi widmowych projekcji {n:Blaidd}, {n:War Counselor Iji} i {n:Preceptor Seluvis}, które pojawiają się w {p:Ranni's Rise}. Mgła zamyka wieżę, a szybka podróż jest zablokowana, dopóki wszyscy trzej nie skończą. Potem wróć do Ranni, która uprzedza, że zapada w długi sen.",
     "safe": "Trzej słudzy Ranni pojawiają się w wieży jako projekcje i nikt nie wyjdzie, dopóki nie przemówią.",
     "warn": null,
     "where": "{p:Ranni's Rise}",
@@ -904,9 +904,9 @@
    {
     "qp": 4,
     "text": "Znajdź {n:Blaidd} nad {p:Siofra River} przy źródle duchów.",
-    "next": "Zejdź przez {p:Siofra River Well} w {p:Mistwood}, a następnie idź na wschód od miejsca łaski {p:Siofra River Bank} do źródła duchów. Czeka tam {n:Blaidd} — nie znalazł wejścia do Nokronu i podejrzewa, że {n:Preceptor Seluvis} wie więcej, niż mówi.",
+    "next": "Zejdź przez {p:Siofra River Well} w {p:Mistwood}, a następnie idź na wschód od miejsca łaski {p:Siofra River Bank} do źródła duchów. Czeka tam {n:Blaidd}. Nie znalazł wejścia do Nokronu i podejrzewa, że {n:Preceptor Seluvis} wie więcej, niż mówi.",
     "safe": "Blaidd wyruszył przodem na poszukiwanie wiecznego miasta. Studnia w Mglistym Lesie prowadzi w dół, do niego.",
-    "warn": "Najpierw oczyść okolice źródła duchów z wrogów — będą cię gonić i przerwą rozmowę. Jeśli festiwal Radahna już się zaczął, {n:Blaidd} pomija Siofrę i czeka w {p:Redmane Castle}, a ten etap zostaje po prostu pominięty.",
+    "warn": "Najpierw oczyść okolice źródła duchów z wrogów, bo będą cię gonić i przerwą rozmowę. Jeśli festiwal Radahna już się zaczął, {n:Blaidd} pomija Siofrę i czeka w {p:Redmane Castle}, a ten etap zostaje po prostu pominięty.",
     "where": "{p:Siofra River}",
     "match": [],
     "flags": [],
@@ -983,9 +983,9 @@
    {
     "qp": 11,
     "text": "Oddaj {n:Ranni the Witch} {i:Fingerslayer Blade} i odbierz {i:Carian Inverted Statue}.",
-    "next": "Daj Ranni {i:Fingerslayer Blade}. W zamian otrzymasz {i:Carian Inverted Statue}, a ona wyrusza własną drogą — ale jej historia jeszcze się nie kończy.",
+    "next": "Daj Ranni {i:Fingerslayer Blade}. W zamian otrzymasz {i:Carian Inverted Statue}, a ona wyrusza własną drogą, ale jej historia jeszcze się nie kończy.",
     "safe": "Ze skarbem trzeba udać się do wieży Ranni.",
-    "warn": "Oddanie ostrza zamienia {n:Preceptor Seluvis} w bezwolną kukłę, co zamyka resztę jego questa, w tym {i:Magic Scorpion Charm} — jeśli zależy ci na jego wątku, najpierw dokończ sprawy z Seluvisem. Tracisz też możliwość podania Ranni {i:Amber Draught}, choć ta ścieżka niczego nie daje.",
+    "warn": "Oddanie ostrza zamienia {n:Preceptor Seluvis} w bezwolną kukłę, co zamyka resztę jego questa, w tym {i:Magic Scorpion Charm}. Jeśli zależy ci na jego wątku, najpierw dokończ sprawy z Seluvisem. Tracisz też możliwość podania Ranni {i:Amber Draught}, choć ta ścieżka niczego nie daje.",
     "where": "{p:Ranni's Rise}",
     "match": [
      "ranni:s3"
@@ -1033,7 +1033,7 @@
    {
     "qp": 15,
     "text": "Pokonaj {n:Baleful Shadow} i zdobądź {i:Dark Moon Ring} w {p:Raya Lucaria Grand Library}.",
-    "next": "{n:Baleful Shadow} czeka tuż za miejscem łaski {p:Nokstella Waterfall Basin}. Pokonaj go, a Ranni nagrodzi cię {i:Discarded Palace Key}, który otwiera skrzynię obok {n:Rennala, Queen of the Full Moon} w {p:Raya Lucaria Grand Library} — leży w niej {i:Dark Moon Ring}.",
+    "next": "{n:Baleful Shadow} czeka tuż za miejscem łaski {p:Nokstella Waterfall Basin}. Pokonaj go, a Ranni nagrodzi cię {i:Discarded Palace Key}, który otwiera skrzynię obok {n:Rennala, Queen of the Full Moon} w {p:Raya Lucaria Grand Library}. Leży w niej {i:Dark Moon Ring}.",
     "safe": "Ścieżka pod Nokstellą prowadzi do jednego z wrogów Ranni.",
     "warn": null,
     "where": "{p:Nokstella Waterfall Basin}",
@@ -1046,7 +1046,7 @@
    {
     "qp": 16,
     "text": "Pokonaj {n:Astel, Naturalborn of the Void} i załóż Ranni {i:Dark Moon Ring} w {p:Cathedral of Manus Celes}.",
-    "next": "Przejdź przez {p:Lake of Rot} do {p:Grand Cloister}, dotknij tamtejszej kamiennej trumny i pokonaj {n:Astel, Naturalborn of the Void} — wyjście prowadzi na {p:Moonlight Altar}. Wejdź do {p:Cathedral of Manus Celes}, zeskocz do dziury obok miejsca łaski i na końcu tunelu załóż Ranni {i:Dark Moon Ring} na palec. Potem odbierz {i:Dark Moon Greatsword} w miejscu, gdzie stała.",
+    "next": "Przejdź przez {p:Lake of Rot} do {p:Grand Cloister}, dotknij tamtejszej kamiennej trumny i pokonaj {n:Astel, Naturalborn of the Void}. Wyjście prowadzi na {p:Moonlight Altar}. Wejdź do {p:Cathedral of Manus Celes}, zeskocz do dziury obok miejsca łaski i na końcu tunelu załóż Ranni {i:Dark Moon Ring} na palec. Potem odbierz {i:Dark Moon Greatsword} w miejscu, gdzie stała.",
     "safe": "Za Jeziorem Zgnilizny ciemny księżyc czuwa nad ukrytą katedrą.",
     "warn": "Przyjęcie Szalonego Płomienia od {n:Three Fingers} blokuje zakończenie Ranni, chyba że wyleczysz się {i:Miquella's Needle}. Aby zobaczyć Erę Gwiazd, po walce z {n:Elden Beast} przyzwij niebieski znak Ranni przy szczątkach Mariki, zamiast ich dotykać. W pobliżu {p:Cathedral of Manus Celes} pojawia się też {n:Glintstone Dragon Adula}, niezależnie od tego, czy walczyłeś z nią przy {p:Three Sisters}.",
     "where": "{p:Cathedral of Manus Celes}",
@@ -1058,7 +1058,7 @@
    },
    {
     "qp": 99,
-    "text": "Jeśli rozgniewasz Ranni, zniknie — przywróci ją rozgrzeszenie w {p:Church of Vows}.",
+    "text": "Jeśli rozgniewasz Ranni, zniknie. Przywróci ją rozgrzeszenie w {p:Church of Vows}.",
     "next": "Ranni wpada w gniew i znika, jeśli ją zaatakujesz albo podasz jej napój od Seluvisa. Przywróci ją rozgrzeszenie za pomocą {i:Celestial Dew} w {p:Church of Vows}.",
     "safe": null,
     "warn": null,
@@ -1081,7 +1081,7 @@
    {
     "qp": 1,
     "text": "Porozmawiaj z Ryą pod altaną przy lunecie na północ od lokacji {p:Laskyar Ruins}.",
-    "next": "Spotkaj Ryę pod altaną obok lunety {p:Birdseye Telescope}, na północ od lokacji {p:Laskyar Ruins} w południowej Liurnii. Wyczerp jej dialog – poprosi cię o odzyskanie naszyjnika, który ukradł jej pewien zbir.",
+    "next": "Spotkaj Ryę pod altaną obok lunety {p:Birdseye Telescope}, na północ od lokacji {p:Laskyar Ruins} w południowej Liurnii. Wyczerp jej dialog. Poprosi cię o odzyskanie naszyjnika, który ukradł jej pewien zbir.",
     "safe": "Dama ukrywająca się pod altaną na północ od ruin straciła coś drogiego.",
     "warn": "Porozmawiaj z nią, zanim postawisz stopę w lokacji {p:Volcano Manor}. Jeśli najpierw dołączysz do Dworu, stracisz na resztę rozgrywki postać {n:Blackguard Big Boggart} i cały jego quest, a z nim {i:Boiled Prawn} i {i:Boiled Crab}.",
     "where": "{p:Laskyar Ruins}",
@@ -1091,7 +1091,7 @@
    {
     "qp": 2,
     "text": "Odkup {i:Rya's Necklace} od Boggarta za 1000 run i oddaj go Ryi.",
-    "next": "Ruszaj na północny zachód od altany do lokacji {p:Boilprawn Shack} i odkup {i:Rya's Necklace} od postaci {n:Blackguard Big Boggart} za 1000 run. Oddaj naszyjnik Ryi – w nagrodę dostaniesz {i:Volcano Manor Invitation}.",
+    "next": "Ruszaj na północny zachód od altany do lokacji {p:Boilprawn Shack} i odkup {i:Rya's Necklace} od postaci {n:Blackguard Big Boggart} za 1000 run. Oddaj naszyjnik Ryi, a w nagrodę dostaniesz {i:Volcano Manor Invitation}.",
     "safe": "Złodziej zaszył się w chacie na północnym zachodzie i jest otwarty na propozycje.",
     "warn": "Zabicie Boggarta dla naszyjnika też działa, ale odcina cię później od ukończenia jego własnego questu.",
     "where": "{p:Boilprawn Shack}",
@@ -1104,7 +1104,7 @@
    {
     "qp": 3,
     "text": "Porozmawiaj ponownie z Ryą o drogach na {p:Altus Plateau}.",
-    "next": "Po odebraniu zaproszenia porozmawiaj z Ryą jeszcze raz. Opowie o dwóch drogach na {p:Altus Plateau} – przez {p:Grand Lift of Dectus} i przez stary tunel u podnóża doliny obok niego. Po odpoczynku lub wczytaniu gry opuści Liurnię.",
+    "next": "Po odebraniu zaproszenia porozmawiaj z Ryą jeszcze raz. Opowie o dwóch drogach na {p:Altus Plateau}: przez {p:Grand Lift of Dectus} i przez stary tunel u podnóża doliny obok niego. Po odpoczynku lub wczytaniu gry opuści Liurnię.",
     "safe": "Rya ma dla ciebie radę na drogę, zanim ruszy dalej.",
     "warn": null,
     "where": "{p:Laskyar Ruins}",
@@ -1115,7 +1115,7 @@
    {
     "qp": 4,
     "text": "Znajdź Ryę na {p:Altus Plateau} i daj się jej zabrać do lokacji {p:Volcano Manor}.",
-    "next": "Dotrzyj na {p:Altus Plateau} i znajdź Ryę. Jeśli wjechałeś przez {p:Grand Lift of Dectus}, czeka na górze windy, na lewo od schodów; jeśli przez {p:Ruin-Strewn Precipice} – w dolnej części lokacji {p:Lux Ruins}, po schodach od łaski {p:Erdtree-Gazing Hill}. Weź ją za rękę, a przeniesie cię prosto do lokacji {p:Volcano Manor}.",
+    "next": "Dotrzyj na {p:Altus Plateau} i znajdź Ryę. Jeśli wjechałeś przez {p:Grand Lift of Dectus}, czeka na górze windy, na lewo od schodów; jeśli przez {p:Ruin-Strewn Precipice}, to w dolnej części lokacji {p:Lux Ruins}, po schodach od łaski {p:Erdtree-Gazing Hill}. Weź ją za rękę, a przeniesie cię prosto do lokacji {p:Volcano Manor}.",
     "safe": "Rya czeka tam, gdzie twoja droga wyprowadziła cię na płaskowyż.",
     "warn": "Jeśli nie ma jej w żadnym z tych miejsc, wjedź jeszcze raz na górę przez {p:Grand Lift of Dectus}, by się pojawiła. Nie pojawi się wcale, jeśli dotarłeś do Leyndell dzięki questowi Fii.",
     "where": "{p:Altus Plateau}",
@@ -1137,7 +1137,7 @@
    {
     "qp": 6,
     "text": "Wykonaj pierwsze zlecenie zabójstwa Dworu i porozmawiaj z Ryą.",
-    "next": "Wykonaj pierwsze zlecenie zabójstwa dla Dworu, a potem porozmawiaj z Ryą. Wyzna, że za ścianami słyszy dziwne odgłosy – jakby oddech albo sunięcie łusek.",
+    "next": "Wykonaj pierwsze zlecenie zabójstwa dla Dworu, a potem porozmawiaj z Ryą. Wyzna, że za ścianami słyszy dziwne odgłosy, jakby oddech albo sunięcie łusek.",
     "safe": "Pierwsze zlecenie Dworu rozwiąże Ryi język.",
     "warn": null,
     "where": "{p:Volcano Manor}",
@@ -1148,8 +1148,8 @@
    {
     "qp": 7,
     "text": "Po drugim zleceniu znajdź Ryę w innej komnacie Dworu, w jej prawdziwej, wężowej postaci.",
-    "next": "Po drugim zleceniu zabójstwa Rya przenosi się do innej komnaty Dworu, gdzie zastaniesz ją w prawdziwej, wężowej postaci. Porozmawiaj z nią – jest zawstydzona i wdzięczna, że traktujesz ją jak dawniej.",
-    "safe": "Ryi nie ma już w salonie – i nie bez powodu się przeniosła.",
+    "next": "Po drugim zleceniu zabójstwa Rya przenosi się do innej komnaty Dworu, gdzie zastaniesz ją w prawdziwej, wężowej postaci. Porozmawiaj z nią. Jest zawstydzona i wdzięczna, że traktujesz ją jak dawniej.",
+    "safe": "Ryi nie ma już w salonie. Nie bez powodu się przeniosła.",
     "warn": null,
     "where": "{p:Volcano Manor}",
     "match": [],
@@ -1158,7 +1158,7 @@
    },
    {
     "qp": 8,
-    "text": "Porozmawiaj ponownie z Ryą w wężowej postaci – wyjawi ci swoje prawdziwe imię.",
+    "text": "Porozmawiaj ponownie z Ryą w wężowej postaci. Wyjawi ci swoje prawdziwe imię.",
     "next": "Porozmawiaj z Ryą jeszcze raz, gdy jest w wężowej postaci. Wyjawi, że naprawdę nazywa się {n:Zorayas}, a jej matką jest {n:Tanith}, i poprosi, byś zachował obie tajemnice.",
     "safe": "Gdy przebranie opadło, Rya ma ci więcej do powiedzenia.",
     "warn": null,
@@ -1169,7 +1169,7 @@
    },
    {
     "qp": 9,
-    "text": "Porozmawiaj z Ryą w ludzkiej postaci – poprosi, byś zbadał sąsiednią komnatę.",
+    "text": "Porozmawiaj z Ryą w ludzkiej postaci. Poprosi, byś zbadał sąsiednią komnatę.",
     "next": "Po drugim zleceniu Rya wraca do ludzkiej postaci w tej samej komnacie. Opowie, że nocą widziała, jak coś wężowego wchodzi do pokoju obok i nigdy z niego nie wychodzi, i poprosi cię, byś to zbadał.",
     "safe": "Rya nie może przestać myśleć o czymś, co widziała w nocy.",
     "warn": null,
@@ -1181,7 +1181,7 @@
    {
     "qp": 10,
     "text": "Przejdź przez iluzoryczną ścianę obok komnaty Ryi do łaski {p:Prison Town Church} i opowiedz jej, co znalazłeś.",
-    "next": "Przejdź przez iluzoryczną ścianę w pokoju na prawo od komnaty Ryi i idź dalej aż do łaski w lokacji {p:Prison Town Church}, otwierając po drodze drzwi do wyjścia – inaczej quest nie ruszy. Potem wróć do Ryi i opowiedz jej, co odkryłeś.",
+    "next": "Przejdź przez iluzoryczną ścianę w pokoju na prawo od komnaty Ryi i idź dalej aż do łaski w lokacji {p:Prison Town Church}, otwierając po drodze drzwi do wyjścia (inaczej quest nie ruszy). Potem wróć do Ryi i opowiedz jej, co odkryłeś.",
     "safe": "W pokoju obok Ryi jest ściana, która nie jest prawdziwą ścianą.",
     "warn": null,
     "where": "{p:Prison Town Church}",
@@ -1214,7 +1214,7 @@
    {
     "qp": 13,
     "text": "Znajdź Zorayas w lochach Dworu, w komnacie za lawowym jeziorem obok windy przy {p:Temple of Eiglay}.",
-    "next": "Wjedź drewnianą windą obok lokacji {p:Temple of Eiglay}, wysiądź przy ukrytym przejściu tuż pod szczytem, przejdź prosto przez pokój, wyjdź oknem i przejdź po stygnącej lawie – Zorayas jest w komnacie naprzeciwko, obok lawowej jamy pełnej klatek i czaszek. Jeśli winda jeszcze nie działa, zeskocz z balkonu na najwyższym piętrze świątyni. Zorayas opowie, że narodziła się z ohydnego rytuału, i poprosi, byś ją zabił.",
+    "next": "Wjedź drewnianą windą obok lokacji {p:Temple of Eiglay}, wysiądź przy ukrytym przejściu tuż pod szczytem, przejdź prosto przez pokój, wyjdź oknem i przejdź po stygnącej lawie. Zorayas jest w komnacie naprzeciwko, obok lawowej jamy pełnej klatek i czaszek. Jeśli winda jeszcze nie działa, zeskocz z balkonu na najwyższym piętrze świątyni. Zorayas opowie, że narodziła się z ohydnego rytuału, i poprosi, byś ją zabił.",
     "safe": "Zorayas ukryła się gdzieś za świątynią w głębi Dworu.",
     "warn": null,
     "where": "{p:Temple of Eiglay}",
@@ -1225,7 +1225,7 @@
    {
     "qp": 14,
     "text": "Daj Zorayas {i:Tonic of Forgetfulness}, a potem wyczerp jej dialog w salonie.",
-    "next": "Daj Zorayas {i:Tonic of Forgetfulness} – po prostu zaśnie. Gdy Rykard zginie, a Dwór opustoszeje, wróci na swoje dawne miejsce w salonie; wyczerp tam jej dialog i wczytaj obszar ponownie.",
+    "next": "Daj Zorayas {i:Tonic of Forgetfulness}. Po prostu zaśnie. Gdy Rykard zginie, a Dwór opustoszeje, wróci na swoje dawne miejsce w salonie; wyczerp tam jej dialog i wczytaj obszar ponownie.",
     "safe": "Na prośbę Zorayas można odpowiedzieć na więcej niż jeden sposób.",
     "warn": "Punkt rozgałęzienia: zabij ją, daj jej napój albo odmów obu. Każdy wybór inaczej kończy jej historię i masz tylko jedną szansę.",
     "where": "{p:Volcano Manor}",
@@ -1236,7 +1236,7 @@
    {
     "qp": 15,
     "text": "Odmów zabicia Zorayas i nie dawaj jej napoju; wróć do niej po śmierci Rykarda.",
-    "next": "Nie zabijaj jej i zatrzymaj napój dla siebie. Wróć po śmierci Rykarda – Zorayas powie, że wiedziała, iż jesteś zbyt dobry i zbyt nieustępliwy, by to zrobić.",
+    "next": "Nie zabijaj jej i zatrzymaj napój dla siebie. Wróć po śmierci Rykarda. Zorayas powie, że wiedziała, iż jesteś zbyt dobry i zbyt nieustępliwy, by to zrobić.",
     "safe": "Na prośbę Zorayas można odpowiedzieć na więcej niż jeden sposób.",
     "warn": "Punkt rozgałęzienia: zabij ją, daj jej napój albo odmów obu. Każdy wybór inaczej kończy jej historię i masz tylko jedną szansę.",
     "where": "{p:Volcano Manor}",
@@ -1247,7 +1247,7 @@
    {
     "qp": 16,
     "text": "Wczytaj obszar ponownie i zabierz {i:Daedicar's Woe} z miejsca, gdzie była Zorayas.",
-    "next": "Gdy historia Zorayas się rozstrzygnie, wczytaj obszar ponownie. Zorayas zniknie, a w jej miejscu znajdziesz {i:Daedicar's Woe} – oraz {i:Zorayas's Letter}, jeśli zostawiłeś ją w spokoju zamiast dać jej napój.",
+    "next": "Gdy historia Zorayas się rozstrzygnie, wczytaj obszar ponownie. Zorayas zniknie, a w jej miejscu znajdziesz {i:Daedicar's Woe} oraz {i:Zorayas's Letter}, jeśli zostawiłeś ją w spokoju zamiast dać jej napój.",
     "safe": "Cokolwiek Zorayas postanowi, coś po sobie zostawi.",
     "warn": null,
     "where": "{p:Volcano Manor}",
@@ -1259,7 +1259,7 @@
    },
    {
     "qp": 99,
-    "text": "Rya nie żyje – quest zakończony.",
+    "text": "Rya nie żyje. Quest zakończony.",
     "next": "Quest zakończony. Rya nie żyje.",
     "safe": null,
     "warn": null,
@@ -1306,7 +1306,7 @@
    {
     "qp": 3,
     "text": "Wróć do Gowry'ego po naprawioną igłę.",
-    "next": "Porozmawiaj ponownie z Gowrym — skończył naprawiać igłę (musisz szybko podróżować albo wczytać grę ponownie, by zdążył).",
+    "next": "Porozmawiaj ponownie z Gowrym. Skończył naprawiać igłę (musisz szybko podróżować albo wczytać grę ponownie, by zdążył).",
     "safe": "Gowry potrzebuje jeszcze chwili z igłą, zanim trop Millicent poprowadzi na wschód.",
     "warn": null,
     "where": "{p:Gowry's Shack}",
@@ -1328,7 +1328,7 @@
    {
     "qp": 5,
     "text": "Odwiedź chatę Gowry'ego, porozmawiaj z Millicent, a potem z Gowrym.",
-    "next": "Odwiedź chatę Gowry'ego: zamiast niego odpoczywa tam Millicent, która potem wyrusza na {p:Erdtree-Gazing Hill}. Porozmawiaj z nią, a następnie z Gowrym — w jego sklepie pojawią się {i:Glintstone Stars}, {i:Night Shard} i {i:Night Maiden's Mist}.",
+    "next": "Odwiedź chatę Gowry'ego: zamiast niego odpoczywa tam Millicent, która potem wyrusza na {p:Erdtree-Gazing Hill}. Porozmawiaj z nią, a następnie z Gowrym. W jego sklepie pojawią się {i:Glintstone Stars}, {i:Night Shard} i {i:Night Maiden's Mist}.",
     "safe": "Chata Gowry'ego może nie być już tak pusta jak wcześniej.",
     "warn": null,
     "where": "{p:Gowry's Shack}",
@@ -1350,8 +1350,8 @@
    {
     "qp": 7,
     "text": "Kup u Gowry'ego talizman {i:Pest Threads}, by nauczył cię gestu Rozpaczliwa modlitwa.",
-    "next": "Kup w sklepie Gowry'ego talizman {i:Pest Threads}, póki go jeszcze ma — nauczy cię gestu „Desperate Prayer”.",
-    "safe": "Odkąd Millicent ma nowe ramię, w sklepie Gowry'ego pojawiło się coś nowego — warto zajrzeć, zanim ruszysz dalej.",
+    "next": "Kup w sklepie Gowry'ego talizman {i:Pest Threads}, póki go jeszcze ma. Nauczy cię gestu „Desperate Prayer”.",
+    "safe": "Odkąd Millicent ma nowe ramię, w sklepie Gowry'ego pojawiło się coś nowego. Zajrzyj tam, zanim ruszysz dalej.",
     "warn": null,
     "where": "{p:Gowry's Shack}",
     "match": [],
@@ -1372,8 +1372,8 @@
    {
     "qp": 9,
     "text": "Po starciu Millicent z siostrami wróć do chaty Gowry'ego.",
-    "next": "Po konfrontacji Millicent z jej siostrami w {p:Miquella's Haligtree} wróć do chaty Gowry'ego — opłakuje to, jak się to skończyło.",
-    "safe": "Po wizycie w Haligtree warto wrócić do chaty Gowry'ego.",
+    "next": "Po konfrontacji Millicent z jej siostrami w {p:Miquella's Haligtree} wróć do chaty Gowry'ego. Opłakuje to, jak się to skończyło.",
+    "safe": "Po wizycie w Haligtree wróć do chaty Gowry'ego.",
     "warn": null,
     "where": "{p:Gowry's Shack}",
     "match": [],
@@ -1383,7 +1383,7 @@
    {
     "qp": 10,
     "text": "Porozmawiaj z Gowrym ponownie o tym, że Millicent wyrzekła się dzieci zgnilizny.",
-    "next": "Porozmawiaj z Gowrym jeszcze raz — rozpacza, że Millicent wyrzekła się dzieci zgnilizny.",
+    "next": "Porozmawiaj z Gowrym jeszcze raz. Rozpacza, że Millicent wyrzekła się dzieci zgnilizny.",
     "safe": "W swoim żalu Gowry może mieć jeszcze coś do powiedzenia.",
     "warn": null,
     "where": "{p:Gowry's Shack}",
@@ -1394,7 +1394,7 @@
    {
     "qp": 11,
     "text": "Przekaż Gowry'emu wieść o śmierci Millicent i zabierz to, co po nim zostanie.",
-    "next": "Przynieś Gowry'emu wieść o śmierci Millicent. Jego cel się wypełnił, więc można go wreszcie zabić bez konsekwencji — zostawi {i:Flock's Canvas Talisman} i {i:Gowry's Bell Bearing}. Jeśli zamiast tego wyzwałeś Millicent, po prostu znajdziesz go martwego w chacie z tymi samymi przedmiotami.",
+    "next": "Przynieś Gowry'emu wieść o śmierci Millicent. Jego cel się wypełnił, więc można go wreszcie zabić bez konsekwencji. Zostawi {i:Flock's Canvas Talisman} i {i:Gowry's Bell Bearing}. Jeśli zamiast tego wyzwałeś Millicent, po prostu znajdziesz go martwego w chacie z tymi samymi przedmiotami.",
     "safe": "Ostatnie wieści należy zanieść do chaty Gowry'ego.",
     "warn": null,
     "where": "{p:Gowry's Shack}",
@@ -1429,7 +1429,7 @@
    {
     "qp": 1,
     "text": "Pokaż {n:D, Hunter of the Dead} {i:Deathroot} z {p:Summonwater Village} i przyjmij jego propozycję przedstawienia cię.",
-    "next": "{n:D, Hunter of the Dead} stoi najpierw na {p:Stormhill}, na wschód od {p:Stormhill Shack}, opłakując zwłoki i ostrzegając przed wioską na wschodzie. Zabij {n:Tibia Mariner} w {p:Summonwater Village}, by zdobyć {i:Deathroot}, i pokaż mu go — po śmierci Żeglarza D przenosi się do południowo-zachodniego wejścia do wioski, a jeśli nie spotkałeś go w Limgrave, pojawi się w {p:Roundtable Hold}. Przyjmij ofertę przedstawienia cię {n:Gurranq, Beast Clergyman}, a zaznaczy ci na mapie ukrytą bramę przenoszącą.",
+    "next": "{n:D, Hunter of the Dead} stoi najpierw na {p:Stormhill}, na wschód od {p:Stormhill Shack}, opłakując zwłoki i ostrzegając przed wioską na wschodzie. Zabij {n:Tibia Mariner} w {p:Summonwater Village}, by zdobyć {i:Deathroot}, i pokaż mu go. Po śmierci Żeglarza D przenosi się do południowo-zachodniego wejścia do wioski, a jeśli nie spotkałeś go w Limgrave, pojawi się w {p:Roundtable Hold}. Przyjmij ofertę przedstawienia cię {n:Gurranq, Beast Clergyman}, a zaznaczy ci na mapie ukrytą bramę przenoszącą.",
     "safe": "Łowca na {p:Stormhill} ostrzega cię przed wioską na wschód od niego. Może wie, co zrobić z korzeniem śmierci pozostawionym przez żeglarza.",
     "warn": null,
     "where": "{p:Summonwater Village}",
@@ -1451,8 +1451,8 @@
    },
    {
     "qp": 3,
-    "text": "Wróć do {n:D, Hunter of the Dead} w {p:Roundtable Hold} — nazwie cię towarzyszem broni i otworzy sklep.",
-    "next": "Wróć do {n:D, Hunter of the Dead} w {p:Roundtable Hold} i porozmawiaj z nim ponownie. Skoro poznałeś {n:Gurranq, Beast Clergyman}, D nazywa cię towarzyszem broni we wspólnej powinności, nagradza cię i otwiera sklep — sprzedaje inkantacje Złotego Porządku {i:Litany of Proper Death} i {i:Order's Blade}.",
+    "text": "Wróć do {n:D, Hunter of the Dead} w {p:Roundtable Hold}. Nazwie cię towarzyszem broni i otworzy sklep.",
+    "next": "Wróć do {n:D, Hunter of the Dead} w {p:Roundtable Hold} i porozmawiaj z nim ponownie. Skoro poznałeś {n:Gurranq, Beast Clergyman}, D nazywa cię towarzyszem broni we wspólnej powinności, nagradza cię i otwiera sklep. Sprzedaje inkantacje Złotego Porządku {i:Litany of Proper Death} i {i:Order's Blade}.",
     "safe": "D chciałby usłyszeć, jak poszło twoje zadanie.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
@@ -1464,7 +1464,7 @@
     "text": "Przyjmij od {n:Fia} {i:Weathered Dagger} i oddaj go {n:D, Hunter of the Dead}.",
     "next": "Przyjmij od {n:Fia} w {p:Roundtable Hold} {i:Weathered Dagger} (prosi, by trafił do prawowitego właściciela) i przekaż go {n:D, Hunter of the Dead}.",
     "safe": "Sztylet Fii najwyraźniej jest przeznaczony dla kogoś w Twierdzy Okrągłego Stołu.",
-    "warn": "Oddanie sztyletu przesądza o losie D. Zatrzymaj sztylet (albo w ogóle go nie bierz), jeśli wolisz, by D przeżył — choć wtedy wątek {n:Fia} utknie. {n:Fia} oferuje sztylet tylko na pewnym etapie swojej historii (po rozpoczęciu festiwalu Radahna), a oferta przepada po dotarciu do {p:Crumbling Farum Azula}.",
+    "warn": "Oddanie sztyletu przesądza o losie D. Zatrzymaj sztylet (albo w ogóle go nie bierz), jeśli wolisz, by D przeżył, choć wtedy wątek {n:Fia} utknie. {n:Fia} oferuje sztylet tylko na pewnym etapie swojej historii (po rozpoczęciu festiwalu Radahna), a oferta przepada po dotarciu do {p:Crumbling Farum Azula}.",
     "where": "{p:Roundtable Hold}",
     "match": [],
     "flags": [],
@@ -1474,7 +1474,7 @@
     "qp": 5,
     "text": "Odpocznij i znajdź martwego {n:D, Hunter of the Dead} w nowej komnacie za {n:Hewg}; zabierz jego rzeczy.",
     "next": "Odpocznij i wróć: {n:D, Hunter of the Dead} leży martwy w nowo otwartej komnacie na tyłach {p:Roundtable Hold}, za {n:Hewg}, a {n:Fia} opuściła Twierdzę. Zabierz leżące obok zestaw {i:Twinned Set} i {i:Bell Bearing of D}.",
-    "safe": "Po odpoczynku warto jeszcze raz rozejrzeć się po Twierdzy Okrągłego Stołu.",
+    "safe": "Po odpoczynku rozejrzyj się jeszcze raz po Twierdzy Okrągłego Stołu.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
     "match": [
@@ -1497,7 +1497,7 @@
    {
     "qp": 7,
     "text": "Doprowadź wątek {n:Fia} w {p:Deeproot Depths} do końca, a potem zabierz rzeczy po bracie D.",
-    "next": "Przyjmij od {n:Fia} {i:Mending Rune of the Death-Prince} i doprowadź jej historię w {p:Deeproot Depths} do końca, po czym wczytaj obszar ponownie: brat D stoi triumfalnie nad jej ciałem. Wyczerp jego dialog i wczytaj obszar jeszcze raz — zniknie, zostawiając zestaw {i:Twinned Set} i {i:Inseparable Sword}.",
+    "next": "Przyjmij od {n:Fia} {i:Mending Rune of the Death-Prince} i doprowadź jej historię w {p:Deeproot Depths} do końca, po czym wczytaj obszar ponownie: brat D stoi triumfalnie nad jej ciałem. Wyczerp jego dialog i wczytaj obszar jeszcze raz. Zniknie, zostawiając zestaw {i:Twinned Set} i {i:Inseparable Sword}.",
     "safe": "Najgłębszy sen Fii wiąże się z niedokończoną historią braci.",
     "warn": null,
     "where": "{p:Deeproot Depths}",
@@ -1534,7 +1534,7 @@
    {
     "qp": 1,
     "text": "Daj {n:Gurranq, Beast Clergyman} pierwszy {i:Deathroot} w {p:Bestial Sanctum}.",
-    "next": "Nakarm Gurranqa korzeniem {i:Deathroot} w {p:Bestial Sanctum}. Za pierwszy dostaniesz {i:Clawmark Seal} i {i:Beast Eye}. W sumie istnieje dziewięć takich korzeni — wypadają z {n:Tibia Mariner} i leżą w skrzyniach katakumb w całych Ziemiach Pomiędzy.",
+    "next": "Nakarm Gurranqa korzeniem {i:Deathroot} w {p:Bestial Sanctum}. Za pierwszy dostaniesz {i:Clawmark Seal} i {i:Beast Eye}. W sumie istnieje dziewięć takich korzeni. Wypadają z {n:Tibia Mariner} i leżą w skrzyniach katakumb w całych Ziemiach Pomiędzy.",
     "safe": "Bestialny duchowny łaknie tego, co śmierć zostawia w ziemi.",
     "warn": null,
     "where": "{p:Bestial Sanctum}",
@@ -1569,7 +1569,7 @@
    {
     "qp": 4,
     "text": "Przynieś Gurranqowi czwarty {i:Deathroot}.",
-    "next": "Przynieś Gurranqowi czwarty {i:Deathroot}. Da ci {i:Ash of War: Beast's Roar} — a głód zaczyna brać nad nim górę.",
+    "next": "Przynieś Gurranqowi czwarty {i:Deathroot}. Da ci {i:Ash of War: Beast's Roar}, a głód zaczyna brać nad nim górę.",
     "safe": "Czwarta ofiara. Jego opanowanie słabnie.",
     "warn": "Po czwartym korzeniu jego dialog przestaje się zmieniać, dopóki nie odejdziesz albo nie odpoczniesz przy miejscu łaski. Oddawanie od tej chwili kilku korzeni naraz pomija dialogi fabularne, a wszystkie zaległe nagrody są wstrzymane do końca jego szału.",
     "where": "{p:Bestial Sanctum}",
@@ -1582,9 +1582,9 @@
    {
     "qp": 5,
     "text": "Obij szalejącego Gurranqa, aż się opamięta, i porozmawiaj z nim ponownie.",
-    "next": "Gurranq atakuje w szale. Zadawaj mu obrażenia, aż przestanie — wystarczy mniej więcej jedna dziesiąta jego zdrowia — a potem porozmawiaj z nim; znów przyjmuje korzenie jak wcześniej.",
+    "next": "Gurranq atakuje w szale. Zadawaj mu obrażenia, aż przestanie (wystarczy mniej więcej jedna dziesiąta jego zdrowia), a potem porozmawiaj z nim; znów przyjmuje korzenie jak wcześniej.",
     "safe": "Głód bestii zamienił się w szał, ale da się go jeszcze uśmierzyć.",
-    "warn": "Nie walcz z nim na śmierć. Poddaje się na długo przed utratą całego zdrowia, a odmrożenie, trucizna lub szkarłatna zgnilizna uspokajają go szybciej niż ciosy wręcz — zwykle wystarczą dwa garnki mrozu. Pozostaje agresywny, dopóki nie opuścisz obszaru i nie wczytasz go ponownie.",
+    "warn": "Nie walcz z nim na śmierć. Poddaje się na długo przed utratą całego zdrowia, a odmrożenie, trucizna lub szkarłatna zgnilizna uspokajają go szybciej niż ciosy wręcz. Zwykle wystarczą dwa garnki mrozu. Pozostaje agresywny, dopóki nie opuścisz obszaru i nie wczytasz go ponownie.",
     "where": "{p:Bestial Sanctum}",
     "match": [],
     "flags": [],
@@ -1649,7 +1649,7 @@
    },
    {
     "qp": 99,
-    "text": "Gurranq zginął z twojej ręki — jego historia się skończyła.",
+    "text": "Gurranq zginął z twojej ręki. Jego historia się skończyła.",
     "next": "Historia Gurranqa zakończyła się rozlewem krwi.",
     "safe": null,
     "warn": null,
@@ -1671,8 +1671,8 @@
   "steps": [
    {
     "qp": 1,
-    "text": "Porozmawiaj z Diallosem w lokacji {p:Roundtable Hold} – szuka swojej służącej Lanyi.",
-    "next": "Porozmawiaj z Diallosem w lokacji {p:Roundtable Hold}. Szuka swojej służącej {n:Lanya} i prosi, byś dał mu znać, jeśli ją znajdziesz. Nie czeka w nieskończoność – samo dotarcie do północnej Liurnii wysyła go na poszukiwania, więc jeśli nie ma go już w Twierdzy, podejmij jego historię w lokacji {p:Academy Gate Town}.",
+    "text": "Porozmawiaj z Diallosem w lokacji {p:Roundtable Hold}. Szuka swojej służącej Lanyi.",
+    "next": "Porozmawiaj z Diallosem w lokacji {p:Roundtable Hold}. Szuka swojej służącej {n:Lanya} i prosi, byś dał mu znać, jeśli ją znajdziesz. Nie czeka w nieskończoność. Samo dotarcie do północnej Liurnii wysyła go na poszukiwania, więc jeśli nie ma go już w Twierdzy, podejmij jego historię w lokacji {p:Academy Gate Town}.",
     "safe": "Rycerz rodu Hoslow krąży po Twierdzy, martwiąc się o swoją służącą.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
@@ -1684,7 +1684,7 @@
    {
     "qp": 2,
     "text": "Znajdź Diallosa opłakującego Lanyę w północnej części lokacji {p:Academy Gate Town}.",
-    "next": "Znajdź Diallosa na północ i nieco na zachód od łaski {p:Academy Gate Town} – na poziomie gruntu, przy północnym skraju ruin miasta (mniej więcej na prawym końcu ikony miasta na mapie). Porozmawiaj z nim, gdy opłakuje Lanyę. Jeśli nie spotkałeś go wcześniej w Twierdzy, tu również zaczyna się jego historia.",
+    "next": "Znajdź Diallosa na północ i nieco na zachód od łaski {p:Academy Gate Town}, na poziomie gruntu, przy północnym skraju ruin miasta (mniej więcej na prawym końcu ikony miasta na mapie). Porozmawiaj z nim, gdy opłakuje Lanyę. Jeśli nie spotkałeś go wcześniej w Twierdzy, tu również zaczyna się jego historia.",
     "safe": "Szukaj go na zatopionych dachach na północ od łaski w mieście przy bramie akademii.",
     "warn": "Znajdź Diallosa, zanim ukończysz lokację {p:Volcano Manor}. Jeśli ją wyczyścisz wcześniej, nigdy nie pojawi się w ruinach, a jego historia przepadnie w tej rozgrywce.",
     "where": "{p:Academy Gate Town}",
@@ -1694,7 +1694,7 @@
    {
     "qp": 3,
     "text": "Porozmawiaj z Diallosem po jego powrocie do lokacji {p:Roundtable Hold}.",
-    "next": "Diallos wraca do lokacji {p:Roundtable Hold} – wyczerp tam jego dialog. Odszczepieńcy, którzy porwali Lanyę, zaprosili go do siebie, a on przyjął zaproszenie. Wskaże ich kryjówkę: dwór na {p:Mt. Gelmir}, przy starej drodze wiodącej na zachód od miasta wiatraków.",
+    "next": "Diallos wraca do lokacji {p:Roundtable Hold}. Wyczerp tam jego dialog. Odszczepieńcy, którzy porwali Lanyę, zaprosili go do siebie, a on przyjął zaproszenie. Wskaże ich kryjówkę: dwór na {p:Mt. Gelmir}, przy starej drodze wiodącej na zachód od miasta wiatraków.",
     "safe": "Diallos wrócił do Twierdzy z wieściami o odszczepieńcach.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
@@ -1704,7 +1704,7 @@
    {
     "qp": 4,
     "text": "Dołącz do lokacji {p:Volcano Manor} i znajdź Diallosa w salonie.",
-    "next": "Dołącz do lokacji {p:Volcano Manor} i znajdź Diallosa w salonie – ku twojemu zaskoczeniu sam jest już członkiem Dworu.",
+    "next": "Dołącz do lokacji {p:Volcano Manor} i znajdź Diallosa w salonie. Ku twojemu zaskoczeniu sam jest już członkiem Dworu.",
     "safe": "Trop rodu Hoslow prowadzi do dworu odszczepieńców.",
     "warn": "Diallos opuszcza Dwór na zawsze, gdy przyjmiesz drugi list ze zleceniem albo pokonasz Rykarda. Rozmawiaj z nim między zleceniami, póki możesz.",
     "where": "{p:Volcano Manor}",
@@ -1737,7 +1737,7 @@
    {
     "qp": 7,
     "text": "Po historii {n:Iron Fist Alexander} wróć do lokacji {p:Jarburg} i wysłuchaj śmiertelnie rannego Diallosa.",
-    "next": "Po śmierci Radahna wyczerp dialog postaci {n:Iron Fist Alexander} na jego arenie, a potem wróć do lokacji {p:Jarburg}. Kłusownicy napadli na wioskę, a Diallos leży śmiertelnie ranny – wysłuchaj go i odpowiedz, gdy zapyta, czy obronił dzbany.",
+    "next": "Po śmierci Radahna wyczerp dialog postaci {n:Iron Fist Alexander} na jego arenie, a potem wróć do lokacji {p:Jarburg}. Kłusownicy napadli na wioskę, a Diallos leży śmiertelnie ranny. Wysłuchaj go i odpowiedz, gdy zapyta, czy obronił dzbany.",
     "safe": "Spokój Słojogrodu jest kruchy; jego historia rozwija się przy kolejnych wizytach.",
     "warn": "Diallos umiera niezależnie od odpowiedzi. Jeśli Radahn i Alexander są już za tobą, a Słojogród wciąż nie został napadnięty, odpocznij przy łasce {p:Jarburg} i przeczekaj do nocy albo przenieś się do łaski {p:Starscourge Radahn} i z powrotem.",
     "where": "{p:Jarburg}",
@@ -1750,7 +1750,7 @@
    {
     "qp": 8,
     "text": "Wczytaj obszar ponownie i porozmawiaj z {n:Jar-Bairn} czuwającym przy ciele Diallosa.",
-    "next": "Po śmierci Diallosa wczytaj obszar ponownie. {n:Jar-Bairn} przejdzie do jego ciała i przejmie jego dziedzictwo – porozmawiaj z nim tam. Wysłuchanie go to prawdziwy koniec historii Diallosa.",
+    "next": "Po śmierci Diallosa wczytaj obszar ponownie. {n:Jar-Bairn} przejdzie do jego ciała i przejmie jego dziedzictwo. Porozmawiaj z nim tam. Wysłuchanie go to prawdziwy koniec historii Diallosa.",
     "safe": "Ktoś w Słojogrodzie trzyma wartę.",
     "warn": "Wyczerp dialog postaci {n:Jar-Bairn} i jeszcze raz wczytaj obszar. Ciało Diallosa zniknie, a zostaną {i:Diallos's Mask}, {i:Hoslow's Petal Whip} i {i:Numen's Rune}.",
     "where": "{p:Jarburg}",
@@ -1760,7 +1760,7 @@
    },
    {
     "qp": 99,
-    "text": "Diallos nie żyje – quest zakończony.",
+    "text": "Diallos nie żyje. Quest zakończony.",
     "next": "Diallos nie żyje.",
     "safe": null,
     "warn": null,
@@ -1800,7 +1800,7 @@
     "text": "Podaj eliksir Nepheli w piwnicy {p:Roundtable Hold}.",
     "next": "Daj eliksir {n:Nepheli Loux}, gdy pogrążona w rozpaczy siedzi w piwnicy {p:Roundtable Hold} (możliwe tylko zanim otrzyma prochy Króla Burzowych Jastrzębi).",
     "safe": "Eliksir Seluvisa wciąż czeka na decyzję. Może trafić do kilku osób.",
-    "warn": "To przypieczętowuje los Nepheli — skończy jako marionetka w piwnicy Seluvisa, a jej własny wątek i zgromadzenie przy tronie w {p:Stormveil Castle} przepadną.",
+    "warn": "To przypieczętowuje los Nepheli: skończy jako marionetka w piwnicy Seluvisa, a jej własny wątek i zgromadzenie przy tronie w {p:Stormveil Castle} przepadną.",
     "where": "{p:Roundtable Hold}",
     "match": [],
     "flags": [],
@@ -1819,8 +1819,8 @@
    },
    {
     "qp": 4,
-    "text": "Oddaj eliksir Gideonowi w {p:Roundtable Hold} — to bezpieczny wybór.",
-    "next": "Przekaż eliksir {n:Sir Gideon Ofnir} w {p:Roundtable Hold} — po cichu się go pozbędzie i zapewni, że Seluvis się nie zorientuje. To nieszkodliwy wybór.",
+    "text": "Oddaj eliksir Gideonowi w {p:Roundtable Hold}. To bezpieczny wybór.",
+    "next": "Przekaż eliksir {n:Sir Gideon Ofnir} w {p:Roundtable Hold}. Po cichu się go pozbędzie i zapewni, że Seluvis się nie zorientuje. To nieszkodliwy wybór.",
     "safe": "Eliksir Seluvisa wciąż czeka na decyzję. Może trafić do kilku osób.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
@@ -1853,7 +1853,7 @@
    {
     "qp": 7,
     "text": "Kupuj od Seluvisa kolejne marionetki i wracaj do niego, aż zacznie ci się zwierzać.",
-    "next": "Kupuj od Seluvisa kolejne marionetki za {i:Starlight Shards} — {i:Finger Maiden Therolina Puppet} (2) i {i:Jarwight Puppet} (3) są zawsze dostępne, a trzecia (5) pojawia się, jeśli ktoś wypił eliksir. Między wizytami odpoczywaj przy łasce i wracaj, za każdym razem wyczerpując nowy dialog, aż zacznie się przed tobą otwierać.",
+    "next": "Kupuj od Seluvisa kolejne marionetki za {i:Starlight Shards}. {i:Finger Maiden Therolina Puppet} (2) i {i:Jarwight Puppet} (3) są zawsze dostępne, a trzecia (5) pojawia się, jeśli ktoś wypił eliksir. Między wizytami odpoczywaj przy łasce i wracaj, za każdym razem wyczerpując nowy dialog, aż zacznie się przed tobą otwierać.",
     "safe": "Wracaj do nauczyciela. Ma więcej do powiedzenia, niż daje po sobie poznać.",
     "warn": null,
     "where": "{p:Seluvis's Rise}",
@@ -1907,8 +1907,8 @@
    },
    {
     "qp": 12,
-    "text": "Zaproponuj wywar Ranni — przejrzy intrygę i cię odprawi.",
-    "next": "Zaproponuj wywar {n:Ranni the Witch}. Od razu przejrzy intrygę i każe ci odejść. Noszenie wywaru nie zmusza cię do zdrady Ranni — możesz go nie podawać i kontynuować jej wątek.",
+    "text": "Zaproponuj wywar Ranni. Przejrzy intrygę i cię odprawi.",
+    "next": "Zaproponuj wywar {n:Ranni the Witch}. Od razu przejrzy intrygę i każe ci odejść. Noszenie wywaru nie zmusza cię do zdrady Ranni: możesz go nie podawać i kontynuować jej wątek.",
     "safe": "Wywar w twoim plecaku jest przeznaczony dla Ranni, ale ona nie jest głupia.",
     "warn": "Jeśli jeszcze dwa razy naciśniesz Ranni w sprawie wywaru, zabije cię na miejscu, a wszyscy z nią związani znikną. Odwraca to rozgrzeszenie za {i:Celestial Dew} w {p:Church of Vows}, a Seluvis zostanie znaleziony martwy w swojej wieży.",
     "where": "{p:Ranni's Rise}",
@@ -1921,7 +1921,7 @@
     "text": "Seluvis nie żyje.",
     "next": "Seluvis nie żyje.",
     "safe": "Ta ścieżka dobiegła końca.",
-    "warn": "Oddanie Ranni {i:Fingerslayer Blade} zabija Seluvisa i odcina wszystko, co jeszcze miał do zaoferowania. Znajdziesz go martwego, klęczącego w wieży, z {i:Preceptor's Set} i {i:Seluvis's Bell Bearing}. W tym samym czasie {n:Pidia} ginie z rąk jego marionetek, zostawiając {i:Pidia's Bell Bearing} i marionetkę — {i:Nepheli Loux Puppet}, jeśli Nepheli wypiła eliksir, a w przeciwnym razie {i:Dolores the Sleeping Arrow Puppet}.",
+    "warn": "Oddanie Ranni {i:Fingerslayer Blade} zabija Seluvisa i odcina wszystko, co jeszcze miał do zaoferowania. Znajdziesz go martwego, klęczącego w wieży, z {i:Preceptor's Set} i {i:Seluvis's Bell Bearing}. W tym samym czasie {n:Pidia} ginie z rąk jego marionetek, zostawiając {i:Pidia's Bell Bearing} i marionetkę: {i:Nepheli Loux Puppet}, jeśli Nepheli wypiła eliksir, a w przeciwnym razie {i:Dolores the Sleeping Arrow Puppet}.",
     "where": "{p:Seluvis's Rise}",
     "match": [
      "seluvis:s2"
@@ -1943,7 +1943,7 @@
    {
     "qp": 1,
     "text": "Porozmawiaj z duchem {n:Dung Eater} w zamkniętej komnacie za {n:Twin Maiden Husks} w {p:Roundtable Hold}.",
-    "next": "Porozmawiaj z {n:Dung Eater} w zamkniętej komnacie za {n:Twin Maiden Husks} w {p:Roundtable Hold} — otwiera się dopiero po dotarciu na {p:Altus Plateau}. Zbywa cię jako kogoś obcego plugastwu, dopóki nie będziesz nosić przy sobie {i:Seedbed Curse}.",
+    "next": "Porozmawiaj z {n:Dung Eater} w zamkniętej komnacie za {n:Twin Maiden Husks} w {p:Roundtable Hold}. Otwiera się dopiero po dotarciu na {p:Altus Plateau}. Zbywa cię jako kogoś obcego plugastwu, dopóki nie będziesz nosić przy sobie {i:Seedbed Curse}.",
     "safe": "Złowrogi duch nawiedza komnatę za Bliźniaczymi Dziewicami. Szanuje tylko pewien rodzaj klątwy.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
@@ -1969,7 +1969,7 @@
     "text": "Otwórz celę {n:Dung Eater} w {p:Subterranean Shunning-Grounds} i wybierz „Opuść swoje więzienie!”.",
     "next": "Od łaski {p:Underground Roadside} w {p:Subterranean Shunning-Grounds} wyjdź z pomieszczenia, skręć w lewo, idź korytarzem i zeskocz przez szczelinę w kracie kanału. Dojdź do końca tunelu, mijając olbrzymie pędy Mirandy, wejdź po drabinie i otwórz drzwi naprzeciwko kluczem {i:Sewer-Gaol Key}. Porozmawiaj z nim i wybierz „Opuść swoje więzienie!”, by go uwolnić.",
     "safe": "Jego ciało jest zamknięte w lochach pod kanałami {p:Leyndell, Royal Capital}.",
-    "warn": "Uwolnienie go odblokowuje jego znak przywołania do walki z {n:Mohg, the Omen} — ale znak znika, gdy tylko posuniesz jego wątek dalej albo go zabijesz.",
+    "warn": "Uwolnienie go odblokowuje jego znak przywołania do walki z {n:Mohg, the Omen}, ale znak znika, gdy tylko posuniesz jego wątek dalej albo go zabijesz.",
     "where": "{p:Subterranean Shunning-Grounds}",
     "match": [],
     "flags": [],
@@ -1978,9 +1978,9 @@
    {
     "qp": 4,
     "text": "Pokonaj najazd {n:Dung Eater} w zewnętrznej fosie {p:Leyndell, Royal Capital} i zdobądź {i:Sword of Milos}.",
-    "next": "Wróć do {p:Roundtable Hold} i przeczytaj pozostawioną przez niego wiadomość, potem udaj się do zewnętrznej fosy w północnej części {p:Leyndell, Royal Capital}, w pobliżu Capital Rampart. Wyczerp tam dialog {n:Blackguard Big Boggart}, a potem wejdź na środek fosy — {n:Dung Eater} najedzie cię we własnym ciele. Pokonaj go, a zostawi {i:Sword of Milos}.",
+    "next": "Wróć do {p:Roundtable Hold} i przeczytaj pozostawioną przez niego wiadomość, potem udaj się do zewnętrznej fosy w północnej części {p:Leyndell, Royal Capital}, w pobliżu Capital Rampart. Wyczerp tam dialog {n:Blackguard Big Boggart}, a potem wejdź na środek fosy, a {n:Dung Eater} najedzie cię we własnym ciele. Pokonaj go, a zostawi {i:Sword of Milos}.",
     "safe": "Łajnożerca zostawił w Twierdzy Okrągłego Stołu wiadomość, gdzie chce to rozstrzygnąć.",
-    "warn": "Zanim wywołasz ten najazd, ukończ wątek {n:Blackguard Big Boggart}. Jeśli wygrasz go wcześniej, Boggart na zawsze zostanie przy fosie — nigdy nie zostanie ranny ani nie zginie, a {i:Seedbed Curse}, którą miałby przy sobie, przepadnie i pozostałe pięć musisz znaleźć gdzie indziej.",
+    "warn": "Zanim wywołasz ten najazd, ukończ wątek {n:Blackguard Big Boggart}. Jeśli wygrasz go wcześniej, Boggart na zawsze zostanie przy fosie. Nigdy nie zostanie ranny ani nie zginie, a {i:Seedbed Curse}, którą miałby przy sobie, przepadnie i pozostałe pięć musisz znaleźć gdzie indziej.",
     "where": "{p:Leyndell, Royal Capital}",
     "match": [
      "dung-eater:s2"
@@ -1991,7 +1991,7 @@
    {
     "qp": 5,
     "text": "Wróć do {n:Dung Eater} w {p:Roundtable Hold} i wysłuchaj prośby o splugawienie jego ciała.",
-    "next": "Wróć do {n:Dung Eater} w {p:Roundtable Hold}. Pokonany, teraz cię rozumie i prosi, byś przyniósł {i:Seedbed Curse} do jego prawdziwego ciała — przywiązanego do krzesła w celi, z której go uwolniłeś.",
+    "next": "Wróć do {n:Dung Eater} w {p:Roundtable Hold}. Pokonany, teraz cię rozumie i prosi, byś przyniósł {i:Seedbed Curse} do jego prawdziwego ciała, przywiązanego do krzesła w celi, z której go uwolniłeś.",
     "safe": "Duch wrócił do Twierdzy Okrągłego Stołu z nowym żądaniem.",
     "warn": "W tym momencie znika jego znak przywołania do walki z {n:Mohg, the Omen}.",
     "where": "{p:Roundtable Hold}",
@@ -2002,7 +2002,7 @@
    {
     "qp": 6,
     "text": "Zanieś pięć {i:Seedbed Curse} do ciała {n:Dung Eater} w celi w {p:Subterranean Shunning-Grounds}.",
-    "next": "Zanieś {i:Seedbed Curse} do jego ciała w celi więzienia — łącznie pięć. Istnieje sześć: trzy w {p:Leyndell, Royal Capital} (jedna przy ciele {n:Blackguard Big Boggart} na końcu jego wątku), jedna w {p:Volcano Manor} i dwie w {p:Elphael, Brace of the Haligtree}. Tę od Boggarta można stracić, więc pozostałe pięć w zupełności wystarczy.",
+    "next": "Zanieś {i:Seedbed Curse} do jego ciała w celi więzienia, łącznie pięć. Istnieje sześć: trzy w {p:Leyndell, Royal Capital} (jedna przy ciele {n:Blackguard Big Boggart} na końcu jego wątku), jedna w {p:Volcano Manor} i dwie w {p:Elphael, Brace of the Haligtree}. Tę od Boggarta można stracić, więc pozostałe pięć w zupełności wystarczy.",
     "safe": "Jego ciało pragnie teraz tylko jednego rodzaju klątwy.",
     "warn": "Podanie mu {i:Seluvis's Potion} zamiast klątw od razu kończy jego historię: dostaniesz od {n:Seluvis} {i:Dung Eater Puppet}, ale nigdy zakończenia Błogosławieństwa Rozpaczy.",
     "where": "{p:Subterranean Shunning-Grounds}",
@@ -2085,7 +2085,7 @@
    {
     "qp": 4,
     "text": "Zdobądź wskazówkę od {n:Fia} i odbierz {i:Black Knifeprint} w {p:Black Knife Catacombs}.",
-    "next": "Porozmawiaj z {n:Fia} w {p:Roundtable Hold} (pozwól jej się objąć i wyczerp dialog) — da ci {i:Knifeprint Clue} wskazującą {p:Black Knife Catacombs} w północno-wschodniej {p:Liurnia of the Lakes}. Tam, za iluzoryczną ścianą w pomieszczeniu przed zalanym szybem z dźwignią, pokonaj {n:Black Knife Assassin} i zabierz {i:Black Knifeprint}.",
+    "next": "Porozmawiaj z {n:Fia} w {p:Roundtable Hold} (pozwól jej się objąć i wyczerp dialog). Da ci {i:Knifeprint Clue} wskazującą {p:Black Knife Catacombs} w północno-wschodniej {p:Liurnia of the Lakes}. Tam, za iluzoryczną ścianą w pomieszczeniu przed zalanym szybem z dźwignią, pokonaj {n:Black Knife Assassin} i zabierz {i:Black Knifeprint}.",
     "safe": "Wiedza Fii o czarnych nożach prowadzi do katakumb w północno-wschodniej Liurnii.",
     "warn": null,
     "where": "{p:Black Knife Catacombs}",
@@ -2106,7 +2106,7 @@
    },
    {
     "qp": 6,
-    "text": "Odpocznij i wróć do {n:Rogier} — poprosi cię o odszukanie {i:Cursemark of Death}.",
+    "text": "Odpocznij i wróć do {n:Rogier}. Poprosi cię o odszukanie {i:Cursemark of Death}.",
     "next": "Wróć do Rogiera (najpierw odpocznij). Jego badania odcisku wskazują na {n:Ranni the Witch}, więc prosi cię o odszukanie {i:Cursemark of Death}.",
     "safe": "Badania Rogiera wskazują na podejrzaną osobę.",
     "warn": null,
@@ -2118,7 +2118,7 @@
    {
     "qp": 7,
     "text": "Zapytaj {n:Ranni the Witch} o przeklęty znak w {p:Ranni's Rise}.",
-    "next": "Udaj się do {p:Ranni's Rise} za {p:Caria Manor} (północno-zachodnia Liurnia) i przedstaw sprawę Ranni. Odprawi cię — znak spoczywa w jej porzuconym ciele, nie przy niej.",
+    "next": "Udaj się do {p:Ranni's Rise} za {p:Caria Manor} (północno-zachodnia Liurnia) i przedstaw sprawę Ranni. Odprawi cię: znak spoczywa w jej porzuconym ciele, nie przy niej.",
     "safe": "Podejrzana ma wieżę na Trzech Siostrach, za karyjskim dworem.",
     "warn": null,
     "where": "{p:Ranni's Rise}",
@@ -2151,7 +2151,7 @@
    {
     "qp": 10,
     "text": "Porozmawiaj z {n:Rogier}, póki ogarnia go dziwny sen.",
-    "next": "Porozmawiaj z Rogierem, gdy ogarnia go dziwny sen. Jego śmierć jest zapisana w fabule i następuje wraz z postępem historii {n:Fia} i {n:Ranni the Witch} — po jego odejściu na krześle zostaje jego strój czaroszermierza i {i:Rogier's Letter}.",
+    "next": "Porozmawiaj z Rogierem, gdy ogarnia go dziwny sen. Jego śmierć jest zapisana w fabule i następuje wraz z postępem historii {n:Fia} i {n:Ranni the Witch}. Po jego odejściu na krześle zostaje jego strój czaroszermierza i {i:Rogier's Letter}.",
     "safe": "Rogier słabnie w Twierdzy Okrągłego Stołu.",
     "warn": "Postęp w historiach Fii i Ranni pogłębia sen Rogiera, więc wyczerp jego dialogi, póki jeszcze się budzi. Jego śmierć to wymagany element fabuły, a nie porażka.",
     "where": "{p:Roundtable Hold}",
@@ -2161,7 +2161,7 @@
    },
    {
     "qp": 99,
-    "text": "Rogier nie żyje — zabierz jego ekwipunek.",
+    "text": "Rogier nie żyje. Zabierz jego ekwipunek.",
     "next": "Rogier umiera. Możesz zabrać jego ekwipunek.",
     "safe": null,
     "warn": null,
@@ -2197,7 +2197,7 @@
     "qp": 2,
     "text": "Porozmawiaj z Nepheli w lokacji {p:Roundtable Hold}, a potem z {n:Sir Gideon Ofnir} o niej.",
     "next": "Porozmawiaj z Nepheli w lokacji {p:Roundtable Hold}, a następnie z postacią {n:Sir Gideon Ofnir} na jej temat.",
-    "safe": "W Twierdzy warto odszukać i Nepheli, i Gideona.",
+    "safe": "W Twierdzy odszukaj i Nepheli, i Gideona.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
     "match": [
@@ -2218,7 +2218,7 @@
    {
     "qp": 4,
     "text": "Znajdź zrozpaczoną Nepheli w piwnicy Twierdzy (schodami obok kowala).",
-    "next": "Znajdź zrozpaczoną Nepheli w piwnicy lokacji {p:Roundtable Hold} – zejdź schodami obok kowala.",
+    "next": "Znajdź zrozpaczoną Nepheli w piwnicy lokacji {p:Roundtable Hold}. Zejdź schodami obok kowala.",
     "safe": "Nepheli schroniła się gdzieś pod Twierdzą.",
     "warn": null,
     "where": "{p:Roundtable Hold}",
@@ -2251,7 +2251,7 @@
    {
     "qp": 7,
     "text": "Zdobądź {i:Stormhawk King} w lokacji {p:Chapel of Anticipation} i daj go Nepheli.",
-    "next": "Wróć do lokacji {p:Chapel of Anticipation} przez bramę teleportacyjną na szczycie {p:Four Belfries} w zachodniej Liurnii (otwiera ją {i:Imbued Sword Key}). Prochy {i:Stormhawk King} leżą na górnym piętrze kaplicy – zanieś je Nepheli do piwnicy.",
+    "next": "Wróć do lokacji {p:Chapel of Anticipation} przez bramę teleportacyjną na szczycie {p:Four Belfries} w zachodniej Liurnii (otwiera ją {i:Imbued Sword Key}). Prochy {i:Stormhawk King} leżą na górnym piętrze kaplicy. Zanieś je Nepheli do piwnicy.",
     "safe": "Prochy dawnego króla czekają tam, gdzie zaczęła się twoja podróż.",
     "warn": "Prochy chronią Nepheli przed miksturą Seluvisa. Jeśli chcesz użyć na niej mikstury (co ją zgubi), musisz zrobić to wcześniej.",
     "where": "{p:Chapel of Anticipation}",
@@ -2274,7 +2274,7 @@
    },
    {
     "qp": 99,
-    "text": "Nepheli nie żyje – quest zakończony.",
+    "text": "Nepheli nie żyje. Quest zakończony.",
     "next": "Nepheli nie żyje.",
     "safe": null,
     "warn": null,
@@ -2298,8 +2298,8 @@
   "steps": [
    {
     "qp": 1,
-    "text": "Spotkaj Hyettę przy łasce {p:Lake-Facing Cliffs} — prosi o winogrono.",
-    "next": "Spotkaj Hyettę przy łasce {p:Lake-Facing Cliffs} w południowej {p:Liurnia of the Lakes}. Pojawia się dopiero po zakończeniu historii {n:Irina} — zanieś list Iriny jej ojcu, {n:Edgar}, do {p:Castle Morne}.",
+    "text": "Spotkaj Hyettę przy łasce {p:Lake-Facing Cliffs}. Prosi o winogrono.",
+    "next": "Spotkaj Hyettę przy łasce {p:Lake-Facing Cliffs} w południowej {p:Liurnia of the Lakes}. Pojawia się dopiero po zakończeniu historii {n:Irina}: zanieś list Iriny jej ojcu, {n:Edgar}, do {p:Castle Morne}.",
     "safe": "Przy klifach nad jeziorem odpoczywa niewidoma wędrowniczka, prosząc o dziwne winogrono.",
     "warn": "Hyetta w ogóle się nie pojawi, jeśli sam zabijesz Irinę.",
     "where": "{p:Lake-Facing Cliffs}",
@@ -2311,7 +2311,7 @@
    {
     "qp": 2,
     "text": "Daj Hyetcie pierwsze {i:Shabriri Grape} i odbierz gest.",
-    "next": "Daj Hyetcie {i:Shabriri Grape}. Jedno leży w {p:Stormveil Castle}, na niższym poziomie przy sali tronowej {n:Godrick the Grafted} — dojdziesz tam trasą przez zawalony most bez pokonywania Godricka. W nagrodę dostaniesz gest „As You Wish”.",
+    "next": "Daj Hyetcie {i:Shabriri Grape}. Jedno leży w {p:Stormveil Castle}, na niższym poziomie przy sali tronowej {n:Godrick the Grafted}. Dojdziesz tam trasą przez zawalony most bez pokonywania Godricka. W nagrodę dostaniesz gest „As You Wish”.",
     "safe": "Winogrono, którego szuka, znajdziesz w zamku nad jeziorem.",
     "warn": null,
     "where": "{p:Lake-Facing Cliffs}",
@@ -2342,7 +2342,7 @@
    {
     "qp": 5,
     "text": "Powiedz Hyetcie prawdę o tym, czym są winogrona.",
-    "next": "Hyetta pyta, czym są winogrona. Powiedz jej prawdę — będzie wstrząśnięta, ale tylko taka odpowiedź popchnie jej historię dalej. Jeśli odmówisz, możesz odpowiedzieć przy następnej wizycie.",
+    "next": "Hyetta pyta, czym są winogrona. Powiedz jej prawdę. Będzie wstrząśnięta, ale tylko taka odpowiedź popchnie jej historię dalej. Jeśli odmówisz, możesz odpowiedzieć przy następnej wizycie.",
     "safe": "Ma pytanie, a dalej ruszy tylko po szczerej odpowiedzi.",
     "warn": null,
     "where": "{p:Gate Town Bridge}",
@@ -2363,7 +2363,7 @@
    },
    {
     "qp": 7,
-    "text": "Znajdź Hyettę w {p:Bellum Church} — prosi o {i:Fingerprint Grape}.",
+    "text": "Znajdź Hyettę w {p:Bellum Church}. Prosi o {i:Fingerprint Grape}.",
     "next": "Znajdź Hyettę w {p:Bellum Church} w północno-wschodniej {p:Liurnia of the Lakes}. Tym razem prosi o {i:Fingerprint Grape}.",
     "safe": "Czeka w kościele przy Gościńcu Bellum.",
     "warn": null,
@@ -2386,7 +2386,7 @@
    {
     "qp": 9,
     "text": "Daj Hyetcie {i:Fingerprint Grape} w {p:Bellum Church}.",
-    "next": "Daj Hyetcie {i:Fingerprint Grape} w {p:Bellum Church}. Podziękuje i odejdzie — chce zostać palcową dziewicą.",
+    "next": "Daj Hyetcie {i:Fingerprint Grape} w {p:Bellum Church}. Podziękuje i odejdzie, bo chce zostać palcową dziewicą.",
     "safe": "Zanieś to, co upuścił rycerz, z powrotem do kościoła.",
     "warn": null,
     "where": "{p:Bellum Church}",
@@ -2410,7 +2410,7 @@
     "text": "Zdejmij całą zbroję i otwórz zapieczętowane drzwi Trzech Palców.",
     "next": "Zdejmij wszystkie części zbroi i otwórz zapieczętowane drzwi, by otrzymać od {n:The Three Fingers} Płomień Szaleństwa.",
     "safe": "Drzwi na dole żądają dziwnego rodzaju poddania się.",
-    "warn": "Przyjęcie Oszalałego Płomienia skazuje cię na zakończenie Pana Oszalałego Płomienia, a {n:Melina} cię opuści — chyba że później oczyścisz się {i:Miquella's Needle} na arenie {n:Dragonlord Placidusax}.",
+    "warn": "Przyjęcie Oszalałego Płomienia skazuje cię na zakończenie Pana Oszalałego Płomienia, a {n:Melina} cię opuści, chyba że później oczyścisz się {i:Miquella's Needle} na arenie {n:Dragonlord Placidusax}.",
     "where": "{p:Frenzied Flame Proscription}",
     "match": [],
     "flags": [],
@@ -2418,8 +2418,8 @@
    },
    {
     "qp": 12,
-    "text": "Wróć do Hyetty — zostanie twoją palcową dziewicą.",
-    "next": "Wróć do Hyetty przy {p:Frenzied Flame Proscription} i porozmawiaj z nią — naznaczony tak jak teraz, zostaniesz przez nią przyjęty, a ona stanie się twoją palcową dziewicą.",
+    "text": "Wróć do Hyetty. Zostanie twoją palcową dziewicą.",
+    "next": "Wróć do Hyetty przy {p:Frenzied Flame Proscription} i porozmawiaj z nią. Naznaczony tak jak teraz, zostaniesz przez nią przyjęty, a ona stanie się twoją palcową dziewicą.",
     "safe": "Wróć do dziewicy czekającej za drzwiami.",
     "warn": null,
     "where": "{p:Frenzied Flame Proscription}",
@@ -2465,7 +2465,7 @@
    {
     "qp": 1,
     "text": "Uwolnij {n:Iron Fist Alexander} z dziury na {p:Stormhill} ciężkim lub ładowanym atakiem.",
-    "next": "Uwolnij {n:Iron Fist Alexander}, zaklinowanego w dziurze w północnej części {p:Stormhill}, tuż za {p:Saintsbridge} — uderz go ciężkim lub ładowanym atakiem, by wyskoczył.",
+    "next": "Uwolnij {n:Iron Fist Alexander}, zaklinowanego w dziurze w północnej części {p:Stormhill}, tuż za {p:Saintsbridge}. Uderz go ciężkim lub ładowanym atakiem, by wyskoczył.",
     "safe": "Donośny głos woła z dziury w ziemi na północ od {p:Saintsbridge}.",
     "warn": null,
     "where": "{p:Stormhill}",
@@ -2499,8 +2499,8 @@
     "qp": 4,
     "text": "Pokonaj {n:Starscourge Radahn}, a potem porozmawiaj z {n:Iron Fist Alexander} na polu bitwy w {p:Wailing Dunes}.",
     "next": "Pokonaj {n:Starscourge Radahn} (znak przywołania Alexandra pojawia się w tej walce), a potem porozmawiaj z {n:Iron Fist Alexander} na polu bitwy, na południe od łaski {p:Starscourge Radahn} w {p:Wailing Dunes}.",
-    "safe": "Po festiwalu warto poszukać na pobojowisku znajomego słoja.",
-    "warn": "Wyczerp tu jego dialog — po festiwalu trzeba z nim porozmawiać więcej niż raz, zanim przeniesie się dalej.",
+    "safe": "Po festiwalu poszukaj na pobojowisku znajomego słoja.",
+    "warn": "Wyczerp tu jego dialog. Po festiwalu trzeba z nim porozmawiać więcej niż raz, zanim przeniesie się dalej.",
     "where": "{p:Wailing Dunes}",
     "match": [
      "alexander:s2"
@@ -2535,7 +2535,7 @@
    {
     "qp": 7,
     "text": "Znajdź {n:Iron Fist Alexander} w {p:Crumbling Farum Azula} za łaską {p:Dragon Temple Lift} i przyjmij pojedynek.",
-    "next": "Od łaski {p:Dragon Temple Lift} w {p:Crumbling Farum Azula} idź w górę obok placu z nieumarłymi, a potem przejdź łukiem po lewej, by dotrzeć do {n:Iron Fist Alexander} na płaskiej arenie za kruszącą się wieżą. Poprosi o pojedynek wojowników — przyjmij go, gdy będziesz gotów.",
+    "next": "Od łaski {p:Dragon Temple Lift} w {p:Crumbling Farum Azula} idź w górę obok placu z nieumarłymi, a potem przejdź łukiem po lewej, by dotrzeć do {n:Iron Fist Alexander} na płaskiej arenie za kruszącą się wieżą. Poprosi o pojedynek wojowników. Przyjmij go, gdy będziesz gotów.",
     "safe": "Pielgrzymka słoja prowadzi w głąb kruszącej się burzy, za {p:Dragon Temple Lift}.",
     "warn": null,
     "where": "{p:Crumbling Farum Azula}",
@@ -2548,7 +2548,7 @@
     "text": "Pokonaj {n:Iron Fist Alexander} w pojedynku i odbierz {i:Shard of Alexander} oraz {i:Alexander's Innards}.",
     "next": "Pokonaj {n:Iron Fist Alexander} w pojedynku. Zadowolony z wojowniczego końca, którego zawsze szukał, daje ci {i:Shard of Alexander} i {i:Alexander's Innards}.",
     "safe": "Alexander czeka na wojowniczy koniec, którego zawsze szukał.",
-    "warn": "Wygranie pojedynku kończy jego wątek — wcześniej dokończ pozostałe rozmowy i od razu zabierz łup (jego ciało może zniknąć).",
+    "warn": "Wygranie pojedynku kończy jego wątek. Wcześniej dokończ pozostałe rozmowy i od razu zabierz łup (jego ciało może zniknąć).",
     "where": "{p:Crumbling Farum Azula}",
     "match": [
      "alexander:s4"
@@ -2585,7 +2585,7 @@
     "text": "Porozmawiaj z {n:Bloody Finger Hunter Yura} pod wiaduktem na północny wschód od {p:Seaside Ruins}.",
     "next": "Porozmawiaj z {n:Bloody Finger Hunter Yura} w jego obozie pod wiaduktem na północny wschód od miejsca łaski {p:Seaside Ruins}. Ostrzeże cię przed smokiem nad {p:Agheel Lake}.",
     "safe": "Samuraj obozuje pod wiaduktem na północny wschód od nadmorskich ruin.",
-    "warn": "Cały quest Yury trzeba ukończyć przed dotarciem do {p:Zamor Ruins} w {p:Mountaintops of the Giants} — przybycie tam automatycznie kończy wszystkie wcześniejsze etapy.",
+    "warn": "Cały quest Yury trzeba ukończyć przed dotarciem do {p:Zamor Ruins} w {p:Mountaintops of the Giants}. Przybycie tam automatycznie kończy wszystkie wcześniejsze etapy.",
     "where": "{p:Seaside Ruins}",
     "match": [
      "yura:s1"
@@ -2595,7 +2595,7 @@
    {
     "qp": 2,
     "text": "Opcjonalnie: zrań {n:Flying Dragon Agheel} i wróć do Yury po jego znak przyzwania.",
-    "next": "Opcjonalnie: uderz {n:Flying Dragon Agheel} co najmniej raz, a potem wróć do obozu Yury — zostawi znak przyzwania, by walczyć ze smokiem u twojego boku.",
+    "next": "Opcjonalnie: uderz {n:Flying Dragon Agheel} co najmniej raz, a potem wróć do obozu Yury. Zostawi znak przyzwania, by walczyć ze smokiem u twojego boku.",
     "safe": "Yura powie więcej, gdy sam sprawdzisz smoka w walce.",
     "warn": "Opcjonalne. Pominięcie kosztuje jedynie pomoc Yury w walce ze smokiem.",
     "where": "{p:Agheel Lake}",
@@ -2628,7 +2628,7 @@
    {
     "qp": 5,
     "text": "Pokonaj razem z Yurą najeźdźcę {n:Bloody Finger Nerijus} przy {p:Murkwater Cave}.",
-    "next": "Idź w górę rzeki do {p:Murkwater Cave} — najedzie cię {n:Bloody Finger Nerijus}. Yura przybędzie z pomocą; pokonajcie Nerijusa razem.",
+    "next": "Idź w górę rzeki do {p:Murkwater Cave}. Najedzie cię {n:Bloody Finger Nerijus}. Yura przybędzie z pomocą; pokonajcie Nerijusa razem.",
     "safe": "W górze rzeki, za wąwozem, coś na ciebie czeka.",
     "warn": null,
     "where": "{p:Murkwater Cave}",
@@ -2639,7 +2639,7 @@
    {
     "qp": 6,
     "text": "Znajdź nowy obóz Yury dalej w górę rzeki i porozmawiaj z nim.",
-    "next": "Znajdź Yurę w jego nowym obozie nieco dalej w górę rzeki i porozmawiaj z nim — poluje na Krwawe Palce i ostrzega cię przed nimi.",
+    "next": "Znajdź Yurę w jego nowym obozie nieco dalej w górę rzeki i porozmawiaj z nim. Poluje na Krwawe Palce i ostrzega cię przed nimi.",
     "safe": "Yura opuścił wąwóz. Szukaj go dalej w górę rzeki.",
     "warn": null,
     "where": "{p:Murkwater Cave}",
@@ -2649,9 +2649,9 @@
    {
     "qp": 7,
     "text": "Odpowiedz na znak Yury przy urwanym moście za {p:Main Academy Gate} i pokonaj Krwawego Palca.",
-    "next": "Polowanie zaprowadziło Yurę do Liurnii: od miejsca łaski {p:Main Academy Gate} idź mostem na północ, aż się urwie — tam jest jego czerwony znak przyzwania. Dołącz do polowania i pokonaj {n:Bloody Finger Ravenmount Assassin}. Za zwycięstwo dostaniesz {i:Rune Arc} i {i:Furlcalling Finger Remedy}, a po powrocie {i:Ash of War: Raptor of the Mists}.",
+    "next": "Polowanie zaprowadziło Yurę do Liurnii: od miejsca łaski {p:Main Academy Gate} idź mostem na północ, aż się urwie. Tam jest jego czerwony znak przyzwania. Dołącz do polowania i pokonaj {n:Bloody Finger Ravenmount Assassin}. Za zwycięstwo dostaniesz {i:Rune Arc} i {i:Furlcalling Finger Remedy}, a po powrocie {i:Ash of War: Raptor of the Mists}.",
     "safe": "Polowanie Yury zaprowadziło go na północ, do urwanego mostu przy Akademii.",
-    "warn": "Dopiero wygrana w tej walce popycha Yurę dalej. Zrób to przed wyprawą na {p:Mountaintops of the Giants} — po dotarciu do {p:Zamor Ruins} jego znak znika, a reszta historii przepada.",
+    "warn": "Dopiero wygrana w tej walce popycha Yurę dalej. Zrób to przed wyprawą na {p:Mountaintops of the Giants}. Po dotarciu do {p:Zamor Ruins} jego znak znika, a reszta historii przepada.",
     "where": "{p:Main Academy Gate}",
     "match": [],
     "alt": false
@@ -2660,7 +2660,7 @@
     "qp": 8,
     "text": "Porozmawiaj z Yurą po walce i odbierz {i:Smithing Stone [5]}.",
     "next": "Porozmawiaj z Yurą po inwazji. Podziękuje za polowanie i wręczy ci {i:Smithing Stone [5]}.",
-    "safe": "Po walce Yura ma ci coś do powiedzenia — i coś do dania.",
+    "safe": "Po walce Yura ma ci coś do powiedzenia i coś do dania.",
     "warn": null,
     "where": "{p:Main Academy Gate}",
     "match": [],
@@ -2670,7 +2670,7 @@
    {
     "qp": 9,
     "text": "Porozmawiaj z Yurą drugi raz, by wysłuchać jego słów pożegnania.",
-    "next": "Porozmawiaj z Yurą po raz drugi. Opowie o {n:Eleonora, Violet Bloody Finger} i powie, że tu rozchodzą się wasze drogi — może jeszcze się spotkacie. Tylko ta rozmowa wysyła go do {p:Second Church of Marika}.",
+    "next": "Porozmawiaj z Yurą po raz drugi. Opowie o {n:Eleonora, Violet Bloody Finger} i powie, że tu rozchodzą się wasze drogi, może jeszcze się spotkacie. Tylko ta rozmowa wysyła go do {p:Second Church of Marika}.",
     "safe": "Nie odchodź po pierwszej rozmowie. Yura ma jeszcze coś do powiedzenia.",
     "warn": "Łatwo to przegapić: jeśli weźmiesz kamień i odejdziesz bez ponownej rozmowy, Yura zostanie przy moście na zawsze, a reszta questa nigdy się nie otworzy.",
     "where": "{p:Main Academy Gate}",
@@ -2681,7 +2681,7 @@
    {
     "qp": 10,
     "text": "Znajdź umierającego Yurę w {p:Second Church of Marika} i przyjmij {i:Nagakiba}.",
-    "next": "Znajdź Yurę w {p:Second Church of Marika} na {p:Altus Plateau} — {n:Eleonora, Violet Bloody Finger} już go powaliła. Porozmawiaj z nim: oferuje ci swoją katanę {i:Nagakiba}, a z jego ciała możesz też zabrać {i:Purifying Crystal Tear}.",
+    "next": "Znajdź Yurę w {p:Second Church of Marika} na {p:Altus Plateau}. {n:Eleonora, Violet Bloody Finger} już go powaliła. Porozmawiaj z nim: oferuje ci swoją katanę {i:Nagakiba}, a z jego ciała możesz też zabrać {i:Purifying Crystal Tear}.",
     "safe": "Polowanie Yury kończy się w samotnym kościele na Płaskowyżu Altus.",
     "warn": "Jeśli nigdy tu nie dotrzesz, {i:Nagakiba} zostanie w miejscu, w którym ostatnio rozmawiałeś z Yurą.",
     "where": "{p:Second Church of Marika}",
@@ -2692,7 +2692,7 @@
    {
     "qp": 11,
     "text": "Pokonaj {n:Eleonora, Violet Bloody Finger} w {p:Second Church of Marika}.",
-    "next": "Rozmowa z Yurą ściąga na ciebie {n:Eleonora, Violet Bloody Finger} w {p:Second Church of Marika} — pokonaj ją. W miejscu, gdzie padnie, zostaną {i:Eleonora's Poleblade} i {i:Furlcalling Finger Remedy}.",
+    "next": "Rozmowa z Yurą ściąga na ciebie {n:Eleonora, Violet Bloody Finger} w {p:Second Church of Marika}. Pokonaj ją. W miejscu, gdzie padnie, zostaną {i:Eleonora's Poleblade} i {i:Furlcalling Finger Remedy}.",
     "safe": "Ta, która powaliła Yurę, jeszcze z tobą nie skończyła.",
     "warn": null,
     "where": "{p:Second Church of Marika}",
@@ -2705,7 +2705,7 @@
    {
     "qp": 12,
     "text": "Porozmawiaj z „Yurą” w {p:Zamor Ruins}.",
-    "next": "W {p:Zamor Ruins} na {p:Mountaintops of the Giants} porozmawiaj z „Yurą” — w jego ciele mieszka teraz adept Szalonego Płomienia {n:Shabriri}, który mówi o wielkiej, odrzuconej woli.",
+    "next": "W {p:Zamor Ruins} na {p:Mountaintops of the Giants} porozmawiaj z „Yurą”. W jego ciele mieszka teraz adept Szalonego Płomienia {n:Shabriri}, który mówi o wielkiej, odrzuconej woli.",
     "safe": "W Ruinach Zamor czeka znajoma twarz, niepokojąco odmieniona.",
     "warn": null,
     "where": "{p:Zamor Ruins}",
@@ -2744,7 +2744,7 @@
     "text": "Pozwól Fii się objąć, porozmawiaj z nią na osobności i przyjmij {i:Weathered Dagger}.",
     "next": "Pozwól Fii objąć cię w lokacji {p:Roundtable Hold}, porozmawiaj z nią na osobności i przyjmij {i:Weathered Dagger}, który prosi oddać właścicielowi.",
     "safe": "Towarzyszka na Łożu Śmierci ma prośbę do tych, których obejmuje.",
-    "warn": "Objęcie Fii daje przedmiot {i:Baldachin's Blessing}, ale obniża maksymalne PŻ, dopóki go nie użyjesz (lub nie stracisz). Sztylet daje dopiero po rozpoczęciu festiwalu Radahna w lokacji {p:Redmane Castle} – wtedy pozwól jej objąć cię ponownie.",
+    "warn": "Objęcie Fii daje przedmiot {i:Baldachin's Blessing}, ale obniża maksymalne PŻ, dopóki go nie użyjesz (lub nie stracisz). Sztylet daje dopiero po rozpoczęciu festiwalu Radahna w lokacji {p:Redmane Castle}. Wtedy pozwól jej objąć cię ponownie.",
     "where": "{p:Roundtable Hold}",
     "match": [
      "fia:s1"
@@ -2766,7 +2766,7 @@
    {
     "qp": 3,
     "text": "Odpocznij, wróć do Twierdzy i zabierz zbroję D leżącą przy jego ciele.",
-    "next": "Odpocznij i wróć: D leży martwy, a Fia stoi nad nim, po czym opuszcza Twierdzę, ostrzegając cię, byś nie zakłócał spoczynku {n:Godwyn the Golden}. Zabierz zbroję D ({i:Twinned Armor}) – przyda się w historii jego brata w Nokronie.",
+    "next": "Odpocznij i wróć: D leży martwy, a Fia stoi nad nim, po czym opuszcza Twierdzę, ostrzegając cię, byś nie zakłócał spoczynku {n:Godwyn the Golden}. Zabierz zbroję D ({i:Twinned Armor}). Przyda się w historii jego brata w Nokronie.",
     "safe": "Po odpoczynku w Twierdzy coś się zmieniło w związku ze sztyletem.",
     "warn": "Zabierz zbroję D spod jego ciała. Jest potrzebna, by kontynuować historię braci w Nokronie.",
     "where": "{p:Roundtable Hold}",
@@ -2778,7 +2778,7 @@
     "qp": 5,
     "text": "Zejdź do lokacji {p:Deeproot Depths} i pokonaj czempionów Fii, którzy zagradzają drogę.",
     "next": "Dotrzyj do lokacji {p:Deeproot Depths}: po pokonaniu {n:Valiant Gargoyle} w lokacji {p:Siofra Aqueduct} połóż się w kamiennej trumnie przy wodospadzie. Przejdź przez głębiny w stronę Fii i pokonaj wszystkie widma jej wiernych czempionów, które zagradzają drogę.",
-    "safe": "Fia odeszła gdzieś głęboko, tam gdzie sięgają korzenie wielkiego drzewa – i nie jest bezbronna.",
+    "safe": "Fia odeszła gdzieś głęboko, tam gdzie sięgają korzenie wielkiego drzewa, i nie jest bezbronna.",
     "warn": null,
     "where": "{p:Deeproot Depths}",
     "match": [
@@ -2790,7 +2790,7 @@
    {
     "qp": 6,
     "text": "Porozmawiaj z Fią na tyłach areny i poproś, by cię objęła.",
-    "next": "Porozmawiaj z Fią siedzącą na tyłach areny. Zapyta o twoje zamiary – odpowiedz, że chcesz, by cię objęła. Druga odpowiedź sprawi, że poprosi cię o zabicie jej, ale możesz porozmawiać z nią ponownie i zmienić zdanie.",
+    "next": "Porozmawiaj z Fią siedzącą na tyłach areny. Zapyta o twoje zamiary. Odpowiedz, że chcesz, by cię objęła. Druga odpowiedź sprawi, że poprosi cię o zabicie jej, ale możesz porozmawiać z nią ponownie i zmienić zdanie.",
     "safe": "Gdy jej czempioni padli, Fia czeka w ciszy.",
     "warn": null,
     "where": "{p:Deeproot Depths}",
@@ -2800,7 +2800,7 @@
    },
    {
     "qp": 7,
-    "text": "Podczas objęcia porozmawiaj z Fią na osobności – opowie o drugim znaku.",
+    "text": "Podczas objęcia porozmawiaj z Fią na osobności. Opowie o drugim znaku.",
     "next": "Wybierz rozmowę na osobności, gdy Fia cię obejmuje. Wyjaśni, że święty znak Godwyna odzyskano w Twierdzy, ale gdzieś istnieje drugi i musi go odnaleźć, nim ich Pan zostanie przyjęty.",
     "safe": "W objęciach Fia powie coś, co zdradza tylko na osobności.",
     "warn": null,
@@ -2856,9 +2856,9 @@
    {
     "qp": 12,
     "text": "Odpocznij, dotknij śpiącej Fii, pokonaj {n:Lichdragon Fortissax} i zabierz runę naprawy.",
-    "next": "Odpocznij, a potem dotknij śpiącej Fii, by wejść do jej snu, i pokonaj {n:Lichdragon Fortissax}. Po przebudzeniu zabierz od niej {i:Mending Rune of the Death-Prince} – umożliwia zakończenie Wiek Zmierzchu.",
+    "next": "Odpocznij, a potem dotknij śpiącej Fii, by wejść do jej snu, i pokonaj {n:Lichdragon Fortissax}. Po przebudzeniu zabierz od niej {i:Mending Rune of the Death-Prince}. Umożliwia zakończenie Wiek Zmierzchu.",
     "safe": "Sen Fii ma własnego strażnika.",
-    "warn": "Spalenie Drzewa Ziemi, zanim Fia opuści Twierdzę, może zablokować jej historię – najpierw doprowadź ją do lokacji {p:Deeproot Depths}.",
+    "warn": "Spalenie Drzewa Ziemi, zanim Fia opuści Twierdzę, może zablokować jej historię. Najpierw doprowadź ją do lokacji {p:Deeproot Depths}.",
     "where": "{p:Deeproot Depths}",
     "match": [
      "fia:s3",
@@ -2903,7 +2903,7 @@
    {
     "qp": 3,
     "text": "Najedź trzy razy inne światy i wróć do Varrégo po {i:Lord of Blood's Favor}.",
-    "next": "Trzy razy najedź inne światy za pomocą {i:Festering Bloody Finger} (próby nie muszą się udać), a potem wróć do Varrégo i wybierz „Namaść mnie”, by otrzymać {i:Lord of Blood's Favor} — białą chustę do nasączenia krwią dziewicy. Grając offline, możesz zamiast tego najeżdżać {n:Magnus the Beast Claw}: jego czerwony znak najazdu jest w zrujnowanym budynku w {p:Writheblood Ruins} na {p:Mt. Gelmir}, strzeżony przez ogary. Od łatki 1.06 trzykrotne użycie tego znaku liczy się tak samo jak najazdy na graczy i nie musisz go pokonywać.",
+    "next": "Trzy razy najedź inne światy za pomocą {i:Festering Bloody Finger} (próby nie muszą się udać), a potem wróć do Varrégo i wybierz „Namaść mnie”, by otrzymać {i:Lord of Blood's Favor}, białą chustę do nasączenia krwią dziewicy. Grając offline, możesz zamiast tego najeżdżać {n:Magnus the Beast Claw}: jego czerwony znak najazdu jest w zrujnowanym budynku w {p:Writheblood Ruins} na {p:Mt. Gelmir}, strzeżony przez ogary. Od łatki 1.06 trzykrotne użycie tego znaku liczy się tak samo jak najazdy na graczy i nie musisz go pokonywać.",
     "safe": "Wykaż się w innych światach, a potem wróć do białej maski po namaszczenie.",
     "warn": null,
     "where": "{p:Rose Church}",
@@ -2915,7 +2915,7 @@
    {
     "qp": 4,
     "text": "Nasącz {i:Lord of Blood's Favor} krwią dziewicy i oddaj ją Varrému.",
-    "next": "Nasącz {i:Lord of Blood's Favor} krwią dziewicy i oddaj ją Varrému. Pasuje cię na rycerza w służbie Mohga, dając wielokrotnego użytku {i:Bloody Finger}, a gdy porozmawiasz z nim jeszcze raz — {i:Pureblood Knight's Medal}. Najbliższe martwe dziewice spoczywają w {p:Church of Inhibition} na wzgórzach północno-wschodniej Liurnii albo w {p:Chapel of Anticipation}, do której prowadzi brama przy {p:Four Belfries}.",
+    "next": "Nasącz {i:Lord of Blood's Favor} krwią dziewicy i oddaj ją Varrému. Pasuje cię na rycerza w służbie Mohga, dając wielokrotnego użytku {i:Bloody Finger}, a gdy porozmawiasz z nim jeszcze raz, także {i:Pureblood Knight's Medal}. Najbliższe martwe dziewice spoczywają w {p:Church of Inhibition} na wzgórzach północno-wschodniej Liurnii albo w {p:Chapel of Anticipation}, do której prowadzi brama przy {p:Four Belfries}.",
     "safe": "Zakrwawiona chusta powinna wrócić do Różanego Kościoła.",
     "warn": null,
     "where": "{p:Rose Church}",
@@ -2927,7 +2927,7 @@
    {
     "qp": 5,
     "text": "Użyj {i:Pureblood Knight's Medal}, by przenieść się do {p:Mohgwyn Palace}.",
-    "next": "Użyj {i:Pureblood Knight's Medal}, by przenieść się do {p:Mohgwyn Palace} — to droga do domeny Mohga na długo przed otwarciem trasy przez {p:Consecrated Snowfield}. Medal stawia cię przy łasce {p:Dynasty Mausoleum Entrance} i nigdy się nie zużywa: możesz go użyć ponownie w dowolnej chwili, nawet w trakcie walki.",
+    "next": "Użyj {i:Pureblood Knight's Medal}, by przenieść się do {p:Mohgwyn Palace}. To droga do domeny Mohga na długo przed otwarciem trasy przez {p:Consecrated Snowfield}. Medal stawia cię przy łasce {p:Dynasty Mausoleum Entrance} i nigdy się nie zużywa: możesz go użyć ponownie w dowolnej chwili, nawet w trakcie walki.",
     "safe": "Medal wydaje się związany z domeną Pana Krwi.",
     "warn": null,
     "where": "{p:Mohgwyn Palace}",
@@ -2938,7 +2938,7 @@
    {
     "qp": 6,
     "text": "Najedź Varrégo przy łasce {p:Dynasty Mausoleum Midpoint}, pokonaj go i wysłuchaj ostatnich słów.",
-    "next": "Znajdź znak najazdu przy łasce {p:Dynasty Mausoleum Midpoint} w {p:Mohgwyn Palace} i użyj go, by walczyć z Varrém. Pokonaj go, a potem wróć do tego korytarza — jego ranne ciało leży tam, gdzie był znak. Wyczerp jego dialog, by otrzymać 6 {i:Festering Bloody Finger}, {i:Rune Arc}, {i:Furlcalling Finger Remedy} i przy ostatnich słowach {i:Varré's Bouquet}.",
+    "next": "Znajdź znak najazdu przy łasce {p:Dynasty Mausoleum Midpoint} w {p:Mohgwyn Palace} i użyj go, by walczyć z Varrém. Pokonaj go, a potem wróć do tego korytarza. Jego ranne ciało leży tam, gdzie był znak. Wyczerp jego dialog, by otrzymać 6 {i:Festering Bloody Finger}, {i:Rune Arc}, {i:Furlcalling Finger Remedy} i przy ostatnich słowach {i:Varré's Bouquet}.",
     "safe": "Przy połowie drogi przez mauzoleum dynastii wzywa znak z drogi białej maski.",
     "warn": "Pokonanie Mohga przed najazdem na Varrégo kończy jego historię poza ekranem i usuwa znak najazdu. Jego ciało i {i:Varré's Bouquet} nadal znajdziesz tam, gdzie byłby znak.",
     "where": "{p:Mohgwyn Palace}",
@@ -2953,7 +2953,7 @@
     "text": "Varré nie żyje.",
     "next": "Varré nie żyje.",
     "safe": "Ta ścieżka dobiegła końca.",
-    "warn": "Zabitego Varrégo nie da się przywrócić — nawet rozgrzeszeniem w {p:Church of Vows} — i jego wątku nie można już ukończyć.",
+    "warn": "Zabitego Varrégo nie da się przywrócić (nawet rozgrzeszeniem w {p:Church of Vows}) i jego wątku nie można już ukończyć.",
     "where": null,
     "match": [],
     "flags": [
@@ -2977,7 +2977,7 @@
     "text": "Daj {n:Millicent} naprawioną {i:Unalloyed Gold Needle} w {p:Church of the Plague} i odpocznij.",
     "next": "Daj {n:Millicent} naprawioną {i:Unalloyed Gold Needle} w {p:Church of the Plague}, a potem odpocznij: zgnilizna powstrzymana, Millicent wstaje i wręcza ci talizman {i:Prosthesis-Wearer Heirloom}.",
     "safe": "Wojowniczka trawiona zgnilizną kurczowo trzyma się życia w {p:Church of the Plague}.",
-    "warn": "Najpierw potrzebujesz igły naprawionej przez {n:Gowry} — przynieś mu igłę od {n:Commander O'Neil} z {p:Swamp of Aeonia} i pozwól mu ją naprawić.",
+    "warn": "Najpierw potrzebujesz igły naprawionej przez {n:Gowry}. Przynieś mu igłę od {n:Commander O'Neil} z {p:Swamp of Aeonia} i pozwól mu ją naprawić.",
     "where": "{p:Church of the Plague}",
     "match": [
      "millicent:s1",
@@ -3011,7 +3011,7 @@
    {
     "qp": 4,
     "text": "Pokonaj {n:Godskin Apostle} w {p:Dominula, Windmill Village} i porozmawiaj z {n:Millicent} przy łasce {p:Windmill Heights}.",
-    "next": "Pokonaj {n:Godskin Apostle} na szczycie {p:Dominula, Windmill Village} (złoty znak przywołania Millicenty czeka po drodze przy sadzawce przywołań), a potem porozmawiaj z nią przy łasce {p:Windmill Heights} — znów uzbrojona, zapewnia, że może walczyć u twego boku.",
+    "next": "Pokonaj {n:Godskin Apostle} na szczycie {p:Dominula, Windmill Village} (złoty znak przywołania Millicenty czeka po drodze przy sadzawce przywołań), a potem porozmawiaj z nią przy łasce {p:Windmill Heights}. Znów uzbrojona, zapewnia, że może walczyć u twego boku.",
     "safe": "Wioska wiatraków skrywa fałszywego apostoła, a droga Millicenty prowadzi właśnie tamtędy.",
     "warn": null,
     "where": "{p:Windmill Heights}",
@@ -3022,7 +3022,7 @@
    {
     "qp": 5,
     "text": "Spotkaj {n:Millicent} przy łasce {p:Ancient Snow Valley Ruins} na {p:Mountaintops of the Giants}.",
-    "next": "Spotkaj {n:Millicent} przy łasce {p:Ancient Snow Valley Ruins} na {p:Mountaintops of the Giants}. Szuka {p:Castle Sol} i mówi o lewej połowie medalionu — {i:Haligtree Secret Medallion (Left)}.",
+    "next": "Spotkaj {n:Millicent} przy łasce {p:Ancient Snow Valley Ruins} na {p:Mountaintops of the Giants}. Szuka {p:Castle Sol} i mówi o lewej połowie medalionu, {i:Haligtree Secret Medallion (Left)}.",
     "safe": "Millicenta brnie dalej w śniegi, szukając fortu zaćmienia.",
     "warn": "Do Świętego Drzewa potrzebujesz OBU połówek medalionu: prawej z {p:Village of the Albinaurics} (Liurnia) i lewej z {p:Castle Sol} (pokonaj {n:Commander Niall}). Użyj ich przy {p:Grand Lift of Rold}.",
     "where": "{p:Ancient Snow Valley Ruins}",
@@ -3044,7 +3044,7 @@
    {
     "qp": 7,
     "text": "Użyj CZERWONEGO znaku przy polu szkarłatnych kwiatów pod Elphael i pokonaj {n:Millicent}.",
-    "next": "Na polu szkarłatnych kwiatów pod {p:Elphael, Brace of the Haligtree} (od łaski {p:Drainage Channel}) użyj CZERWONEGO znaku przywołania, by wyzwać i pokonać {n:Millicent} — nagrodą jest talizman {i:Millicent's Prosthesis}, a jej historia kończy się z twojej ręki.",
+    "next": "Na polu szkarłatnych kwiatów pod {p:Elphael, Brace of the Haligtree} (od łaski {p:Drainage Channel}) użyj CZERWONEGO znaku przywołania, by wyzwać i pokonać {n:Millicent}. Nagrodą jest talizman {i:Millicent's Prosthesis}, a jej historia kończy się z twojej ręki.",
     "safe": "Przy wielkim polu szkarłatnych kwiatów pod Elphael czekają dwa znaki.",
     "warn": "Rozwidlenie: złoty znak oznacza walkę U BOKU Millicenty przeciw jej siostrom. Czerwony znak to zdrada. Wybieraj świadomie.",
     "where": "{p:Elphael, Brace of the Haligtree}",
@@ -3104,7 +3104,7 @@
    {
     "qp": 2,
     "text": "Odwiedzaj {n:Jar-Bairn}, aż w końcu ostrzeże cię przed kłusownikami.",
-    "next": "Wracaj do {p:Jarburg} i rozmawiaj z Jar-Bairnem, odpoczywając przy miejscu łaski między wizytami, aż wyczerpie dialogi. Oferuje kwiaty z wioski, opowiada o wujku Aleksandrze, przyznaje, że sam jest dzbanem-wojownikiem, a na koniec ostrzega przed kłusownikami — to o tę ostatnią rozmowę chodzi.",
+    "next": "Wracaj do {p:Jarburg} i rozmawiaj z Jar-Bairnem, odpoczywając przy miejscu łaski między wizytami, aż wyczerpie dialogi. Oferuje kwiaty z wioski, opowiada o wujku Aleksandrze, przyznaje, że sam jest dzbanem-wojownikiem, a na koniec ostrzega przed kłusownikami. To o tę ostatnią rozmowę chodzi.",
     "safe": "Historia Słojątka rozwija się podczas kolejnych wizyt w Słojogrodzie.",
     "warn": "Dopóki choć raz nie spotkasz {n:Iron Fist Alexander}, będzie tylko spał i mamrotał o szerokim świecie.",
     "where": "{p:Jarburg}",
@@ -3115,7 +3115,7 @@
    {
     "qp": 3,
     "text": "Rozwiń historię {n:Diallos} w {p:Volcano Manor}, aż osiądzie w {p:Jarburg}.",
-    "next": "Rozwijaj historię Diallosa w {p:Volcano Manor}, aż odejdzie i osiądzie w {p:Jarburg}. Wczytaj obszar i porozmawiaj z oboma kilka razy, aż Jar-Bairn przyzna, że jest trochę rozczarowany — dłonie Diallosa są piękne, ale wolałby Potentata tak dużego i silnego jak ty.",
+    "next": "Rozwijaj historię Diallosa w {p:Volcano Manor}, aż odejdzie i osiądzie w {p:Jarburg}. Wczytaj obszar i porozmawiaj z oboma kilka razy, aż Jar-Bairn przyzna, że jest trochę rozczarowany: dłonie Diallosa są piękne, ale wolałby Potentata tak dużego i silnego jak ty.",
     "safe": "W Słojogrodzie pojawił się ktoś nowy, a Słojątko jest zachwycone jego dłońmi.",
     "warn": null,
     "where": "{p:Jarburg}",
@@ -3126,7 +3126,7 @@
    {
     "qp": 4,
     "text": "Po rozmowie z {n:Iron Fist Alexander} na arenie Radahna wróć do napadniętego {p:Jarburg}.",
-    "next": "Po śmierci {n:Starscourge Radahn} wyczerp dialog {n:Iron Fist Alexander} na arenie Radahna, a potem wróć do {p:Jarburg} — dzbany są rozbite, a {n:Diallos} umiera na środku wioski. {n:Jar-Bairn} jest tuż na południe od niego, za jego nogami; porozmawiaj z nim — mówi, że historia rodu Hoslowów pisana jest krwią i właśnie takim wojownikiem chce być.",
+    "next": "Po śmierci {n:Starscourge Radahn} wyczerp dialog {n:Iron Fist Alexander} na arenie Radahna, a potem wróć do {p:Jarburg}. Dzbany są rozbite, a {n:Diallos} umiera na środku wioski. {n:Jar-Bairn} jest tuż na południe od niego, za jego nogami; porozmawiaj z nim. Mówi, że historia rodu Hoslowów pisana jest krwią i właśnie takim wojownikiem chce być.",
     "safe": "Słojogród został zaatakowany, a Słojątko nadrabia miną.",
     "warn": "Jeśli Radahn nie żyje i rozmawiałeś już z Aleksandrem, a napad nie nastąpił, przenieś się do miejsca łaski {p:Starscourge Radahn} i z powrotem albo odpocznij w {p:Jarburg} i przeczekaj do nocy.",
     "where": "{p:Jarburg}",
@@ -3159,7 +3159,7 @@
    {
     "qp": 7,
     "text": "Ukończ quest {n:Iron Fist Alexander} i daj {n:Jar-Bairn} {i:Alexander's Innards}.",
-    "next": "Ukończ historię {n:Iron Fist Alexander}, by zdobyć {i:Alexander's Innards}, a następnie oddaj je Jar-Bairnowi. Jest poruszony — musi być silny, a to szczątki jego wujka.",
+    "next": "Ukończ historię {n:Iron Fist Alexander}, by zdobyć {i:Alexander's Innards}, a następnie oddaj je Jar-Bairnowi. Jest poruszony: musi być silny, a to szczątki jego wujka.",
     "safe": "Szczątki wielkiego wojownika znaczyłyby dla Słojątka wszystko.",
     "warn": null,
     "where": "{p:Jarburg}",
@@ -3193,7 +3193,7 @@
    },
    {
     "qp": 99,
-    "text": "Jar-Bairn zwrócił się przeciwko tobie — jego historia się skończyła.",
+    "text": "Jar-Bairn zwrócił się przeciwko tobie. Jego historia się skończyła.",
     "next": "Quest zakończony. {n:Jar-Bairn} już z tobą nie porozmawia.",
     "safe": null,
     "warn": null,
@@ -3228,7 +3228,7 @@
    },
    {
     "qp": 2,
-    "text": "Dotrzyj na {p:Altus Plateau} – Corhyn ogłosi, że wyrusza szukać Złotej Maski.",
+    "text": "Dotrzyj na {p:Altus Plateau}. Corhyn ogłosi, że wyrusza szukać Złotej Maski.",
     "next": "Gdy dotrzesz na {p:Altus Plateau}, Corhyn ogłosi, że opuszcza Twierdzę, by odszukać szlachetnego {n:Goldmask}, i odejdzie.",
     "safe": "Corhyn wspomina, że wyrusza szukać szlachetnego bohatera.",
     "warn": null,
@@ -3284,7 +3284,7 @@
    {
     "qp": 7,
     "text": "Zdobądź {i:Golden Order Principia} w lokacji {p:Erdtree Sanctuary} i oddaj ją Corhynowi lub Miriel.",
-    "next": "Zdobądź {i:Golden Order Principia} w Leyndell: z lokacji {p:Erdtree Sanctuary} wespnij się po wielkiej gałęzi na zewnątrz na wyższy poziom – księga leży na zawieszonym krześle. Oddaj ją Corhynowi albo postaci {n:Miriel, Pastor of Vows} w lokacji {p:Church of Vows}; każde z nich odblokuje jej inkantacje, w tym potrzebne w tym queście {i:Law of Regression}.",
+    "next": "Zdobądź {i:Golden Order Principia} w Leyndell: z lokacji {p:Erdtree Sanctuary} wespnij się po wielkiej gałęzi na zewnątrz na wyższy poziom. Księga leży na zawieszonym krześle. Oddaj ją Corhynowi albo postaci {n:Miriel, Pastor of Vows} w lokacji {p:Church of Vows}; każde z nich odblokuje jej inkantacje, w tym potrzebne w tym queście {i:Law of Regression}.",
     "safe": "Fundamentalna księga spoczywa wysoko w sanktuarium Drzewa Ziemi.",
     "warn": null,
     "where": "{p:Erdtree Sanctuary}",
@@ -3299,7 +3299,7 @@
     "text": "Rzuć {i:Law of Regression} przed posągiem Radagona w Leyndell i przekaż prawdę Złotej Masce i Corhynowi.",
     "next": "Naucz się {i:Law of Regression} od Corhyna lub Miriel (wymaga 37 Inteligencji) i rzuć ją przed wielkim posągiem Radagona w Leyndell, przy wiadomości, że tylko regresja odkrywa sekrety. Potem przekaż prawdę postaciom {n:Goldmask} i {n:Brother Corhyn}.",
     "safe": "Posąg w stolicy i modlitwa regresji wiążą się z zagadką Złotej Maski.",
-    "warn": "Dokonaj tego odkrycia, zanim padnie {n:Maliketh, the Black Blade}, a stolica obróci się w popiół – inaczej Złota Maska nigdy nie dozna oświecenia.",
+    "warn": "Dokonaj tego odkrycia, zanim padnie {n:Maliketh, the Black Blade}, a stolica obróci się w popiół. Inaczej Złota Maska nigdy nie dozna oświecenia.",
     "where": "{p:Leyndell, Royal Capital}",
     "match": [],
     "flags": [],
@@ -3319,9 +3319,9 @@
    {
     "qp": 10,
     "text": "W lokacji {p:Leyndell, Ashen Capital} zabierz {i:Mending Rune of Perfect Order} z ciała Złotej Maski.",
-    "next": "Wróć jeszcze raz do lokacji {p:Leyndell, Ashen Capital}. {n:Goldmask} odszedł – znajdź go pod urwiskiem koloseum, na zachód od łaski {p:Erdtree Sanctuary}, i zabierz z jego ciała {i:Mending Rune of Perfect Order}, która umożliwia zakończenie Wiek Porządku. Potem wczytaj obszar ponownie, by zebrać zestaw Złotej Maski.",
+    "next": "Wróć jeszcze raz do lokacji {p:Leyndell, Ashen Capital}. {n:Goldmask} odszedł. Znajdź go pod urwiskiem koloseum, na zachód od łaski {p:Erdtree Sanctuary}, i zabierz z jego ciała {i:Mending Rune of Perfect Order}, która umożliwia zakończenie Wiek Porządku. Potem wczytaj obszar ponownie, by zebrać zestaw Złotej Maski.",
     "safe": "Kontemplacja Złotej Maski dobiegła w stolicy końca.",
-    "warn": "Dokończ odkrycie o Radagonie, zanim spalisz Drzewo Ziemi i obrócisz okolicę w popiół – inaczej Złota Maska zniknie, a Corhyn straci wiarę.",
+    "warn": "Dokończ odkrycie o Radagonie, zanim spalisz Drzewo Ziemi i obrócisz okolicę w popiół. Inaczej Złota Maska zniknie, a Corhyn straci wiarę.",
     "where": "{p:Leyndell, Ashen Capital}",
     "match": [
      "goldmask:s3",
@@ -3332,7 +3332,7 @@
    },
    {
     "qp": 99,
-    "text": "Corhyn nie żyje – quest zakończony.",
+    "text": "Corhyn nie żyje. Quest zakończony.",
     "next": "Corhyn nie żyje.",
     "safe": null,
     "warn": null,
@@ -3355,7 +3355,7 @@
    {
     "qp": 1,
     "text": "Rozbij samotny garnek w {p:Village of the Albinaurics}, by znaleźć Albusa i odebrać prawą połowę medalionu.",
-    "next": "W {p:Village of the Albinaurics} w Liurnii uderz w samotny garnek na półce skalnej, by odsłonić {n:Albus}. Powierzy ci PRAWĄ połowę medalionu — {i:Haligtree Secret Medallion (Right)}.",
+    "next": "W {p:Village of the Albinaurics} w Liurnii uderz w samotny garnek na półce skalnej, by odsłonić {n:Albus}. Powierzy ci PRAWĄ połowę medalionu, {i:Haligtree Secret Medallion (Right)}.",
     "safe": "W zrujnowanej wiosce srebrnego ludu jeden garnek stoi dziwnie nie na miejscu.",
     "warn": null,
     "where": "{p:Village of the Albinaurics}",
@@ -3424,7 +3424,7 @@
   "steps": [
    {
     "qp": 1,
-    "text": "Spotkaj {n:Knight Bernahl} w {p:Warmaster's Shack} na {p:Stormhill} — sprzedaje popioły wojny.",
+    "text": "Spotkaj {n:Knight Bernahl} w {p:Warmaster's Shack} na {p:Stormhill}. Sprzedaje popioły wojny.",
     "next": "Spotkaj {n:Knight Bernahl} w {p:Warmaster's Shack} na {p:Stormhill}. Sprzedaje popioły wojny.",
     "safe": "Mistrz wojny przesiaduje w chacie na {p:Stormhill}, sprzedając sztuki walki.",
     "warn": null,
@@ -3458,7 +3458,7 @@
    {
     "qp": 4,
     "text": "Odbierz od {n:Knight Bernahl} {i:Letter to Bernahl} z dwoma celami do upolowania.",
-    "next": "Odbierz {i:Letter to Bernahl}: masz upolować dwoje Zmatowieńców z Okrągłego Stołu — {n:Vargram the Raging Wolf} i {n:Errant Sorcerer Wilhelm}.",
+    "next": "Odbierz {i:Letter to Bernahl}: masz upolować dwoje Zmatowieńców z Okrągłego Stołu: {n:Vargram the Raging Wolf} i {n:Errant Sorcerer Wilhelm}.",
     "safe": "Bernahl ma dla ciebie własny list.",
     "warn": null,
     "where": "{p:Volcano Manor}",
@@ -3493,7 +3493,7 @@
    {
     "qp": 7,
     "text": "Po pokonaniu {n:Rykard, Lord of Blasphemy} porozmawiaj z {n:Knight Bernahl} w Dworze.",
-    "next": "Po zabiciu {n:Rykard, Lord of Blasphemy} porozmawiaj z {n:Knight Bernahl} w Dworze. Powraca do swojej dawnej sprawy — powstania przeciw Drzewu Złota — i odchodzi.",
+    "next": "Po zabiciu {n:Rykard, Lord of Blasphemy} porozmawiaj z {n:Knight Bernahl} w Dworze. Powraca do swojej dawnej sprawy (powstania przeciw Drzewu Złota) i odchodzi.",
     "safe": "Gdy pan Dworu upadł, Bernahl mówi o własnej wojnie.",
     "warn": null,
     "where": "{p:Volcano Manor}",
@@ -3506,7 +3506,7 @@
    {
     "qp": 8,
     "text": "Pokonaj najeźdźcę {n:Recusant Bernahl} w {p:Crumbling Farum Azula} i zdobądź {i:Blasphemous Claw}.",
-    "next": "Od łaski {p:Beside the Great Bridge} w {p:Crumbling Farum Azula} idź pomostem w stronę skrzyni z {i:Old Lord's Talisman} (przez drzwi i po schodach, potem na północ w stronę smoczej świątyni) — tam najedzie cię {n:Recusant Bernahl}. Pokonaj go, by zdobyć {i:Blasphemous Claw} (pozwala parować czarne ostrze {n:Maliketh, the Black Blade}) i {i:Devourer's Scepter}.",
+    "next": "Od łaski {p:Beside the Great Bridge} w {p:Crumbling Farum Azula} idź pomostem w stronę skrzyni z {i:Old Lord's Talisman} (przez drzwi i po schodach, potem na północ w stronę smoczej świątyni). Tam najedzie cię {n:Recusant Bernahl}. Pokonaj go, by zdobyć {i:Blasphemous Claw} (pozwala parować czarne ostrze {n:Maliketh, the Black Blade}) i {i:Devourer's Scepter}.",
     "safe": "Za Wielkim Mostem odstępczy rycerz pilnuje ścieżki ku staremu talizmanowi.",
     "warn": null,
     "where": "{p:Crumbling Farum Azula}",
@@ -3581,7 +3581,7 @@
    {
     "qp": 4,
     "text": "Opcjonalnie: opowiadaj {n:Sir Ansbach} o znalezionych krzyżach Miquelli.",
-    "next": "Opcjonalnie: Ansbach prosi, byś opowiadał mu o znalezionych krzyżach. Powiedz mu o krzyżu w {p:Belurat, Tower Settlement}, {p:Scaduview Cross} i {p:Cerulean Coast Cross} — dwa wystarczą, by uznał, że Miquella zrzuca ciało i zmierza do wieży cienia.",
+    "next": "Opcjonalnie: Ansbach prosi, byś opowiadał mu o znalezionych krzyżach. Powiedz mu o krzyżu w {p:Belurat, Tower Settlement}, {p:Scaduview Cross} i {p:Cerulean Coast Cross}. Dwa wystarczą, by uznał, że Miquella zrzuca ciało i zmierza do wieży cienia.",
     "safe": "Stary rycerz chce usłyszeć o każdym krzyżu, jaki znajdziesz.",
     "warn": "Cały ten dialog przepada, gdy wielka runa Miquelli zostanie zniszczona.",
     "where": "{p:Main Gate Cross}",
@@ -3625,7 +3625,7 @@
    {
     "qp": 8,
     "text": "Znajdź {n:Redmane Freyja} przy {p:Storehouse, Seventh Floor}, pochyloną nad kamienną płytą.",
-    "next": "Znajdź Freyję przy {p:Storehouse, Seventh Floor}, pochyloną nad kamienną płytą, której nie potrafi odczytać. Porozmawiaj z nią — żałuje, że nie poprosiła Ansbacha o pomoc.",
+    "next": "Znajdź Freyję przy {p:Storehouse, Seventh Floor}, pochyloną nad kamienną płytą, której nie potrafi odczytać. Porozmawiaj z nią. Żałuje, że nie poprosiła Ansbacha o pomoc.",
     "safe": "Wysoko w magazynie wojowniczka Lwiej Grzywy przegrywa walkę z literami.",
     "warn": "Porozmawiaj tu z Freyją, zanim oddasz Ansbachowi {i:Secret Rite Scroll}, bo inaczej on odejdzie, a jej quest utknie.",
     "where": "{p:Storehouse, Seventh Floor}",
@@ -3648,8 +3648,8 @@
     "qp": 10,
     "text": "Znajdź {i:Secret Rite Scroll} przy {p:Storehouse, Fourth Floor} i oddaj go {n:Sir Ansbach}.",
     "next": "{i:Secret Rite Scroll} leży na stole za wysokimi regałami przy {p:Storehouse, Fourth Floor}. Oddaj go Ansbachowi: zrozumie, że Miquella chce użyć zwłok Mohga jako naczynia dla swojego małżonka.",
-    "safe": "Czwarte piętro magazynu skrywa obrzęd, który warto pokazać staremu rycerzowi.",
-    "warn": "Oddanie zwoju sprawia, że Ansbach opuszcza magazyn. Jeśli nie opowiedziałeś mu jeszcze o Freyi, jej quest tu utknie — jedynym wyjściem jest stanąć po stronie {n:Needle Knight Leda} przeciw niemu; wtedy Ansbach upuści list.",
+    "safe": "Na czwartym piętrze magazynu jest obrzęd. Pokaż go staremu rycerzowi.",
+    "warn": "Oddanie zwoju sprawia, że Ansbach opuszcza magazyn. Jeśli nie opowiedziałeś mu jeszcze o Freyi, jej quest tu utknie. Jedynym wyjściem jest stanąć po stronie {n:Needle Knight Leda} przeciw niemu; wtedy Ansbach upuści list.",
     "where": "{p:Storehouse, Fourth Floor}",
     "match": [],
     "flags": [],
@@ -3755,7 +3755,7 @@
    {
     "qp": 2,
     "text": "Spotkaj Ledę przy łasce {p:Highroad Cross} w lokacji {p:Scadu Altus}.",
-    "next": "Po pierwszym wejściu do lokacji {p:Scadu Altus} Leda przenosi się do łaski {p:Highroad Cross} – porozmawiaj z nią tam. Po drodze zostawia dwie notatki: {i:Tower of Shadow Message} w lokacji {p:Belurat, Tower Settlement} (windą i schodami za {n:Divine Beast Dancing Lion}) oraz {i:Castle Cross Message} przy krzyżu Miquelli w lokacji {p:Castle Ensis}. Można ją też przywołać do walki z {n:Rellana, Twin Moon Knight}.",
+    "next": "Po pierwszym wejściu do lokacji {p:Scadu Altus} Leda przenosi się do łaski {p:Highroad Cross}. Porozmawiaj z nią tam. Po drodze zostawia dwie notatki: {i:Tower of Shadow Message} w lokacji {p:Belurat, Tower Settlement} (windą i schodami za {n:Divine Beast Dancing Lion}) oraz {i:Castle Cross Message} przy krzyżu Miquelli w lokacji {p:Castle Ensis}. Można ją też przywołać do walki z {n:Rellana, Twin Moon Knight}.",
     "safe": "Rycerz igły wyruszył przodem w głąb krainy cienia.",
     "warn": "Jej znak przywołania do walki z {n:Rellana, Twin Moon Knight} znika, gdy urok Miquelli zostanie złamany.",
     "where": "{p:Highroad Cross}",
@@ -3787,8 +3787,8 @@
    },
    {
     "qp": 5,
-    "text": "Opcjonalnie: wskaż Ledzie podejrzanego – {n:Thiollier}, {n:Hornsent} albo nikogo.",
-    "next": "Opcjonalnie: Leda zapyta, kogo ma ścigać. Możesz wskazać postać {n:Thiollier}, postać {n:Hornsent} albo nic nie mówić – i tak wybierze {n:Hornsent}. Opcja z Thiollierem pojawia się tylko, jeśli go spotkałeś.",
+    "text": "Opcjonalnie: wskaż Ledzie podejrzanego: {n:Thiollier}, {n:Hornsent} albo nikogo.",
+    "next": "Opcjonalnie: Leda zapyta, kogo ma ścigać. Możesz wskazać postać {n:Thiollier}, postać {n:Hornsent} albo nic nie mówić, i tak wybierze {n:Hornsent}. Opcja z Thiollierem pojawia się tylko, jeśli go spotkałeś.",
     "safe": "Leda chce usłyszeć imię.",
     "warn": "Postać {n:Hornsent} można wskazać tylko przed pierwszym wejściem na arenę, na której czeka {n:Messmer the Impaler}.",
     "where": "{p:Highroad Cross}",
@@ -3809,10 +3809,10 @@
    },
    {
     "qp": 7,
-    "text": "Na blankach {p:Shadow Keep} użyj jednego z dwóch znaków przywołania – za Ledą lub za {n:Hornsent}.",
-    "next": "Dwa znaki czekają na blankach z płonącymi łodziami, tuż przed windą do łaski {p:Storehouse, First Floor}. Czerwony znak to walka po stronie Ledy – zabijesz {n:Hornsent} i dostaniesz {i:Falx} oraz jego zestaw, a potem od Ledy {i:Lacerating Crossed-Tree}; złoty to walka po stronie {n:Hornsent} – nagrodą są {i:Ash of War: Swift Slash} i {i:Leda's Rune}. Możesz też zignorować oba.",
+    "text": "Na blankach {p:Shadow Keep} użyj jednego z dwóch znaków przywołania: za Ledą lub za {n:Hornsent}.",
+    "next": "Dwa znaki czekają na blankach z płonącymi łodziami, tuż przed windą do łaski {p:Storehouse, First Floor}. Czerwony znak to walka po stronie Ledy: zabijesz {n:Hornsent} i dostaniesz {i:Falx} oraz jego zestaw, a potem od Ledy {i:Lacerating Crossed-Tree}. Złoty to walka po stronie {n:Hornsent}, a nagrodą są {i:Ash of War: Swift Slash} i {i:Leda's Rune}. Możesz też zignorować oba.",
     "safe": "Na blankach twierdzy cienia czekają dwa znaki przywołania.",
-    "warn": "Oba znaki znikają w chwili, gdy pierwszy raz wejdziesz od łaski {p:Dark Chamber Entrance} do sali, w której czeka {n:Messmer the Impaler} – za pierwszym razem nie zatrzyma cię tam żadna mgła.",
+    "warn": "Oba znaki znikają w chwili, gdy pierwszy raz wejdziesz od łaski {p:Dark Chamber Entrance} do sali, w której czeka {n:Messmer the Impaler}. Za pierwszym razem nie zatrzyma cię tam żadna mgła.",
     "where": "{p:Shadow Keep}",
     "match": [],
     "flags": [],
@@ -3821,7 +3821,7 @@
    {
     "qp": 8,
     "text": "Wróć do Ledy przy {p:Highroad Cross} i wyczerp jej dialog o losie {n:Hornsent}.",
-    "next": "Wróć do Ledy przy łasce {p:Highroad Cross}. Jeśli walczyłeś po jej stronie, podziękuje i da ci {i:Lacerating Crossed-Tree}; jeśli nie, po śmierci Messmera powie, że {n:Hornsent} nie stanowi już zagrożenia. W obu przypadkach wyczerp potem jej dialog – rozmyśla nad ciężarem swoich czynów.",
+    "next": "Wróć do Ledy przy łasce {p:Highroad Cross}. Jeśli walczyłeś po jej stronie, podziękuje i da ci {i:Lacerating Crossed-Tree}; jeśli nie, po śmierci Messmera powie, że {n:Hornsent} nie jest już groźny. W obu przypadkach wyczerp potem jej dialog. Rozmyśla nad ciężarem swoich czynów.",
     "safe": "Leda ma coś do powiedzenia o rogatym.",
     "warn": null,
     "where": "{p:Highroad Cross}",
@@ -3831,8 +3831,8 @@
    },
    {
     "qp": 9,
-    "text": "Porozmawiaj ponownie z Ledą – wskaże {n:Sir Ansbach} jako kolejny cel.",
-    "next": "Porozmawiaj z Ledą jeszcze raz przy łasce {p:Highroad Cross}. Jako kolejny cel wskaże postać {n:Sir Ansbach} – niegdyś budzącego postrach dowódcę Rycerzy Czystej Krwi Mohga. Jego znaki przywołania pojawią się dopiero, gdy dasz mu {i:Secret Rite Scroll} i dokończysz jego sprawy w lokacji {p:Shadow Keep}.",
+    "text": "Porozmawiaj ponownie z Ledą. Wskaże {n:Sir Ansbach} jako kolejny cel.",
+    "next": "Porozmawiaj z Ledą jeszcze raz przy łasce {p:Highroad Cross}. Jako kolejny cel wskaże postać {n:Sir Ansbach}, niegdyś budzącego postrach dowódcę Rycerzy Czystej Krwi Mohga. Jego znaki przywołania pojawią się dopiero, gdy dasz mu {i:Secret Rite Scroll} i dokończysz jego sprawy w lokacji {p:Shadow Keep}.",
     "safe": "Podejrzenia Ledy padły na nowy cel.",
     "warn": null,
     "where": "{p:Highroad Cross}",
@@ -3842,8 +3842,8 @@
    },
    {
     "qp": 10,
-    "text": "Przy łasce {p:Storehouse, First Floor} użyj znaku za Ledą lub za {n:Sir Ansbach} – albo pomiń walkę.",
-    "next": "Dwa znaki pojawią się tam, gdzie stoi {n:Sir Ansbach}, w lokacji {p:Storehouse, First Floor}. Czerwony to walka po stronie Ledy – zabijesz go i dostaniesz {i:Ansbach's Longbow} oraz jego zestaw, a potem od Ledy {i:Retaliatory Crossed-Tree}; złoty to walka po jego stronie – nagrodą są {i:Ansbach's Longbow} i {i:Leda's Rune}. Możesz też pominąć walkę i zachować go jako przywołańca w {p:Enir-Ilim}.",
+    "text": "Przy łasce {p:Storehouse, First Floor} użyj znaku za Ledą lub za {n:Sir Ansbach} albo pomiń walkę.",
+    "next": "Dwa znaki pojawią się tam, gdzie stoi {n:Sir Ansbach}, w lokacji {p:Storehouse, First Floor}. Czerwony to walka po stronie Ledy: zabijesz go i dostaniesz {i:Ansbach's Longbow} oraz jego zestaw, a potem od Ledy {i:Retaliatory Crossed-Tree}. Złoty to walka po jego stronie, a nagrodą są {i:Ansbach's Longbow} i {i:Leda's Rune}. Możesz też pominąć walkę i zachować go jako przywołańca w {p:Enir-Ilim}.",
     "safe": "Dwa kolejne znaki czekają tam, gdzie stał stary rycerz.",
     "warn": "Stanięcie po stronie Ledy zabija postać {n:Sir Ansbach} i kończy jego historię.",
     "where": "{p:Storehouse, First Floor}",
@@ -3864,8 +3864,8 @@
    },
    {
     "qp": 12,
-    "text": "Pożegnaj się z Ledą przy {p:Highroad Cross} – wyruszy do {p:Enir-Ilim}.",
-    "next": "Niezależnie od wyniku obu pojedynków Leda wyrusza teraz do lokacji {p:Enir-Ilim}. Jeśli za każdym razem walczyłeś po jej stronie, porozmawiaj z nią jeszcze raz przy łasce {p:Highroad Cross}, by usłyszeć pożegnanie – odejdzie po twoim odpoczynku lub opuszczeniu obszaru. Jeśli walczyłeś po stronie {n:Hornsent} lub {n:Sir Ansbach}, odejdzie sama.",
+    "text": "Pożegnaj się z Ledą przy {p:Highroad Cross}. Wyruszy do {p:Enir-Ilim}.",
+    "next": "Niezależnie od wyniku obu pojedynków Leda wyrusza teraz do lokacji {p:Enir-Ilim}. Jeśli za każdym razem walczyłeś po jej stronie, porozmawiaj z nią jeszcze raz przy łasce {p:Highroad Cross}, by usłyszeć pożegnanie. Odejdzie po twoim odpoczynku lub opuszczeniu obszaru. Jeśli walczyłeś po stronie {n:Hornsent} lub {n:Sir Ansbach}, odejdzie sama.",
     "safe": "Praca Ledy przy rozstajach dobiegła końca.",
     "warn": null,
     "where": "{p:Highroad Cross}",
@@ -3899,7 +3899,7 @@
    },
    {
     "qp": 99,
-    "text": "Leda zginęła, zanim jej łowy dobiegły końca – quest zakończony.",
+    "text": "Leda zginęła, zanim jej łowy dobiegły końca. Quest zakończony.",
     "next": "Leda zginęła, zanim jej polowanie dobiegło końca.",
     "safe": null,
     "warn": null,
@@ -3933,7 +3933,7 @@
    {
     "qp": 2,
     "text": "Wyczerp dialog z Rogatym przybyszem i odbierz {i:Cross Map}.",
-    "next": "Wyczerp dialog z Rogatym przybyszem przy {p:Three-Path Cross}. Da ci {i:Cross Map} — szkic trzech krzyży Miquelli.",
+    "next": "Wyczerp dialog z Rogatym przybyszem przy {p:Three-Path Cross}. Da ci {i:Cross Map}, szkic trzech krzyży Miquelli.",
     "safe": "Rogaty od dawna coś tropi na tych ziemiach.",
     "warn": null,
     "where": "{p:Three-Path Cross}",
@@ -3991,7 +3991,7 @@
    },
    {
     "qp": 7,
-    "text": "Porozmawiaj z Ledą ponownie — postanowi pozbyć się Rogatego przybysza.",
+    "text": "Porozmawiaj z Ledą ponownie. Postanowi pozbyć się Rogatego przybysza.",
     "next": "Porozmawiaj z Ledą jeszcze raz. Oznajmi, że pozbędzie się Rogatego przybysza, zanim jego żądza zemsty zgubi ich wszystkich, a w {p:Shadow Keep} pojawią się dwa znaki przywołania.",
     "safe": "Leda podjęła decyzję w sprawie rogatego.",
     "warn": null,
@@ -4003,7 +4003,7 @@
    {
     "qp": 8,
     "text": "Wybierz stronę w pojedynku Ledy z Rogatym przybyszem na blankach {p:Shadow Keep}.",
-    "next": "Dwa znaki czekają na blankach z płonącymi łodziami, tuż przed windą do łaski {p:Storehouse, First Floor}. Złoty znak walczy po stronie Rogatego przybysza i daje {i:Ash of War: Swift Slash} oraz {i:Leda's Rune}. Czerwony znak walczy po stronie Ledy, zabija Rogatego przybysza i daje {i:Falx}, {i:Hornsent Set} oraz — po ponownej rozmowie z Ledą przy {p:Highroad Cross} — {i:Lacerating Crossed-Tree}. Możesz też zignorować oba.",
+    "next": "Dwa znaki czekają na blankach z płonącymi łodziami, tuż przed windą do łaski {p:Storehouse, First Floor}. Złoty znak walczy po stronie Rogatego przybysza i daje {i:Ash of War: Swift Slash} oraz {i:Leda's Rune}. Czerwony znak walczy po stronie Ledy, zabija Rogatego przybysza i daje {i:Falx}, {i:Hornsent Set} oraz (po ponownej rozmowie z Ledą przy {p:Highroad Cross}) {i:Lacerating Crossed-Tree}. Możesz też zignorować oba.",
     "safe": "Na blankach Donżonu Cienia czekają dwa znaki przywołania.",
     "warn": "Oba znaki znikają, gdy po raz pierwszy wejdziesz na arenę Messmera od łaski {p:Dark Chamber Entrance}. Stanięcie po stronie Ledy zabija Rogatego przybysza i kończy tu jego historię. Stanięcie po jego stronie podtrzymuje jego zemstę i pomoc przeciw Messmerowi.",
     "where": "{p:Shadow Keep}",
@@ -4027,7 +4027,7 @@
    {
     "qp": 10,
     "text": "Porozmawiaj z Rogatym przybyszem na arenie Messmera po walce.",
-    "next": "Po walce porozmawiaj z Rogatym przybyszem na arenie Messmera. Jeśli go przywołałeś, przysięga, że jego zemsta dopiero się zaczyna. Jeśli nie — rozpacza, że nigdy jej nie dokona.",
+    "next": "Po walce porozmawiaj z Rogatym przybyszem na arenie Messmera. Jeśli go przywołałeś, przysięga, że jego zemsta dopiero się zaczyna. Jeśli nie, rozpacza, że nigdy jej nie dokona.",
     "safe": "Rogaty pozostaje tam, gdzie padł wąż.",
     "warn": "Jeśli go nie przywołałeś, a odpoczniesz dwa razy przed rozmową, odejdzie do {p:Highroad Cross}, nie mówiąc tego, co miał do powiedzenia.",
     "where": "{p:Shadow Keep}",
@@ -4049,7 +4049,7 @@
    {
     "qp": 12,
     "text": "Zabierz to, co zostawił Rogaty przybysz, gdy jego droga dobiegnie końca.",
-    "next": "Jakkolwiek skończy się jego droga — zabity dla Ledy, pokonany podczas najazdu w Rauh albo stojąc wśród twoich wrogów w bitwie z NPC w {p:Enir-Ilim} — Rogaty przybysz pada z niedokończoną zemstą, zostawiając {i:Falx}, {i:Hornsent Set} i {i:Soiled Loincloth}.",
+    "next": "Jakkolwiek skończy się jego droga (zabity dla Ledy, pokonany podczas najazdu w Rauh albo stojąc wśród twoich wrogów w bitwie z NPC w {p:Enir-Ilim}), Rogaty przybysz pada z niedokończoną zemstą, zostawiając {i:Falx}, {i:Hornsent Set} i {i:Soiled Loincloth}.",
     "safe": "Zemsta rogatego musi się w końcu jakoś zakończyć.",
     "warn": null,
     "where": null,
@@ -4097,7 +4097,7 @@
    {
     "qp": 2,
     "text": "Pokonaj {n:Fire Knight Queelign} po raz drugi przy {p:Church of the Crusade} w {p:Scadu Altus}.",
-    "next": "{n:Fire Knight Queelign} najeżdża cię po raz drugi przy {p:Church of the Crusade} w {p:Scadu Altus} — pokonaj go i tam. Pierwsza z dwóch porażek daje talizman {i:Crusade Insignia}, druga — {i:Prayer Room Key} i {i:Ash of War: Flame Skewer}, niezależnie od miejsca.",
+    "next": "{n:Fire Knight Queelign} najeżdża cię po raz drugi przy {p:Church of the Crusade} w {p:Scadu Altus}. Pokonaj go i tam. Pierwsza z dwóch porażek daje talizman {i:Crusade Insignia}, druga {i:Prayer Room Key} i {i:Ash of War: Flame Skewer}, niezależnie od miejsca.",
     "safe": "Trop rycerza ognia prowadzi dalej, do {p:Church of the Crusade} w {p:Scadu Altus}.",
     "warn": null,
     "where": "{p:Church of the Crusade}",
@@ -4108,7 +4108,7 @@
    {
     "qp": 3,
     "text": "Otwórz kluczem {i:Prayer Room Key} Salę Modlitw w {p:Shadow Keep, Church District} i porozmawiaj z Queelignem.",
-    "next": "Użyj {i:Prayer Room Key}, by otworzyć Salę Modlitw w {p:Shadow Keep, Church District}. W środku modli się sam {n:Fire Knight Queelign} — porozmawiaj z nim.",
+    "next": "Użyj {i:Prayer Room Key}, by otworzyć Salę Modlitw w {p:Shadow Keep, Church District}. W środku modli się sam {n:Fire Knight Queelign}. Porozmawiaj z nim.",
     "safe": "Upuszczony przez niego klucz otwiera pomieszczenie w {p:Shadow Keep, Church District}.",
     "warn": null,
     "where": "{p:Shadow Keep, Church District}",
@@ -4118,10 +4118,10 @@
    },
    {
     "qp": 4,
-    "text": "Daj {n:Fire Knight Queelign} {i:Iris of Grace} — odejdzie w spokoju, zostawiając popioły duszy.",
+    "text": "Daj {n:Fire Knight Queelign} {i:Iris of Grace}. Odejdzie w spokoju, zostawiając popioły duszy.",
     "next": "Daj {n:Fire Knight Queelign} {i:Iris of Grace}. Przekonany, że Marika w końcu mu odpowiedziała, odchodzi i zostawia popioły {i:Fire Knight Queelign}. {i:Iris of Grace} znajdziesz w {p:Specimen Storehouse} albo u stóp bezgłowego posągu Mariki, do którego prowadzi {p:Tree-Worship Passage} po osuszeniu dzielnicy kościelnej.",
     "safe": "Rycerz błaga o choćby okruch światła swojej bogini.",
-    "warn": "Przyjmie tylko jedną irys. Oddanie {i:Iris of Grace} wyklucza {i:Queelign's Greatsword}, a oddanie {i:Iris of Occultation} — jego popioły duszy.",
+    "warn": "Przyjmie tylko jedną irys. Oddanie {i:Iris of Grace} wyklucza {i:Queelign's Greatsword}, a oddanie {i:Iris of Occultation} wyklucza jego popioły duszy.",
     "where": "{p:Shadow Keep, Church District}",
     "match": [],
     "flags": [],
@@ -4129,10 +4129,10 @@
    },
    {
     "qp": 5,
-    "text": "Albo daj {n:Fire Knight Queelign} {i:Iris of Occultation} — umrze w rozpaczy i upuści swój wielki miecz.",
+    "text": "Albo daj {n:Fire Knight Queelign} {i:Iris of Occultation}. Umrze w rozpaczy i upuści swój wielki miecz.",
     "next": "Alternatywnie daj {n:Fire Knight Queelign} {i:Iris of Occultation}. Pozbawiony resztki światła umiera w rozpaczy i zostawia {i:Queelign's Greatsword}. {i:Iris of Occultation} wypada z {n:Lesser Ulcerated Tree Spirit} w osuszonej dzielnicy kościelnej albo z {n:Lesser Omenkiller} w studni na głównej arenie {p:Fort of Reprimand}.",
     "safe": "Rycerz błaga o choćby okruch światła swojej bogini.",
-    "warn": "Przyjmie tylko jedną irys. Oddanie {i:Iris of Grace} wyklucza {i:Queelign's Greatsword}, a oddanie {i:Iris of Occultation} — jego popioły duszy.",
+    "warn": "Przyjmie tylko jedną irys. Oddanie {i:Iris of Grace} wyklucza {i:Queelign's Greatsword}, a oddanie {i:Iris of Occultation} wyklucza jego popioły duszy.",
     "where": "{p:Shadow Keep, Church District}",
     "match": [],
     "flags": [],
@@ -4166,7 +4166,7 @@
    {
     "qp": 1,
     "text": "Znajdź {n:Count Ymir} w {p:Cathedral of Manus Metyr} i wyczerp jego dialog.",
-    "next": "Znajdź {n:Count Ymir} za zamkniętymi drzwiami {p:Cathedral of Manus Metyr} we wschodniej części {p:Scadu Altus}, za {p:Bonny Village}. Wręczy ci {i:Hole-Laden Necklace} i {i:Ruins Map} oraz sprzedaje czary. Wyczerp jego dialog — wspomni o małym chłopcu w kościele i poprosi, byś uważał, gdzie stąpasz.",
+    "next": "Znajdź {n:Count Ymir} za zamkniętymi drzwiami {p:Cathedral of Manus Metyr} we wschodniej części {p:Scadu Altus}, za {p:Bonny Village}. Wręczy ci {i:Hole-Laden Necklace} i {i:Ruins Map} oraz sprzedaje czary. Wyczerp jego dialog. Wspomni o małym chłopcu w kościele i poprosi, byś uważał, gdzie stąpasz.",
     "safe": "Arcykapłan Palców strzeże katedry na wschód za wioską Bonny.",
     "warn": null,
     "where": "{p:Cathedral of Manus Metyr}",
@@ -4179,7 +4179,7 @@
    {
     "qp": 2,
     "text": "Uderz w wiszący dzwon w {p:Finger Ruins of Rhia} dzięki {i:Hole-Laden Necklace}.",
-    "next": "Kierując się {i:Ruins Map}, dotrzyj do {p:Finger Ruins of Rhia} na {p:Cerulean Coast}. Przemknij obok palcołazów i pijawkowatych stworów do wiszącego dzwonu i uderz w niego dzięki {i:Hole-Laden Necklace} — w nagrodę dostaniesz {i:Crimson Seed Talisman +1}.",
+    "next": "Kierując się {i:Ruins Map}, dotrzyj do {p:Finger Ruins of Rhia} na {p:Cerulean Coast}. Przemknij obok palcołazów i pijawkowatych stworów do wiszącego dzwonu i uderz w niego dzięki {i:Hole-Laden Necklace}. W nagrodę dostaniesz {i:Crimson Seed Talisman +1}.",
     "safe": "Wielki dzwon czeka wśród ruin w kształcie palców na południowym wybrzeżu.",
     "warn": null,
     "where": "{p:Finger Ruins of Rhia}",
@@ -4190,7 +4190,7 @@
    {
     "qp": 3,
     "text": "Wróć do {n:Count Ymir} po {i:Ruins Map (2nd)} i porozmawiaj z {n:Jolán}.",
-    "next": "Wróć do hrabiego Ymira w katedrze. Dźwięk dzwonu dotarł do niego, więc nagradza cię {i:Ruins Map (2nd)} i {i:Beloved Stardust}. Jego szermierka {n:Jolán} opiera się teraz o filar w tej samej sali — porozmawiaj z nią i wracaj do niej w miarę postępów questa.",
+    "next": "Wróć do hrabiego Ymira w katedrze. Dźwięk dzwonu dotarł do niego, więc nagradza cię {i:Ruins Map (2nd)} i {i:Beloved Stardust}. Jego szermierka {n:Jolán} opiera się teraz o filar w tej samej sali. Porozmawiaj z nią i wracaj do niej w miarę postępów questa.",
     "safe": "Hrabia ma więcej dla pilnego dzwonnika.",
     "warn": null,
     "where": "{p:Cathedral of Manus Metyr}",
@@ -4214,7 +4214,7 @@
    {
     "qp": 5,
     "text": "Wróć do {n:Count Ymir} po {i:Ruins Map (3rd)} i znów porozmawiaj z {n:Jolán}.",
-    "next": "Wróć jeszcze raz do hrabiego Ymira. Skoro oba dzwony zabrzmiały, wręcza ci {i:Ruins Map (3rd)}, nazywając ją swoim ostatnim darem. Porozmawiaj też ponownie z Jolán — ma nowe słowa, skoro Ymir jest z ciebie zadowolony.",
+    "next": "Wróć jeszcze raz do hrabiego Ymira. Skoro oba dzwony zabrzmiały, wręcza ci {i:Ruins Map (3rd)}, nazywając ją swoim ostatnim darem. Porozmawiaj też ponownie z Jolán. Ma nowe słowa, skoro Ymir jest z ciebie zadowolony.",
     "safe": "Ostatni dar Ymira wciąż czeka w katedrze.",
     "warn": null,
     "where": "{p:Cathedral of Manus Metyr}",
@@ -4238,7 +4238,7 @@
    {
     "qp": 7,
     "text": "Zejdź pod tron do {p:Finger Ruins of Miyr} i pokonaj {n:Metyr, Mother of Fingers}.",
-    "next": "Zbadaj pusty tron — odsuwa się, odsłaniając sznurową drabinę do {p:Finger Ruins of Miyr}. Po drodze najeżdża cię {n:Swordhand of Night Anna}; pokonaj ją dla {i:Claws of Night} i wróć na górę, by opowiedzieć o tym Jolán i usłyszeć jej kolejne słowa. Potem uderz w wiszący dzwon na końcu ruin, by przenieść się do {n:Metyr, Mother of Fingers}.",
+    "next": "Zbadaj pusty tron. Odsuwa się, odsłaniając sznurową drabinę do {p:Finger Ruins of Miyr}. Po drodze najeżdża cię {n:Swordhand of Night Anna}; pokonaj ją dla {i:Claws of Night} i wróć na górę, by opowiedzieć o tym Jolán i usłyszeć jej kolejne słowa. Potem uderz w wiszący dzwon na końcu ruin, by przenieść się do {n:Metyr, Mother of Fingers}.",
     "safe": "Fotel hrabiego skrywa więcej, niż powinien.",
     "warn": null,
     "where": "{p:Finger Ruins of Miyr}",
@@ -4264,7 +4264,7 @@
    {
     "qp": 9,
     "text": "Daj {n:Jolán} {i:Iris of Grace} i odbierz jej prochy duchów.",
-    "next": "Odpocznij, a potem wróć do filaru Jolán — siedzi osunięta na ziemi, traci wzrok i prosi o światło. Daj jej {i:Iris of Grace}, by otrzymać {i:Swordhand of Night Jolán}. Następnie zeskocz z klifów obok {p:Shaman Village} na zbocze przy {p:Rabbath's Rise} i zbadaj kukłę Anny: wprowadzenie Anny do prochów daje {i:Jolán and Anna}.",
+    "next": "Odpocznij, a potem wróć do filaru Jolán. Siedzi osunięta na ziemi, traci wzrok i prosi o światło. Daj jej {i:Iris of Grace}, by otrzymać {i:Swordhand of Night Jolán}. Następnie zeskocz z klifów obok {p:Shaman Village} na zbocze przy {p:Rabbath's Rise} i zbadaj kukłę Anny: wprowadzenie Anny do prochów daje {i:Jolán and Anna}.",
     "safe": "Szermierka nocy czeka przy swoim filarze, a tęczówka może jej odpowiedzieć.",
     "warn": "Obie tęczówki wzajemnie się wykluczają i obie kończą jej historię. {i:Iris of Grace} zostawia ci jej prochy duchów i pozwala połączyć ją z Anną. {i:Iris of Occultation} zabija ją i zostawia zamiast tego {i:Sword of Night}.",
     "where": "{p:Cathedral of Manus Metyr}",
@@ -4300,7 +4300,7 @@
    },
    {
     "qp": 99,
-    "text": "Hrabia Ymir zginął przedwcześnie — quest zakończony.",
+    "text": "Hrabia Ymir zginął przedwcześnie. Quest zakończony.",
     "next": "Quest zakończony. {n:Count Ymir} został zabity, zanim jego historia dobiegła końca.",
     "safe": null,
     "warn": null,
@@ -4323,7 +4323,7 @@
    {
     "qp": 1,
     "text": "Przejdź przez {p:Ellac Greatbridge} i porozmawiaj z rannym Igonem przy drodze na południe.",
-    "next": "Za łaską {p:Pillar Path Waypoint} przejdź przez {p:Ellac Greatbridge} i idź ścieżką na południe. Igon leży na ziemi, krzyczy z bólu i przeklina {n:Bayle the Dread} – porozmawiaj z nim.",
+    "next": "Za łaską {p:Pillar Path Waypoint} przejdź przez {p:Ellac Greatbridge} i idź ścieżką na południe. Igon leży na ziemi, krzyczy z bólu i przeklina {n:Bayle the Dread}. Porozmawiaj z nim.",
     "safe": "Przy drodze za punktem kontrolnym złamany głos przeklina imię smoka.",
     "warn": null,
     "where": "{p:Pillar Path Waypoint}",
@@ -4345,9 +4345,9 @@
    {
     "qp": 3,
     "text": "Przejdź przez {p:Dragon's Pit} do lokacji {p:Foot of the Jagged Peak} i pokonaj dwa smoki nad nią.",
-    "next": "Idź na południe od Igona do lokacji {p:Dragon's Pit}, zeskocz z ołtarza rytualnego, pokonaj {n:Ancient Dragon-Man} i wyjdź tunelem. Na wschodzie, za samotnym {n:Jagged Peak Drake}, leży {p:Grand Altar of Dragon Communion} – wyczerp tam dialog postaci {n:Dragon Communion Priestess} i zabierz {i:Ancient Dragon's Blessing}. Potem idź na północ między filarami do lokacji {p:Foot of the Jagged Peak} i pokonaj parę {n:Jagged Peak Drake} czekającą nad nią.",
+    "next": "Idź na południe od Igona do lokacji {p:Dragon's Pit}, zeskocz z ołtarza rytualnego, pokonaj {n:Ancient Dragon-Man} i wyjdź tunelem. Na wschodzie, za samotnym {n:Jagged Peak Drake}, leży {p:Grand Altar of Dragon Communion}. Wyczerp tam dialog postaci {n:Dragon Communion Priestess} i zabierz {i:Ancient Dragon's Blessing}. Potem idź na północ między filarami do lokacji {p:Foot of the Jagged Peak} i pokonaj parę {n:Jagged Peak Drake} czekającą nad nią.",
     "safe": "Nienawiść Igona wskazuje w górę Wyszczerbionego Szczytu, a po drodze leży ołtarz samych smoków.",
-    "warn": "Wyczerp dialog postaci {n:Dragon Communion Priestess}, zanim ukończysz quest Igona – po jego zakończeniu jej opowieści przepadną.",
+    "warn": "Wyczerp dialog postaci {n:Dragon Communion Priestess}, zanim ukończysz quest Igona. Po jego zakończeniu jej opowieści przepadną.",
     "where": "{p:Foot of the Jagged Peak}",
     "match": [],
     "flags": [],
@@ -4369,7 +4369,7 @@
    {
     "qp": 5,
     "text": "Na szczycie {p:Jagged Peak} przywołaj Igona i pokonaj {n:Bayle the Dread}.",
-    "next": "Wespnij się za {n:Ancient Dragon Senessax} na szczyt. {n:Bayle the Dread} ląduje, gdy wejdziesz na arenę – znak Igona pojawia się dopiero potem, tuż na lewo od wejścia. Przywołaj go i pokonajcie smoka.",
+    "next": "Wespnij się za {n:Ancient Dragon Senessax} na szczyt. {n:Bayle the Dread} ląduje, gdy wejdziesz na arenę. Znak Igona pojawia się dopiero potem, tuż na lewo od wejścia. Przywołaj go i pokonajcie smoka.",
     "safe": "Klątwa Igona celuje w szczyt Wyszczerbionego Szczytu.",
     "warn": "Znaku Igona nie znajdziesz poza areną. Szukaj go w środku, po lewej, gdy smok już wyląduje.",
     "where": "{p:Jagged Peak}",
@@ -4382,7 +4382,7 @@
    {
     "qp": 6,
     "text": "Wróć na arenę bliźniaczych smoków i zabierz ekwipunek Igona.",
-    "next": "Jeśli go przywołałeś, Igon wyda ostatni ryk nad ciałem Bayle'a. Wróć tam, gdzie walczyłeś z bliźniaczymi smokami, i zabierz {i:Igon's Greatbow}, {i:Igon's Helm}, {i:Igon's Armor}, {i:Igon's Gauntlets}, {i:Igon's Loincloth} i {i:Igon's Bell Bearing}. Potem odwiedź jeszcze {p:Grand Altar of Dragon Communion} – to, co zostawi ci kapłanka, zależy od tego, czy dostała kiedyś {i:Thiollier's Concoction}.",
+    "next": "Jeśli go przywołałeś, Igon wyda ostatni ryk nad ciałem Bayle'a. Wróć tam, gdzie walczyłeś z bliźniaczymi smokami, i zabierz {i:Igon's Greatbow}, {i:Igon's Helm}, {i:Igon's Armor}, {i:Igon's Gauntlets}, {i:Igon's Loincloth} i {i:Igon's Bell Bearing}. Potem odwiedź jeszcze {p:Grand Altar of Dragon Communion}. To, co zostawi ci kapłanka, zależy od tego, czy dostała kiedyś {i:Thiollier's Concoction}.",
     "safe": "Wróć tam, gdzie Igon ostatnio cię wołał.",
     "warn": null,
     "where": "{p:Foot of the Jagged Peak}",
@@ -4394,7 +4394,7 @@
    },
    {
     "qp": 99,
-    "text": "Igon nie żyje – quest zakończony.",
+    "text": "Igon nie żyje. Quest zakończony.",
     "next": "Quest zakończony. Igon zginął, zanim udało się pokonać {n:Bayle the Dread}.",
     "safe": null,
     "warn": null,
@@ -4417,7 +4417,7 @@
    {
     "qp": 1,
     "text": "Porozmawiaj z Thiollierem przy łasce {p:Pillar Path Cross}.",
-    "next": "Znajdź {n:Thiollier} przy łasce {p:Pillar Path Cross}, na południowy wschód od {p:Castle Ensis} — to prawy dolny krzyż na mapie od Rogatego przybysza. Rozmowa otwiera jego sklep. Jego historia nie ruszy, dopóki urok Miquelli nie zostanie złamany.",
+    "next": "Znajdź {n:Thiollier} przy łasce {p:Pillar Path Cross}, na południowy wschód od {p:Castle Ensis}. To prawy dolny krzyż na mapie od Rogatego przybysza. Rozmowa otwiera jego sklep. Jego historia nie ruszy, dopóki urok Miquelli nie zostanie złamany.",
     "safe": "Cichy truciciel przesiaduje przy krzyżu na południowym wschodzie równiny.",
     "warn": null,
     "where": "{p:Pillar Path Cross}",
@@ -4430,7 +4430,7 @@
    {
     "qp": 2,
     "text": "Weź od Moore'a {i:Black Syrup} i zanieś go Thiollierowi.",
-    "next": "Po spotkaniu z Thiollierem {n:Moore} ma coś nowego do powiedzenia — porozmawiaj z nim, a da ci {i:Black Syrup}. Zanieś go Thiollierowi i wybierz „Daj czarny syrop”.",
+    "next": "Po spotkaniu z Thiollierem {n:Moore} ma coś nowego do powiedzenia. Porozmawiaj z nim, a da ci {i:Black Syrup}. Zanieś go Thiollierowi i wybierz „Daj czarny syrop”.",
     "safe": "Moore ma prezent, który od dawna chciał komuś przekazać.",
     "warn": null,
     "where": "{p:Pillar Path Cross}",
@@ -4441,9 +4441,9 @@
    {
     "qp": 3,
     "text": "Zapytaj Thiolliera o syrop i odbierz {i:Thiollier's Concoction}.",
-    "next": "Porozmawiaj z Thiollierem ponownie i wybierz „Zapytaj o czarny syrop”. Zaproponuje, że przyrządzi coś specjalnego dla kogoś zmęczonego ciężarem życia — odpowiedz „Jestem zmęczony życiem”, a da ci {i:Thiollier's Concoction}.",
+    "next": "Porozmawiaj z Thiollierem ponownie i wybierz „Zapytaj o czarny syrop”. Zaproponuje, że przyrządzi coś specjalnego dla kogoś zmęczonego ciężarem życia. Odpowiedz „Jestem zmęczony życiem”, a da ci {i:Thiollier's Concoction}.",
     "safe": "Thiollier jest ci winien część prezentu od Moore'a, jeśli o nią poprosisz.",
-    "warn": "Gdy Thiollier opuści {p:Gravesite Plain}, Moore nie da już {i:Black Syrup}, a {i:Thiollier's Concoction} stanie się nieosiągalna — to odcina też alternatywne nagrody na końcu wątku {n:Dragon Communion Priestess}. Zrób to, zanim odejdzie na południe.",
+    "warn": "Gdy Thiollier opuści {p:Gravesite Plain}, Moore nie da już {i:Black Syrup}, a {i:Thiollier's Concoction} stanie się nieosiągalna. To odcina też alternatywne nagrody na końcu wątku {n:Dragon Communion Priestess}. Zrób to, zanim odejdzie na południe.",
     "where": "{p:Pillar Path Cross}",
     "match": [],
     "flags": [],
@@ -4452,7 +4452,7 @@
    {
     "qp": 4,
     "text": "Złam wielką runę Miquelli i porozmawiaj z Thiollierem o św. Trinie.",
-    "next": "Wywołaj komunikat „Gdzieś rozbito wielką runę. A wraz z nią potężny urok” — wchodząc do {p:Shadow Keep} głównym wejściem przy obozie armii Messmera albo idąc na północ od łaski {p:Bridge Leading to the Village} za {p:Bonny Village}. Potem porozmawiaj z Thiollierem: wyzna, że nie może przestać myśleć o {n:St. Trina}. Złamanie uroku otwiera też {p:Stone Coffin Fissure}.",
+    "next": "Wywołaj komunikat „Gdzieś rozbito wielką runę. A wraz z nią potężny urok”: wejdź do {p:Shadow Keep} głównym wejściem przy obozie armii Messmera albo idź na północ od łaski {p:Bridge Leading to the Village} za {p:Bonny Village}. Potem porozmawiaj z Thiollierem: wyzna, że nie może przestać myśleć o {n:St. Trina}. Złamanie uroku otwiera też {p:Stone Coffin Fissure}.",
     "safe": "Coś musi pęknąć, zanim Thiollier powie, co naprawdę leży mu na sercu.",
     "warn": null,
     "where": "{p:Pillar Path Cross}",
@@ -4488,7 +4488,7 @@
     "qp": 7,
     "text": "Znajdź Thiolliera drzemiącego obok św. Triny w {p:Garden of Deep Purple}.",
     "next": "Wróć do {p:Garden of Deep Purple}. Thiollier leży na ziemi obok św. Triny, odurzony jej trucizną, i czeka, aż usłyszy jej głos. Porozmawiaj z nim. Jeśli wyruszył na południe, zanim pokonałeś {n:Putrescent Knight}, jego znak przywołania będzie dostępny w tej walce.",
-    "safe": "Gdy Thiollier podąży za liliami, warto wrócić do ogrodu głębokiej purpury.",
+    "safe": "Gdy Thiollier podąży za liliami, wróć do ogrodu głębokiej purpury.",
     "warn": null,
     "where": "{p:Garden of Deep Purple}",
     "match": [],
@@ -4509,7 +4509,7 @@
    {
     "qp": 9,
     "text": "Wypij nektar jeszcze dwa razy, by wysłuchać św. Triny do końca.",
-    "next": "Pij dalej. Piąta i szósta śmierć wyczerpują dialog św. Triny — „Boskość byłaby dla Miquelli więzieniem”, a potem „Musisz zabić Miquellę... Przebacz mu”. Dopiero wtedy Thiollier pozwoli ci w ogóle o niej mówić.",
+    "next": "Pij dalej. Piąta i szósta śmierć wyczerpują dialog św. Triny: „Boskość byłaby dla Miquelli więzieniem”, a potem „Musisz zabić Miquellę... Przebacz mu”. Dopiero wtedy Thiollier pozwoli ci w ogóle o niej mówić.",
     "safe": "Św. Trina ma do powiedzenia więcej, niż usłyszałeś.",
     "warn": "Thiollier nie da ci przekazać słów św. Triny, dopóki nie wypijesz jej nektaru wszystkie sześć razy i nie wysłuchasz jej do końca.",
     "where": "{p:Garden of Deep Purple}",
@@ -4555,7 +4555,7 @@
    {
     "qp": 13,
     "text": "Przekaż klęczącemu Thiollierowi słowa św. Triny.",
-    "next": "Porozmawiaj z klęczącym Thiollierem — zapyta, co powiedziała ci św. Trina. Wybierz „Przekaż słowa św. Triny”. Nazwie cię koszmarem, który przyszedł go dręczyć, i zacznie wierzyć.",
+    "next": "Porozmawiaj z klęczącym Thiollierem. Zapyta, co powiedziała ci św. Trina. Wybierz „Przekaż słowa św. Triny”. Nazwie cię koszmarem, który przyszedł go dręczyć, i zacznie wierzyć.",
     "safe": "Upokorzony Thiollier sam cię o to zapyta.",
     "warn": null,
     "where": "{p:Garden of Deep Purple}",
@@ -4577,7 +4577,7 @@
    {
     "qp": 15,
     "text": "Przywołaj Thiolliera w {p:Enir-Ilim} do bitwy z NPC i walki z ostatnim bossem.",
-    "next": "Przywołaj znak Thiolliera do bitwy z NPC w komnacie oczyszczenia w {p:Enir-Ilim}, a potem ponownie do walki z ostatnim bossem. Jego pełny zestaw — {i:Thiollier's Hidden Needle}, {i:Thiollier's Mask}, {i:Thiollier's Garb}, {i:Thiollier's Gloves} i {i:Thiollier's Trousers} — zbierzesz przy wejściu na arenę po pokonaniu ostatniego bossa.",
+    "next": "Przywołaj znak Thiolliera do bitwy z NPC w komnacie oczyszczenia w {p:Enir-Ilim}, a potem ponownie do walki z ostatnim bossem. Jego pełny zestaw ({i:Thiollier's Hidden Needle}, {i:Thiollier's Mask}, {i:Thiollier's Garb}, {i:Thiollier's Gloves} i {i:Thiollier's Trousers}) zbierzesz przy wejściu na arenę po pokonaniu ostatniego bossa.",
     "safe": "Droga Thiolliera prowadzi teraz w stronę wieży.",
     "warn": "Jeśli nie przywołasz go do bitwy z NPC, nie przywołasz go też do walki z ostatnim bossem, choć jego ekwipunek i tak wypadnie.",
     "where": "{p:Enir-Ilim}",
@@ -4623,10 +4623,10 @@
    },
    {
     "qp": 2,
-    "text": "Kup od {n:Blackguard Big Boggart} gotowane krewetki — dostaniesz gest, a on przeniesie się do Leyndell.",
+    "text": "Kup od {n:Blackguard Big Boggart} gotowane krewetki. Dostaniesz gest, a on przeniesie się do Leyndell.",
     "next": "Gdy sprawa naszyjnika jest załatwiona, kup od {n:Blackguard Big Boggart} {i:Boiled Prawn}. Uzna cię za godnego zaufania, nauczy gestu {i:Spread Out} i przeniesie się do zewnętrznej fosy {p:Leyndell, Royal Capital}.",
     "safe": "Szorstki człowiek może zmięknąć, jeśli okażesz zainteresowanie tym, co ma do zaoferowania.",
-    "warn": "To właśnie zaprzyjaźnienie się z nim naraża go na niebezpieczeństwo. Przenosi się do Leyndell — i tylko tam ginie — dlatego, że kupiłeś jego krewetki.",
+    "warn": "To właśnie zaprzyjaźnienie się z nim naraża go na niebezpieczeństwo. Przenosi się do Leyndell (i tylko tam ginie) dlatego, że kupiłeś jego krewetki.",
     "where": "{p:Boilprawn Shack}",
     "match": [],
     "flags": [],
@@ -4637,7 +4637,7 @@
     "text": "Znajdź {n:Blackguard Big Boggart} przy zewnętrznej fosie {p:Leyndell, Royal Capital} i wysłuchaj ostrzeżeń.",
     "next": "Znajdź {n:Blackguard Big Boggart} przy zewnętrznej fosie {p:Leyndell, Royal Capital}, w pobliżu Capital Rampart. Sprzedaje teraz {i:Boiled Crab} i ostrzega cię przed {n:Dung Eater}, z którym siedział w więzieniu.",
     "safe": "Boggart przeniósł się pod zewnętrzne mury stolicy.",
-    "warn": "Uważaj podczas walki z olbrzymim krabem obok niego — jego oddech Zguby Śmierci może zabić Boggarta na miejscu.",
+    "warn": "Uważaj podczas walki z olbrzymim krabem obok niego. Jego oddech Zguby Śmierci może zabić Boggarta na miejscu.",
     "where": "{p:Leyndell, Royal Capital}",
     "match": [],
     "flags": [],
@@ -4648,7 +4648,7 @@
     "text": "Po uwolnieniu {n:Dung Eater} wyczerp dialog {n:Blackguard Big Boggart}, aż powie, że potwór czai się w pobliżu.",
     "next": "Gdy uwolnisz ciało {n:Dung Eater} z {p:Subterranean Shunning-Grounds}, wróć do {n:Blackguard Big Boggart} i wyczerp jego dialog, aż powie, że potwór czai się gdzieś w pobliżu.",
     "safe": "Ma więcej do powiedzenia o Łajnożercy, gdy ten jest już na wolności.",
-    "warn": "Ta rozmowa to wąskie gardło całego wątku. Jest dostępna tylko wtedy, gdy {n:Dung Eater} jest na wolności, ale jeszcze niepokonany — jeśli pokonasz jego najazd przy fosie albo zabijesz go w celi, zanim usłyszysz tę kwestię, historia Boggarta się kończy. Nigdy nie zostanie ranny ani nie zginie, a {i:Seedbed Curse} przy jego ciele przepada w tej rozgrywce i zostaje ci pozostałe pięć. Niektórzy gracze celowo pomijają tę kwestię, bo dzięki temu Boggart przeżywa przy swoim garnku z krabami.",
+    "warn": "Ta rozmowa to wąskie gardło całego wątku. Jest dostępna tylko wtedy, gdy {n:Dung Eater} jest na wolności, ale jeszcze niepokonany. Jeśli pokonasz jego najazd przy fosie albo zabijesz go w celi, zanim usłyszysz tę kwestię, historia Boggarta się kończy. Nigdy nie zostanie ranny ani nie zginie, a {i:Seedbed Curse} przy jego ciele przepada w tej rozgrywce i zostaje ci pozostałe pięć. Niektórzy gracze celowo pomijają tę kwestię, bo dzięki temu Boggart przeżywa przy swoim garnku z krabami.",
     "where": "{p:Leyndell, Royal Capital}",
     "match": [],
     "flags": [],
@@ -4657,7 +4657,7 @@
    {
     "qp": 5,
     "text": "Wczytaj obszar i porozmawiaj z umierającym {n:Blackguard Big Boggart} przy garnku z krabami.",
-    "next": "Wczytaj obszar ponownie i wróć do niego. Umiera obok swojego garnka z krabami — rozmawiaj z nim, aż poprosi, byś pozwolił mu odejść, zamiast zostawić go na pastwę klątwy.",
+    "next": "Wczytaj obszar ponownie i wróć do niego. Umiera obok swojego garnka z krabami. Rozmawiaj z nim, aż poprosi, byś pozwolił mu odejść, zamiast zostawić go na pastwę klątwy.",
     "safe": "Opuść obszar i wróć. To, czego się bał, już go dopadło.",
     "warn": "Jeśli zabijesz go sam, gdy jest ranny, zamiast go wysłuchać, przy jego ciele nie będzie {i:Seedbed Curse}.",
     "where": "{p:Leyndell, Royal Capital}",
@@ -4691,8 +4691,8 @@
    },
    {
     "qp": 99,
-    "text": "{n:Blackguard Big Boggart} nie żyje — zabierz z jego ciała maskę, żelazną kulę i dzwonek kulisty.",
-    "next": "{n:Blackguard Big Boggart} nie żyje — przeszukaj jego ciało: {i:Blackguard's Iron Mask}, {i:Iron Ball} i {i:Blackguard's Bell Bearing}.",
+    "text": "{n:Blackguard Big Boggart} nie żyje. Zabierz z jego ciała maskę, żelazną kulę i dzwonek kulisty.",
+    "next": "{n:Blackguard Big Boggart} nie żyje. Przeszukaj jego ciało: {i:Blackguard's Iron Mask}, {i:Iron Ball} i {i:Blackguard's Bell Bearing}.",
     "safe": "Ta historia dobiegła końca.",
     "warn": "Zabicie go w Liurnii nadal daje naszyjnik {n:Rya}, ale tracisz jego krewetki i kraba, przywołanie do walki z {n:Magma Wyrm Makar} oraz {i:Seedbed Curse}, którą zostawiłoby jego zakończenie.",
     "where": null,
@@ -4757,7 +4757,7 @@
     "text": "Weź {i:Red Letter} i pokonaj {n:Juno Hoslow, Knight of Blood} w {p:Mountaintops of the Giants}.",
     "next": "Znów wczytaj obszar i weź ze stołu {i:Red Letter}. Najedź i pokonaj {n:Juno Hoslow, Knight of Blood} w {p:Mountaintops of the Giants}, a potem wróć do Tanith po talizman {i:Taker's Cameo}.",
     "safe": "Trzecie i ostatnie zlecenie Dworu wiedzie daleko na wschód, na szczyty olbrzymów.",
-    "warn": "Jeśli zabijesz {n:Rykard, Lord of Blasphemy} przed zgłoszeniem się po nagrodę, Tanith nie wręczy jej osobiście — zostawi ją na tym samym stole, z którego brałeś listy.",
+    "warn": "Jeśli zabijesz {n:Rykard, Lord of Blasphemy} przed zgłoszeniem się po nagrodę, Tanith nie wręczy jej osobiście. Zostawi ją na tym samym stole, z którego brałeś listy.",
     "where": "{p:Mountaintops of the Giants}",
     "match": [
      "tanith:s4"
@@ -4770,7 +4770,7 @@
     "text": "Przyjmij propozycję {n:Tanith} spotkania z panem Dworu i pokonaj {n:Rykard, Lord of Blasphemy}.",
     "next": "Po wykonaniu wszystkich trzech zleceń przyjmij propozycję Tanith, by poznać prawdziwego pana Dworu. Przeniesie cię prosto do miejsca łaski tuż przed jego komnatą. Pokonaj {n:Rykard, Lord of Blasphemy}.",
     "safe": "Wypełnienie wszystkich zleceń otwiera drogę do ukrytego pana Dworu.",
-    "warn": "Śmierć Rykarda opróżnia Dwór — Tanith mówi, że wkrótce odejdzie, i nie pojawiają się już nowe listy ze zleceniami. Weź wszystkie trzy zlecenia, zanim się z nim zmierzysz.",
+    "warn": "Śmierć Rykarda opróżnia Dwór. Tanith mówi, że wkrótce odejdzie, i nie pojawiają się już nowe listy ze zleceniami. Weź wszystkie trzy zlecenia, zanim się z nim zmierzysz.",
     "where": "{p:Volcano Manor}",
     "match": [
      "tanith:s5"
@@ -4781,7 +4781,7 @@
    {
     "qp": 6,
     "text": "Porozmawiaj z {n:Tanith}, a gdy zniknie, odszukaj ją na arenie Rykarda.",
-    "next": "Porozmawiaj jeszcze raz z Tanith w Dworze, a gdy zniknie, wróć na arenę Rykarda. Ucztuje tam na jego zwłokach i prosi, by zostawić ją w spokoju — tu kończy się jej historia.",
+    "next": "Porozmawiaj jeszcze raz z Tanith w Dworze, a gdy zniknie, wróć na arenę Rykarda. Ucztuje tam na jego zwłokach i prosi, by zostawić ją w spokoju. Tu kończy się jej historia.",
     "safe": "Gospodyni Dworu mogła udać się, by oddać hołd jego poległemu panu.",
     "warn": "Zaatakowanie Tanith przywołuje w jej obronie {n:Tanith's Knight} i od razu kończy jej historię. W tym momencie możesz też dać jej {i:Dancer's Castanets} od {n:Patches}, choć niczego to nie zmienia.",
     "where": "{p:Volcano Manor}",
@@ -4791,7 +4791,7 @@
    },
    {
     "qp": 99,
-    "text": "Tanith zniknęła po twoim ataku — jej historia się skończyła.",
+    "text": "Tanith zniknęła po twoim ataku. Jej historia się skończyła.",
     "next": "Historia Tanith zakończyła się rozlewem krwi.",
     "safe": null,
     "warn": null,
@@ -4827,8 +4827,8 @@
    {
     "qp": 2,
     "text": "Kup cokolwiek u Moore'a i porozmawiaj z nim ponownie.",
-    "next": "Kup u Moore'a cokolwiek. Potem będzie miał więcej do powiedzenia – o Ledzie, jej sojusznikach i rodzie poszukiwaczy, którzy dla niego zbierają.",
-    "safe": "Warto przejrzeć towar olbrzyma, a on chętniej rozmawia z klientami.",
+    "next": "Kup u Moore'a cokolwiek. Potem będzie miał więcej do powiedzenia: o Ledzie, jej sojusznikach i rodzie poszukiwaczy, którzy dla niego zbierają.",
+    "safe": "Przejrzyj towar olbrzyma. Z klientami chętniej rozmawia.",
     "warn": null,
     "where": "{p:Main Gate Cross}",
     "match": [],
@@ -4870,7 +4870,7 @@
    },
    {
     "qp": 6,
-    "text": "Po złamaniu uroku Miquelli porozmawiaj z Moore'em – zada ci pytanie.",
+    "text": "Po złamaniu uroku Miquelli porozmawiaj z Moore'em. Zada ci pytanie.",
     "next": "Zbliżenie się do głównej bramy lokacji {p:Shadow Keep} albo wędrówka na północ obok lokacji {p:Bonny Village} łamie wielką runę Miquelli, a wraz z nią urok. Porozmawiaj potem z Moore'em: powie, że światło zgasło, ale on wciąż stoi prosto, i zapyta, czy jego ród musi już zawsze być smutny.",
     "safe": "Gdy wielka runa pęknie, olbrzym będzie miał do ciebie pytanie.",
     "warn": null,
@@ -4903,7 +4903,7 @@
    },
    {
     "qp": 9,
-    "text": "Historia Moore'a dobiega końca – zabierz jego dzwonek i ekwipunek tam, gdzie padł.",
+    "text": "Historia Moore'a dobiega końca. Zabierz jego dzwonek i ekwipunek tam, gdzie padł.",
     "next": "Bez względu na twoją odpowiedź historia Moore'a się zamyka: ginie podczas najazdu, pada wśród sojuszników Ledy w {p:Enir-Ilim}, gaśnie przed lokacją {p:Church of the Crusade} obok czwartego poszukiwacza albo zostaje w obozie ze swoim rodem jako ostatni stojący wyznawca Miquelli. {i:Moore's Bell Bearing}, {i:Verdigris Greatshield} i zestaw {i:Verdigris Armor} zostają tam, gdzie padnie.",
     "safe": null,
     "warn": null,
@@ -4916,7 +4916,7 @@
    },
    {
     "qp": 99,
-    "text": "Moore zginął, zanim jego historia dobiegła końca – quest zakończony.",
+    "text": "Moore zginął, zanim jego historia dobiegła końca. Quest zakończony.",
     "next": "Moore zginął, zanim jego historia dobiegła końca.",
     "safe": null,
     "warn": null,
@@ -4985,7 +4985,7 @@
    {
     "qp": 5,
     "text": "Po pokonaniu Messmera wróć do Starowiny po {i:Gourmet Scorpion Stew}.",
-    "next": "Pokonaj {n:Messmer the Impaler}, wróć do Starowiny w magazynie i porozmawiaj z nią, by otrzymać {i:Gourmet Scorpion Stew}. Odpocznij i wróć jeszcze raz — zastaniesz ją śpiącą i zabierzesz kolejną porcję.",
+    "next": "Pokonaj {n:Messmer the Impaler}, wróć do Starowiny w magazynie i porozmawiaj z nią, by otrzymać {i:Gourmet Scorpion Stew}. Odpocznij i wróć jeszcze raz. Zastaniesz ją śpiącą i zabierzesz kolejną porcję.",
     "safe": "Starowina czeka w magazynie Beluratu na wieści o pewnym upadku.",
     "warn": "To jedyny sposób na zdobycie {i:Gourmet Scorpion Stew}.",
     "where": "{p:Belurat, Tower Settlement}",
@@ -4998,7 +4998,7 @@
    {
     "qp": 99,
     "text": "Zadanie Starowiny zakończyło się.",
-    "next": "Zadanie Starowiny dobiegło końca — zginęła albo śmierć Messmera uniemożliwiła jego kontynuację. Kolejne porcje gulaszu przepadły.",
+    "next": "Zadanie Starowiny dobiegło końca: zginęła albo śmierć Messmera uniemożliwiła jego kontynuację. Kolejne porcje gulaszu przepadły.",
     "safe": "Ta ścieżka dobiegła końca.",
     "warn": null,
     "where": null,
@@ -5020,7 +5020,7 @@
    {
     "qp": 1,
     "text": "Zabierz list i gest przy łasce {p:Highroad Cross}, a potem znajdź {n:Dryleaf Dane} w {p:Moorth Ruins}.",
-    "next": "Podnieś {i:Monk's Missive} i gest {i:May the Best Win} przy łasce {p:Highroad Cross}, a potem idź za listem na wschód, do {p:Moorth Ruins} w {p:Scadu Altus}. Czeka tam {n:Dryleaf Dane}. Nie odezwie się — kim jest, może ci powiedzieć {n:Needle Knight Leda}.",
+    "next": "Podnieś {i:Monk's Missive} i gest {i:May the Best Win} przy łasce {p:Highroad Cross}, a potem idź za listem na wschód, do {p:Moorth Ruins} w {p:Scadu Altus}. Czeka tam {n:Dryleaf Dane}. Nie odezwie się. Kim jest, może ci powiedzieć {n:Needle Knight Leda}.",
     "safe": "List przy {p:Highroad Cross} wskazuje wschód, ku komuś, kto woli pojedynek niż rozmowę.",
     "warn": null,
     "where": "{p:Moorth Ruins}",
@@ -5042,7 +5042,7 @@
    {
     "qp": 3,
     "text": "Wygraj pojedynek z {n:Dryleaf Dane} i zabierz {i:Dryleaf Arts} oraz {i:Dane's Hat}.",
-    "next": "Wygraj pojedynek. {n:Dryleaf Dane} zostawia {i:Dryleaf Arts} i {i:Dane's Hat} tam, gdzie stał. Reszta stroju — {i:Dryleaf Robe}, {i:Dryleaf Arm Wraps} i {i:Dryleaf Cuissardes} — leży pod wodospadem w {p:Ruins of Unte}, do których prowadzi trumna pod {p:Shadow Keep}. Można go też przywołać do walki z {n:Romina, Saint of the Bud}.",
+    "next": "Wygraj pojedynek. {n:Dryleaf Dane} zostawia {i:Dryleaf Arts} i {i:Dane's Hat} tam, gdzie stał. Reszta stroju ({i:Dryleaf Robe}, {i:Dryleaf Arm Wraps} i {i:Dryleaf Cuissardes}) leży pod wodospadem w {p:Ruins of Unte}, do których prowadzi trumna pod {p:Shadow Keep}. Można go też przywołać do walki z {n:Romina, Saint of the Bud}.",
     "safe": "Pokonaj go w jego własnej grze, a coś po sobie zostawi.",
     "warn": null,
     "where": "{p:Moorth Ruins}",
@@ -5055,7 +5055,7 @@
    {
     "qp": 4,
     "text": "Opcjonalnie przeczytaj wiadomość, którą {n:Dryleaf Dane} zostawił w miejscu pojedynku.",
-    "next": "Opcjonalnie: po pojedynku w miejscu, gdzie stał {n:Dryleaf Dane}, pojawia się wiadomość. Przeczytaj ją — to najbliższe rozmowy z tobą, na co się zdobywa.",
+    "next": "Opcjonalnie: po pojedynku w miejscu, gdzie stał {n:Dryleaf Dane}, pojawia się wiadomość. Przeczytaj ją. To najbliższe rozmowy z tobą, na co się zdobywa.",
     "safe": "W miejscu walki zostawił coś do przeczytania.",
     "warn": null,
     "where": "{p:Moorth Ruins}",
@@ -5066,7 +5066,7 @@
    {
     "qp": 5,
     "text": "Podejdź do {n:Needle Knight Leda} za łaską {p:Cleansing Chamber Anteroom} na szczycie {p:Enir-Ilim}.",
-    "next": "Bez względu na to, co zaszło w {p:Moorth Ruins}, {n:Dryleaf Dane} dołącza do {n:Needle Knight Leda} i reszty zwolenników Miquelli na szczycie {p:Enir-Ilim}. Podejdź do Ledy za łaską {p:Cleansing Chamber Anteroom}, a wezwie ich wszystkich — Dane będzie wśród nich, zawsze przeciw tobie.",
+    "next": "Bez względu na to, co zaszło w {p:Moorth Ruins}, {n:Dryleaf Dane} dołącza do {n:Needle Knight Leda} i reszty zwolenników Miquelli na szczycie {p:Enir-Ilim}. Podejdź do Ledy za łaską {p:Cleansing Chamber Anteroom}, a wezwie ich wszystkich. Dane będzie wśród nich, zawsze przeciw tobie.",
     "safe": "Milczący mnich udał się do wieży.",
     "warn": null,
     "where": "{p:Enir-Ilim}",
@@ -5078,7 +5078,7 @@
     "qp": 6,
     "text": "Pokonaj {n:Dryleaf Dane} wraz z Ledą i jej sojusznikami i zabierz {i:Dane's Footwork} z jego ciała.",
     "next": "Pokonaj {n:Dryleaf Dane} razem z {n:Needle Knight Leda} i resztą jej sojuszników przy {p:Cleansing Chamber Anteroom}. {i:Dane's Footwork} zabierzesz z jego ciała w tym samym pomieszczeniu.",
-    "safe": "Ostatnia walka toczy się na szczycie wieży — i nie jeden na jednego.",
+    "safe": "Ostatnia walka toczy się na szczycie wieży i nie jeden na jednego.",
     "warn": null,
     "where": "{p:Cleansing Chamber Anteroom}",
     "match": [
@@ -5143,7 +5143,7 @@
    {
     "qp": 4,
     "text": "Opcjonalnie: nocą daj kapłance {i:Thiollier's Concoction}.",
-    "next": "Opcjonalnie: przynieś {i:Thiollier's Concoction} do ołtarza nocą, gdy kapłanka rozmawia z {n:Dragonlord Placidusax}. Daj jej wywar — wypije go i zaśnie.",
+    "next": "Opcjonalnie: przynieś {i:Thiollier's Concoction} do ołtarza nocą, gdy kapłanka rozmawia z {n:Dragonlord Placidusax}. Daj jej wywar. Wypije go i zaśnie.",
     "safe": "Kapłanka czuwa tylko po zmroku, a jest coś, co mogłoby jej to czuwanie ulżyć.",
     "warn": "{i:Thiollier's Concoction} powstaje z {i:Black Syrup}, który {n:Moore} daje tylko wtedy, gdy on i {n:Thiollier} wciąż przebywają na {p:Gravesite Plain}. Kapłanka nie przyjmie wywaru po śmierci {n:Bayle the Dread}.",
     "where": "{p:Grand Altar of Dragon Communion}",
@@ -5154,7 +5154,7 @@
    {
     "qp": 5,
     "text": "Odczekaj cały dzień i wróć do przebudzonej kapłanki.",
-    "next": "Odczekaj pełną dobę i wróć. Kapłanka budzi się i nazywa to tchórzliwym czynem — sen, który przyjęła, był przeznaczony dla jej pana, i wierzy, że on już na nią nie spojrzy.",
+    "next": "Odczekaj pełną dobę i wróć. Kapłanka budzi się i nazywa to tchórzliwym czynem. Sen, który przyjęła, był przeznaczony dla jej pana, i wierzy, że on już na nią nie spojrzy.",
     "safe": "Pozwól minąć dniu, zanim do niej wrócisz.",
     "warn": null,
     "where": "{p:Grand Altar of Dragon Communion}",
@@ -5177,7 +5177,7 @@
     "qp": 7,
     "text": "Wróć do {p:Grand Altar of Dragon Communion} i odbierz to, co zostawiła ci kapłanka.",
     "next": "Wróć do {p:Grand Altar of Dragon Communion}. Jeśli kapłanka nie wypiła {i:Thiollier's Concoction}, zniknęła, zostawiając {i:Priestess Heart} i {i:Flowerstone Gavel} w miejscu, gdzie stała. Jeśli wypiła, wciąż tam jest i wręcza ci {i:Dragonbolt of Florissax}.",
-    "safe": "Cokolwiek się z nią stało, warto jeszcze raz odwiedzić ołtarz.",
+    "safe": "Cokolwiek się z nią stało, odwiedź jeszcze raz ołtarz.",
     "warn": null,
     "where": "{p:Grand Altar of Dragon Communion}",
     "match": [],
@@ -5198,7 +5198,7 @@
    {
     "qp": 9,
     "text": "Jeśli się przyznałeś, zabierz kapłankę ze sobą i odbierz {i:Ancient Dragon Florissax}.",
-    "next": "Tak czy inaczej, kapłanka skończyła z Wielkim Ołtarzem. Jeśli się przyznałeś, porozmawiaj z nią jeszcze raz i weź ją ze sobą — przysięga ci wierność jako nowemu panu i zostawia prochy duchów {i:Ancient Dragon Florissax}.",
+    "next": "Tak czy inaczej, kapłanka skończyła z Wielkim Ołtarzem. Jeśli się przyznałeś, porozmawiaj z nią jeszcze raz i weź ją ze sobą. Przysięga ci wierność jako nowemu panu i zostawia prochy duchów {i:Ancient Dragon Florissax}.",
     "safe": null,
     "warn": "Jej dwa zakończenia wzajemnie się wykluczają. Podanie wywaru oznacza zamianę {i:Priestess Heart} i {i:Flowerstone Gavel} na {i:Dragonbolt of Florissax} i jej prochy duchów.",
     "where": "{p:Grand Altar of Dragon Communion}",

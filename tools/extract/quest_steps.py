@@ -105,8 +105,8 @@ def main():
                 s["gated"] = True
         for s in steps:                                # zakończenia/alternatywy bez podpowiedzi — ogólny tekst bez szczegółów
             if not s.get("text_safe") and s.get("alt"):
-                s["text_safe"] = ("Jedno z możliwych zakończeń wątku — szczegóły ukryte." if s.get("end")
-                                  else "Alternatywna ścieżka wątku — szczegóły ukryte.")
+                s["text_safe"] = ("Jedno z możliwych zakończeń wątku. Szczegóły ukryte." if s.get("end")
+                                  else "Alternatywna ścieżka wątku. Szczegóły ukryte.")
         q["steps"] = steps
         q["sources"] = list(dict.fromkeys((q.get("sources") or []) + ["questpath"]))
         out.append(q)

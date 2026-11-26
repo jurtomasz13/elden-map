@@ -10,19 +10,19 @@ import sys
 
 # (quest, krok) -> {"text": …, "next": …}
 SAFE = {
-    ("iji", "s2"): {"text": "Po zakończeniu questa Ranni wróć do Ijiego — jego wątek ma dalszy ciąg."},
-    ("seluvis", "s2"): {"text": "Wątek Seluvisa ma swój finał w jego wieży — wróć tam, gdy quest Ranni posunie się naprzód."},
+    ("iji", "s2"): {"text": "Po zakończeniu questa Ranni wróć do Ijiego. Jego wątek ma dalszy ciąg."},
+    ("seluvis", "s2"): {"text": "Wątek Seluvisa ma swój finał w jego wieży. Wróć tam, gdy quest Ranni posunie się naprzód."},
     ("blaidd", "s3"): {"text": "Po zakończeniu questa Ranni odwiedź Blaidda w lokacji Wieża Ranni."},
-    ("gowry", "s3"): {"text": "Po spotkaniu z Millicentą w Elphael wróć do chaty Gowry'ego — jego historia ma finał.",
+    ("gowry", "s3"): {"text": "Po spotkaniu z Millicentą w Elphael wróć do chaty Gowry'ego. Jego historia ma tam finał.",
                       "next": "Po spotkaniu z Millicentą w Elphael wróć do chaty Gowry'ego."},
-    ("millicent", "p8"): {"text": "W lokacji Elphael, Podpora Świętego Drzewa podejmij decyzję w sprawie Millicenty — od niej zależy nagroda."},
+    ("millicent", "p8"): {"text": "W lokacji Elphael, Podpora Świętego Drzewa podejmij decyzję w sprawie Millicenty. Od niej zależy nagroda."},
     ("d", "s2"): {"text": "Historia D znajdzie swój finał w Twierdzy Okrągłego Stołu.",
-                  "next": "Postępy w queście Fii wpływają na losy D — zaglądaj do Twierdzy Okrągłego Stołu."},
-    ("rogier", "s2"): {"text": "Po śledztwie (przedmiot Ślad czarnego noża) wróć do Rogiera w Twierdzy Okrągłego Stołu — coś na ciebie czeka."},
-    ("rogier", "s3"): {"text": "Wróć do miejsca, w którym przesiadywał Rogier — coś tam na ciebie czeka.",
+                  "next": "Postępy w queście Fii wpływają na losy D, więc zaglądaj do Twierdzy Okrągłego Stołu."},
+    ("rogier", "s2"): {"text": "Po śledztwie (przedmiot Ślad czarnego noża) wróć do Rogiera w Twierdzy Okrągłego Stołu. Coś na ciebie czeka."},
+    ("rogier", "s3"): {"text": "Wróć do miejsca, w którym przesiadywał Rogier. Coś tam na ciebie czeka.",
                        "next": "Wróć do miejsca, w którym przesiadywał Rogier w Twierdzy Okrągłego Stołu."},
-    ("sellen", "s5"): {"text": "Rozstrzygnij spór Sellen i Jerrena w lokacji Akademia Rai Lucarii — wybór strony decyduje o nagrodzie."},
-    ("dung-eater", "s4"): {"text": "Zakończenie wątku Łajnożercy — odwiedź go ponownie.",
+    ("sellen", "s5"): {"text": "Rozstrzygnij spór Sellen i Jerrena w lokacji Akademia Rai Lucarii. Wybór strony decyduje o nagrodzie."},
+    ("dung-eater", "s4"): {"text": "Zakończenie wątku Łajnożercy: odwiedź go ponownie.",
                            "next": "Po oddaniu runy odwiedź Łajnożercę w jego celi."},
     ("jar-bairn", "s2"): {"text": "Gdy Słojątko dorośnie (po zakończeniu wątku Diallosa), odbierz przedmiot Towarzyszące naczynie."},
     ("goldmask", "p99"): {"text": "Zakończenie wątku Złotej Maski i Corhyna.",
@@ -45,7 +45,7 @@ SAFE = {
 }
 # ostrzeżenia: quest -> zamiennik (gdy zdradza los postaci)
 SAFE_LOCKS = {
-    "igon": "Porozmawiaj z Igonem przed walką z Bayle'em — inaczej jego wątek się zamknie.",
+    "igon": "Porozmawiaj z Igonem przed walką z Bayle'em, inaczej jego wątek się zamknie.",
 }
 
 

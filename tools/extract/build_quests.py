@@ -216,13 +216,13 @@ def LOCK(boss_en, step, warning):
 QUESTS = [
     # ------------------------------------------------------------------ gra podstawowa
     Q("ranni", "Wiedźma Ranni i Era Gwiazd", "Ranni the Witch", "Liurnia of the Lakes", "Dark Moon Ring", [
-        S("Spotkaj Rennę w lokacji {p:Church of Elleh} (nocą, po zdobyciu konia) — da przedmioty {i:Spirit Calling Bell} i {i:Lone Wolf Ashes}.",
+        S("Spotkaj Rennę w lokacji {p:Church of Elleh} (nocą, po zdobyciu konia). Da przedmioty {i:Spirit Calling Bell} i {i:Lone Wolf Ashes}.",
           L("Spirit Calling Bell"), where="{p:Church of Elleh}",
           next="Odwiedź lokację {p:Church of Elleh} nocą, mając już przedmiot {i:Spectral Steed Whistle}."),
         S("Zdobądź przedmiot {i:Fingerslayer Blade} w lokacji {p:Nokron, Eternal City} (dostępne po pokonaniu Radahna).",
           W("Fingerslayer Blade"), where="{p:Nokron, Eternal City}",
           next="Zgłoś się do Ranni w lokacji {p:Ranni's Rise}, pokonaj Radahna i znajdź {i:Fingerslayer Blade} w Nokron."),
-        S("Oddaj ostrze Ranni — otrzymasz przedmiot {i:Carian Inverted Statue}.", L("Carian Inverted Statue"),
+        S("Oddaj ostrze Ranni, a otrzymasz przedmiot {i:Carian Inverted Statue}.", L("Carian Inverted Statue"),
           where="{p:Ranni's Rise}", next="Zanieś przedmiot {i:Fingerslayer Blade} do Ranni w lokacji {p:Ranni's Rise}."),
         S("Odwróć bibliotekę ({p:Carian Study Hall}) i zdobądź przedmiot {i:Cursemark of Death} w lokacji {p:Divine Tower of Liurnia}.",
           W("Cursemark of Death"), where="{p:Divine Tower of Liurnia}",
@@ -243,12 +243,12 @@ QUESTS = [
         npc_block=3740),
 
     Q("blaidd", "Blaidd, Półwilk", "Blaidd the Half-Wolf", "Limgrave", "Royal Greatsword", [
-        S("Spotkaj Blaidda (wycie w lokacji {p:Mistwood}) i pomóż mu w lokacji {p:Forlorn Hound Evergaol} — pokonaj Darriwila.",
+        S("Spotkaj Blaidda (wycie w lokacji {p:Mistwood}) i pomóż mu w lokacji {p:Forlorn Hound Evergaol}: pokonaj Darriwila.",
           B("Bloodhound Knight Darriwil"), where="{p:Forlorn Hound Evergaol}",
           next="Porozmawiaj z Blaiddem w lokacji {p:Mistwood Ruins}, potem pokonaj Darriwila w wiecznym więzieniu."),
         S("Pokonaj Radahna (Blaidd pomaga na festiwalu w lokacji {p:Redmane Castle}).", B("Starscourge Radahn"),
           where="{p:Redmane Castle}", next="Weź udział w festiwalu w lokacji {p:Redmane Castle} i pokonaj Radahna."),
-        S("Po zakończeniu questa Ranni Blaidd szaleje — pokonaj go w lokacji {p:Ranni's Rise} i weź jego ekwipunek.",
+        S("Po zakończeniu questa Ranni Blaidd szaleje. Pokonaj go w lokacji {p:Ranni's Rise} i weź jego ekwipunek.",
           L("Royal Greatsword"), F(3603, src="tga-ct"), where="{p:Ranni's Rise}",
           next="Po zakończeniu questa Ranni wróć do lokacji {p:Ranni's Rise}."),
     ], notes="Krok 3 zaliczony także, gdy Blaidd zginie (flaga 3603).", npc_block=3600),
@@ -257,33 +257,33 @@ QUESTS = [
         # bez NPC(3760): spotkanie z rozmowy (quest_talk_flags.json) — stan bloku zmienia się też bez rozmowy
         S("Spotkaj Iji przy drodze do lokacji {p:Caria Manor} (pomaga w queście Ranni).", cumulative=True,
           where="{p:Liurnia of the Lakes}", next="Idź drogą do lokacji {p:Caria Manor} i porozmawiaj z kowalem Iji."),
-        S("Po zakończeniu questa Ranni Iji ginie — zabierz {i:Iji's Mirrorhelm} i {i:Iji's Bell Bearing}.",
+        S("Po zakończeniu questa Ranni Iji ginie. Zabierz {i:Iji's Mirrorhelm} i {i:Iji's Bell Bearing}.",
           L("Iji's Mirrorhelm", "Iji's Bell Bearing"), where="{p:Liurnia of the Lakes}",
           next="Ukończ quest Ranni i wróć do miejsca, gdzie stał Iji."),
     ], npc_block=3760),
 
     Q("seluvis", "Mistrz Seluvis", "Preceptor Seluvis", "Liurnia of the Lakes", "Seluvis's Potion", [
-        S("Porozmawiaj z Seluvisem w lokacji {p:Three Sisters} — da przedmiot {i:Seluvis's Potion}.", L("Seluvis's Potion"),
+        S("Porozmawiaj z Seluvisem w lokacji {p:Three Sisters}. Da przedmiot {i:Seluvis's Potion}.", L("Seluvis's Potion"),
           cumulative=True,
           where="{p:Three Sisters}", next="Po dołączeniu do Ranni zejdź do wieży Seluvisa w lokacji {p:Three Sisters}."),
-        S("Zakończenie: Seluvis ginie (z ręki Ranni albo Twojej) — {i:Seluvis's Bell Bearing}.",
+        S("Zakończenie: Seluvis ginie (z ręki Ranni albo Twojej) i zostawia {i:Seluvis's Bell Bearing}.",
           L("Seluvis's Bell Bearing"), where="{p:Three Sisters}",
           next="Postęp w queście Ranni kończy historię Seluvisa."),
     ], missable=True, notes="Eliksir można podać Nepheli, Łajnożercy albo Ryi; sekretne marionetki = {i:Pidia's Bell Bearing}.",
         npc_block=3560),
 
     Q("sellen", "Czarodziejka Sellen", "Sorceress Sellen", "Limgrave", "Sellen's Primal Glintstone", [
-        S("Spotkaj Sellen w lokacji {p:Waypoint Ruins} (piwnica) — da przedmiot {i:Sellen's Primal Glintstone}.",
+        S("Spotkaj Sellen w lokacji {p:Waypoint Ruins} (piwnica). Da przedmiot {i:Sellen's Primal Glintstone}.",
           L("Sellen's Primal Glintstone"), where="{p:Waypoint Ruins}",
           next="Pokonaj bossa w piwnicy lokacji {p:Waypoint Ruins} i porozmawiaj z Sellen."),
-        S("Znajdź Azura w lokacji {p:Hermit Village} i wróć do Sellen — otrzymasz przedmiot {i:Sellian Sealbreaker}.",
+        S("Znajdź Azura w lokacji {p:Hermit Village} i wróć do Sellen, a otrzymasz przedmiot {i:Sellian Sealbreaker}.",
           L("Sellian Sealbreaker"), where="{p:Waypoint Ruins}",
           next="Odszukaj pierwotnego czarodzieja Azura w lokacji {p:Mt. Gelmir} i opowiedz o nim Sellen."),
-        S("Złam pieczęć w lokacji {p:Sellia Hideaway} i spotkaj Lusata — {i:Stars of Ruin}.", L("Stars of Ruin"),
+        S("Złam pieczęć w lokacji {p:Sellia Hideaway} i spotkaj Lusata ({i:Stars of Ruin}).", L("Stars of Ruin"),
           where="{p:Sellia Hideaway}", next="Użyj łamacza pieczęci w lokacji {p:Sellia Hideaway} (Caelid)."),
-        S("Spotkaj Sellen w lokacji {p:Witchbane Ruins} — {i:Starlight Shards}.", L("Starlight Shards"),
+        S("Spotkaj Sellen w lokacji {p:Witchbane Ruins} ({i:Starlight Shards}).", L("Starlight Shards"),
           where="{p:Witchbane Ruins}", next="Wróć do Sellen; poprowadzi Cię do lokacji {p:Witchbane Ruins} w Pogrobnie."),
-        S("Rozstrzygnij spór Sellen i Jerrena w lokacji {p:Academy of Raya Lucaria} — {i:Glintstone Kris} (strona Sellen) "
+        S("Rozstrzygnij spór Sellen i Jerrena w lokacji {p:Academy of Raya Lucaria}: {i:Glintstone Kris} (strona Sellen) "
           "albo {i:Sellen's Bell Bearing} (strona Jerrena).",
           L("Glintstone Kris", "Sellen's Bell Bearing"), where="{p:Academy of Raya Lucaria}",
           next="Po Rennali idź do sali Rennali w Akademii i wybierz stronę."),
@@ -293,61 +293,61 @@ QUESTS = [
         S("Odkup {i:Rya's Necklace} od Boggarta i oddaj go Ryi.", L("Rya's Necklace"),
           where="{p:Liurnia of the Lakes}",
           next="Porozmawiaj z Ryą przy drodze w Liurnii, potem z Boggartem w chacie nad jeziorem."),
-        S("Spotkaj Ryę (Zorayas) w lokacji {p:Volcano Manor} i zakończ jej historię — {i:Tonic of Forgetfulness} "
+        S("Spotkaj Ryę (Zorayas) w lokacji {p:Volcano Manor} i zakończ jej historię: {i:Tonic of Forgetfulness} "
           "lub {i:Zorayas's Letter}.", L("Zorayas's Letter", "Tonic of Forgetfulness"), where="{p:Volcano Manor}",
           next="Weź od Ryi przedmiot {i:Volcano Manor Invitation}, odnajdź ją w Dworze i wykonaj prośbę Tanith o eliksir."),
     ], missable=True, npc_block=3420),
 
     Q("tanith", "Tanith i zlecenia Wulkanicznego Dworu", "Tanith, Volcano Manor Proprietress", "Mt. Gelmir",
       "Drawing-Room Key", [
-          S("Przyjmij zaproszenie Tanith — {i:Drawing-Room Key}.", L("Drawing-Room Key"),
+          S("Przyjmij zaproszenie Tanith ({i:Drawing-Room Key}).", L("Drawing-Room Key"),
             where="{p:Volcano Manor}", next="Porozmawiaj z Tanith w lokacji {p:Volcano Manor}."),
           S("Pierwsze zlecenie: pokonaj Istvana (zlecenie z listu: {i:Letter from Volcano Manor}).",
             L("Magma Shot"), where="{p:Limgrave}",
             next="Weź list z pracowni i najedź Istvana w Pogrobnie."),
           S("Drugie zlecenie: pokonaj Rileigha.", L("Serpentbone Blade"), where="{p:Altus Plateau}",
             next="Weź kolejny list z pracowni i najedź Rileigha."),
-          S("Trzecie zlecenie: {i:Red Letter} — pokonaj Juno Hoslow.", L("Red Letter"), where="{p:Altus Plateau}",
+          S("Trzecie zlecenie: {i:Red Letter}, pokonaj Juno Hoslow.", L("Red Letter"), where="{p:Altus Plateau}",
             next="Weź przedmiot {i:Red Letter} z pracowni Dworu."),
-          S("Pokonaj Rykarda i wróć do Tanith — {i:Taker's Cameo}.", L("Taker's Cameo"), where="{p:Volcano Manor}",
+          S("Pokonaj Rykarda i wróć do Tanith ({i:Taker's Cameo}).", L("Taker's Cameo"), where="{p:Volcano Manor}",
             next="Udaj się przez świątynię Dworu do Rykarda, potem porozmawiaj z Tanith."),
       ], locks=[LOCK("Rykard, Lord of Blasphemy", "s4",
                      "Zabicie Rykarda przed wykonaniem zleceń Tanith zamknie dalsze zlecenia.")], missable=True,
       npc_block=3100),
 
     Q("bernahl", "Rycerz Bernahl", "Knight Bernahl", "Mt. Gelmir", "Gelmir's Fury", [
-        S("Pomóż Bernahlowi w jego zleceniu (Wulkaniczny Dwór) — {i:Gelmir's Fury}.", L("Gelmir's Fury"),
+        S("Pomóż Bernahlowi w jego zleceniu w Wulkanicznym Dworze ({i:Gelmir's Fury}).", L("Gelmir's Fury"),
           where="{p:Volcano Manor}", next="Porozmawiaj z Bernahlem w lokacji {p:Volcano Manor}."),
         S("Po pokonaniu Rykarda odbierz od Bernahla {i:Blasphemous Claw}.", L("Blasphemous Claw"),
           where="{p:Volcano Manor}", next="Pokonaj Rykarda i porozmawiaj z Bernahlem."),
-        S("Pokonaj Bernahla, gdy zaatakuje w lokacji {p:Crumbling Farum Azula} — {i:Devourer's Scepter}.",
+        S("Pokonaj Bernahla, gdy zaatakuje w lokacji {p:Crumbling Farum Azula} ({i:Devourer's Scepter}).",
           L("Devourer's Scepter", "Beast Champion Helm", "Bernahl's Bell Bearing"),
           where="{p:Crumbling Farum Azula}", next="W Farum Azula pokonaj najeźdźcę Bernahla."),
     ], npc_block=3880),
 
     Q("varre", "Białolicy Varré", "White Mask Varré", "Limgrave", "Varré's Bouquet", [
-        S("Pokonaj Godricka i porozmawiaj z Varrém — {i:Festering Bloody Finger}.",
+        S("Pokonaj Godricka i porozmawiaj z Varrém ({i:Festering Bloody Finger}).",
           L("Festering Bloody Finger"), where="{p:Limgrave}",
           next="Porozmawiaj z Varrém przy lokacji {p:Limgrave} (Pierwszy Krok) po pokonaniu Godricka."),
-        S("Najedź trzech graczy i wróć do lokacji {p:Rose Church} — {i:Lord of Blood's Favor}.",
+        S("Najedź trzech graczy i wróć do lokacji {p:Rose Church} ({i:Lord of Blood's Favor}).",
           L("Lord of Blood's Favor"), where="{p:Rose Church}",
           next="Odwiedź Varrégo w lokacji {p:Rose Church} (Liurnia) i wykonaj jego prośbę."),
-        S("Nasącz chustę krwią służki i oddaj ją — {i:Pureblood Knight's Medal}.",
+        S("Nasącz chustę krwią służki i oddaj ją ({i:Pureblood Knight's Medal}).",
           L("Pureblood Knight's Medal"), where="{p:Rose Church}",
           next="Zanurz chustę we krwi martwej służki w lokacji {p:Church of Inhibition} i wróć do Varrégo."),
-        S("Pokonaj Varrégo w lokacji {p:Mohgwyn Palace} — {i:Varré's Bouquet}.", L("Varré's Bouquet"),
+        S("Pokonaj Varrégo w lokacji {p:Mohgwyn Palace} ({i:Varré's Bouquet}).", L("Varré's Bouquet"),
           F(3183, src="tga-ct"), where="{p:Mohgwyn Palace}",
           next="Użyj medalu, by przenieść się do lokacji {p:Mohgwyn Palace}; Varré tam czeka."),
     ], missable=True, notes="Krok 4 zaliczony też, gdy Varré zginął (flaga 3183).", npc_block=3180),
 
     Q("alexander", "Alexander, Wielki słojownik", "Alexander, Warrior Jar", "Limgrave", "Shard of Alexander", [
-        S("Wyciągnij Alexandra z ziemi w lokacji {p:Stormhill} — {i:Exalted Flesh}.", L("Exalted Flesh"),
+        S("Wyciągnij Alexandra z ziemi w lokacji {p:Stormhill} ({i:Exalted Flesh}).", L("Exalted Flesh"),
           where="{p:Stormhill}", next="Uderz utkniętego Alexandra na północ od lokacji {p:Gatefront} (Burzowe Wzgórze)."),
         S("Spotkaj go na festiwalu i pokonaj Radahna.", B("Starscourge Radahn"), where="{p:Redmane Castle}",
           next="Weź udział w festiwalu w lokacji {p:Redmane Castle}."),
-        S("Pomóż mu w gorących źródłach w lokacji {p:Mt. Gelmir} — {i:Jar}.", L("Jar"), where="{p:Mt. Gelmir}",
+        S("Pomóż mu w gorących źródłach w lokacji {p:Mt. Gelmir} ({i:Jar}).", L("Jar"), where="{p:Mt. Gelmir}",
           next="Znajdź Alexandra w źródłach lawy w lokacji {p:Mt. Gelmir}."),
-        S("Stocz z nim pojedynek w lokacji {p:Crumbling Farum Azula} — {i:Shard of Alexander}.",
+        S("Stocz z nim pojedynek w lokacji {p:Crumbling Farum Azula} ({i:Shard of Alexander}).",
           L("Shard of Alexander", "Warrior Jar Shard"), where="{p:Crumbling Farum Azula}",
           next="Odszukaj Alexandra w lokacji {p:Crumbling Farum Azula}."),
     ], npc_block=3660),
@@ -356,14 +356,14 @@ QUESTS = [
         S("Weź przedmiot {i:Unalloyed Gold Needle} od Gowry'ego i ulecz Millicentę w lokacji {p:Church of the Plague}.",
           F(400310, src="regulation"), where="{p:Church of the Plague}",
           next="Odwiedź Gowry'ego w Caelid, potem Millicentę w lokacji {p:Church of the Plague}."),
-        S("Porozmawiaj z uleczoną Millicentą — {i:Prosthesis-Wearer Heirloom}.", L("Prosthesis-Wearer Heirloom"),
+        S("Porozmawiaj z uleczoną Millicentą ({i:Prosthesis-Wearer Heirloom}).", L("Prosthesis-Wearer Heirloom"),
           where="{p:Church of the Plague}", next="Wróć do Millicenty po uleczeniu."),
         S("W {p:Elphael, Brace of the Haligtree} pomóż jej ({i:Rotten Winged Sword Insignia}) "
           "albo ją zdradź ({i:Millicent's Prosthesis}).",
           L("Rotten Winged Sword Insignia", "Millicent's Prosthesis"), where="{p:Elphael, Brace of the Haligtree}",
           next="Przejdź przez lokację {p:Altus Plateau}, {p:Mt. Gelmir} i {p:Mountaintops of the Giants} śladami Millicenty, "
                "potem znajdź jej znak w Elphael."),
-        S("Po Malenii oddaj igłę ciału Millicenty — {i:Miquella's Needle}.",
+        S("Po Malenii oddaj igłę ciału Millicenty ({i:Miquella's Needle}).",
           F(400321, 400324, src="regulation"), where="{p:Elphael, Brace of the Haligtree}",
           next="Pokonaj Malenię i połóż igłę przy ciele Millicenty."),
     ], locks=[LOCK("Malenia, Blade of Miquella", "s3",
@@ -371,11 +371,11 @@ QUESTS = [
         missable=True, npc_block=4180),
 
     Q("gowry", "Mędrzec Gowry", "Sage Gowry", "Caelid", "Flock's Canvas Talisman", [
-        S("Spotkaj Gowry'ego w jego chacie — {i:Unalloyed Gold Needle}.", F(400310, src="regulation"),
+        S("Spotkaj Gowry'ego w jego chacie ({i:Unalloyed Gold Needle}).", F(400310, src="regulation"),
           where="{p:Caelid}", next="Znajdź chatę Gowry'ego w Caelid (na północ od Sellii)."),
         S("Odbierz przedmiot {i:Sellia's Secret}.", L("Sellia's Secret"), where="{p:Caelid}",
           next="Porozmawiaj z Gowrym po wyleczeniu Millicenty."),
-        S("Zakończenie: Gowry ginie — {i:Flock's Canvas Talisman}.", L("Flock's Canvas Talisman"),
+        S("Zakończenie: Gowry ginie i zostawia {i:Flock's Canvas Talisman}.", L("Flock's Canvas Talisman"),
           where="{p:Caelid}", next="Po zdradzie/pomocy Millicencie w Elphael wróć do chaty Gowry'ego."),
     ], npc_block=4160),
 
@@ -396,23 +396,23 @@ QUESTS = [
     Q("d", "D, Łowca Umarłych", "D, Hunter of the Dead", "Roundtable Hold", "D's Bell Bearing", [
         S("Spotkaj D w lokacji {p:Summonwater Village} i w lokacji {p:Roundtable Hold}.", NPC(4040), cumulative=True,
           where="{p:Summonwater Village}", next="Porozmawiaj z D przy lokacji {p:Summonwater Village} w Pogrobnie."),
-        S("Historia D kończy się w lokacji {p:Roundtable Hold} — {i:D's Bell Bearing}.", L("D's Bell Bearing"),
+        S("Historia D kończy się w lokacji {p:Roundtable Hold} ({i:D's Bell Bearing}).", L("D's Bell Bearing"),
           where="{p:Roundtable Hold}", next="Postęp w queście Fii prowadzi do śmierci D."),
-        S("Oddaj zbroję D jego bratu — {i:Inseparable Sword}.", L("Inseparable Sword"),
+        S("Oddaj zbroję D jego bratu ({i:Inseparable Sword}).", L("Inseparable Sword"),
           where="{p:Roundtable Hold}", next="Daj ekwipunek D jego bratu w Twierdzy Okrągłego Stołu."),
     ], npc_block=4040),
 
     Q("rogier", "Czarodziej Rogier", "Sorcerer Rogier", "Stormveil Castle", "Rogier's Letter", [
         S("Spotkaj Rogiera w lokacji {p:Stormveil Castle}, potem w lokacji {p:Roundtable Hold}.", NPC(3900), cumulative=True,
           where="{p:Stormveil Castle}", next="Znajdź Rogiera na dziedzińcu Zamku Burzowego Całunu."),
-        S("Po śledztwie (przedmiot {i:Black Knifeprint}) Rogier umiera — {i:Rogier's Letter}.", L("Rogier's Letter"),
+        S("Po śledztwie (przedmiot {i:Black Knifeprint}) Rogier umiera i zostawia {i:Rogier's Letter}.", L("Rogier's Letter"),
           where="{p:Roundtable Hold}", next="Odnajdź zbroję zabójców i porozmawiaj z Rogierem oraz Fią."),
         S("Odbierz po nim {i:Rogier's Bell Bearing}.", L("Rogier's Bell Bearing"), where="{p:Roundtable Hold}",
           next="Podejdź do ciała Rogiera w Twierdzy."),
     ], npc_block=3900),
 
     Q("boc", "Półczłowiek Boc", "Demi-Human Boc", "Limgrave", "Tailoring Tools", [
-        S("Uwolnij Boca w lokacji {p:Coastal Cave} — {i:Tailoring Tools}.", F(60140, src="regulation"),
+        S("Uwolnij Boca w lokacji {p:Coastal Cave} ({i:Tailoring Tools}).", F(60140, src="regulation"),
           where="{p:Coastal Cave}", next="Pokonaj wodzów półludzi w lokacji {p:Coastal Cave}."),
         S("Daj mu przedmiot {i:Gold Sewing Needle}.", W("Gold Sewing Needle"), where="{p:Altus Plateau}",
           next="Znajdź złotą igłę (Caelid, sklep po Łowcy dzwonków) i oddaj Bocowi."),
@@ -422,16 +422,16 @@ QUESTS = [
     Q("patches", "Łata", "Patches", "Limgrave", "Letter to Patches", [
         S("Oszczędź Łatę w lokacji {p:Murkwater Cave}.", L("Golden Rune [1]"), B("Patches"),
           where="{p:Murkwater Cave}", next="Pokonaj Łatę w lokacji {p:Murkwater Cave} i przyjmij jego kapitulację."),
-        S("Spotkaj go w lokacji {p:Volcano Manor} — {i:Letter to Patches}.", L("Letter to Patches"),
+        S("Spotkaj go w lokacji {p:Volcano Manor} ({i:Letter to Patches}).", L("Letter to Patches"),
           where="{p:Volcano Manor}", next="Po przenosinach do Liurnii znajdź Łatę w Wulkanicznym Dworze."),
-        S("Łata opuszcza Dwór — {i:Magma Whip Candlestick}.", L("Magma Whip Candlestick"),
+        S("Łata opuszcza Dwór ({i:Magma Whip Candlestick}).", L("Magma Whip Candlestick"),
           where="{p:Volcano Manor}", next="Zakończ zlecenia Dworu i porozmawiaj z Łatą."),
     ], npc_block=3680),
 
     Q("diallos", "Rycerz Diallos", "Knight Diallos", "Roundtable Hold", "Hoslow's Petal Whip", [
         S("Spotkaj Diallosa w lokacji {p:Roundtable Hold}, potem w Liurnii.", NPC(3440), cumulative=True,
           where="{p:Roundtable Hold}", next="Porozmawiaj z Diallosem w Twierdzy Okrągłego Stołu."),
-        S("Diallos ginie w lokacji {p:Jarburg} — {i:Hoslow's Petal Whip}.", L("Hoslow's Petal Whip"), F(3443, src="tga-ct"),
+        S("Diallos ginie w lokacji {p:Jarburg} ({i:Hoslow's Petal Whip}).", L("Hoslow's Petal Whip"), F(3443, src="tga-ct"),
           where="{p:Jarburg}", next="Odwiedź Diallosa w lokacji {p:Jarburg} po walkach w Wulkanicznym Dworze."),
     ], npc_block=3440),
 
@@ -443,7 +443,7 @@ QUESTS = [
     ], npc_block=3820),
 
     Q("kenneth", "Kenneth Haight", "Kenneth Haight, Limgrave Heir", "Limgrave", "Erdsteel Dagger", [
-        S("Oczyść {p:Fort Haight} dla Kennetha — {i:Erdsteel Dagger}.", L("Erdsteel Dagger"),
+        S("Oczyść {p:Fort Haight} dla Kennetha ({i:Erdsteel Dagger}).", L("Erdsteel Dagger"),
           where="{p:Fort Haight}", next="Porozmawiaj z Kennethem na wzgórzu w Pogrobnie i odbij {p:Fort Haight}."),
         S("Po pokonaniu Godricka Nepheli zostaje władczynią Zamku Burzowego Całunu (z Kennethem i Gostokiem).",
           F(400422, src="regulation"), where="{p:Stormveil Castle}",
@@ -451,13 +451,13 @@ QUESTS = [
     ], npc_block=3580),
 
     Q("irina-edgar", "Irina i Edgar", "Irina of Morne", "Weeping Peninsula", "Irina's Letter", [
-        S("Spotkaj Irinę przy lokacji {p:Bridge of Sacrifice} — {i:Irina's Letter}.", L("Irina's Letter"),
+        S("Spotkaj Irinę przy lokacji {p:Bridge of Sacrifice} ({i:Irina's Letter}).", L("Irina's Letter"),
           where="{p:Bridge of Sacrifice}", next="Porozmawiaj z Iriną na Płaczącym Półwyspie."),
-        S("Oddaj list Edgarowi w lokacji {p:Castle Morne} — {i:Sacrificial Twig}.", L("Sacrificial Twig"),
+        S("Oddaj list Edgarowi w lokacji {p:Castle Morne} ({i:Sacrificial Twig}).", L("Sacrificial Twig"),
           where="{p:Castle Morne}", next="Zanieś list do Edgara w lokacji {p:Castle Morne}."),
         S("Pokonaj Lwiego wynaturzeńca w lokacji {p:Castle Morne}.", B("Leonine Misbegotten"), where="{p:Castle Morne}",
           next="Przejdź zamek do bossa."),
-        S("Pokonaj Edgara Mściciela (najazd w Liurnii) — {i:Shabriri Grape}.", L("Shabriri Grape"),
+        S("Pokonaj Edgara Mściciela podczas najazdu w Liurnii ({i:Shabriri Grape}).", L("Shabriri Grape"),
           where="{p:Liurnia of the Lakes}", next="Edgar najedzie Cię w Liurnii (przy chacie na zachodzie)."),
     ], missable=True, npc_block=3400),
 
@@ -466,7 +466,7 @@ QUESTS = [
         # Hyetta czeka przy klifach”) ustawia się przed spotkaniem Hyetty. Krok zalicza się po dalszych etapach Hyetty.
         S("Spotkaj Hyettę w Liurnii i dawaj jej przedmiot {i:Shabriri Grape}.", cumulative=True,
           where="{p:Lake-Facing Cliffs}", next="Znajdź Hyettę przy lokacji {p:Lake-Facing Cliffs}."),
-        S("Koniec drogi: Hyetta przy Trzech Palcach w lokacji {p:Subterranean Shunning-Grounds} — {i:Frenzied Flame Seal}.",
+        S("Koniec drogi: Hyetta przy Trzech Palcach w lokacji {p:Subterranean Shunning-Grounds} ({i:Frenzied Flame Seal}).",
           L("Frenzied Flame Seal"), where="{p:Subterranean Shunning-Grounds}",
           next="Po przyjęciu Oszalałego Płomienia odwiedź Hyettę przy Trzech Palcach."),
     ], missable=True, notes="Blok flag 3380 obejmuje też Irinę (TGA łączy je w jednej grupie).", npc_block=3380),
@@ -484,11 +484,11 @@ QUESTS = [
                                         "żeby wybrać to zakończenie.")], npc_block=4200),
 
     Q("dung-eater", "Łajnożerca", "Dung Eater", "Roundtable Hold", "Mending Rune of the Fell Curse", [
-        S("Uwolnij Łajnożercę — {i:Sewer-Gaol Key}.", L("Sewer-Gaol Key"), where="{p:Roundtable Hold}",
+        S("Uwolnij Łajnożercę ({i:Sewer-Gaol Key}).", L("Sewer-Gaol Key"), where="{p:Roundtable Hold}",
           next="Porozmawiaj z Łajnożercą w Twierdzy Okrągłego Stołu."),
-        S("Otwórz celę w lokacji {p:Subterranean Shunning-Grounds} — {i:Sword of Milos}.", L("Sword of Milos"),
+        S("Otwórz celę w lokacji {p:Subterranean Shunning-Grounds} ({i:Sword of Milos}).", L("Sword of Milos"),
           where="{p:Subterranean Shunning-Grounds}", next="Użyj klucza w kanałach Leyndell."),
-        S("Daj mu przedmiot {i:Seedbed Curse} — {i:Mending Rune of the Fell Curse}.", F(9504, src="regulation"),
+        S("Daj mu przedmiot {i:Seedbed Curse}, a dostaniesz {i:Mending Rune of the Fell Curse}.", F(9504, src="regulation"),
           where="{p:Subterranean Shunning-Grounds}", next="Zbierz 5 klątw i oddaj je Łajnożercy w celi."),
         S("Zakończenie: {i:Omen Helm} (ekwipunek po Łajnożercy).", L("Omen Helm"),
           where="{p:Subterranean Shunning-Grounds}", next="Po runie Łajnożerca umiera w celi."),
@@ -497,24 +497,24 @@ QUESTS = [
 
     Q("latenna", "Latenna, albinauryka", "Latenna the Albinauric", "Liurnia of the Lakes",
       "Latenna the Albinauric", [
-          S("Pokaż Latennie medalion — {i:Latenna the Albinauric}.", L("Latenna the Albinauric"),
+          S("Pokaż Latennie medalion ({i:Latenna the Albinauric}).", L("Latenna the Albinauric"),
             where="{p:Liurnia of the Lakes}", next="Znajdź Latennę na północy Liurnii mając {i:Haligtree Secret Medallion (Right)}."),
-          S("Zanieś jej prochy do lokacji {p:Consecrated Snowfield} — {i:Somber Ancient Dragon Smithing Stone}.",
+          S("Zanieś jej prochy do lokacji {p:Consecrated Snowfield} ({i:Somber Ancient Dragon Smithing Stone}).",
             L("Somber Ancient Dragon Smithing Stone"), where="{p:Consecrated Snowfield}",
             next="Wezwij Latennę przy zrujnowanym kościele w lokacji {p:Consecrated Snowfield}."),
       ], npc_block=4100),
 
     Q("nepheli", "Nepheli Loux", "Nepheli Loux, Warrior", "Stormveil Castle", "Arsenal Charm", [
-        S("Spotkaj Nepheli w lokacji {p:Stormveil Castle} i w Twierdzy — {i:Arsenal Charm}.", L("Arsenal Charm"),
+        S("Spotkaj Nepheli w lokacji {p:Stormveil Castle} i w Twierdzy ({i:Arsenal Charm}).", L("Arsenal Charm"),
           where="{p:Roundtable Hold}", next="Porozmawiaj z Nepheli po pokonaniu Godricka."),
-        S("Nepheli zostaje władczynią zamku — {i:Ancient Dragon Smithing Stone}.", F(400422, src="regulation"),
+        S("Nepheli zostaje władczynią zamku ({i:Ancient Dragon Smithing Stone}).", F(400422, src="regulation"),
           where="{p:Stormveil Castle}", next="Porozmawiaj z Kennethem i Gostokiem, potem z Nepheli."),
     ], missable=True, npc_block=4220),
 
     Q("thops", "Czarodziej Thops", "Sorcerer Thops", "Liurnia of the Lakes", "Thops's Barrier", [
         S("Spotkaj Thopsa w lokacji {p:Church of Irith} i daj mu przedmiot {i:Academy Glintstone Key}.", NPC(3800), cumulative=True,
           where="{p:Liurnia of the Lakes}", next="Znajdź Thopsa w Kościele Iritha (Liurnia)."),
-        S("Zakończenie w Akademii — {i:Thops's Barrier} / {i:Academy Glintstone Staff}.",
+        S("Zakończenie w Akademii: {i:Thops's Barrier} / {i:Academy Glintstone Staff}.",
           L("Thops's Barrier", "Academy Glintstone Staff"), where="{p:Academy of Raya Lucaria}",
           next="Odwiedź Thopsa w lokacji {p:Academy of Raya Lucaria}."),
     ], npc_block=3800),
@@ -530,18 +530,18 @@ QUESTS = [
     ], npc_block=3960),
 
     Q("roderika", "Roderika", "Roderika", "Stormhill", "Spirit Jellyfish Ashes", [
-        S("Spotkaj Roderikę w chacie w lokacji {p:Stormhill} — {i:Spirit Jellyfish Ashes}.",
+        S("Spotkaj Roderikę w chacie w lokacji {p:Stormhill} ({i:Spirit Jellyfish Ashes}).",
           L("Spirit Jellyfish Ashes"), where="{p:Stormhill}", next="Zajrzyj do chaty przy drodze na Burzowym Wzgórzu."),
-        S("W Twierdzy zostań stroicielką duchów (Hewg) — {i:Golden Seed}.", L("Golden Seed"),
+        S("W Twierdzy zostań stroicielką duchów (Hewg), nagroda: {i:Golden Seed}.", L("Golden Seed"),
           where="{p:Roundtable Hold}", next="Porozmawiaj z Roderiką i Hewgiem w Twierdzy Okrągłego Stołu."),
     ], npc_block=3700),
 
     Q("gurranq", "Gurranq, Bestialski Duchowny", "Gurranq, Beast Clergyman", "Caelid", "Clawmark Seal", [
-        S("Znajdź Gurranqa w lokacji {p:Bestial Sanctum} — {i:Beast Eye} i pierwsza nagroda {i:Clawmark Seal}.",
+        S("Znajdź Gurranqa w lokacji {p:Bestial Sanctum}: {i:Beast Eye} i pierwsza nagroda {i:Clawmark Seal}.",
           L("Clawmark Seal"), where="{p:Bestial Sanctum}", next="Dotrzyj do lokacji {p:Bestial Sanctum} i oddaj pierwszy przedmiot {i:Deathroot}."),
-        S("Oddaj 4 sztuki ({i:Deathroot}) — {i:Ash of War: Beast's Roar}.", L("Ash of War: Beast's Roar"),
+        S("Oddaj 4 sztuki ({i:Deathroot}), nagroda: {i:Ash of War: Beast's Roar}.", L("Ash of War: Beast's Roar"),
           where="{p:Bestial Sanctum}", next="Zbieraj kolejne sztuki ({i:Deathroot}) i oddawaj je Gurranqowi."),
-        S("Oddaj wszystkie 9 — {i:Ancient Dragon Smithing Stone}.", L("Gurranq's Beast Claw"),
+        S("Oddaj wszystkie 9, nagroda: {i:Ancient Dragon Smithing Stone}.", L("Gurranq's Beast Claw"),
           F(400230, src="regulation"), mode="all", where="{p:Bestial Sanctum}",
           next="Oddaj pozostałe sztuki ({i:Deathroot})."),
     ], npc_block=3640),
@@ -549,9 +549,9 @@ QUESTS = [
     Q("yura", "Yura, Łowca krwawych palców", "Yura, Hunter of Bloody Fingers", "Limgrave", "Ronin's Armor", [
         S("Spotkaj Yurę w Pogrobnie i w Liurnii.", NPC(3620, skip=(6,)), cumulative=True, where="{p:Limgrave}",
           next="Porozmawiaj z Yurą przy lokacji {p:Murkwater Cave}."),
-        S("Pokonaj Eleonorę na płaskowyżu Altus — {i:Eleonora's Poleblade}.", L("Eleonora's Poleblade"),
+        S("Pokonaj Eleonorę na płaskowyżu Altus ({i:Eleonora's Poleblade}).", L("Eleonora's Poleblade"),
           where="{p:Second Church of Marika}", next="Spotkaj Yurę przy lokacji {p:Second Church of Marika} i pokonaj Eleonorę."),
-        S("Zakończenie: Yura / Shabriri — {i:Ronin's Armor}.", L("Ronin's Armor"),
+        S("Zakończenie: Yura / Shabriri ({i:Ronin's Armor}).", L("Ronin's Armor"),
           where="{p:Altus Plateau}", next="Spotkaj Yurę ponownie (Mt. Gelmir); jego koniec wiąże się z Shabririm."),
     ], missable=True, npc_block=3620),
 
@@ -563,13 +563,13 @@ QUESTS = [
     ], npc_block=4140),
 
     Q("melina", "Melina i Kuźnia Olbrzymów", "Melina", "Limgrave", "Spectral Steed Whistle", [
-        S("Przyjmij propozycję Meliny — {i:Spectral Steed Whistle}.", L("Spectral Steed Whistle"),
+        S("Przyjmij propozycję Meliny ({i:Spectral Steed Whistle}).", L("Spectral Steed Whistle"),
           where="{p:Limgrave}", next="Odpocznij przy łasce przy lokacji {p:Gatefront} w Pogrobnie."),
         S("Melina zabiera Cię do lokacji {p:Roundtable Hold}.", F(71190, src="tga-ct"), where="{p:Roundtable Hold}",
           next="Odpocznij przy łasce po wejściu na Burzowe Wzgórze lub zamek."),
         S("Na płaskowyżu ({p:Altus Plateau}) Melina daje przedmiot {i:Rold Medallion}.", L("Rold Medallion"), where="{p:Altus Plateau}",
           next="Odpocznij przy łasce po pokonaniu Morgotta."),
-        S("Pokonaj Maliketha — Melina rozpala Kuźnię.", B("Maliketh, the Black Blade"),
+        S("Pokonaj Maliketha. Melina rozpala Kuźnię.", B("Maliketh, the Black Blade"),
           where="{p:Crumbling Farum Azula}", next="Dotrzyj do lokacji {p:Mountaintops of the Giants} i Kuźni Olbrzymów."),
     ], npc_block=4680),
 
@@ -579,7 +579,7 @@ QUESTS = [
           next="Porozmawiaj z Ledą przy kamiennym ołtarzu na początku DLC."),
         S("Pokonaj Messmera.", B("Messmer the Impaler"), where="{p:Shadow Keep}",
           next="Przejdź lokację {p:Shadow Keep} i pokonaj Messmera."),
-        S("Zakończenie: walka z Ledą i sojusznikami w lokacji {p:Enir-Ilim} — {i:Leda's Armor}.",
+        S("Zakończenie: walka z Ledą i sojusznikami w lokacji {p:Enir-Ilim} ({i:Leda's Armor}).",
           L("Leda's Armor"), F(4443, src="talk-esd"), where="{p:Enir-Ilim}",
           next="W {p:Enir-Ilim} zmierz się z Ledą (sojusznicy zależą od Twoich wyborów)."),
     ], dlc=True, missable=True, npc_block=4440),
@@ -589,7 +589,7 @@ QUESTS = [
           next="Porozmawiaj z Ansbachem przy łasce w lokacji {p:Gravesite Plain}."),
         S("Odbierz przedmiot {i:Letter for Freyja}.", L("Letter for Freyja"), where="{p:Scadu Altus}",
           next="Rozmawiaj z Ansbachem w lokacji {p:Scadu Altus}."),
-        S("Zakończenie: Ansbach w lokacji {p:Enir-Ilim} — jego ekwipunek ({i:Obsidian Lamina} albo zbroja).",
+        S("Zakończenie: Ansbach w lokacji {p:Enir-Ilim} i jego ekwipunek ({i:Obsidian Lamina} albo zbroja).",
           L("Wise Man's Mask", "Obsidian Lamina", "Ansbach's Longbow"), where="{p:Enir-Ilim}",
           next="Po pokonaniu Messmera spotkaj Ansbacha przed Enir-Ilim."),
     ], dlc=True, npc_block=4400),
@@ -597,31 +597,31 @@ QUESTS = [
     Q("freyja", "Freyja, Lwia Grzywa", "Redmane Freyja", "Gravesite Plain", "Freyja's Greatsword", [
         S("Spotkaj Freyję w lokacji {p:Gravesite Plain}.", NPC(4420), cumulative=True, where="{p:Gravesite Plain}",
           next="Porozmawiaj z Freyją przy lokacji {p:Castle Ensis}."),
-        S("Pokonaj Rellanę (Freyja pomaga) — {i:Golden Lion Shield}.", L("Golden Lion Shield"),
+        S("Pokonaj Rellanę z pomocą Freyi ({i:Golden Lion Shield}).", L("Golden Lion Shield"),
           where="{p:Castle Ensis}", next="Wezwij Freyję na bossa w lokacji {p:Castle Ensis}."),
-        S("Zakończenie: Freyja ginie — {i:Freyja's Greatsword}.", L("Freyja's Greatsword"), where="{p:Enir-Ilim}",
+        S("Zakończenie: Freyja ginie i zostawia {i:Freyja's Greatsword}.", L("Freyja's Greatsword"), where="{p:Enir-Ilim}",
           next="Jej los rozstrzyga się po walce z Messmerem."),
     ], dlc=True, npc_block=4420),
 
     Q("hornsent", "Rogaty przybysz", "Hornsent", "Gravesite Plain", "Cross Map", [
-        S("Spotkaj Rogatego przybysza — {i:Cross Map}.", L("Cross Map"), where="{p:Gravesite Plain}",
+        S("Spotkaj Rogatego przybysza ({i:Cross Map}).", L("Cross Map"), where="{p:Gravesite Plain}",
           next="Porozmawiaj z nim przy lokacji {p:Gravesite Plain}."),
         S("Odbierz przedmiot {i:New Cross Map}.", L("New Cross Map"), where="{p:Highroad Cross}",
           next="Porozmawiaj z nim przy lokacji {p:Highroad Cross}."),
         S("Pokonaj Messmera.", B("Messmer the Impaler"), where="{p:Shadow Keep}",
           next="Przejdź lokację {p:Shadow Keep} i pokonaj Messmera."),
-        S("Zakończenie: Rogaty przybysz w lokacji {p:Enir-Ilim} — {i:Falx}.", L("Falx"), F(4363, src="talk-esd"),
+        S("Zakończenie: Rogaty przybysz w lokacji {p:Enir-Ilim} ({i:Falx}).", L("Falx"), F(4363, src="talk-esd"),
           where="{p:Enir-Ilim}", next="Spotkaj go w lokacji {p:Enir-Ilim} (lub w Donżonie Cienia)."),
     ], dlc=True, locks=[LOCK("Messmer the Impaler", "s2", "Porozmawiaj z Rogatym przybyszem przy Krzyżu przy "
-                                                            "gościńcu przed pokonaniem Messmera — inaczej jego "
+                                                            "gościńcu przed pokonaniem Messmera, inaczej jego "
                                                             "wątek może się urwać.")],
         npc_block=4360),
 
     Q("hornsent-grandam", "Starowina, rogata przybyszka", "Hornsent Grandam", "Belurat, Tower Settlement",
       "Watchful Spirit", [
-          S("Oddaj Starowinie zbroję rogatych — {i:Watchful Spirit}.", L("Watchful Spirit"),
+          S("Oddaj Starowinie zbroję rogatych ({i:Watchful Spirit}).", L("Watchful Spirit"),
             where="{p:Belurat, Tower Settlement}", next="Znajdź staruszkę w lokacji {p:Belurat, Tower Settlement}."),
-          S("Wróć z gulaszem — {i:Gourmet Scorpion Stew} / {i:Scorpion Stew}.",
+          S("Wróć z gulaszem ({i:Gourmet Scorpion Stew} / {i:Scorpion Stew}).",
             L("Gourmet Scorpion Stew", "Scorpion Stew"), where="{p:Belurat, Tower Settlement}",
             next="Po Messmerze odwiedź ją ponownie."),
       ], dlc=True, npc_block=4480),
@@ -640,55 +640,55 @@ QUESTS = [
           next="Porozmawiaj z Thiollierem przy Pagodzie Gaola."),
         S("Odbierz przedmiot {i:St. Trina's Smile}.", L("St. Trina's Smile"), where="{p:Scadu Altus}",
           next="Rozmawiaj z Thiollierem w lokacji {p:Shadow Keep, Church District}."),
-        S("Spotkaj św. Trinę we śnie — {i:St. Trina's Blossom}.", L("St. Trina's Blossom"),
+        S("Spotkaj św. Trinę we śnie ({i:St. Trina's Blossom}).", L("St. Trina's Blossom"),
           where="{p:Stone Coffin Fissure}", next="Zaśnij przy kwiatach św. Triny (np. w lokacji {p:Stone Coffin Fissure})."),
-        S("Zakończenie w lokacji {p:Enir-Ilim} — {i:Thiollier's Hidden Needle}.", L("Thiollier's Hidden Needle"),
+        S("Zakończenie w lokacji {p:Enir-Ilim} ({i:Thiollier's Hidden Needle}).", L("Thiollier's Hidden Needle"),
           where="{p:Enir-Ilim}", next="Spotkaj Thiolliera w Enir-Ilim."),
     ], dlc=True, npc_block=4460),
 
     Q("ymir", "Hrabia Ymir", "Count Ymir, High Priest", "Scadu Altus", "Hole-Laden Necklace", [
-        S("Przyłącz się do Ymira — {i:Hole-Laden Necklace} i {i:Ruins Map}.", L("Hole-Laden Necklace"),
+        S("Przyłącz się do Ymira ({i:Hole-Laden Necklace} i {i:Ruins Map}).", L("Hole-Laden Necklace"),
           where="{p:Cathedral of Manus Metyr}", next="Porozmawiaj z Ymirem w lokacji {p:Cathedral of Manus Metyr}."),
-        S("Zabij pierwszy cel — {i:Ruins Map (2nd)}.", L("Ruins Map (2nd)"), where="{p:Scadu Altus}",
+        S("Zabij pierwszy cel, nagroda: {i:Ruins Map (2nd)}.", L("Ruins Map (2nd)"), where="{p:Scadu Altus}",
           next="Wykonaj zlecenie Ymira (pierwsza mapa ruin)."),
-        S("Zabij drugi cel — {i:Ruins Map (3rd)}.", L("Ruins Map (3rd)"), where="{p:Scadu Altus}",
+        S("Zabij drugi cel, nagroda: {i:Ruins Map (3rd)}.", L("Ruins Map (3rd)"), where="{p:Scadu Altus}",
           next="Wykonaj kolejne zlecenie Ymira."),
         S("Pokonaj Metyr, Matkę Palców.", B("Metyr, Mother of Fingers"), where="{p:Cathedral of Manus Metyr}",
           next="Zejdź pod katedrę i pokonaj Metyr."),
-        S("Zakończenie: walka z Ymirem — {i:Ymir's Bell Bearing}.", L("Ymir's Bell Bearing"),
+        S("Zakończenie: walka z Ymirem ({i:Ymir's Bell Bearing}).", L("Ymir's Bell Bearing"),
           B("Count Ymir, Mother of Fingers"), where="{p:Cathedral of Manus Metyr}",
           next="Po Metyr wróć do Ymira."),
     ], dlc=True, npc_block=4500),
 
     Q("dane", "Dane, Suchy Liść", "Dryleaf Dane", "Scadu Altus", "Dane's Footwork", [
-        S("Spotkaj Dane'a — {i:Dane's Hat}.", L("Dane's Hat"), where="{p:Scadu Altus}",
+        S("Spotkaj Dane'a ({i:Dane's Hat}).", L("Dane's Hat"), where="{p:Scadu Altus}",
           next="Znajdź mnicha w lokacji {p:Moorth Ruins}."),
         S("Zakończenie: {i:Dane's Footwork}.", L("Dane's Footwork"), where="{p:Scadu Altus}",
           next="Spotkaj Dane'a ponownie (Enir-Ilim / Moorth)."),
     ], dlc=True, npc_block=4560),
 
     Q("igon", "Igon", "Igon", "Jagged Peak", "Igon's Furled Finger", [
-        S("Spotkaj Igona przy lokacji {p:Grand Altar of Dragon Communion} — {i:Igon's Furled Finger}.",
+        S("Spotkaj Igona przy lokacji {p:Grand Altar of Dragon Communion} ({i:Igon's Furled Finger}).",
           L("Igon's Furled Finger"), where="{p:Foot of the Jagged Peak}",
           next="Porozmawiaj z Igonem u podnóża Wyszczerbionego Szczytu."),
         S("Pokonaj Bayle'a (Igon pomaga).", B("Bayle, the Dread"), where="{p:Jagged Peak}",
           next="Wezwij Igona na Bayle'a na szczycie."),
         S("Zakończenie: {i:Igon's Greatbow} i zbroja Igona.", L("Igon's Greatbow", "Igon's Helm"),
           where="{p:Jagged Peak}", next="Po Bayle'u odbierz ekwipunek Igona."),
-    ], dlc=True, locks=[LOCK("Bayle, the Dread", "s1", "Porozmawiaj z Igonem przed walką z Bayle'em — "
-                                                         "po jego śmierci wątek Igona się kończy.")],
+    ], dlc=True, locks=[LOCK("Bayle, the Dread", "s1", "Porozmawiaj z Igonem przed walką z Bayle'em. "
+                                                         "Po jego śmierci wątek Igona się kończy.")],
         npc_block=4260),
 
     Q("jolan", "Jolán i Anna, szermierki nocy", "Swordhand of Night Jolán", "Scadu Altus",
       "Swordhand of Night Jolán", [
-          S("Spotkaj Jolán — {i:Swordhand of Night Jolán}.", L("Swordhand of Night Jolán"),
+          S("Spotkaj Jolán ({i:Swordhand of Night Jolán}).", L("Swordhand of Night Jolán"),
             where="{p:Cerulean Coast}", next="Szukaj Jolán w okolicach lokacji {p:Cerulean Coast}."),
           S("Zakończenie: {i:Claws of Night} / {i:Sword of Night}.", L("Claws of Night", "Sword of Night"),
             where="{p:Scadu Altus}", next="Spotkaj Annę i zakończ wątek."),
       ], dlc=True, npc_block=4320),
 
     Q("queelign", "Rycerz ognia Queelign", "Fire Knight Queelign", "Scadu Altus", "Crusade Insignia", [
-        S("Pokonaj Queeligna (najazd) — {i:Crusade Insignia}.", L("Crusade Insignia"), where="{p:Scadu Altus}",
+        S("Pokonaj Queeligna podczas najazdu ({i:Crusade Insignia}).", L("Crusade Insignia"), where="{p:Scadu Altus}",
           next="Queelign najedzie Cię w lokacji {p:Scadu Altus}."),
         S("Zakończenie: {i:Ash of War: Flame Skewer} / {i:Fire Knight Queelign}.",
           L("Ash of War: Flame Skewer", "Fire Knight Queelign", "Queelign's Greatsword"),
@@ -696,7 +696,7 @@ QUESTS = [
     ], dlc=True, npc_block=4340),
 
     Q("florissax", "Florissax, starożytna smoczyca", "Ancient Dragon Florissax", "Jagged Peak", "Priestess Heart", [
-        S("Porozmawiaj z kapłanką przy Wielkim Ołtarzu — {i:Dragonbolt of Florissax}.",
+        S("Porozmawiaj z kapłanką przy Wielkim Ołtarzu ({i:Dragonbolt of Florissax}).",
           L("Dragonbolt of Florissax"), NPC(4300), cumulative=True, where="{p:Grand Altar of Dragon Communion}",
           next="Porozmawiaj z kapłanką smoczej komunii przy lokacji {p:Grand Altar of Dragon Communion}."),
         S("Zakończenie: {i:Priestess Heart} / {i:Ancient Dragon Florissax}.",
