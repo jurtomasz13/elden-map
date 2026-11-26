@@ -37,12 +37,12 @@ def elden_map_running() -> bool:
 
 def busy_hint(port: int) -> str:
     if os.name == "nt":
-        return f"  netstat -ano | findstr :{port}      (ostatnia kolumna = PID, zamknij go w Menedżerze zadań)"
+        return f"  netstat -ano | findstr :{port}      (ostatnia kolumna to PID, proces zamkniesz w Menedżerze zadań)"
     return f"  ss -ltnp | grep :{port}      (pokaże proces)      albo      fuser -k {port}/tcp      (zamknie go)"
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Elden Map — backend + strona")
+    ap = argparse.ArgumentParser(description="Elden Map: backend i strona")
     ap.add_argument("--save-dir", help="folder z ER0000.sl2 / ER0000.co2")
     ap.add_argument("--port", type=int, default=5180, help="port strony (domyślnie 5180)")
     ap.add_argument("--no-browser", action="store_true")
@@ -50,7 +50,7 @@ def main():
     url = f"http://127.0.0.1:{a.port}/mockup/"
 
     if not os.path.exists(os.path.join(ROOT, "assets", "data", "bosses_all.json")):
-        print("Brak danych z gry — najpierw uruchom:  python prepare.py")
+        print("Brak danych z gry. Najpierw uruchom:  python prepare.py")
     if port_busy(API_PORT) or port_busy(a.port):
         if elden_map_running() and port_busy(a.port):
             print(f"\nElden Map już działa (w innym oknie terminala): {url}\n"
@@ -79,9 +79,9 @@ def main():
                 break
             time.sleep(0.25)
         if any(p.poll() is not None for p in procs):
-            print("\nSerwer nie wystartował — szczegóły wyżej.")
+            print("\nSerwer nie wystartował, szczegóły wyżej.")
             return 1
-        print(f"\nElden Map: {url}   (API: http://127.0.0.1:{API_PORT}/api/health)   — Ctrl+C kończy\n")
+        print(f"\nElden Map: {url}   (API: http://127.0.0.1:{API_PORT}/api/health)   Ctrl+C kończy\n")
         if not a.no_browser:
             webbrowser.open(url)
         while all(p.poll() is None for p in procs):

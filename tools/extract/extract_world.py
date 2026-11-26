@@ -1,13 +1,13 @@
-"""Świat gry: bossowie, miejsca (lochy, ruiny…), przedmioty leżące na mapie, NPC — z pozycjami na mapie.
+"""Świat gry: bossowie, miejsca (lochy, ruiny…), przedmioty leżące na mapie i NPC, z pozycjami na mapie.
 
 Wynik (assets/data/):
-  bosses_all.json      — wszyscy bossowie (GameAreaParam): flaga pokonania, runy, nazwy PL/EN, region, pozycja, ikona
-  pois.json            — miejsca z WorldMapPointParam (lochy, ruiny, kościoły…) z kategorią
-  item_locations.json  — skarby z plików map (MSB): pula łupu, flaga podniesienia, przedmioty, kategoria, pozycja
-  npcs.json            — NPC z dialogiem (MSB: wróg z TalkID) z nazwą PL i pozycją
+  bosses_all.json      wszyscy bossowie (GameAreaParam): flaga pokonania, runy, nazwy PL/EN, region, pozycja, ikona
+  pois.json            miejsca z WorldMapPointParam (lochy, ruiny, kościoły…) z kategorią
+  item_locations.json  skarby z plików map (MSB): pula łupu, flaga podniesienia, przedmioty, kategoria, pozycja
+  npcs.json            NPC z dialogiem (MSB: wróg z TalkID) z nazwą PL i pozycją
 Pozycje: mapy m60/m61 przeliczane wprost (map_transform), lochy przez WorldMapLegacyConvParam
 (łańcuchy aż do m60/m61). Małe lochy (katakumby, jaskinie, tunele, lochy DLC) ląduje przy wejściu (`approx`).
-Podziemia (m12) — dokładnie, na osobnej mapie M01; Farum Azula (m13) — w wirze burzy (stała FARUM).
+Podziemia (m12): dokładnie, na osobnej mapie M01. Farum Azula (m13): w wirze burzy (stała FARUM).
 """
 import json
 import os

@@ -32,16 +32,16 @@ def main():
     ready = os.path.exists(os.path.join(APP, "assets", "data", "bosses_all.json")) and \
         os.path.exists(os.path.join(APP, "backend", "data", "bosses.json"))
     if not ready or "--prepare" in sys.argv:
-        banner("Elden Map — pierwsze uruchomienie: przygotowuję dane z twojej gry (kilkanaście minut)")
+        banner("Elden Map, pierwsze uruchomienie: przygotowuję dane z twojej gry (kilkanaście minut)")
         print("Gra musi być zainstalowana (Steam). Pliki gry są tylko czytane.", flush=True)
         if subprocess.run(py + [os.path.join(APP, "prepare.py")], cwd=APP).returncode:
-            pause_on_error("Przygotowanie danych nie powiodło się — szczegóły wyżej. "
+            pause_on_error("Przygotowanie danych nie powiodło się, szczegóły wyżej. "
                            "Jeśli gra jest w nietypowym miejscu, ustaw zmienną ER_GAME_DIR.")
     banner("Elden Map działa: http://127.0.0.1:5180/mockup/   (zamknij to okno, aby zakończyć)")
     args = [a for a in sys.argv[1:] if a != "--prepare"]
     r = subprocess.run(py + [os.path.join(APP, "start.py")] + args, cwd=APP)
     if r.returncode not in (0, -2, 130, 3221225786):     # 3221225786 = zamknięcie okna konsoli (Ctrl+C) na Windows
-        pause_on_error("Serwer zakończył się błędem — szczegóły wyżej.")
+        pause_on_error("Serwer zakończył się błędem, szczegóły wyżej.")
 
 
 if __name__ == "__main__":

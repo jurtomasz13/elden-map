@@ -1,4 +1,4 @@
-"""Odczyt plików z archiwów Elden Ring (BHD5/BDT) — tylko odczyt.
+"""Odczyt plików z archiwów Elden Ring (BHD5/BDT), tylko do odczytu.
 
 - spis plików: BHD5 (odszyfrowany kluczem RSA z eldenring.exe, cache w assets/cache)
 - szyfrowanie zakresów: AES-128-ECB (compat: bcrypt.dll na Windows, pakiet cryptography na Linuxie)

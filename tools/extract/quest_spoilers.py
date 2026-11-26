@@ -1,7 +1,7 @@
 """Wersje kroków questów bez spoilerów (losy postaci, zwroty akcji, nagrody zdradzające śmierć).
 
 Frontend w trybie „bez spoilerów” pokazuje `text_safe` / `next_safe` dla kroków, których gracz jeszcze nie zaliczył;
-po zaliczeniu kroku — pełny tekst. Ostrzeżenia (locks) mają `warning_safe`.
+po zaliczeniu kroku pełny tekst. Ostrzeżenia (locks) mają `warning_safe`.
 Używane przez build_quests.py (przy generowaniu) i przez apply() na gotowym quests.json.
 """
 import json
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     import archive as A  # noqa: E402
     path = os.path.join(A.ROOT, "assets", "data", "quests.json")
     if not os.path.exists(path):                     # questy powstają w build_quests.py (prepare.py robi to w kolejności)
-        sys.exit(print("quest_spoilers: brak assets/data/quests.json — pomijam"))
+        sys.exit(print("quest_spoilers: brak assets/data/quests.json, pomijam"))
     d = json.load(open(path, encoding="utf-8"))
     known = {(e["id"], s.get("id")) for e in d["entries"] for s in e.get("steps", [])}
     missing = [k for k in SAFE if k not in known]

@@ -1,4 +1,4 @@
-"""Serwer plików strony (tylko 127.0.0.1) z nagłówkiem Cache-Control: no-cache — przeglądarka zawsze sprawdza,
+"""Serwer plików strony (tylko 127.0.0.1) z nagłówkiem Cache-Control: no-cache. Przeglądarka zawsze sprawdza,
 czy plik się zmienił (po aktualizacji aplikacji nie zostaje stara wersja app.js / styles.css).
 
     python tools/static_server.py [port=5180]      # serwuje katalog projektu; strona: /mockup/

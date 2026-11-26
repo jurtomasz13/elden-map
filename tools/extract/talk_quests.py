@@ -1,9 +1,9 @@
-"""Flagi postępu questów ze skryptów rozmów NPC (talk ESD) — z każdą flagą kwestie z tej samej rozmowy.
+"""Flagi postępu questów ze skryptów rozmów NPC (talk ESD), przy każdej fladze kwestie z tej samej rozmowy.
 
     python tools/extract/talk_quests.py 223            # TalkID postaci (NpcName 1<ID>00), wypis do konsoli
 
 Rozmowa = grupa stanów w skrypcie. Dla każdej grupy: flagi ustawiane na 1 (polecenie 1/11 SetEventFlag),
-flagi sprawdzane w warunkach, kwestie (TalkMsg) i opcje menu (EventTextForTalk) — z argumentów poleceń.
+flagi sprawdzane w warunkach, kwestie (TalkMsg) i opcje menu (EventTextForTalk), wzięte z argumentów poleceń.
 """
 import os
 import struct

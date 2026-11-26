@@ -105,7 +105,7 @@
     const q = W.quests.find(x => x.id === "dlc-entry"), entered = q ? questSteps(q).at(-1).done : false, out = [];
     const cocoon = W.graces.find(g => g.name === DLC_COCOON), arrival = W.graces.find(g => g.name === DLC_ARRIVAL && g.dlc);
     if (cocoon && cocoon.map === m) out.push({ ...cocoon, done: entered, title: "Wejście do DLC",
-      sub: state.spoilers && !entered ? "Kokon w Pałacu Mohgwynów" : "Kokon Miquelli na arenie Mohga — po pokonaniu Radahna i Mohga" });
+      sub: state.spoilers && !entered ? "Kokon w Pałacu Mohgwynów" : "Kokon Miquelli na arenie Mohga, po pokonaniu Radahna i Mohga" });
     if (arrival && arrival.map === m) out.push({ ...arrival, done: entered, title: "Początek Królestwa Cieni", sub: "Tu trafiasz z kokonu Miquelli" });
     return out;
   }
@@ -116,12 +116,12 @@
     if (!radahn || !mohg || !palace.length) return null;
     return { id: "dlc-entry", name: "Wejście do Królestwa Cieni", npc: "Shadow of the Erdtree (DLC)", dlc: true, icon: null, parent: null, missable: false, locks: [],
       steps: [
-        { text: "Pokonaj Radahna, Gwiezdną Plagę (Zamek Redmane, Caelid) — bez tego kokon nie zadziała.", text_safe: "Pokonaj potężnego wroga, którego wzywa festiwal w Zamku Redmane (Caelid).",
+        { text: "Pokonaj Radahna, Gwiezdną Plagę (Zamek Redmane, Caelid). Bez tego kokon nie zadziała.", text_safe: "Pokonaj potężnego wroga, którego wzywa festiwal w Zamku Redmane (Caelid).",
           flags: [radahn.flag, ...(radahn.alt_flags || [])], mode: "any", where: "Zamek Redmane, Caelid" },
         { text: "Dostań się do Pałacu Mohgwynów: teleport w Uświęconej Śnieżnej Dolinie albo Medalik Rycerza Czystej Krwi od Varrégo.",
           flags: palace.map(g => g.flag), mode: "any", where: "Pałac Mohgwynów (Podziemia)" },
         { text: "Pokonaj Mohga, Pana Krwi, na końcu pałacu.", text_safe: "Pokonaj pana tego pałacu.", flags: [mohg.flag, ...(mohg.alt_flags || [])], mode: "any", where: "Pałac Mohgwynów" },
-        { text: "Dotknij ręki Miquelli w kokonie na arenie Mohga — trafisz do Królestwa Cieni.", text_safe: "Znajdź na arenie przejście dalej.",
+        { text: "Dotknij ręki Miquelli w kokonie na arenie Mohga, a trafisz do Królestwa Cieni.", text_safe: "Znajdź na arenie przejście dalej.",
           flags: [62002, ...(arrival ? [arrival.flag] : [])], mode: "any", where: DLC_COCOON } ] };
   }
   async function loadWorld() {
@@ -256,18 +256,18 @@
     return (live.state?.warnings || []).map(w => ({ ...w, b: bl.get(bossFlagOf(w.boss_id)) }))
       .map(w => ({ ...w, hidden: w.b && hiddenBoss(w.b), text: (state.spoilers && w.warning_safe) || w.warning }));
   }
-  const warnHtml = w => `<p class="note warn">⚠ <b>${w.hidden ? "Nieznany wróg" : esc(w.b?.name || w.boss)}</b> — quest <a href="#quests" data-wq="${esc(w.quest_id)}">„${esc(w.quest)}”</a>${w.npc ? ` (${esc(w.npc)})` : ""}: ${esc(w.text || "zabicie tego bossa może przerwać quest.")}</p>`;
+  const warnHtml = w => `<p class="note warn">⚠ <b>${w.hidden ? "Nieznany wróg" : esc(w.b?.name || w.boss)}</b> · quest <a href="#quests" data-wq="${esc(w.quest_id)}">„${esc(w.quest)}”</a>${w.npc ? ` (${esc(w.npc)})` : ""}: ${esc(w.text || "zabicie tego bossa może przerwać quest.")}</p>`;
   // próby z backendu: zarejestrowane śmierci przy arenie (promień 60 m) przed pokonaniem; null = nie wiadomo
   const bossAttempts = b => (live.state?.bosses || []).find(x => x.flag === b.flag)?.attempts ?? null;
   // ---------- rangi bossów (z danych gry: wizerunek, runy, lokacja) ----------
   const GREAT_RUNE_EN = new Set(["Godrick the Grafted", "Starscourge Radahn", "Morgott, the Omen King", "Rykard, Lord of Blasphemy",
     "Malenia, Blade of Miquella", "Mohg, Lord of Blood"]);
   const TIER = {
-    great_rune: { name: "Wielki run", short: "Wielki run", glyph: "ᛟ", desc: "Półbóg — po pokonaniu zostawia Wielki run." },
+    great_rune: { name: "Wielki run", short: "Wielki run", glyph: "ᛟ", desc: "Półbóg. Po pokonaniu zostawia Wielki run." },
     legend: { name: "Legenda", short: "Legenda", glyph: "♛", desc: "Boss z wizerunkiem albo ostateczne wyzwanie krainy." },
     major: { name: "Wielki boss", short: "Wielki", glyph: "◆", desc: "Boss głównego lochu lub wyjątkowo groźny przeciwnik." },
     normal: { name: "Boss", short: "Boss", glyph: "◇", desc: "Boss lochu lub pola." },
-    minor: { name: "Pomniejszy", short: "Pomniejszy", glyph: "·", desc: "Słabszy boss — mała nagroda w runach." },
+    minor: { name: "Pomniejszy", short: "Pomniejszy", glyph: "·", desc: "Słabszy boss, mała nagroda w runach." },
     trivial: { name: "Ledwo boss", short: "Ledwo boss", glyph: "∘", desc: "Formalnie boss, w praktyce zwykły przeciwnik albo spotkanie fabularne." },
   };
   const TIER_ORDER = Object.keys(TIER);
@@ -352,7 +352,7 @@
       ${(() => { const ws = activeWarnings(), known = ws.filter(w => !w.hidden), unknown = ws.length - known.length;
         if (!ws.length) return "";
         // bez spoilerów: ostrzeżenia o wrogach, których gracz jeszcze nie spotkał, tylko jako liczba (tekst zdradzałby bossa)
-        const more = unknown ? `<p class="view-sub bw-more">${known.length ? "Oraz " : ""}${pl(unknown, "ostrzeżenie dotyczy", "ostrzeżenia dotyczą", "ostrzeżeń dotyczy")} wrogów, których jeszcze nie spotkałeś — szczegóły w questach oznaczonych ⚠.</p>` : "";
+        const more = unknown ? `<p class="view-sub bw-more">${known.length ? "Oraz " : ""}${pl(unknown, "ostrzeżenie dotyczy", "ostrzeżenia dotyczą", "ostrzeżeń dotyczy")} wrogów, których jeszcze nie spotkałeś. Szczegóły są w questach oznaczonych ⚠.</p>` : "";
         return `<details class="boss-warnings" ${known.length && known.length <= 3 ? "open" : ""}><summary><span class="eyebrow">Zanim zabijesz…</span>
           <span class="bw-count">${known.length ? pl(known.length, "aktywne ostrzeżenie", "aktywne ostrzeżenia", "aktywnych ostrzeżeń") : ""}${known.length && unknown ? " · " : ""}${unknown ? pl(unknown, "ukryte", "ukryte", "ukrytych") : ""}</span></summary>
           ${known.map(warnHtml).join("")}${more}</details>`; })()}
@@ -422,7 +422,7 @@
     const b = bossList().find(x => x.id === id);
     if (hiddenBoss(b)) return drawer(`<div class="d-hero">${portrait(null, "hero-portrait alive", "knight")}<div class="d-title">Nieznany wróg</div>
       <div class="d-loc">${esc(b.region)}</div></div><div class="rule"></div>
-      <p class="note">Jeszcze go nie spotkałeś. Ten wróg kryje się w krainie <b>${esc(b.region)}</b> — odsłoni się, gdy odkryjesz łaskę w jego pobliżu albo staniesz z nim do walki.</p><button class="btn" id="reveal">Odsłoń mimo to</button>`,
+      <p class="note">Jeszcze go nie spotkałeś. Ten wróg kryje się w krainie <b>${esc(b.region)}</b>. Odsłoni się, gdy odkryjesz łaskę w jego pobliżu albo staniesz z nim do walki.</p><button class="btn" id="reveal">Odsłoń mimo to</button>`,
       () => $("#reveal").onclick = () => { (state.revealed ??= new Set()).add("b:" + id); render(); openBoss(id); });
     const ng = nearestGrace(b, b.name), hint = live.hints?.get((b.name_en || "").toLowerCase());
     const tries = bossAttempts(b), warns = activeWarnings().filter(w => w.b?.flag === b.flag);
@@ -434,7 +434,7 @@
         ${live.on && tries != null ? `<div title="Śmierci przy arenie (do 60 m od bossa) zarejestrowane przez backend${b.defeated ? " przed pokonaniem" : ""}"><b>${tries}</b><span>${plural(tries, "Próba", "Próby", "Prób")}</span></div>` : ""}</div>
       ${warns.length ? `<div class="d-section"><h4>Zanim zabijesz</h4>${warns.map(warnHtml).join("")}</div>` : ""}
       <div class="d-section"><h4>Jak dotrzeć</h4><ol class="steps">${ng ? `<li>${ng.access ? `Do areny dochodzi się od miejsca łaski: <b>${esc(ng.name)}</b>` : `Najbliższe miejsce łaski przed areną: <b>${esc(ng.name)}</b> (${ng.dist} m${ng.inside ? ", w tym samym lochu" : ""})${ng.region && !ng.inside ? ", " + esc(ng.region) : ""}`}.</li>` : ""}
-        ${b.approx && !ng?.inside ? "<li>Boss jest w lochu — znacznik stoi przy wejściu.</li>" : b.approx ? "<li>Znacznik na mapie stoi przy wejściu do lochu.</li>" : ""}${hint ? `<li>${esc(hint)}</li>` : ""}
+        ${b.approx && !ng?.inside ? "<li>Boss jest w lochu, znacznik stoi przy wejściu.</li>" : b.approx ? "<li>Znacznik na mapie stoi przy wejściu do lochu.</li>" : ""}${hint ? `<li>${esc(hint)}</li>` : ""}
         ${!ng && !hint ? "<li>Pozycja tego bossa nie jest jeszcze przeliczona na mapę świata.</li>" : ""}</ol></div>
       ${b.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}
       ${bossLinks(b)}
@@ -484,7 +484,7 @@
     const total = shown.reduce((a, x) => a + x.steps.filter(s => !s.alt).length, 0), doneAll = shown.reduce((a, x) => a + x.steps.filter(s => s.done && !s.alt).length, 0);
     main.innerHTML = `<div class="view">
       <div class="view-head"><div><div class="eyebrow">Losy napotkanych dusz</div><h1 class="title">Questy</h1>
-        <div class="view-sub">${real ? `${pl(roots.length, "wątek", "wątki", "wątków")} · kroki odhaczają się z flag zapisu gry` : "Dane przykładowe — zbiór questów jeszcze się buduje."}</div></div>
+        <div class="view-sub">${real ? `${pl(roots.length, "wątek", "wątki", "wątków")} · kroki odhaczają się z flag zapisu gry` : "Dane przykładowe, zbiór questów jeszcze się buduje."}</div></div>
         ${ring(doneAll, total, "kroków za tobą")}</div>
       <div class="filters">${[["all", "Wszystkie"], ["active", "W toku"], ["new", "Nierozpoczęte"], ["done", "Ukończone"]]
         .map(([k, l]) => `<button class="chip ${state.qFilter === k ? "on" : ""}" data-qf="${k}">${l}<small class="chip-n">${roots.filter(r => k === "all" || qStatus(r) === k).length}</small></button>`).join("")}</div>
@@ -498,10 +498,10 @@
         <div style="flex:1"><div class="eyebrow">${esc(q.npc)}</div><h2 class="q-title">${esc(q.name)}</h2></div>
         <div class="view-sub">${q.steps.filter(s => s.done).length} z ${pl(q.steps.length, "kroku", "kroków", "kroków")}</div></div>
         ${(q.locks || []).filter(l => l.text).map(l => `<p class="note warn" style="margin-top:20px">⚠ ${esc(l.text)}</p>`).join("")}
-        ${q.missable ? `<p class="note warn" style="margin-top:12px">Ten quest można przegapić — postępuj według kolejności kroków.</p>` : ""}
+        ${q.missable ? `<p class="note warn" style="margin-top:12px">Ten quest można przegapić. Postępuj według kolejności kroków.</p>` : ""}
         <div class="next"><div class="eyebrow">Co dalej</div><div class="next-text">${linkify(q.next.text)}</div><div class="next-hint">${linkify(q.next.hint || "")}</div></div>
-        <ol class="timeline">${q.steps.map(s => `<li class="${s.done ? "done" : s.current ? "current" : "future"}${s.alt ? " alt" : ""}${s.skipped ? " skipped" : ""}"${s.skipped ? ' title="Postać jest już dalej — ten krok jest za tobą (zrobiony albo pominięty, gra tego nie zapisuje)"' : ""}><span class="diamond"></span>${s.skipped ? '<span class="alt-tag">za tobą</span>' : ""}${s.alt ? `<span class="alt-tag">${s.end ? "zakończenie" : "alternatywa"}</span>` : ""}
-          ${blur(s) ? `<span style="filter:blur(5px)">${esc(s.text)}</span>` : linkify(s.text)}<span class="where">${blur(s) ? "ukryte — tryb bez spoilerów" : linkify(s.where)}</span></li>`).join("")}</ol>
+        <ol class="timeline">${q.steps.map(s => `<li class="${s.done ? "done" : s.current ? "current" : "future"}${s.alt ? " alt" : ""}${s.skipped ? " skipped" : ""}"${s.skipped ? ' title="Postać jest już dalej, ten krok jest za tobą (zrobiony albo pominięty, gra tego nie zapisuje)"' : ""}><span class="diamond"></span>${s.skipped ? '<span class="alt-tag">za tobą</span>' : ""}${s.alt ? `<span class="alt-tag">${s.end ? "zakończenie" : "alternatywa"}</span>` : ""}
+          ${blur(s) ? `<span style="filter:blur(5px)">${esc(s.text)}</span>` : linkify(s.text)}<span class="where">${blur(s) ? "ukryte w trybie bez spoilerów" : linkify(s.where)}</span></li>`).join("")}</ol>
         ${kidsOf(q.id).length ? `<div class="d-section"><h4>Powiązane wątki</h4>${kidsOf(q.id).map(k => { const d = k.steps.filter(s => s.done).length;
           return `<button class="reward q-link" data-q="${esc(k.id)}"><span class="rw">${portrait(k.icon, "q-mini", "knight")}${esc(k.name)}</span><span>${d}/${k.steps.length}</span></button>`; }).join("")}</div>` : ""}
       </article></div></div>`;
@@ -572,23 +572,23 @@
   const grade = v => v >= 175 ? "S" : v >= 140 ? "A" : v >= 90 ? "B" : v >= 60 ? "C" : v >= 25 ? "D" : v > 0 ? "E" : "–";
   const KIND_NOTE = {
     golden_seed: "Złote nasiono: przy miejscu łaski zwiększa liczbę użyć świętej butelki. Jedne z najcenniejszych znalezisk na początku gry.",
-    sacred_tear: "Święta Łza: przy miejscu łaski zwiększa moc świętej butelki — Butelka szkarłatnych łez leczy więcej PŻ.",
+    sacred_tear: "Święta Łza: przy miejscu łaski zwiększa moc świętej butelki, więc Butelka szkarłatnych łez leczy więcej PŻ.",
     memory_stone: "Kamień pamięci: daje dodatkowe miejsce na zapamiętane czary.",
     smithing_stone: "Kamień kowalski: ulepsza zwykłe bronie u kowala (np. Hewg w Twierdzy Okrągłego Stołu).",
-    somber_stone: "Ponury kamień kowalski: ulepsza bronie unikatowe — tych, których nie da się nasycić.",
+    somber_stone: "Ponury kamień kowalski: ulepsza bronie unikatowe, czyli te, których nie da się nasycić.",
     whetblade: "Osełka: odblokowuje nowe nasycenia broni przy łasce (popioły wojny i powinowactwa).",
-    bell_bearing: "Dzwonek kulisty: oddaj go Cieniom bliźniaczej służki w Twierdzy Okrągłego Stołu — doda nowe towary do sklepu.",
+    bell_bearing: "Dzwonek kulisty: oddaj go Cieniom bliźniaczej służki w Twierdzy Okrągłego Stołu, a doda nowe towary do sklepu.",
     cookbook: "Receptury: odblokowują nowe przepisy w Zestawie do wytwarzania.",
     stonesword_key: "Klucz kamiennego miecza: otwiera pieczęć na posągu impa (zwykle 1–2 klucze). Za pieczęcią czeka łup albo przejście.",
     map_fragment: "Fragment mapy: odsłania w menu kolejny region mapy.",
-    crystal_tear: "Kryształowa łza: wkładasz ją do Butelki niesamowitego eliksiru przy łasce — dwie łzy naraz dają czasowe wzmocnienie.",
+    crystal_tear: "Kryształowa łza: wkładasz ją do Butelki niesamowitego eliksiru przy łasce. Dwie łzy naraz dają czasowe wzmocnienie.",
     dlc_blessing: "Wzmacnia w Królestwie Cieni błogosławieństwo Ostrodrzewa (twoją obronę i siłę) albo przyzywane duchy.",
     golden_rune: "Złoty run: zużyj, by dostać runy. Warto je chomikować i wydać na poziom, gdy brakuje niewiele.",
-    material: "Materiał do Zestawu do wytwarzania — z niego robisz strzały, bomby i maści.",
-    key_item: "Przedmiot kluczowy — otwiera drogę albo popycha do przodu któryś z questów.",
+    material: "Materiał do Zestawu do wytwarzania. Robisz z niego strzały, bomby i maści.",
+    key_item: "Przedmiot kluczowy: otwiera drogę albo popycha do przodu któryś z questów.",
     remembrance: "Wizerunek: wymień go u Enii w Twierdzy Okrągłego Stołu na jedną z dwóch unikatowych nagród (lub na runy).",
     great_rune: "Wielki run: przywróć mu moc w Boskiej Wieży, załóż przy łasce i użyj Łuku runicznego, by aktywować jego błogosławieństwo.",
-    note: "Notatka lub list — podpowiada, gdzie szukać łupu albo jak pchnąć quest.",
+    note: "Notatka lub list. Podpowiada, gdzie szukać łupu albo jak pchnąć quest.",
     consumable: "Przedmiot użytkowy do szybkiego użycia w walce lub eksploracji.",
     ammo: "Amunicja do łuków i kusz.",
   };
@@ -629,9 +629,9 @@
       const req = Object.entries(s.requires).filter(([, v]) => v > 0).map(([k, v]) => `${ATTR[k]} ${v}`).join(", ");
       const elem = Object.entries(s.attack).filter(([k, v]) => k !== "phys" && v > 0).map(([k]) => DMG[k].toLowerCase());
       const w = s.weight, heft = w < 4 ? "lekka" : w < 10 ? "średnia" : "ciężka";
-      if (s.attack.phys < 60 && s.scaling.int >= 90) return `Kostur — służy do rzucania czarów. Moc czarów rośnie z Inteligencją (skalowanie ${grade(s.scaling.int)}). Wymaga: ${req || "nic"}.`;
-      if (s.attack.phys < 60 && (s.scaling.fai >= 60 || s.scaling.arc >= 60)) return `Pieczęć — służy do inkantacji. Moc rośnie z ${s.scaling.arc > s.scaling.fai ? "Tajemnością" : "Wiarą"}. Wymaga: ${req || "nic"}.`;
-      if (/tarcza/i.test(it.name)) return `Tarcza — trzymasz ją w lewej ręce i blokujesz ciosy (L1). ${w >= 10 ? "Ciężka tarcza: świetnie chroni, ale mocno obciąża — dla postaci z dużą Siłą i Wytrzymałością." : w >= 4 ? "Średnia tarcza: dobry kompromis między ochroną a wagą." : "Lekka tarcza: niewiele waży, dobra do parowania."} Wymaga: ${req || "nic"}. Waga ${num(w)}.`;
+      if (s.attack.phys < 60 && s.scaling.int >= 90) return `Kostur do rzucania czarów. Moc czarów rośnie z Inteligencją (skalowanie ${grade(s.scaling.int)}). Wymaga: ${req || "nic"}.`;
+      if (s.attack.phys < 60 && (s.scaling.fai >= 60 || s.scaling.arc >= 60)) return `Pieczęć do inkantacji. Moc rośnie z ${s.scaling.arc > s.scaling.fai ? "Tajemnością" : "Wiarą"}. Wymaga: ${req || "nic"}.`;
+      if (/tarcza/i.test(it.name)) return `Tarcza: trzymasz ją w lewej ręce i blokujesz ciosy (L1). ${w >= 10 ? "Ciężka tarcza: świetnie chroni, ale mocno obciąża. Dla postaci z dużą Siłą i Wytrzymałością." : w >= 4 ? "Średnia tarcza: dobry kompromis między ochroną a wagą." : "Lekka tarcza: niewiele waży, dobra do parowania."} Wymaga: ${req || "nic"}. Waga ${num(w)}.`;
       const top = sc.slice(0, 2).map(([k, v]) => `${ATTR_INS[k]} (${grade(v)})`).join(" i ");
       const build = !sc.length ? "dowolnej postaci" : sc[0][0] === "str" ? (sc[1]?.[0] === "dex" && sc[1][1] >= sc[0][1] * .7 ? "jakościowej (Siła + Zręczność)" : "siłowej")
         : sc[0][0] === "dex" ? "zręcznościowej" : sc[0][0] === "int" ? "czarodzieja" : sc[0][0] === "fai" ? "wiary" : "tajemności (krwawienie, trucizna)";
@@ -639,10 +639,10 @@
     }
     if (it.category === "armor" && s) {
       const best = Object.entries(s.absorb).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k]) => ABS[k].toLowerCase());
-      return `Element zbroi: najlepiej chroni przed obrażeniami: ${best.join(" i ")}. ${s.weight < 4 ? "Lekki" : s.weight < 9 ? "Średni" : "Ciężki"} (waga ${num(s.weight)}) — pilnuj obciążenia, żeby nie stracić szybkiego uniku.`;
+      return `Element zbroi: najlepiej chroni przed obrażeniami: ${best.join(" i ")}. ${s.weight < 4 ? "Lekki" : s.weight < 9 ? "Średni" : "Ciężki"} (waga ${num(s.weight)}). Pilnuj obciążenia, żeby nie stracić szybkiego uniku.`;
     }
     if (it.category === "talisman") return "Talizman: załóż go w wolnym gnieździe talizmanu. Kolejne gniazda dają Sakwy na talizman (nagrody za niektórych bossów).";
-    if (it.category === "ash_of_war") return "Popiół wojny: przy łasce nadaj go broni — zmienia jej umiejętność, a często też dostępne nasycenia.";
+    if (it.category === "ash_of_war") return "Popiół wojny: przy łasce nadaj go broni. Zmienia jej umiejętność, a często też dostępne nasycenia.";
     if (s?.fp != null) return `${kind === "incantation" ? "Inkantacja" : "Czar"}: zapamiętaj przy łasce i rzucaj ${s.requires.fai > s.requires.int ? "pieczęcią" : "kosturem"}. Koszt ${s.fp} PS. Wymaga: ${[s.requires.int ? `Inteligencja ${s.requires.int}` : "", s.requires.fai ? `Wiara ${s.requires.fai}` : ""].filter(Boolean).join(", ") || "nic"}.`;
     if (kind === "spirit_ash") return "Prochy duchów: przyzwij ducha Dzwonkiem przyzwania, gdy w pobliżu stoi kamień wskrzeszenia. Ulepszysz je u Roderiki w Twierdzy Okrągłego Stołu.";
     return KIND_NOTE[kind] || null;
@@ -677,7 +677,7 @@
       <div class="d-title" style="text-align:left;font-size:23px">${t.items.length > 1 ? "Skarb: " + pl(t.items.length, "przedmiot", "przedmioty", "przedmiotów") : esc(t.items[0].name || "Przedmiot")}</div>
       <div class="d-stats"><div><b>${done ? "✓" : "—"}</b><span>${done ? "Zebrane" : "Do zebrania"}</span></div>
         <div><b>${ng ? ng.dist + " m" : "—"}</b><span>od łaski</span></div><div><b>${t.items.length}</b><span>${plural(t.items.length, "Przedmiot", "Przedmioty", "Przedmiotów")}</span></div></div>
-      ${ng ? `<p class="view-sub" style="margin:10px 0 0">Najbliższe miejsce łaski: <b style="color:var(--bone)">${esc(ng.name)}</b>${ng.inside ? " (w tym samym lochu, " + ng.dist + " m)" : ""}${t.approx ? " — znacznik na mapie stoi przy wejściu do lochu." : "."}</p>` : ""}
+      ${ng ? `<p class="view-sub" style="margin:10px 0 0">Najbliższe miejsce łaski: <b style="color:var(--bone)">${esc(ng.name)}</b>${ng.inside ? " (w tym samym lochu, " + ng.dist + " m)" : ""}${t.approx ? ". Znacznik na mapie stoi przy wejściu do lochu." : "."}</p>` : ""}
       <div class="rule"></div>
       ${t.items.map(x => { const it = findItem(x.cat, x.id); return it ? itemBlock(it, x.kind) : `<p class="note">${esc(x.name || "Nieznany przedmiot")}</p>`; }).join("")}`);
   }
@@ -777,14 +777,14 @@
     const done = cats.reduce((a, c) => a + c.have, 0), total = cats.reduce((a, c) => a + c.list.length, 0);
     main.innerHTML = `<div class="view">
       <div class="view-head"><div><div class="eyebrow">Skarbiec Zmatowiałego</div><h1 class="title">Przedmioty</h1>
-        <div class="view-sub">Złote — w twoim posiadaniu. Ciemne — wciąż gdzieś czekają. Kliknij, by zobaczyć, gdzie leżą.</div></div>
+        <div class="view-sub">Złote masz. Ciemne wciąż gdzieś czekają. Kliknij, by zobaczyć, gdzie leżą.</div></div>
         ${ring(done, total, "posiadanych")}</div>
       <div class="cats">${cats.map(c => `<button class="cat ${c.id === state.cat ? "on" : ""}" data-cat="${c.id}">${c.name}<small>${c.have}/${c.list.length}</small></button>`).join("")}</div>
       ${itemToolbar(cat)}
       <div class="items-wrap"><div class="igroups">${itemGroups(cat)}</div>
       <aside class="cat-progress corners"><div class="eyebrow" style="margin-bottom:16px">Kolekcja</div>
         ${cats.map(c => `<div class="cp-row"><span>${c.name}</span><span>${c.have} / ${c.list.length}</span><span class="qbar"><i style="width:${c.have / Math.max(1, c.list.length) * 100}%"></i></span></div>`).join("")}
-        <div class="rule"></div><p class="view-sub" style="margin:0">${live.on ? (live.inventory ? "Stan posiadania z ekwipunku w save'ie." : "Ekwipunek z save'a jeszcze niedostępny — znamy tylko popioły wojny.") : "Stan posiadania w makiecie jest losowy."}</p></aside></div></div>`;
+        <div class="rule"></div><p class="view-sub" style="margin:0">${live.on ? (live.inventory ? "Stan posiadania z ekwipunku w save'ie." : "Ekwipunek z save'a jeszcze niedostępny, znamy tylko popioły wojny.") : "Stan posiadania w makiecie jest losowy."}</p></aside></div></div>`;
     main.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => { state.cat = b.dataset.cat; viewItems(); });
     bindItemToolbar(cat);
     (bindItemCells = () => main.querySelectorAll("[data-item]").forEach(b => b.onclick = () => {
@@ -895,7 +895,7 @@
           : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'),
-          row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi — miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
+          row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
         ${group("Miejsca i lochy", poiKeys, Object.entries(POI).map(([k, [l, g]]) => row("poi:" + k, l, `<span class="sw-poi">${g}</span>`)))}
         ${KIND_GROUPS.map(([title, keys]) => group(title, keys, keys.map(k => row(k, KINDS[k][0], dot(KINDS[k][1]))))).join("")}
         </div>
@@ -1192,7 +1192,7 @@
       ${effectsHTML(it)}
       ${statsHTML(it)}
       ${spots.length ? `<div class="d-section"><h4>Gdzie leży</h4>${spots.slice(0, 6).map(t => { const ng = nearestGrace(t);
-        return `<div class="reward"><span>${esc(t.region_pl || t.map_id)}${ng ? ` · przy łasce „${esc(ng.name)}”` : ""}</span><span>${isSet(t.flag) ? "zebrane" : "do zebrania"}</span></div>`; }).join("")}${spots.length > 6 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(spots.length - 6, "miejsce", "miejsca", "miejsc")} — wszystkie pokaże mapa (kliknij mini-mapę).</p>` : ""}</div>`
+        return `<div class="reward"><span>${esc(t.region_pl || t.map_id)}${ng ? ` · przy łasce „${esc(ng.name)}”` : ""}</span><span>${isSet(t.flag) ? "zebrane" : "do zebrania"}</span></div>`; }).join("")}${spots.length > 6 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(spots.length - 6, "miejsce", "miejsca", "miejsc")}. Wszystkie pokaże mapa (kliknij mini-mapę).</p>` : ""}</div>`
         : srcHTML || linksHTML ? "" : '<p class="note">Nie leży na mapie i nie znamy jeszcze źródła w danych gry (np. łup ze zwłok przy obiekcie albo podarunek postaci).</p>'}
       ${spots[0]?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
       () => spots[0]?.map && miniMap($("#minimap"), spots[0].map, spots[0].px, spots[0].py, it.icon, [
@@ -1223,7 +1223,7 @@
   function slot(it, label, opts = {}) {
     const up = it?.eq?.upgrade ? ` +${it.eq.upgrade}` : "";
     const f = frame(it, it?.eq?.id), inf = it && affinities(it, it.eq?.id).infuse;
-    return `<button class="eq-slot ${f.cls} ${opts.active ? "active" : ""} ${it ? "" : "empty"} ${opts.big ? "big" : ""}" style="${f.style}" ${it ? `data-eq="${it.category}:${it.id}"` : "disabled"} title="${esc(it ? (inf ? inf + " " : "") + it.name + up : label + " — pusto")}">
+    return `<button class="eq-slot ${f.cls} ${opts.active ? "active" : ""} ${it ? "" : "empty"} ${opts.big ? "big" : ""}" style="${f.style}" ${it ? `data-eq="${it.category}:${it.id}"` : "disabled"} title="${esc(it ? (inf ? inf + " " : "") + it.name + up : label + ": pusto")}">
       ${it ? `<img src="${ICON(it.icon)}" alt="">${f.gems}` : `<span class="eq-empty">◇</span>`}${up ? `<span class="eq-up">${up.trim()}</span>` : ""}<span class="eq-label">${esc(label)}</span></button>`;
   }
   // ---------- atrybuty i miękkie progi (krzywe CalcCorrectGraph z plików gry → stat_curves.json) ----------
@@ -1267,10 +1267,10 @@
         const lo = Math.max(1, Math.round(st[i])), hi = Math.round(st[i + 1]), d = (curve(c, hi) - curve(c, lo)) / Math.max(1, hi - lo);
         const on = v >= lo && v <= hi;
         return `<tr class="${on ? "on" : ""}"><td>${lo}–${hi}</td><td>${fmtv(fx, lo)} → ${fmtv(fx, hi)}</td><td>${fx.unit === "%" ? num(Math.round(d * 100) / 100) + " pp" : (d >= 10 ? Math.round(d) : num(Math.round(d * 10) / 10))}</td></tr>`; }).join("")}</table>`; };
-    const note = [state === "near" ? `Jeszcze <b>${next - v}</b> ${next - v === 1 ? "punkt" : "punkty"} do miękkiego progu <b>${next}</b> — warto dobić, potem każdy punkt daje mniej.`
-      : state === "capped" ? `Powyżej ostatniego miękkiego progu (${last}) — kolejne punkty dają już niewiele.`
+    const note = [state === "near" ? `Jeszcze <b>${next - v}</b> ${next - v === 1 ? "punkt" : "punkty"} do miękkiego progu <b>${next}</b>. Warto dobić, potem każdy punkt daje mniej.`
+      : state === "capped" ? `Powyżej ostatniego miękkiego progu (${last}). Kolejne punkty dają już niewiele.`
       : next != null ? `Następny miękki próg: <b>${next}</b> (brakuje ${next - v}).` : "",
-      knee && (next == null || knee.t < next) ? `Od <b>${knee.t}</b> każdy punkt daje <b>więcej</b> niż teraz — opłaca się tam dojść.` : ""].filter(Boolean).join(" ");
+      knee && (next == null || knee.t < next) ? `Od <b>${knee.t}</b> każdy punkt daje <b>więcej</b> niż teraz. Opłaca się tam dojść.` : ""].filter(Boolean).join(" ");
     return `<div class="attr ${state}" tabindex="0">
       <span class="attr-name">${a.name}</span><b class="attr-val">${v}</b>
       <span class="attr-bar"><i style="width:${pct(v)}%"></i>${marks.map(m => `<s class="${m.cap ? "cap" : "knee"}" style="left:${pct(m.t)}%" title="${m.cap ? "miękki próg" : "przyspieszenie"} ${m.t}"></s>`).join("")}</span>
@@ -1317,7 +1317,7 @@
     const st = live.state, eq = st?.equipment, c = D.character, ch = st?.character || {};
     const head = `<div class="view-head"><div><div class="eyebrow">Zmatowiały</div><h1 class="title">${esc(c.name)}</h1>
       <div class="view-sub">${ch.archetype ? `${CLASS_PL[ch.archetype.name] || ch.archetype.name} · ` : ""}poziom ${c.level} · ${c.playtime_s < 3600 ? Math.round(c.playtime_s / 60) + " min" : Math.round(c.playtime_s / 3600) + " h"} w grze${c.last_grace ? ` · ostatnia łaska: ${esc(c.last_grace)}` : ""}</div></div></div>`;
-    if (!eq) { main.innerHTML = `<div class="view">${head}<p class="note">Ekwipunek postaci pokaże się, gdy działa backend (python backend\\server.py) — czyta go z twojego save'a.</p></div>`; return; }
+    if (!eq) { main.innerHTML = `<div class="view">${head}<p class="note">Ekwipunek postaci pokaże się, gdy działa backend (python backend\\server.py), który czyta go z twojego save'a.</p></div>`; return; }
     const w = (arr, side) => arr.map((e, i) => slot(eqItem(e, "weapon"), `${side} ${i + 1}`, { active: eq.active_weapon?.[side === "Prawa" ? "right" : "left"] === i })).join("");
     const helm = eqItem(eq.head, "armor"), curves = await load("stat_curves");
     if (location.hash !== "#character") return;
@@ -1348,19 +1348,19 @@
     const of = x => `<em>${fmt(x.done)} z ${fmt(x.total)}</em>`;
     const lands = new Set((live.state.regions || []).map(r => r.region).filter(Boolean)).size;
     return [pd.bosses_required && e("♛", `Bossowie potrzebni do zakończenia gry: ${of(pd.bosses_required)}`),
-      pd.graces && e("❦", `Łaski — podstawka: ${of(pd.graces.base)} · DLC: ${of(pd.graces.dlc)}`),
+      pd.graces && e("❦", `Łaski w podstawce: ${of(pd.graces.base)} · w DLC: ${of(pd.graces.dlc)}`),
       pd.map_treasures && e("❖", `Skarby zebrane z map: ${of(pd.map_treasures)}`),
       pd.quests && e("✦", `Ukończone questy: ${of({ done: pd.quests.base.done + pd.quests.dlc.done, total: pd.quests.base.total + pd.quests.dlc.total })}`),
       lands && e("◈", `Zwiedzone krainy: <em>${lands}</em>`)].filter(Boolean).join("");
   }
   function viewChronicle() {
     const entry = e => `<div class="entry ${e.kind}"><time>${e.t}</time><span class="glyph ${e.blood ? "blood" : ""}">${e.g}</span><span class="txt">${e.txt}</span>${e.sub ? `<span class="sub">${esc(e.sub)}</span>` : ""}</div>`;
-    const head = `<div class="view-head"><div><div class="eyebrow">Zapisane w kamieniu</div><h1 class="title">Kronika</h1><div class="view-sub">Pisze się sama — każdy zapis gry dopisuje nowe wersy.</div></div></div>`;
+    const head = `<div class="view-head"><div><div class="eyebrow">Zapisane w kamieniu</div><h1 class="title">Kronika</h1><div class="view-sub">Pisze się sama: każdy zapis gry dopisuje nowe wersy.</div></div></div>`;
     // tylko łaski z nazwą — techniczne (np. flaga 200, bez nazwy w grze) są w save'ie ustawione od startu
     const bl = bossList(), defeated = bl.filter(b => b.defeated).length, graces = W.graces.filter(g => g.name && isSet(g.flag, 60)).length;
     if (!D.chronicle.length) {
       main.innerHTML = `<div class="view">${head}<div class="book corners"><div class="page"><p class="chron-intro dropcap">Karty tej kroniki są jeszcze puste. Zmatowiały zwany <em style="color:var(--gold-hi);font-style:normal">${esc(D.character.name)}</em>
-        dopiero je zapisze — pierwsze wersy pojawią się, gdy gra zapisze postęp: nowa łaska, pokonany wróg, zdobyty przedmiot.</p>
+        dopiero je zapisze. Pierwsze wersy pojawią się, gdy gra zapisze postęp: nowa łaska, pokonany wróg, zdobyty przedmiot.</p>
         <p class="view-sub">Kronika liczy się od chwili, gdy backend pierwszy raz zobaczył tę postać.</p></div>
         <div class="page"><div class="day">Stan na dziś</div>
         <div class="entry"><time>—</time><span class="glyph">▲</span><span class="txt">Poziom <em>${D.character.level}</em></span></div>
@@ -1377,7 +1377,7 @@
       <div class="day">${today.day}</div>${today.entries.map(entry).join("")}</div>
       <div class="page">${older.map(d => `<div class="day">${d.day}</div>${d.entries.map(entry).join("")}`).join("")}
       ${progressEntries() ? `<div class="day">Stan na dziś</div>${progressEntries()}` : ""}
-      <div class="rule" style="margin-top:30px"></div><p class="view-sub" style="text-align:center">— dalsze karty w historii zapisów —</p></div></div></div>`;
+      <div class="rule" style="margin-top:30px"></div><p class="view-sub" style="text-align:center">dalsze karty w historii zapisów</p></div></div></div>`;
   }
 
   /* ---------------- podsumowanie sesji ---------------- */
@@ -1385,11 +1385,11 @@
     const s = D.session;
     const empty = s && !s.bosses && !s.graces && !s.items && !s.deaths && !s.levels && !(s.highlights || []).length;
     $("#modalCard").innerHTML = !s || empty ? `<div class="eyebrow">Podsumowanie sesji</div><h2 class="title" style="font-size:29px;margin-top:8px">Brak sesji</h2>
-        <p class="view-sub" style="margin-top:18px">Backend nie widział jeszcze zapisów tej postaci. Zagraj chwilę — sesja liczy się od pierwszego zapisu gry.</p><button class="btn ghost" id="closeSum">Zamknij</button>`
+        <p class="view-sub" style="margin-top:18px">Backend nie widział jeszcze zapisów tej postaci. Zagraj chwilę, sesja liczy się od pierwszego zapisu gry.</p><button class="btn ghost" id="closeSum">Zamknij</button>`
       : `<div class="eyebrow">${s.active === false ? "Ostatnia sesja" : s.active ? "Trwająca sesja" : "Koniec sesji"} · ${s.duration}</div><h2 class="title" style="font-size:31px;margin-top:8px">${s.active ? "Dzisiejsza wyprawa" : "Ostatnia wyprawa"}</h2>
       <div class="sum-grid"><div><b>${s.bosses}</b><span>Bossowie</span></div><div><b>${s.graces}</b><span>Łaski</span></div><div><b>${s.items}</b><span>Przedmioty</span></div>
         <div><b>${s.deaths}</b><span>Śmierci</span></div><div><b>+${s.levels}</b><span>Poziomy</span></div><div><b>${s.hours ?? s.duration.split(" ")[0]} h</b><span>W grze</span></div></div>
-      <div class="sum-list">${s.highlights.length ? s.highlights.map(h => `<div class="reward"><span><span class="diamond on"></span>&nbsp;&nbsp;${esc(h)}</span><span></span></div>`).join("") : '<p class="view-sub" style="text-align:center">Spokojna sesja — bez nowych bossów i łask.</p>'}</div>
+      <div class="sum-list">${s.highlights.length ? s.highlights.map(h => `<div class="reward"><span><span class="diamond on"></span>&nbsp;&nbsp;${esc(h)}</span><span></span></div>`).join("") : '<p class="view-sub" style="text-align:center">Spokojna sesja, bez nowych bossów i łask.</p>'}</div>
       <button class="btn ghost" id="closeSum">Zamknij</button>`;
     $("#modal").classList.add("open"); $("#closeSum").onclick = closeModal;
   };
@@ -1505,7 +1505,7 @@
       demo.style.display = "none";
       connectEvents();
     } catch (err) {
-      console.info("Backend niedostępny — tryb demo.", err?.message);
+      console.info("Backend niedostępny, tryb demo.", err?.message);
       $(".nav-note").textContent = "makieta · stan przykładowy (backend wyłączony)";
     }
     topbar(); render();

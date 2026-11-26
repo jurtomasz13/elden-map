@@ -3,9 +3,9 @@
 Gra trzyma każdy kafel mapy (L0, 256 px) w wariantach: bity w nazwie = zebrane fragmenty, które go dotyczą
 (MENU_MapTile_M00_L0_x_y_<bity>), wariant 0 to pusta, ciemna faktura. Bit i = i-ty wiersz WorldMapPieceParam danej
 mapy (M00: wiersze 0–69, M01: 100–199, M10: 1000–1069): +0x04 flaga zebrania mapy (62010 = Pogrobno, zachód),
-+0x08 4×f32 obszar mapy do oglądania [lewo, prawo, góra, dół] w pikselach mapy (+0x18 druga flaga 63xxx —
++0x08 4×f32 obszar mapy do oglądania [lewo, prawo, góra, dół] w pikselach mapy (+0x18 druga flaga 63xxx,
 w save'ach nigdy nieustawiona, pomijamy). Strona: obszar mapy = otwarte fragmenty + okolice, w których byłeś;
-grafika — tylko tam, gdzie zebrana mapa (reszta: pusta faktura, jak w grze).
+grafika tylko tam, gdzie zebrana mapa (reszta: pusta faktura, jak w grze).
 
 Tu zapisujemy dla każdego kafla i bitu parę wariantów różniących się tylko tym bitem (z bitem / bez niego);
 build_map_pieces.mjs porównuje je piksel po pikselu i składa maskę zasięgu fragmentów (assets/map/<M>/pieces.png).

@@ -7,7 +7,7 @@
 Składniki pobierane z oficjalnych źródeł do build/dl (sumy SHA-256 sprawdzane):
 - Windows: Python embeddable (python.org) + Node.js win-x64 (nodejs.org)
 - Linux: Python z python-build-standalone (astral-sh) + Node.js linux-x64 + Python embeddable dla Wine (Oodle z gry)
-Do paczek trafiają tylko pliki śledzone przez git — bez assets/, save'ów i danych z gry.
+Do paczek trafiają tylko pliki śledzone przez git, bez assets/, save'ów i danych z gry.
 """
 import hashlib
 import io
@@ -84,7 +84,7 @@ def build_windows(version):
                              os.path.expandvars(r"%ProgramFiles%\Inno Setup 6\ISCC.exe"),
                              os.path.expandvars(r"%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe")) if os.path.exists(p)), None)
     if not iscc:
-        sys.exit("Brak Inno Setup 6 (ISCC.exe) — zainstaluj: winget install JRSoftware.InnoSetup")
+        sys.exit("Brak Inno Setup 6 (ISCC.exe). Zainstaluj go poleceniem: winget install JRSoftware.InnoSetup")
     os.makedirs(DIST, exist_ok=True)
     subprocess.run([iscc, "/Q", iss], check=True)
     print("instalator:", os.path.join(DIST, f"EldenMap-Setup-{version}.exe"))

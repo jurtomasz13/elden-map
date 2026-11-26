@@ -2,10 +2,10 @@
 
 Wynik:
   assets/cache/icons/<iconId>.dds, assets/cache/loading/<n>.dds  (potem build_icons.mjs -> PNG)
-  assets/data/items.json   — przedmioty: kategoria, id, nazwa (PL), iconId, DLC; ten sam przedmiot pod kilkoma
-                             numerami (pusta i pełna flaszka, odnowiona wielka runa, kopie notatek) to jeden wpis,
-                             pozostałe numery w `alt_ids`
-  assets/data/bosses.json  — wizerunki (remembrances) bossów -> iconId
+  assets/data/items.json   przedmioty: kategoria, id, nazwa (PL), iconId, DLC; ten sam przedmiot pod kilkoma
+                           numerami (pusta i pełna flaszka, odnowiona wielka runa, kopie notatek) to jeden wpis,
+                           pozostałe numery w `alt_ids`
+  assets/data/bosses.json  wizerunki (remembrances) bossów -> iconId
 Ikony z /menu/low/00_solo (512 px, MENU_Knowledge_<iconId>); pola iconId w parametrach ustalone
 empirycznie (patrz docs/08-assets.md).
 """

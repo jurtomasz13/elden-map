@@ -1,4 +1,4 @@
-"""MSB (Elden Ring, MSBE) — minimalny odczyt: części (wrogowie, obiekty) i zdarzenia skarbów.
+"""MSB (Elden Ring, MSBE), minimalny odczyt: części (wrogowie, obiekty) i zdarzenia skarbów.
 
 Układ ustalony na plikach gry (zgodny z SoulsFormats MSBE):
   lista parametrów: i32 wersja, i32 liczba+1, i64 offset nazwy, i64 offsety wpisów..., ostatni = następna lista

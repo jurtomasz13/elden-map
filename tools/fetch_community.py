@@ -1,4 +1,4 @@
-"""Pobiera dane społeczności potrzebne lokalnie (nie są w repozytorium — ich autorzy nie podali licencji).
+"""Pobiera dane społeczności potrzebne lokalnie (nie ma ich w repozytorium, bo autorzy nie podali licencji).
 
 - ClayAmore/ER-Save-Lib: eventflag_bst.txt (mapa blok flagi → pozycja w save'ie)  → docs/data/er-save-lib/
 - The Grand Archives: Elden Ring CT (flagi questów i bossów, tylko do build_quests.py) → assets/cache/community/tga/

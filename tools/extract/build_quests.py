@@ -1,11 +1,11 @@
 """Questy NPC (gra podstawowa + DLC) z flagami zdarzeń -> assets/data/quests.json.
 
 Źródła flag (każdy krok ma tylko prawdziwe flagi, nic nie jest zgadywane z numeracji):
-  * regulation.bin z gry (ItemLotParam_map/_enemy: getItemFlagId) — flaga „przedmiot otrzymany”.
+  * regulation.bin z gry (ItemLotParam_map/_enemy: getItemFlagId): flaga „przedmiot otrzymany”.
     Przedmioty dawane przez NPC w rozmowie mają loty 100000–119999 i flagi 400000–400999.
-  * The Grand Archives CT (cache: assets/cache/community/tga/) — flagi pokonania bossów
+  * The Grand Archives CT (cache: assets/cache/community/tga/): flagi pokonania bossów
     (Event Flag Manager) i opisane flagi stanu NPC (Event Flags/Deprecated/NPCs).
-  * skrypty rozmów (talk ESD) z gry — tylko do przypisania bloku flag stanu NPC (20 flag: +0 przyjazny,
+  * skrypty rozmów (talk ESD) z gry: tylko do przypisania bloku flag stanu NPC (20 flag: +0 przyjazny,
     +1 wrogi, +3 martwy, +5..+18 etap/położenie, +19 techniczna) do konkretnej postaci.
 Teksty kroków są pisane własnymi słowami; nazwy przedmiotów/miejsc/postaci są brane z plików gry (polpl).
 

@@ -1,4 +1,4 @@
-"""Pełne listy kroków questów: kroki z QuestPath (MIT, przetłumaczone na polski — `quest_steps_pl.json`) scalone
+"""Pełne listy kroków questów: kroki z QuestPath (MIT, przetłumaczone na polski w `quest_steps_pl.json`) scalone
 z naszymi krokami z flagami (`assets/data/quests.json` z build_quests.py).
 
 - Krok QuestPath, który opisuje to samo co nasz krok (`match`), dostaje jego flagi i identyfikator (ostrzeżenia
@@ -9,7 +9,7 @@ z naszymi krokami z flagami (`assets/data/quests.json` z build_quests.py).
 - `here` = flagi położenia NPC z `quest_npc_states.json`: postać czeka przy tym kroku.
 - Questy z `merge` (np. Ymir + Jolán) łączone w jeden; ich wątki podrzędne wskazują na wynikowy quest.
 
-Źródło tekstów: QuestPath by imCioco (https://github.com/imCioco/ER_QuestPath-Lang, licencja MIT) — tłumaczenie
+Źródło tekstów: QuestPath by imCioco (https://github.com/imCioco/ER_QuestPath-Lang, licencja MIT), tłumaczenie
 na polski. Nazwy własne w znacznikach {p:…} {i:…} {n:…} zamieniane na oficjalne polskie nazwy z plików gry.
 
     python tools/extract/quest_steps.py      # po build_quests.py, przed quest_spoilers.py
@@ -36,7 +36,7 @@ STATES = json.load(open(STATES_SRC, encoding="utf-8")) if os.path.exists(STATES_
 
 def main():
     if not os.path.exists(OUT):
-        print("quest_steps: brak assets/data/quests.json — pomijam")
+        print("quest_steps: brak assets/data/quests.json, pomijam")
         return
     data = json.load(open(OUT, encoding="utf-8"))
     ours = {q["id"]: q for q in data["entries"]}
