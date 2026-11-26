@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from erbackend.flags import DEFAULT_BST, FlagMap  # noqa: E402
 from erbackend.gamedata import DATA_DIR, GameData  # noqa: E402
-from erbackend.history import DEFAULT_DB, History  # noqa: E402
+from erbackend.history import DEFAULT_DB, History, adopt_old_db, old_dbs  # noqa: E402
 from erbackend.portraits import Portraits  # noqa: E402
 from erbackend.server import make_server  # noqa: E402
 from erbackend.service import Service, find_save_dir, find_save_dirs, save_roots  # noqa: E402
@@ -54,6 +54,8 @@ def main(argv=None):
     if not os.path.exists(a.bst):
         ap.error(f"brak pliku {a.bst} (mapa ID flagi -> bajt/bit)")
 
+    if a.db == DEFAULT_DB and adopt_old_db(a.db, next(iter(old_dbs()), None)):
+        logging.info("historia przeniesiona z folderu programu do %s", a.db)
     service = Service(save_dir, FlagMap.load(a.bst), GameData.load(a.data_dir), History(a.db), poll_interval=a.poll,
                       save_dirs=save_dirs)
     service.start()

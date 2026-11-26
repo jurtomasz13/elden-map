@@ -243,6 +243,7 @@ Kronika postaci z bazy historii, najnowsze najpierw. `limit` 1–1000 (domyślni
 | `boss_defeated` | id bossa | nazwa bossa | `{flag}` |
 | `grace_discovered` | id łaski | nazwa łaski | `{flag}` |
 | `item_collected` | id przedmiotu | nazwa | `{flag}` |
+| `item_obtained` | `kategoria:id` (np. `talisman:1000`) | `null` (nazwę dopisuje strona) | `null` |
 | `quest_step` | id questa | nazwa questa | `{step_id, text}` |
 | `level_up` | `null` | `"Poziom 181"` | `{from, to}` |
 | `map_changed` | nowy `map_id` | nowy `map_id` | `{from, to, from_area, to_area}` |
@@ -310,6 +311,7 @@ Przykład (test na kopii: jeden zapis z pokonanym bossem, nową łaską i śmier
 | `playtime_s` | przyrost czasu gry wg licznika gry (dokładniejszy niż zegar) |
 | `deaths`, `levels`, `runes_gained` | różnica względem zapisu sprzed sesji (`based_on_previous_save: true`) albo względem pierwszego zapisu sesji (`false`, np. pierwsza obserwacja postaci) |
 | `bosses/graces/items/quest_steps/maps` | zdarzenia kroniki z czasu sesji (`quest_steps`: `{quest_id, quest, step_id, text, ts}`) |
+| `items_obtained` | klucze `kategoria:id` przedmiotów zdobytych bez flagi (kupione, z przeciwników, wytworzone) |
 | `death_points` | miejsca śmierci w sesji (tylko te ze znaną pozycją) |
 
 `session: null`: brak zapisów tej postaci w bazie.
@@ -364,7 +366,7 @@ poprzedniego zapisu tej postaci zapamiętanego w bazie historii). Przykład z te
   Uwaga: gra przy każdym zapisie przełącza też flagi techniczne (np. 9800→9807, pary flag mapy),
   więc frontend powinien patrzeć głównie na `completed`.
 - `completed` / `reverted`: wpisy z warstwy danych, których flaga przeszła na `true` / `false`.
-  `quest_steps`: `{quest_id, quest, step_id, text}`.
+  `quest_steps`: `{quest_id, quest, step_id, text}`. Wpisy `items` mają też `contents[{cat, id, count}]` (zawartość skarbu).
 - `new_character: true`: postać widziana pierwszy raz (nowa postać albo pierwsza obserwacja); wtedy diff jest pusty.
 - `map_changed`: `{from, to}` przy zmianie obszaru (zasady jak w kronice) albo `null`.
 - `bloodstain`: aktualna plama krwi (jak w `/api/state`).
@@ -548,16 +550,30 @@ nie jest ustawiana nigdy). `bosses.json` ma pole `extra_defeat_flags` (pokonany 
 także indeks kroniki). `alt_flags` znaczy co innego: tylko „odkryty” (np. pokonany w poprzednim cyklu NG).
 Wariant `12…` dodawany jest tylko, gdy blok flagi istnieje w tabeli bst.
 
-## Historia zapisów (baza `backend/var/history.sqlite`)
+## Historia zapisów (baza `history.sqlite` w folderze użytkownika)
 
-SQLite ze stdlib, plik w `backend/var/` (w `backend/.gitignore`; inna ścieżka: `--db`). Postać = plik + slot + imię
+SQLite ze stdlib, plik `%LOCALAPPDATA%\Elden Map\history.sqlite` (Linux: `~/.local/share/elden-map/history.sqlite`); inna ścieżka: `--db`. Do wersji 0.1.6 baza leżała w `backend/var/` i ginęła
+przy aktualizacji; przy pierwszym starcie nowej wersji jest stamtąd kopiowana (stary plik zostaje). Na Linuksie
+szukamy jej też w folderach poprzednich wersji paczki obok bieżącej (`../elden-map-*/app/backend/var`), bierzemy najświeższą. Postać = plik + slot + imię
 (nowa postać w tym samym slocie = nowa historia). Dla każdej postaci baza trzyma ostatni stan (flagi
 skompresowane zlib), więc po restarcie serwera diff liczy się względem bazy, a zmiany zrobione, gdy serwer
 nie działał, też trafią do kroniki (z czasem ostatniego zapisu pliku). Pierwsza obserwacja postaci to „baseline”:
 nic nie trafia do kroniki (nie wiemy, kiedy co zdobyto).
 
 Tabele: `characters`, `last_state`, `snapshots` (każdy zaobserwowany zapis: poziom, śmierci, czas gry, mapa,
-pozycja; z nich liczone są sesje), `events` (kronika), `deaths`.
+pozycja; z nich liczone są sesje i dni), `events` (kronika), `deaths`.
+
+Przedmioty zdobyte bez flagi (kupione, z przeciwników, wytworzone): `last_state` trzyma spis posiadanych przedmiotów
+(`kategoria:id`, broń po ID bazowym). Klucz, którego wcześniej nie było, daje zdarzenie `item_obtained` (`ref_id` =
+klucz, nazwę dopisuje strona z katalogu). Przedmioty ze skarbu podniesionego w tym samym zapisie pomijamy, bo mają
+już `item_collected`. Gdy poprzednia migawka nie ma spisu (baza sprzed tej zmiany), zdarzeń nie ma.
+
+`GET /api/days?file=&slot=&limit=7&before=RRRR-MM-DD`: kronika dzień po dniu, od najnowszego. Dzień trwa od 4:00
+do 4:00 (granie po północy należy do poprzedniego dnia). Każdy dzień: `date`, `saves`, `events[]` i to samo
+podsumowanie co sesja (`playtime_s`, `deaths`, `levels`, `runes_gained`, `bosses`, `graces`, `items`,
+`items_obtained`, `quest_steps`, `maps`, `death_points`), liczone od ostatniego zapisu przed tym dniem. `more`: są
+starsze dni (następna strona: `before` = data najstarszego). Zdarzenia zrobione, gdy aplikacja nie działała, mają
+czas zapisu pliku save, więc mogą trafić do innego dnia.
 
 ## Miejsca śmierci i próby na bossa
 

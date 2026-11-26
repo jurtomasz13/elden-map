@@ -161,7 +161,7 @@
     const st = live.state = await api(`/api/state?${qs()}${qs() ? "&" : ""}sections=position,bloodstain,regions,inventory,equipment,stats,items,bosses,warnings,progress_detail&item_kind=acquired_flag`, 15000);
     live.file = st.save.file; live.slot = st.character.slot;
     const [chars, chron, sess, deaths] = await Promise.all([
-      api("/api/characters").catch(() => null), api(`/api/chronicle?${qs()}&limit=300`).catch(() => null),
+      api("/api/characters").catch(() => null), api(`/api/days?${qs()}&limit=${Math.min(60, Math.max(7, D.chronicle?.length || 0))}`).catch(e => ({ failed: e.message || String(e) })),
       api(`/api/session?${qs()}`).catch(() => null), api(`/api/deaths?${qs()}&limit=500`).catch(() => null)]);
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
@@ -183,9 +183,11 @@
     const bs = px(st.bloodstain);
     if (bs) D.deathPoints = [...D.deathPoints.filter(d => d.map !== bs.map || Math.hypot(d.px - bs.px, d.py - bs.py) > 3),
       { ...bs, last: true, runes: st.bloodstain.runes }];
-    D.chronicle = chronicleFrom(chron?.events || []);
+    D.chronicleFailed = chron?.failed || null;
+    D.chronicle = (chron?.days || []).map(dayModel);
+    D.daysMore = chron?.more ? chron.days.at(-1).date : null;      // data najstarszego wczytanego dnia, gdy są starsze
     const s = sess?.session;
-    D.session = s ? { duration: `${Math.floor(s.playtime_s / 3600)} h ${Math.round(s.playtime_s % 3600 / 60)} min`, hours: (s.playtime_s / 3600).toFixed(1),
+    D.session = s ? { duration: playtime(s.playtime_s), hours: (s.playtime_s / 3600).toFixed(1),
       bosses: s.bosses.length, graces: s.graces.length, items: s.items.length, deaths: s.deaths, levels: s.levels.gained, active: s.active,
       highlights: [...s.bosses.map(b => "Pokonano: " + b.name), ...s.graces.slice(0, 3).map(g => "Łaska: " + g.name)] } : null;
     live.aow = new Map(st.items.map(i => [i.name, i.collected]));
@@ -204,16 +206,21 @@
   const KIND_EV = { boss_defeated: ["⚔", "boss", n => `Pokonano ${n}`], grace_discovered: ["❦", "grace", n => `Odkryto łaskę <em>${n}</em>`],
     item_collected: ["❖", "item", n => `Zdobyto <em>${n}</em>`], quest_step: ["✦", "quest", n => `Quest: <em>${n}</em>`],
     level_up: ["▲", "level", n => n], map_changed: ["◈", "map", n => `Zmiana obszaru: <em>${n}</em>`] };
-  function chronicleFrom(events) {
-    const t = new Date(), y = new Date(t); y.setDate(t.getDate() - 1);
-    const label = d => d.toDateString() === t.toDateString() ? "Dziś" : d.toDateString() === y.toDateString() ? "Wczoraj" : d.toLocaleDateString("pl-PL", { day: "numeric", month: "long" });
-    const byDay = new Map();
-    for (const e of events) {
-      const d = new Date(e.ts), [g, kind, txt] = KIND_EV[e.kind] || ["·", "map", n => n];
-      if (!byDay.has(d.toDateString())) byDay.set(d.toDateString(), { day: label(d), entries: [] });
-      byDay.get(d.toDateString()).entries.push({ t: d.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }), g, kind, txt: txt(esc(e.name)), sub: e.data?.text || "" });
-    }
-    return [...byDay.values()];
+  // dzień z /api/days (od 4:00 do 4:00) → karta kroniki: podsumowanie, zdarzenia od najnowszych, zdobyte przedmioty razem
+  function dayModel(d) {
+    const date = new Date(d.date + "T12:00"), today = new Date(Date.now() - 4 * 3600e3), y = new Date(today);
+    y.setDate(today.getDate() - 1);
+    const same = (a, b) => a.toDateString() === b.toDateString();
+    const day = same(date, today) ? "Dziś" : same(date, y) ? "Wczoraj" : date.toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
+    const summary = [d.playtime_s > 0 && `${playtime(d.playtime_s)} gry`, d.deaths > 0 && pl(d.deaths, "śmierć", "śmierci", "śmierci"),
+      d.levels.gained > 0 && `poziom ${d.levels.from} → ${d.levels.to}`, d.runes_gained > 0 && `+${fmt(d.runes_gained)} run`].filter(Boolean).join(" · ");
+    const time = ts => new Date(ts).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
+    const entries = d.events.filter(e => e.kind !== "item_obtained").reverse().map(e => { const [g, kind, txt] = KIND_EV[e.kind] || ["·", "map", n => n];
+      return { t: time(e.ts), g, kind, txt: txt(esc(e.name)), sub: e.data?.text || "" }; });
+    const got = [...new Set(d.items_obtained.map(k => { const [c, id] = k.split(":"); return findItem(c, +id)?.name; }).filter(Boolean))];
+    if (got.length) entries.push({ t: "", g: "❖", kind: "item", sub: "kupione, z przeciwników albo wytworzone",
+      txt: `Zdobyte przedmioty: <em>${got.slice(0, 12).map(esc).join(", ")}</em>${got.length > 12 ? ` i ${got.length - 12} innych` : ""}` });
+    return { day, summary, entries };
   }
 
   /* ---------------- topbar ---------------- */
@@ -625,6 +632,8 @@
   // odmiana: plural(5, "punkt", "punkty", "punktów") → „punktów”
   const plural = (n, one, few, many) => { n = Math.abs(n); if (n === 1) return one; const d = n % 10, t = n % 100;
     return d >= 2 && d <= 4 && (t < 12 || t > 14) ? few : many; };
+  // czas gry: „2 h 05 min”, „45 min” (zaokrąglone do minut, bez „60 min”)
+  const playtime = s => { const m = Math.round(s / 60); return m >= 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min` : `${m} min`; };
   const pl = (n, one, few, many) => `${fmt(n)} ${plural(n, one, few, many)}`;
   const grade = v => v >= 175 ? "S" : v >= 140 ? "A" : v >= 90 ? "B" : v >= 60 ? "C" : v >= 25 ? "D" : v > 0 ? "E" : "–";
   const KIND_NOTE = {
@@ -1457,6 +1466,10 @@
     const head = `<div class="view-head"><div><div class="eyebrow">Zapisane w kamieniu</div><h1 class="title">Kronika</h1><div class="view-sub">Pisze się sama: każdy zapis gry dopisuje nowe wersy.</div></div></div>`;
     // tylko łaski z nazwą — techniczne (np. flaga 200, bez nazwy w grze) są w save'ie ustawione od startu
     const bl = bossList(), defeated = bl.filter(b => b.defeated).length, graces = W.graces.filter(g => g.name && isSet(g.flag, 60)).length;
+    if (D.chronicleFailed) {
+      main.innerHTML = `<div class="view">${head}<p class="note warn">Nie udało się wczytać kroniki z backendu: ${esc(D.chronicleFailed)}</p></div>`;
+      return;
+    }
     if (!D.chronicle.length) {
       main.innerHTML = `<div class="view">${head}<div class="book corners"><div class="page"><p class="chron-intro dropcap">Karty tej kroniki są jeszcze puste. Zmatowiały zwany <em style="color:var(--gold-hi);font-style:normal">${esc(D.character.name)}</em>
         dopiero je zapisze. Pierwsze wersy pojawią się, gdy gra zapisze postęp: nowa łaska, pokonany wróg, zdobyty przedmiot.</p>
@@ -1471,12 +1484,21 @@
       return;
     }
     const [today, ...older] = D.chronicle;
+    const dayHead = d => `<div class="day">${d.day}</div>${d.summary ? `<p class="day-sum">${esc(d.summary)}</p>` : ""}`;
     main.innerHTML = `<div class="view">${head}<div class="book corners"><div class="page">
       <p class="chron-intro dropcap">Zmatowiały zwany <em style="color:var(--gold-hi);font-style:normal">${esc(D.character.name)}</em> zgasił już ${pl(defeated, "wielkiego wroga", "wielkich wrogów", "wielkich wrogów")}, odnalazł ${pl(graces, "miejsce łaski", "miejsca łaski", "miejsc łaski")} i padł ${pl(D.character.deaths, "raz", "razy", "razy")}, by za każdym razem powstać na nowo.</p>
-      <div class="day">${today.day}</div>${today.entries.map(entry).join("")}</div>
-      <div class="page">${older.map(d => `<div class="day">${d.day}</div>${d.entries.map(entry).join("")}`).join("")}
+      ${dayHead(today)}${today.entries.map(entry).join("")}</div>
+      <div class="page">${older.map(d => `${dayHead(d)}${d.entries.map(entry).join("")}`).join("")}
       ${progressEntries() ? `<div class="day">Stan na dziś</div>${progressEntries()}` : ""}
-      <div class="rule" style="margin-top:30px"></div><p class="view-sub" style="text-align:center">dalsze karty w historii zapisów</p></div></div></div>`;
+      <div class="rule" style="margin-top:30px"></div>${D.daysMore ? '<button class="btn ghost" id="olderDays">Starsze dni</button>'
+        : '<p class="view-sub" style="text-align:center">Kronika zaczyna się od pierwszego zapisu, który zobaczyła aplikacja.</p>'}</div></div></div>`;
+    if ($("#olderDays")) $("#olderDays").onclick = async () => {
+      const r = await api(`/api/days?${qs()}&limit=7&before=${D.daysMore}`).catch(e => banner("Kronika", "Nie udało się wczytać starszych dni: " + (e.message || e)));
+      if (!r) return;
+      D.chronicle.push(...r.days.map(dayModel));
+      D.daysMore = r.more ? r.days.at(-1).date : null;
+      viewChronicle();
+    };
   }
 
   /* ---------------- podsumowanie sesji ---------------- */

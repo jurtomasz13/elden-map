@@ -1,4 +1,4 @@
-"""Historia zapisów w SQLite (backend/var/history.sqlite): kronika, miejsca śmierci, sesje.
+"""Historia zapisów w SQLite (folder danych użytkownika, history.sqlite): kronika, miejsca śmierci, sesje, dni.
 
 Postać = (plik sl2/co2, slot, imię). Dla każdej postaci trzymamy ostatnią migawkę (flagi skompresowane
 zlib), więc po restarcie serwera diff liczy się względem stanu z bazy — zmiany zrobione, gdy serwer
@@ -6,6 +6,8 @@ nie działał, też trafią do kroniki (z czasem zapisu pliku).
 """
 from __future__ import annotations
 
+import datetime as dt
+import glob
 import json
 import math
 import os
@@ -14,12 +16,32 @@ import threading
 import time
 import zlib
 
-from .diffing import Snap, area_of, bloodstain_moved, build_diff, iso
+from .diffing import Snap, area_of, bloodstain_moved, build_diff, item_key, iso
 from .worldmap import inside_shape
 
-DEFAULT_DB = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "var",
-                                           "history.sqlite"))
+
+
+def user_data_dir() -> str:
+    """Folder danych użytkownika, który przeżywa aktualizację programu (Windows: odinstalowanie usuwa folder
+    programu; Linux: każda wersja paczki to nowy folder)."""
+    if os.name == "nt":
+        return os.path.join(os.environ["LOCALAPPDATA"], "Elden Map")
+    return os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share"), "elden-map")
+
+
+DEFAULT_DB = os.path.join(user_data_dir(), "history.sqlite")
+# do wersji 0.1.6 baza leżała w folderze programu: na Windowsie ten sam folder, na Linuksie folder poprzedniej
+# wersji paczki obok bieżącej (elden-map-<wersja>-linux-x64/app/backend/var)
+OLD_DB = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "var", "history.sqlite"))
+
+
+def old_dbs() -> list[str]:
+    """Stare bazy do przeniesienia, od najświeższej."""
+    pkg = os.path.normpath(os.path.join(os.path.dirname(OLD_DB), "..", "..", ".."))
+    found = glob.glob(os.path.join(os.path.dirname(pkg), "elden-map-*", "app", "backend", "var", "history.sqlite"))
+    return sorted({p for p in [OLD_DB, *found] if os.path.exists(p)}, key=os.path.getmtime, reverse=True)
 SESSION_GAP_S = 600
+DAY_START_H = 4          # dzień kroniki zaczyna się o 4:00: granie po północy liczy się do poprzedniego dnia
 ARENA_MARGIN = 3.0       # m — plama krwi tuż przy granicy areny (mgła, ściana) też się liczy
 
 SCHEMA = """
@@ -46,6 +68,33 @@ CREATE INDEX IF NOT EXISTS deaths_char ON deaths(character_id, ts);
 """
 
 EVENT_KINDS = {"bosses": "boss_defeated", "graces": "grace_discovered", "items": "item_collected"}
+
+
+def adopt_old_db(path: str, old: str | None) -> bool:
+    """Przenosi starą bazę do nowego miejsca (kopia przez API kopii zapasowej SQLite, razem z niezapisanym jeszcze
+    dziennikiem WAL; najpierw do pliku tymczasowego, żeby nieudana kopia nie została jako pusta baza). Stary plik
+    zostaje. True, gdy skopiowano."""
+    if os.path.exists(path) or not old:
+        return False
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    src, dst = sqlite3.connect(old), sqlite3.connect(tmp)
+    try:
+        src.backup(dst)
+    finally:
+        src.close()
+        dst.close()
+    os.replace(tmp, path)
+    return True
+
+
+def day_of(ts: float) -> dt.date:
+    return (dt.datetime.fromtimestamp(ts) - dt.timedelta(hours=DAY_START_H)).date()
+
+
+def day_range(day: dt.date) -> tuple[float, float]:
+    start = dt.datetime.combine(day, dt.time(DAY_START_H))
+    return start.timestamp(), (start + dt.timedelta(days=1)).timestamp()
 
 
 class History:
@@ -114,6 +163,12 @@ class History:
                     for st in diff["completed"]["quest_steps"]:
                         events.append(self._add_event(cur, cid, ch, new.ts, "quest_step", st["quest_id"],
                                                       st["quest"], {"step_id": st["step_id"], "text": st["text"]}))
+                    if old.items is not None and new.items is not None:
+                        picked = {item_key(c["cat"], c["id"]) for e in diff["completed"]["items"] for c in e.get("contents", [])}
+                        had = set(old.items)
+                        for key in new.items:
+                            if key not in had and key not in picked:     # podniesione ze skarbu mają już wpis
+                                events.append(self._add_event(cur, cid, ch, new.ts, "item_obtained", key, None, None))
                     if new.level > old.level:
                         events.append(self._add_event(cur, cid, ch, new.ts, "level_up", None, f"Poziom {new.level}",
                                                       {"from": old.level, "to": new.level}))
@@ -275,17 +330,20 @@ class History:
                 "SELECT * FROM deaths WHERE character_id=? AND baseline=0 AND ts>=? AND ts<=? ORDER BY ts, id",
                 (cid, start, end))]
 
+        return {"active": now - end <= gap, "started_at": iso(start), "ended_at": iso(end),
+                "wall_duration_s": round(end - start, 1), "saves": len(group),
+                **self._summary(base, group[-1], evs, dts), "based_on_previous_save": i > 0}
+
+    @staticmethod
+    def _summary(base: dict, last: dict, evs: list[dict], dts: list[dict]) -> dict:
+        """Co zmieniło się między dwiema migawkami: czas gry, śmierci, poziomy, runy i zdarzenia z tego okresu."""
         def pick(kind):
             return [{"id": e["ref_id"], "name": e["name"], "ts": e["ts"]} for e in evs if e["kind"] == kind]
 
-        last = group[-1]
         return {
-            "active": now - end <= gap,
-            "started_at": iso(start), "ended_at": iso(end),
-            "wall_duration_s": round(end - start, 1),
             "playtime_s": last["playtime_s"] - base["playtime_s"],
-            "saves": len(group),
             "bosses": pick("boss_defeated"), "graces": pick("grace_discovered"), "items": pick("item_collected"),
+            "items_obtained": [e["ref_id"] for e in evs if e["kind"] == "item_obtained"],
             "quest_steps": [{"quest_id": e["ref_id"], "quest": e["name"], **(e["data"] or {}), "ts": e["ts"]}
                             for e in evs if e["kind"] == "quest_step"],
             "maps": [e["data"]["to"] for e in evs if e["kind"] == "map_changed"],
@@ -293,5 +351,27 @@ class History:
             "death_points": [d["position"] for d in dts if d["position"]],
             "levels": {"from": base["level"], "to": last["level"], "gained": last["level"] - base["level"]},
             "runes_gained": last["runes_memory"] - base["runes_memory"],
-            "based_on_previous_save": i > 0,
         }
+
+    def days(self, cid: int, ch: dict, limit: int, before: dt.date | None = None) -> dict:
+        """Kronika dzień po dniu (od najnowszego): podsumowanie dnia i jego zdarzenia. Dzień od 4:00 do 4:00."""
+        with self.lock:
+            days = sorted({day_of(r[0]) for r in self.db.execute(
+                "SELECT ts FROM snapshots WHERE character_id=? AND baseline=0", (cid,))}, reverse=True)
+            if before:
+                days = [d for d in days if d < before]
+            out = []
+            for day in days[:limit]:
+                a, b = day_range(day)
+                in_day = [dict(r) for r in self.db.execute(
+                    "SELECT * FROM snapshots WHERE character_id=? AND ts>=? AND ts<? ORDER BY ts, id", (cid, a, b))]
+                prev = [dict(r) for r in self.db.execute(
+                    "SELECT * FROM snapshots WHERE character_id=? AND ts<? ORDER BY ts DESC, id DESC LIMIT 1", (cid, a))]
+                evs = [self._event_dict(r, ch) for r in self.db.execute(
+                    "SELECT * FROM events WHERE character_id=? AND ts>=? AND ts<? ORDER BY ts, id", (cid, a, b))]
+                dts = [self._death_dict(r, ch) for r in self.db.execute(
+                    "SELECT * FROM deaths WHERE character_id=? AND baseline=0 AND ts>=? AND ts<? ORDER BY ts, id",
+                    (cid, a, b))]
+                out.append({"date": day.isoformat(), "saves": len(in_day), "events": evs,
+                            **self._summary(prev[0] if prev else in_day[0], in_day[-1], evs, dts)})
+        return {"days": out, "more": len(days) > limit}

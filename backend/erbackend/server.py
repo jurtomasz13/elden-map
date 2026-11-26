@@ -1,6 +1,7 @@
 """Serwer HTTP (ThreadingHTTPServer) z API JSON i Server-Sent Events. Tylko 127.0.0.1."""
 from __future__ import annotations
 
+import datetime as dt
 import json
 import os
 import logging
@@ -26,6 +27,14 @@ class ApiError(Exception):
     def __init__(self, status: int, message: str):
         super().__init__(message)
         self.status = status
+
+
+def _limit_param(qs: dict, default: int, hi: int) -> int:
+    limit = _int_param(qs, "limit")
+    limit = default if limit is None else limit
+    if not 1 <= limit <= hi:
+        raise ApiError(400, f"parametr 'limit' musi być w zakresie 1–{hi}")
+    return limit
 
 
 def _int_param(qs: dict, name: str) -> int | None:
@@ -119,16 +128,21 @@ class Handler(BaseHTTPRequestHandler):
                     raise ApiError(400, "podaj od 1 do 1000 ID flag w parametrze 'ids'")
                 return self._json(200, self.service.flags(ids, _file_param(qs), _int_param(qs, "slot")))
             if path == "/api/chronicle":
-                limit = _int_param(qs, "limit")
-                limit = 100 if limit is None else limit
-                if not 1 <= limit <= 1000:
-                    raise ApiError(400, "parametr 'limit' musi być w zakresie 1–1000")
+                limit = _limit_param(qs, 100, 1000)
                 kinds = [k for k in ",".join(qs.get("kind", [])).split(",") if k] or None
                 return self._json(200, self.service.chronicle(_file_param(qs), _int_param(qs, "slot"), limit,
                                                               _int_param(qs, "before_id"), kinds))
             if path == "/api/deaths":
                 return self._json(200, self.service.deaths(_file_param(qs), _int_param(qs, "slot"),
                                                            _int_param(qs, "limit")))
+            if path == "/api/days":
+                limit = _limit_param(qs, 7, 60)
+                before = (qs.get("before") or [None])[0]
+                try:
+                    before = dt.date.fromisoformat(before) if before else None
+                except ValueError:
+                    raise ApiError(400, "parametr 'before' to data RRRR-MM-DD")
+                return self._json(200, self.service.days(_file_param(qs), _int_param(qs, "slot"), limit, before))
             if path == "/api/session":
                 return self._json(200, self.service.session(_file_param(qs), _int_param(qs, "slot")))
             m = re.fullmatch(r"/api/data/(\w+)", path)
@@ -152,7 +166,8 @@ class Handler(BaseHTTPRequestHandler):
                 "history_db": s.history.path,
                 "endpoints": ["/api/characters", "/api/state?file=sl2|co2&slot=N", "/api/events",
                               "/api/chronicle?file=&slot=&limit=&before_id=&kind=", "/api/deaths?file=&slot=",
-                              "/api/session?file=&slot=", "/api/flags?ids=1,2&file=&slot=",
+                              "/api/session?file=&slot=", "/api/days?file=&slot=&limit=&before=RRRR-MM-DD",
+                              "/api/flags?ids=1,2&file=&slot=",
                               "/api/data/{bosses|graces|items|quests}"]}
 
     # --- Server-Sent Events ------------------------------------------------------------------

@@ -1,16 +1,18 @@
 """Historia (SQLite): kronika, śmierci, próby na bossa, sesje, trwałość po restarcie; discovered i ostrzeżenia."""
 import dataclasses
+import datetime as dt
 import os
+import sqlite3
 import shutil
 import tempfile
 import unittest
 
 from helpers import assert_not_game_dir, copy_saves, source_save_dir
 
-from erbackend.diffing import snap_from
+from erbackend.diffing import item_key, snap_from
 from erbackend.flags import FlagMap
 from erbackend.gamedata import GameData
-from erbackend.history import History
+from erbackend.history import History, adopt_old_db
 from erbackend.savefile import SaveFile
 
 
@@ -169,6 +171,62 @@ class HistoryTest(unittest.TestCase):
         self.assertEqual([x["id"] for x in s["bosses"]], [self.boss["id"]])
         self.assertEqual([x["id"] for x in s["graces"]], [self.grace["id"]])
         self.assertFalse(self.h.session(self.cid(), self.ch(), now=t + 3660 + 601)["active"])
+
+    def test_items_obtained(self):
+        # nowy przedmiot bez flagi (kupiony, z przeciwnika, wytworzony) -> „zdobyty”; ze skarbu ma już „item_collected”
+        treasure = next(i for i in self.gd.entries("items")
+                        if i.get("contents") and not self.fm.get(self.base.flags, i["flag"]))
+        from_treasure = item_key(treasure["contents"][0]["cat"], treasure["contents"][0]["id"])
+        base = dataclasses.replace(self.base, items=["goods:100"])
+        self.h.observe(base, self.fm, self.index)
+        s2 = with_flags(base, self.fm, {treasure["flag"]: True}, ts=self.base.ts + 60,
+                        items=["goods:100", "talisman:1000", from_treasure])
+        r = self.h.observe(s2, self.fm, self.index)
+        self.assertEqual([e["ref_id"] for e in r["events"] if e["kind"] == "item_obtained"], ["talisman:1000"])
+        self.assertIn(treasure["id"], [e["ref_id"] for e in r["events"] if e["kind"] == "item_collected"])
+
+    def test_items_unknown_before_give_no_events(self):
+        # migawka sprzed spisu przedmiotów (starsza baza): cały ekwipunek nie może trafić do kroniki jako „zdobyty”
+        self.h.observe(dataclasses.replace(self.base, items=None), self.fm, self.index)
+        s2 = with_flags(self.base, self.fm, {}, ts=self.base.ts + 60, items=["goods:100", "talisman:1000"])
+        self.assertEqual([e for e in self.h.observe(s2, self.fm, self.index)["events"] if e["kind"] == "item_obtained"], [])
+
+    def test_days(self):
+        # dzień kroniki trwa od 4:00 do 4:00: zapis o 3:00 należy jeszcze do poprzedniego dnia
+        at = lambda d, h: dt.datetime(2026, 11, d, h, 0).timestamp()          # noqa: E731
+        base = dataclasses.replace(self.base, ts=at(20, 12), level=50, deaths=5, playtime_s=1000, runes_memory=100)
+        self.h.observe(base, self.fm, self.index)
+        evening = with_flags(base, self.fm, {self.grace["flag"]: True}, ts=at(20, 23), level=51, deaths=7,
+                             playtime_s=2000, runes_memory=300)
+        night = with_flags(evening, self.fm, {}, ts=at(21, 3), level=52, deaths=8, playtime_s=3000, runes_memory=400)
+        morning = with_flags(night, self.fm, {}, ts=at(21, 10), level=53, playtime_s=4000, runes_memory=50)
+        for s in (evening, night, morning):
+            self.h.observe(s, self.fm, self.index)
+        r = self.h.days(self.cid(), self.ch(), 7)
+        self.assertEqual([d["date"] for d in r["days"]], ["2026-11-21", "2026-11-20"])
+        today, yesterday = r["days"]
+        self.assertEqual((yesterday["playtime_s"], yesterday["deaths"], yesterday["levels"]["to"]), (2000, 3, 52))
+        self.assertEqual([g["id"] for g in yesterday["graces"]], [self.grace["id"]])
+        self.assertEqual((today["playtime_s"], today["deaths"], today["levels"]), (1000, 0, {"from": 52, "to": 53, "gained": 1}))
+        self.assertEqual(today["runes_gained"], -350)
+        older = self.h.days(self.cid(), self.ch(), 7, before=dt.date(2026, 11, 21))
+        self.assertEqual([d["date"] for d in older["days"]], ["2026-11-20"])
+        self.assertTrue(self.h.days(self.cid(), self.ch(), 1)["more"])
+
+    def test_adopt_old_db(self):
+        # baza z folderu programu (do 0.1.6) przechodzi do folderu użytkownika; stary plik zostaje
+        old, new = os.path.join(self.dbdir, "old.sqlite"), os.path.join(self.dbdir, "user", "history.sqlite")
+        con = sqlite3.connect(old)
+        con.execute("CREATE TABLE t(x)")
+        con.execute("INSERT INTO t VALUES (7)")
+        con.commit()
+        con.close()
+        self.assertTrue(adopt_old_db(new, old))
+        con = sqlite3.connect(new)
+        self.assertEqual(con.execute("SELECT x FROM t").fetchone()[0], 7)
+        con.close()
+        self.assertTrue(os.path.exists(old))
+        self.assertFalse(adopt_old_db(new, old))                              # nowa baza już jest: bez zmian
 
     def test_persistence_across_restart(self):
         self.h.observe(self.base, self.fm, self.index)

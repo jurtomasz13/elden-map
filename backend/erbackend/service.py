@@ -277,6 +277,10 @@ class Service:
                 "bloodstain": self.with_map(sf.slot(ch["slot"]).bloodstain),
                 "recorded": sum(1 for d in rows if not d["baseline"]), "deaths": rows}
 
+    def days(self, kind, slot, limit, before) -> dict:
+        _, ch, cid = self._character_key(kind, slot)
+        return {"character": ch, **(self.history.days(cid, ch, limit, before) if cid else {"days": [], "more": False})}
+
     def session(self, kind=None, slot=None) -> dict:
         _, ch, cid = self._character_key(kind, slot)
         return {"character": ch, "session": self.history.session(cid, ch) if cid else None,

@@ -54,7 +54,7 @@ których jeszcze nie spotkałeś, i rzadkie przedmioty, których nie masz.
 ```
 
 Program nie dotyka procesu gry, czyta tylko plik zapisu, więc można spokojnie grać online z EasyAntiCheat. Nic nie
-zapisuje do plików gry ani do save'ów. Własną historię (kronikę, śmierci) trzyma w `backend/var/`.
+zapisuje do plików gry ani do save'ów. Własną historię (kronikę, śmierci) trzyma w folderze użytkownika: `%LOCALAPPDATA%\Elden Map\history.sqlite` (Linux: `~/.local/share/elden-map/history.sqlite`), więc aktualizacja jej nie kasuje.
 
 Dane świata (bossowie, przedmioty, mapa, ikony) są wyciągane z twojej kopii gry. Repozytorium nie zawiera żadnych
 plików FromSoftware.

@@ -28,6 +28,7 @@ class Snap:
     bloodstain: dict | None
     md5: str
     ts: float                       # mtime pliku (epoch, s)
+    items: list[str] | None = None  # posiadane przedmioty "kategoria:id" (przy sobie i w skrzyni); None = nieznane
     flags: bytes = field(repr=False, default=b"")
 
     def info(self) -> dict:
@@ -40,13 +41,30 @@ class Snap:
         return cls(**info, flags=flags)
 
 
+# grupy ekwipunku z savefile/inventory → kategorie katalogu przedmiotów strony
+INVENTORY_CATS = {"weapons": "weapon", "armor": "armor", "talismans": "talisman", "goods": "goods",
+                  "key_items": "goods", "ashes": "ash_of_war"}
+
+
+def item_key(cat: str, iid: int) -> str:
+    """Klucz przedmiotu "kategoria:id" jak w katalogu strony (broń po ID bazowym, bez ulepszenia i nasycenia)."""
+    return f"{cat}:{iid - iid % 10000 if cat == 'weapon' else iid}"
+
+
+def owned_items(inv: dict | None) -> list[str] | None:
+    """Klucze posiadanych przedmiotów (przy sobie i w skrzyni); None, gdy ekwipunku nie odczytano."""
+    if inv is None:
+        return None
+    return sorted({item_key(cat, e["id"]) for group, cat in INVENTORY_CATS.items() for e in inv[group]})
+
+
 def snap_from(sf: SaveFile, slot: int) -> Snap:
     c = sf.character(slot)
     s = sf.slot(slot)
     return Snap(file=sf.kind, slot=slot, name=c.name, level=c.level, playtime_s=c.playtime_s,
                 runes_memory=c.runes_memory, deaths=s.deaths, map_id=s.position["map_id"],
                 position=s.position, regions=s.regions, bloodstain=s.bloodstain, md5=s.md5,
-                ts=sf.mtime_ns / 1e9, flags=s.flags)
+                ts=sf.mtime_ns / 1e9, items=owned_items(s.inventory), flags=s.flags)
 
 
 def iso(ts: float | None) -> str | None:
@@ -124,5 +142,6 @@ def build_diff(old: Snap | None, new: Snap, fm: FlagMap, index: dict) -> dict:
                 continue
             seen.add(key)
             (ev["completed"] if val else ev["reverted"])[kind].append(
-                {"id": entry["id"], "name": entry["name"], "flag": fid})
+                {"id": entry["id"], "name": entry["name"], "flag": fid,
+                 **({"contents": entry["contents"]} if entry.get("contents") else {})})
     return ev

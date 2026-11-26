@@ -130,7 +130,7 @@ Name: "{{userdesktop}}\Elden Map"; Filename: "{{app}}\runtime\python\python.exe"
 Filename: "{{app}}\runtime\python\python.exe"; Parameters: "-X utf8 ""{{app}}\app\launcher.py"""; WorkingDir: "{{app}}\app"; Description: "Uruchom Elden Map (pierwsze uruchomienie przygotuje dane z gry)"; Flags: postinstall nowait skipifsilent
 
 [UninstallDelete]
-; dane wyciągnięte z gry i historia — usuwane razem z programem
+; dane wyciągnięte z gry i portrety, usuwane razem z programem (historia leży w %LOCALAPPDATA%\Elden Map i zostaje)
 Type: filesandordirs; Name: "{{app}}\app\assets"
 Type: filesandordirs; Name: "{{app}}\app\backend\var"
 Type: filesandordirs; Name: "{{app}}\app\backend\data"

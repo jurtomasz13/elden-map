@@ -23,7 +23,7 @@ z najświeższym plikiem). Opcje:
 | `--poll S` | `0.5` | co ile sekund sprawdzać folder (os.stat) |
 | `--bst PATH` | `docs/data/er-save-lib/eventflag_bst.txt` | mapa ID flagi → bajt/bit |
 | `--data-dir DIR` | `backend/data` | pliki `bosses/graces/items/quests.json` |
-| `--db PATH` | `backend/var/history.sqlite` | baza historii (kronika, śmierci, sesje); `var/` jest w `.gitignore` |
+| `--db PATH` | `%LOCALAPPDATA%\Elden Map\history.sqlite` (Linux: `~/.local/share/elden-map/`) | baza historii (kronika, śmierci, sesje, dni); stara baza z `backend/var/` jest przy pierwszym starcie kopiowana tutaj |
 | `-v` | brak | logi debug (każde żądanie HTTP) |
 
 Szybki test: <http://127.0.0.1:8765/api/health>, <http://127.0.0.1:8765/api/state>.
@@ -61,7 +61,7 @@ backend/
                                  (-> data/world_extras.json; korzysta z tools/extract, tylko odczyt)
   tools/build_data.py    generator data/*.json z assets/data, world_extras.json i tabeli CE
   tests/                 unittest
-  var/                   history.sqlite (tworzone przy starcie, nie commitować)
+  var/                   portrety postaci; do 0.1.6 także history.sqlite (nie commitować)
 ```
 
 ## Dane (`backend/data`)
@@ -85,10 +85,11 @@ gry: zapis co ok. 60 s, mediana ok. 28 s (patrz docs/04).
 
 ## Historia (kronika, śmierci, sesje)
 
-Każdy zaobserwowany zapis slotu trafia do `backend/var/history.sqlite`: migawka (poziom, śmierci, czas gry, mapa),
-zdarzenia kroniki (boss, łaska, przedmiot, krok questa, poziom, zmiana obszaru) i miejsca śmierci (z plamy krwi).
+Każdy zaobserwowany zapis slotu trafia do bazy `%LOCALAPPDATA%\Elden Map\history.sqlite` (Linux: `~/.local/share/elden-map/history.sqlite`): migawka (poziom, śmierci, czas gry, mapa),
+zdarzenia kroniki (boss, łaska, skarb, przedmiot zdobyty inaczej, krok questa, poziom, zmiana obszaru) i miejsca
+śmierci (z plamy krwi).
 Baza pamięta ostatni stan każdej postaci, więc zmiany zrobione, gdy serwer nie działał, też trafią do kroniki po
 restarcie. Pierwsze zobaczenie postaci jest tylko punktem odniesienia i nie dodaje wpisów do kroniki.
 
-Żeby zacząć historię od zera, zatrzymaj serwer i usuń `backend/var/`. Endpointy `/api/chronicle`, `/api/deaths`
-i `/api/session` opisuje docs/07.
+Żeby zacząć historię od zera, zatrzymaj serwer i usuń ten plik. Endpointy `/api/chronicle`, `/api/deaths`,
+`/api/session` i `/api/days` opisuje docs/07.

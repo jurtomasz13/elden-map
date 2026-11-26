@@ -191,6 +191,10 @@ z save'a. Twierdza Okrągłego Stołu to jedna ikona z listą postaci, najeźdź
 (118 napisów) i ikony bez wpisu w parametrach (Leyndell szary, Belurat i Donżon Cienia bez czarnej chmury), dopóki
 nie sprawdzimy w grze, kiedy się pojawiają.
 
+Zrobione 2026-11-26: krok 6 (punkt 11). Baza historii w folderze użytkownika (kopiowana ze starego miejsca),
+przedmioty zdobyte bez flagi w kronice, `/api/days` z podsumowaniem dnia (od 4:00), widok Kroniki z kartami dni
+i przyciskiem „Starsze dni”.
+
 1. Błędy, osobne szybkie wydanie dla kolegi: kolejność kroków przygotowania danych (punkt 1), przedmioty pomijane
    przez `extract_icons.py` (punkt 10), pula łupu NPC z NpcParam +0x34 (punkt 8).
 2. Globalny „Mój postęp” (14) razem z filtrami mapy (4), granicami mapy (3) i powodem „za tobą” (2).
