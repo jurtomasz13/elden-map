@@ -591,9 +591,11 @@
   }
 
   /* ---------------- przedmioty ---------------- */
+  // never obtainable: bare-fist and naked-body placeholders, the Ragged set (armor 610000-611100) removed in patch 1.03
+  const unobtainable = i => (i.category === "weapon" && i.id === 110000) || (i.category === "armor" && (i.id < 101000 || (i.id >= 610000 && i.id < 612000)));
   const CATS = [
-    { id: "weapons", name: "Broń", f: i => i.category === "weapon" && i.icon > 0 && !(i.stats?.class >= 81 && i.stats?.class <= 86) && i.stats?.class !== 33 },
-    { id: "armor", name: "Zbroje", f: i => i.category === "armor" && i.icon > 0 && i.id >= 101000 },
+    { id: "weapons", name: "Broń", f: i => i.category === "weapon" && i.icon > 0 && !(i.stats?.class >= 81 && i.stats?.class <= 86) && i.stats?.class !== 33 && !unobtainable(i) },
+    { id: "armor", name: "Zbroje", f: i => i.category === "armor" && i.icon > 0 && !unobtainable(i) },
     { id: "talismans", name: "Talizmany", f: i => i.category === "talisman" },
     { id: "spells", name: "Czary i inkantacje", f: i => i.kind === "sorcery" || i.kind === "incantation" },
     { id: "aow", name: "Popioły wojny", f: i => i.category === "ash_of_war" && !/dummy/i.test(i.name) },
@@ -1240,6 +1242,11 @@
     const rows = [];
     for (const id of src.bosses || []) { const b = W.bosses.find(x => x.id === id); if (!b) continue;
       rows.push(`<button class="xbtn x-boss" data-go="boss:${b.id}">⚔ Nagroda za bossa<small>${esc(b.name)}${b.region_pl ? " · " + esc(b.region_pl) : ""}</small></button>`); }
+    for (const wk of src.on_weapon || []) {
+      const [c, id] = wk.split(":"), w = findItem(c, +id);
+      if (!w) continue;
+      rows.push(`<button class="xbtn x-event" data-go="item:${wk}">◇ Na broni<small>${esc(w.name)} · zdejmij popiół przy łasce</small></button>`);
+    }
     for (const g of src.gifts || []) { const ng = !g.who && g.map && nearestGrace(g);
       rows.push(`<button class="xbtn x-event" ${g.map ? pinGo(g) : "disabled"}>✦ Podarunek w rozmowie<small>${g.who ? esc(g.who) : "postać albo obiekt" + (ng ? " · okolice: " + esc(ng.name) : "")}${g.map ? " · ⌖ na mapie" : ""}</small></button>`); }
     for (const sh of src.shops || []) {

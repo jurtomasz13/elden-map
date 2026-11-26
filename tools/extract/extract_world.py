@@ -33,7 +33,22 @@ DLC_AREAS = {20, 21, 22, 25, 28, 40, 41, 42, 43, 61}
 INVASION, INVADER_DEATH, FLAG_REWARD, QUEST_REWARDS = 90005790, 90005792, 90005774, 90005768
 # Moore w DLC ma 6 takich wywołań; nie wiadomo, czy to prawdziwe inwazje, więc go pomijamy, dopóki nie sprawdzimy w grze
 SKIP_INVADERS_EN = {"Moore"}
-LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war"}
+# kategorie w wierszach puli łupu (ItemLotParam); 6 = gotowa broń z EquipParamCustomWeapon (+0x00 broń bazowa),
+# tak zapisane są m.in. Rapier Rogiera, Nagakiba i bronie z DLC dawane z ulepszeniem
+LOT_CATS = {1: "goods", 2: "weapon", 3: "armor", 4: "talisman", 5: "ash_of_war", 6: "weapon"}
+
+
+def lot_slots(row):
+    """(item id, category code, weight, count) for the 8 slots of an ItemLotParam row."""
+    return zip(struct.unpack_from("<8i", row, 0), struct.unpack_from("<8i", row, 0x20), struct.unpack_from("<8H", row, 0x40),
+               row[0x8A:0x92])
+
+
+def lot_item(code, iid, custom):
+    """(category, item id) of a lot slot; category None for codes outside LOT_CATS, a ready-made weapon -> its base weapon."""
+    if code == 6 and iid > 0:
+        iid = struct.unpack_from("<i", custom[iid], 0)[0]
+    return LOT_CATS.get(code), iid
 
 
 # ---------------- pozycje ----------------
@@ -80,6 +95,16 @@ class World:
         return None
 
 
+def award_params(evs):
+    """Zdarzenie -> bajty argumentów wywołania, z których AwardItemLot (2003[4]/[36]) bierze pulę jako parametr."""
+    out = {}
+    for eid, ev in evs.items():
+        for k, (bank, iid, _a) in enumerate(ev["instrs"]):
+            if (bank, iid) in ((2003, 4), (2003, 36)):
+                out.setdefault(eid, set()).update(src for pi, tgt, src, _n in ev["params"] if pi == k and tgt == 0)
+    return out
+
+
 def lot_ids(table, lot):
     """Pula i kolejne wiersze (lot+1, lot+2…, najwyżej 8): gra daje je razem, np. cały zestaw zbroi z jednego miejsca."""
     out = []
@@ -95,19 +120,21 @@ def item_index(items):
 
 def msb_paths():
     """Map files (MSB) present in the archives: names are guessed and checked by hash, the list is cached."""
-    cache_path = os.path.join(A.ROOT, "assets", "cache", "msb_list.txt")
+    cache_path = os.path.join(A.ROOT, "assets", "cache", "map_files.txt")
     if os.path.exists(cache_path):
         return [ln.strip() for ln in open(cache_path, encoding="utf-8") if ln.strip()]
     import bhd
     arcs = [A.Archive(n) for n in bhd.ARCHIVES]
     found = []
+    # lochy: poziom 00; otwarty świat także pliki większej skali 01 i 02 (duzi przeciwnicy, wozy, część skarbów)
     for area in list(range(10, 46)) + [60, 61]:
-        xs, zs = (range(100), range(100)) if area in (60, 61) else (range(30), range(3))
-        for a in xs:
-            for b in zs:
-                p = f"/map/mapstudio/m{area:02d}_{a:02d}_{b:02d}_00.msb.dcx"
-                if any(A.path_hash(p) in arc.files for arc in arcs):
-                    found.append(p)
+        for level in ((0, 1, 2) if area in (60, 61) else (0,)):
+            xs, zs = (range(100 >> level), range(100 >> level)) if area in (60, 61) else (range(30), range(3))
+            for a in xs:
+                for b in zs:
+                    p = f"/map/mapstudio/m{area:02d}_{a:02d}_{b:02d}_{level:02d}.msb.dcx"
+                    if any(A.path_hash(p) in arc.files for arc in arcs):
+                        found.append(p)
     with open(cache_path, "w", encoding="utf-8") as f:
         f.write("\n".join(found))
     return found
@@ -159,11 +186,6 @@ def ct_boss_flags(cache_path):
     with open(cache_path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False)
     return out
-
-
-def map_id_of(path):
-    m = re.search(r"m(\d\d)_(\d\d)_(\d\d)_(\d\d)", path)
-    return tuple(int(v) for v in m.groups()[:3])
 
 
 # ---------------- kategorie przedmiotów ----------------
@@ -267,16 +289,15 @@ def main():
     by_item = item_index(items)
     npc_rows = dict(P.rows(ps["NpcParam"])[0])
     lots = dict(P.rows(ps["ItemLotParam_map"])[0])
+    custom = dict(P.rows(ps["EquipParamCustomWeapon"])[0])
 
     def lot_items(lot_id):
         r = lots.get(lot_id)
         if not r:
             return [], 0
-        ids, cats = struct.unpack_from("<8i", r, 0), struct.unpack_from("<8i", r, 0x20)
-        nums = r[0x8A:0x92]
         out = []
-        for i, (iid, c) in enumerate(zip(ids, cats)):
-            cat = LOT_CATS.get(c)
+        for iid, c, _w, n in lot_slots(r):
+            cat, iid = lot_item(c, iid, custom)
             if not iid or not cat:
                 continue
             base = iid - iid % 10000 if cat == "weapon" else iid
@@ -285,7 +306,7 @@ def main():
             if not name:                                       # przedmioty bez nazwy w grze (atrapy, wycięte) — pomijamy
                 continue
             out.append({"cat": cat, "id": iid, "name": name, "name_en": it and it["name_en"], "icon": it and it["icon"],
-                        "count": nums[i] or 1, "kind": it["kind"]})
+                        "count": n or 1, "kind": it["kind"]})
         return out, struct.unpack_from("<I", r, 0x80)[0]
 
     def lot_chain(lot_id):
@@ -301,8 +322,8 @@ def main():
         m = msb.load(path)
         if not m:
             continue
-        area, gx, gz = map_id_of(path)
-        mid = f"m{area:02d}_{gx:02d}_{gz:02d}_00"
+        area, gx, gz, _level = msb.tile(path)
+        mid = msb.map_id(area, gx, gz)
         for p in m["parts"]:
             if p["type"] == "enemy" and p["entity"]:
                 enemies_by_entity[p["entity"]] = (mid, p)
@@ -337,11 +358,7 @@ def main():
     #     z parametrem), pula czytana z dokładnej pozycji argumentu, i tylko gdy w tym samym wywołaniu jest flaga bossa;
     #  b) zdarzenia mapy z literalnym AwardItemLot, które sprawdzają flagę tego bossa (i tylko jednego bossa).
     import emevd as E
-    award_src = {}
-    for eid, ev in (E.load("/event/common_func.emevd.dcx") or {}).items():
-        for k, (bank, iid, _a) in enumerate(ev["instrs"]):
-            if (bank, iid) in ((2003, 4), (2003, 36)):
-                award_src.setdefault(eid, []).extend(p[2] for p in ev["params"] if p[0] == k)
+    award_src = award_params(E.load("/event/common_func.emevd.dcx") or {})
     boss_name_by_entity, reward_by_flag, name_near_flag, global_flag, reward_by_global = {}, {}, {}, {}, {}
     invasions, invader_lots, quest_lots = {}, {}, {}        # flaga pokonania -> encja / pule nagród
     # bossowie polowi (Nocna Kawaleria, Ptak śmierci…): wiersz GameAreaParam ma numer encji bossa, a śmierć zapisuje
@@ -353,11 +370,12 @@ def main():
         evs = E.load(path.replace("/map/mapstudio/", "/event/").replace(".msb.dcx", ".emevd.dcx"))
         if not evs:
             continue
+        local_src = award_params(evs)           # nagrody też w zdarzeniach samej mapy (np. Nocna Kawaleria z glewią)
         for ev in evs.values():
             ev_flags, ev_lots = set(), []
             for bank, iid, a in ev["instrs"]:
                 x = E.ints(a)
-                if (bank, iid) == (2000, 6) and len(x) >= 2:          # InitializeCommonEvent(0, id, args...)
+                if (bank, iid) in ((2000, 0), (2000, 6)) and len(x) >= 2:   # Initialize(Common)Event(0, id, args...)
                     cid, args = x[1], a[8:]
                     cargs = E.ints(args)
                     if cid in (90005860, 90005861) and cargs:
@@ -374,9 +392,10 @@ def main():
                         quest_lots.setdefault(cargs[0], []).extend(v for v in cargs[1::2] if v > 0 and v in lots)
                     if cid == 90005870 and len(cargs) >= 2 and cargs[1] in npc_pl:
                         boss_name_by_entity.setdefault(cargs[0], cargs[1])
-                    if cid in award_src:
+                    srcs = award_src.get(cid, set()) | local_src.get(cid, set())
+                    if srcs:
                         flags_here = [v for v in cargs if v in ga_flags]
-                        for src in award_src[cid]:
+                        for src in srcs:
                             if src + 4 <= len(args):
                                 lot = struct.unpack_from("<i", args, src)[0]
                                 if lot in lots and len(set(flags_here)) == 1:
@@ -488,15 +507,15 @@ def main():
         pos = pos or world.to_map(area, gx, gz, x, y, z)
         local = [round(c, 1) for c in (ent[1]["pos"] if ent else (x, y, z))]   # pozycja w układzie pliku mapy (map_id)
         # model 3D (cXXXX) — z części mapy o encji bossa, zapasowo wróg o tej samej nazwie (najpierw na tej mapie)
-        cand = [ent] if ent else sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != f"m{area:02d}_{gx:02d}_{gz:02d}_00")
+        cand = [ent] if ent else sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != msb.map_id(area, gx, gz))
         model = next((re.match(r"(c\d{4})_", e[1]["name"]).group(1) for e in cand if e and re.match(r"c\d{4}_", e[1]["name"])), None)
         # postać ludzka (c0000): ekwipunek i wygląd z CharaInitParam/FaceParam — ID z części bossa albo imiennika na tej mapie
-        same = sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != f"m{area:02d}_{gx:02d}_{gz:02d}_00") if nid else []
+        same = sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != msb.map_id(area, gx, gz)) if nid else []
         chara_init = next((e[1]["chara_init"] for e in ([ent] if ent else []) + same if e and (e[1].get("chara_init") or 0) > 0), None) if model == "c0000" else None
         flag = field_defeat.get(rid, rid)
         bosses.append({"id": rid, "flag": flag, "name": name_pl or name_en, "name_en": name_en, "location": loc, "region": region,
                        "region_pl": region_pl.get((region or "").lower()) or region,
-                       "runes": runes, "map_id": f"m{area:02d}_{gx:02d}_{gz:02d}_00", "dlc": area in DLC_AREAS or bool(c and c["group"].startswith("DLC")),
+                       "runes": runes, "map_id": msb.map_id(area, gx, gz), "dlc": area in DLC_AREAS or bool(c and c["group"].startswith("DLC")),
                        "icon": (rem and rem.get("icon")) or (drop and drop["icon"]), "remembrance": rem and rem.get("remembrance"),
                        "rewards": [{"name": it["name"], "icon": it["icon"], "kind": it["kind"]} for it in reward if it["name"]],
                        "named_by": named_by, "model": model, "chara_init": chara_init, "pos": local,
@@ -524,7 +543,7 @@ def main():
         pos = world.to_map(area, gx, gz, *local)
         show, icon = struct.unpack_from("<i", r, 0x04)[0], struct.unpack_from("<H", r, 0x0C)[0]
         if pos:
-            pois.append({"id": rid, "name": name, "category": poi_category(name), "map_id": f"m{area:02d}_{gx:02d}_{gz:02d}_00",
+            pois.append({"id": rid, "name": name, "category": poi_category(name), "map_id": msb.map_id(area, gx, gz),
                          "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in local], "flag": 0 if show == 6001 else show,
                          "icon": icon if icon in map_icons else None,
                          **({"names": names} if len(names) > 1 or names[0][1] or names[0][2] else {}), **pos})

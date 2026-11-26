@@ -21,64 +21,18 @@ import time
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools", "extract"))
 
-import archive as A  # noqa: E402
 import extract_data as XD  # noqa: E402
 import msb  # noqa: E402
+from extract_world import msb_paths  # noqa: E402
 import params as P  # noqa: E402
 
 OUT = os.path.join(ROOT, "backend", "data", "world_extras.json")
 ASSETS = os.path.join(ROOT, "assets", "data")
 
 
-def mid(area, gx, gz):
-    return f"m{area:02d}_{gx:02d}_{gz:02d}_00"
-
-
 def load_json(fn):
     p = os.path.join(ASSETS, fn)
     return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else []
-
-
-SHAPES = {0: "point", 1: "circle", 2: "sphere", 3: "cylinder", 4: "square", 5: "rect", 6: "box", 7: "composite"}
-SHAPE_DIMS = {"circle": 1, "sphere": 1, "cylinder": 2, "rect": 2, "box": 3}
-
-
-def msb_regions(path):
-    """Regiony (POINT_PARAM_ST) z pliku mapy: nazwa, kształt, pozycja, obrót, wymiary.
-
-    Układ MSBE (jak SoulsFormats): i64 nazwa, i32 typ, i32 indeks, u32 kształt, f32[3] pozycja (+0x14),
-    f32[3] obrót w stopniach (+0x20), …, i64 dane kształtu (+0x48), i64 dane encji (+0x50).
-    Dane kształtu: circle/sphere r; cylinder r, h; rect szer., głęb.; box szer., głęb., wys.
-    """
-    r = A.find(path)
-    if not r:
-        return []
-    d = A.undcx(r[1])
-
-    def wstr(o):
-        e = o
-        while d[e:e + 2] != b"\0\0":
-            e += 2
-        return d[o:e].decode("utf-16le", "replace")
-
-    lists, o = {}, 0x10
-    while o:
-        _v, cnt, no = struct.unpack_from("<iiq", d, o)
-        offs = struct.unpack_from(f"<{cnt}q", d, o + 16)
-        lists[wstr(no)] = offs[:-1]
-        o = offs[-1]
-    out = []
-    for x in lists.get("POINT_PARAM_ST", ()):
-        name_off, _typ, _idx, shape = struct.unpack_from("<qiiI", d, x)
-        shape = SHAPES.get(shape, shape)
-        shape_off = struct.unpack_from("<q", d, x + 0x48)[0]
-        n = SHAPE_DIMS.get(shape)
-        if not n or not shape_off:
-            continue
-        out.append({"name": wstr(x + name_off), "shape": shape, "pos": struct.unpack_from("<3f", d, x + 0x14),
-                    "rot_y": struct.unpack_from("<f", d, x + 0x24)[0],
-                    "dims": struct.unpack_from(f"<{n}f", d, x + shape_off)})
-    return out
 
 
 def find_arena(regions, p):
@@ -210,8 +164,8 @@ def main():
         src, dst = (r[4], r[5], r[6]), (r[0x14], r[0x15], r[0x16])
         if src == dst:
             continue
-        conv.append([mid(*src), *[round(v, 2) for v in struct.unpack_from("<3f", r, 0x08)],
-                     mid(*dst), *[round(v, 2) for v in struct.unpack_from("<3f", r, 0x18)]])
+        conv.append([msb.map_id(*src), *[round(v, 2) for v in struct.unpack_from("<3f", r, 0x08)],
+                     msb.map_id(*dst), *[round(v, 2) for v in struct.unpack_from("<3f", r, 0x18)]])
 
     # GameAreaParam: +0x48 float[3] pozycja, +0x54 area/gx/gz (bywa mylące — tylko zapas, gdy brak wroga w MSB).
     # Uwaga: +0x3C to NIE jest PlayRegion areny (wartości niezgodne z położeniem bossów).
@@ -221,17 +175,16 @@ def main():
             ga[rid] = {"pos": struct.unpack_from("<3f", r, 0x48), "map": (r[0x54], r[0x55], r[0x56])}
 
     # pozycje bossów z plików map: wróg o EntityID = flaga pokonania
-    msb_cache = os.path.join(ROOT, "assets", "cache", "msb_list.txt")
-    msb_list = [ln.strip() for ln in open(msb_cache) if ln.strip()]
+    msb_list = msb_paths()
     found = {}
     for i, path in enumerate(msb_list):
         m = msb.load(path)
         if not m:
             continue
-        a, gx, gz = (int(v) for v in path.split("/m")[-1][:8].split("_")[:3])
+        a, gx, gz, _level = msb.tile(path)
         for p in m["parts"]:
             if p["type"] in ("enemy", "dummy_enemy") and p["entity"] in boss_flags and p["entity"] not in found:
-                found[p["entity"]] = {"map_id": mid(a, gx, gz), "x": round(p["pos"][0], 2), "y": round(p["pos"][1], 2),
+                found[p["entity"]] = {"map_id": msb.map_id(a, gx, gz), "file": path, "x": round(p["pos"][0], 2), "y": round(p["pos"][1], 2),
                                       "z": round(p["pos"][2], 2), "source": "msb"}
         if i % 200 == 0:
             print(f"  mapy {i}/{len(msb_list)} ({time.time() - t0:.0f} s)", flush=True)
@@ -240,17 +193,19 @@ def main():
         g = ga.get(flag, {})
         pos = found.get(flag)
         if pos is None and g and g["map"][0]:
-            pos = {"map_id": mid(*g["map"]), "x": round(g["pos"][0], 2), "y": round(g["pos"][1], 2),
+            pos = {"map_id": msb.map_id(*g["map"]), "x": round(g["pos"][0], 2), "y": round(g["pos"][1], 2),
                    "z": round(g["pos"][2], 2), "source": "game_area_param"}
         if pos:
             boss_positions[flag] = pos
 
     # areny: region „バディ…” (obszar przyzywania popiołów ducha w walce z bossem) z pliku mapy bossa
+    # (boss z pliku większej skali _01/_02 ma arenę w tym samym pliku, nie w kaflu _00)
     reg_cache: dict[str, list] = {}
     for flag, pos in boss_positions.items():
-        path = f"/map/mapstudio/{pos['map_id']}.msb.dcx"
+        path = pos.pop("file", f"/map/mapstudio/{pos['map_id']}.msb.dcx")
         if path not in reg_cache:
-            reg_cache[path] = msb_regions(path)
+            m = msb.load(path)
+            reg_cache[path] = m["regions"] if m else []
         a = find_arena(reg_cache[path], (pos["x"], pos["y"], pos["z"]))
         if a:
             pos["arena"] = a

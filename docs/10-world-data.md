@@ -45,15 +45,21 @@ Wyniki w `assets/data/` (lokalnie, poza repozytorium).
 - Popioły wojny i dzwonki kulisty mają w grze wspólne ikony według typu, to nie błąd danych.
 - Region: kraina najbliższej łaski (PL). Łaski DLC nie mają krainy w danych gry, więc jest brana z danych backendu (EN → PL przez PlaceName).
 
-### Pliki map: MSB (`/map/mapstudio/mAA_BB_CC_00.msb.dcx`, 944 pliki)
-Parser: `tools/extract/msb.py` (zgodny z układem MSBE z SoulsFormats):
+### Pliki map: MSB (`/map/mapstudio/mAA_BB_CC_LL.msb.dcx`, 1243 pliki)
+Parser: `tools/extract/msb.py` (zgodny z układem MSBE z SoulsFormats). Lista plików jest w `assets/cache/map_files.txt`
+(`msb_paths()` w `extract_world.py`, nazwy zgadywane i sprawdzane po haszu). Otwarty świat ma oprócz kafli `_00` pliki
+wielkoskalowe `_01` (blok 2×2 kafle) i `_02` (4×4), razem 299. Leżą w nich m.in. dalekie bossy polowe, przeciwnicy
+i skarby (193 przeciwników, 8 postaci, 21 skarbów). Pozycje są liczone od środka bloku, a nie od środka jego pierwszego
+kafla, więc parser dodaje 128·(2^L-1), a kafel to `XX << L` (`msb.tile()`). Tak samo przesuwa regiony (`POINT_PARAM_ST`,
+m.in. areny bossów), więc arenę bossa szuka się w pliku, w którym stoi boss.
 - części: wróg (typ 2) → dane typu `+0x08` ThinkParamID, `+0x0C` NpcParamID, `+0x10` TalkID, `+0x18` CharaInitID;
   EntityID w danych encji. (Wcześniej `+0x18` było błędnie traktowane jako TalkID i lista NPC zawierała najeźdźców zamiast
   postaci, z którymi się rozmawia; poprawione 2026-11-23: 304 NPC, m.in. kupcy, Blaidd, Hewg, Gurranq.)
 - zdarzenia skarbu (typ 4) → dane typu `+0x08` indeks części (obiekt, przy którym leży), `+0x10` ItemLotID.
 
 ### Przedmioty: `ItemLotParam_map` (wiersz 0x98 B)
-`+0x00` 8× i32 ID przedmiotu, `+0x20` 8× i32 kategoria (1 goods, 2 broń, 3 zbroja, 4 talizman, 5 popiół wojny),
+`+0x00` 8× i32 ID przedmiotu, `+0x20` 8× i32 kategoria (1 goods, 2 broń, 3 zbroja, 4 talizman, 5 popiół wojny,
+6 gotowa broń z `EquipParamCustomWeapon`: `+0x00` broń bazowa, `+0x04` popiół wojny, `+0x08` ulepszenie),
 `+0x80` u32 flaga podniesienia (getItemFlagId), `+0x8A` 8× u8 liczba. Kolejne ID puli (lot+1…) to
 dodatkowe przedmioty z tego samego miejsca.
 
@@ -142,9 +148,11 @@ dawało to łaski „blisko na rysunku” (np. Placidusax → Pierwszy kośció�
 
 Generuje `tools/extract/extract_sources.py` (krok w `run_all.py`). Klucz `"<kategoria>:<id>"` (broń: ID bazowe).
 - Kupcy: `ShopLineupParam`: `+0x00` ID, `+0x04` cena, `+0x08` EquipMtrlSetParam (wymiana; `+0x00` → ID goods, np.
-  wizerunek), `+0x17` typ (0 broń, 1 zbroja, 2 talizman, 3 goods, 4 popiół wojny). Który kupiec ma który zakres wierszy,
+  wizerunek), `+0x17` typ (0 broń, 1 zbroja, 2 talizman, 3 goods, 4 popiół wojny, 5 gotowa broń jak w kategorii 6 pul),
+  `+0x18` rodzaj zapłaty (1 serce smoka, 5 serce Bayle'a: Smocza Komunia). Który kupiec ma który zakres wierszy,
   wynika ze skryptów rozmów `/script/talk/<mapa>.talkesdbnd.dcx` (pliki `t<TalkID>.esd`; literał int w wyrażeniu ESD = `0x82` + i32,
-  para kolejnych literałów = początek i koniec zakresu). Rozmowy otwartego świata są we wspólnych archiwach
+  para kolejnych literałów = początek i koniec zakresu, także jednowierszowy, np. 102355-102355; jednowierszowy wewnątrz
+  zakresu innego kupca to tylko sprawdzenie wiersza w skrypcie, pomijany). Rozmowy otwartego świata są we wspólnych archiwach
   `m60_00_00_00`, `m61_00_00_00`, `m00_00_00_00`, nie per kafel. TalkID → część MSB (`+0x10`) → NpcParam → imię i miejsce.
   Wiersze z ceną 0–1 bez materiału to usługi (np. duplikowanie u kowala), pomijane.
 - Przeciwnicy: `NpcParam +0x30` → `ItemLotParam_enemy` (łup losowy), `+0x34` → `ItemLotParam_map` (jednorazowy).
@@ -159,10 +167,14 @@ Generuje `tools/extract/extract_sources.py` (krok w `run_all.py`). Klucz `"<kate
 - Zdarzenia (questy, podarunki): `AwardItemLot` (`2003[4]`/`2003[36]`) w skryptach map i `common`, także
   z parametrem przez `InitializeEvent`/`InitializeCommonEvent` (bajt źródłowy z tablicy parametrów). Pomijamy pule skarbów
   leżących na mapie.
+  Skrypt mapy może też wywoływać wspólne zdarzenie z pulą w argumencie, wtedy liczą się wywołania z tej samej mapy.
 - Bossowie: nagrody z `bosses_all.json`.
+- Popiół na broni (`on_weapon`): gotowa broń z puli (kategoria 6) albo ze sklepu (typ 5) ma popiół wojny, który da się
+  zdjąć przy łasce. Źródłem popiołu jest wtedy ta broń, np. Przebijający kieł z Nagakiby.
 
-Pokrycie: ekwipunek (broń, zbroje, talizmany, popioły) ma miejsce na mapie albo źródło dla 1440 z 1557. Brakuje m.in. łupu
-ze zwłok przy obiektach (skarby przypięte do assetów), części wymian u Enii i podarunków postaci.
+Pokrycie: każdy przedmiot kolekcji (broń, zbroje, talizmany, czary, popioły, prochy duchów) ma miejsce na mapie albo
+źródło. Poza kolekcją są zaślepki gry („Bez broni” 110000, zbroja poniżej 101000) i zestaw Zniszczony (610000-611100),
+usunięty z gry w łatce 1.03 (`unobtainable` w `mockup/app.js`).
 
 ## Poprawki kategorii i krain po audycie (2026-11-23)
 

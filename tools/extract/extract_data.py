@@ -13,6 +13,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 import archive as A  # noqa: E402
+import msb  # noqa: E402
 import params as P  # noqa: E402
 
 TRANSFORM = {
@@ -85,7 +86,7 @@ def main():
         graces.append({"id": rid, "flag": flag, "entity": entity,
                        "name": places.get(struct.unpack_from("<i", r, 0x30)[0]),
                        "region": sub.get("region"), "subregion": sub.get("subregion"),
-                       "map_id": f"m{area:02d}_{gx:02d}_{gz:02d}_00", "pos": [round(x, 2), round(y, 2), round(z, 2)],
+                       "map_id": msb.map_id(area, gx, gz), "pos": [round(x, 2), round(y, 2), round(z, 2)],
                        "map": mp, "px": px, "py": py, "dlc": area in DLC_AREAS})
     with open(os.path.join(data_dir, "graces.json"), "w", encoding="utf-8") as f:
         json.dump(graces, f, ensure_ascii=False, indent=0)
