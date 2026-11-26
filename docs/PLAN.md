@@ -195,6 +195,9 @@ Zrobione 2026-11-26: krok 6 (punkt 11). Baza historii w folderze użytkownika (k
 przedmioty zdobyte bez flagi w kronice, `/api/days` z podsumowaniem dnia (od 4:00), widok Kroniki z kartami dni
 i przyciskiem „Starsze dni”.
 
+Zrobione 2026-11-26: krok 7 (punkty 12 i 13). Ikona strony (złoty romb, SVG), treść wyśrodkowana, od 1800 px karta
+szczegółów jako kolumna obok treści, od 2400 px szersza treść. Wszystkie kroki planu są zrobione.
+
 1. Błędy, osobne szybkie wydanie dla kolegi: kolejność kroków przygotowania danych (punkt 1), przedmioty pomijane
    przez `extract_icons.py` (punkt 10), pula łupu NPC z NpcParam +0x34 (punkt 8).
 2. Globalny „Mój postęp” (14) razem z filtrami mapy (4), granicami mapy (3) i powodem „za tobą” (2).

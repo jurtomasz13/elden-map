@@ -1007,6 +1007,8 @@
     const keepView = viewMap.keep && bigMap && viewMap.keep.map === state.map ? { c: bigMap.getCenter(), z: bigMap.getZoom() } : null;
     if (bigMap) bigMap.remove();
     const map = bigMap = baseMap($("#mapc"), state.map);
+    // the container narrows when the drawer becomes a column on wide screens; Leaflet itself only tracks the window
+    new ResizeObserver(() => bigMap === map && map.invalidateSize()).observe($("#mapc"));
     mapRenderer = L.canvas({ padding: .4 });
     map.createPane("drops").style.zIndex = 640;                     // „Gdzie wypada”: nad ikonami innych znaczników
     const p = D.position;

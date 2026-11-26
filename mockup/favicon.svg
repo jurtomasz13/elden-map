@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#f4d37c"/>
+      <stop offset="1" stop-color="#f4d37c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="10" y="10" width="44" height="44" transform="rotate(45 32 32)" fill="#14120d" stroke="#c9aa71" stroke-width="3.5"/>
+  <rect x="22" y="22" width="20" height="20" transform="rotate(45 32 32)" fill="url(#glow)" stroke="#f4d37c" stroke-width="3"/>
+</svg>

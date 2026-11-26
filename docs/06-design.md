@@ -86,6 +86,11 @@ Trybu jasnego nie planujemy: gra jest ciemna, a aplikacja działa obok niej, cz�
 └────────┴─────────────────────────────────────────────────────────────┘
 ```
 
+Szerokość: treść widoku jest wyśrodkowana (limit 1400 px, bossowie 1760 px, od 2400 px okna 2100 px, bo siatki
+dokładają wtedy kolumny). Do 1800 px szuflada szczegółów wysuwa się nad treścią; od 1800 px (szerokie monitory,
+ultrawide) otwarta szuflada jest trzecią kolumną obok treści i niczego nie zasłania. Mapa przelicza wtedy rozmiar
+sama (ResizeObserver). Ikona strony: `mockup/favicon.svg`, złoty romb jak znak postaci w pasku.
+
 ### Widoki
 
 1. Bossowie: licznik `pokonani / wszyscy` z pierścieniem postępu, filtry (region, gra / DLC, tylko pozostali,
