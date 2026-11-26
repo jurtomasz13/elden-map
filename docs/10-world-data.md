@@ -113,7 +113,7 @@ Wyjątki (2026-11-25):
 
 Wcześniej liczona po pikselach mapy świata, co dla lochów rzutowanych na mapę (Farum Azula, Leyndell, Akademia, jaskinie)
 dawało to łaski „blisko na rysunku” (np. Placidusax → Pierwszy kościół Mariki). Teraz:
-- `bosses_all.json` i `item_locations.json` mają `pos` = pozycja lokalna w pliku mapy (`map_id`), łaski też (`graces.json`, BonfireWarpParam).
+- `bosses_all.json`, `item_locations.json`, `pois.json` i `npcs.json` mają `pos` = pozycja lokalna w pliku mapy (`map_id`), łaski też (`graces.json`, BonfireWarpParam).
 - Poza otwartym światem (m60/m61) szukamy łaski w tym samym pliku mapy po odległości 3D.
 - Łaski w samej arenie (< 25 m od bossa, np. Eldeński Tron przy Morgocie, Kokon Niebianina przy Mohgu, Sala debat przy
   Rudym wilku) pojawiają się dopiero po walce, więc dla bossów są pomijane, podobnie łaska nazwana jak boss.
@@ -147,6 +147,6 @@ ze zwłok przy obiektach (skarby przypięte do assetów), części wymian u Enii
   „Grobowiec bohatera”, „Pieczara”, „Kryjówka”, „Smocza jama” dopisane.
 - Osełki (`Żelazne/Rozżarzone/Uświęcone/Błyskamienne ostrze`) → `whetblade`; runy DLC („Run Królestwa Cieni [n]”) → `golden_rune`.
 - Kategoria punktu na mapie = najcenniejszy przedmiot w nim (`KIND_PRIORITY`), nie pierwszy.
-- Kraina obiektów w lochach = kraina łask z tego samego pliku mapy (Stormveil → „Zamek Burzowego Całunu”, a nie Liurnia);
+- Kraina obiektów w lochach = kraina najbliższej łaski z tego samego pliku mapy (w m12_07 są Nokron i studnia Siofry; Stormveil → „Zamek Burzowego Całunu”, a nie Liurnia);
   `PlaceName_dlc02` dołączone (krainy DLC). Opisy miejsc bossów z tabeli CE (po angielsku) nie są już pokazywane.
 - Przedmioty bez nazwy w grze (atrapy) pomijane; nazwy przycinane (spacje na końcu).

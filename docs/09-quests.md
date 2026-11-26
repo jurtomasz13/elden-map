@@ -51,8 +51,8 @@ dzwonek Sellen), a `all`, że potrzebne są wszystkie (Gurranq: komplet nagród)
    dowolny późniejszy krok (skoro jest zakończenie, było i spotkanie). Ich `flags` zawierają flagi kolejnych kroków.
 
 Każdy krok ma `sources`; kroki z flagą opisaną w TGA mają dodatkowo `tga_labels`.
-`locks[]`: `{boss_en, boss_id, boss_flag, step, warning}`. `boss_id` jest dopasowane do `backend/data/bosses.json`
-po fladze pokonania (`boss-<flaga>`), `boss_flag` zostaje na wypadek zmiany identyfikatorów.
+`locks[]`: `{boss_en, boss_flag, step, warning}`. Identyfikator bossa (`boss_id`) dopisuje dopiero
+`backend/tools/build_data.py` po fladze pokonania, w danych backendu.
 
 ### Weryfikacja i `confidence`
 
