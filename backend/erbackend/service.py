@@ -261,12 +261,6 @@ class Service:
         return {"file": kind, "slot": slot, "flags": {str(i): self.flagmap.get(flags, i) for i in ids}}
 
     # --- historia ----------------------------------------------------------------------------
-    def chronicle(self, kind=None, slot=None, limit=100, before_id=None, kinds=None) -> dict:
-        _, ch, cid = self._character_key(kind, slot)
-        events = self.history.chronicle(cid, ch, limit, before_id, kinds) if cid else []
-        return {"character": ch, "events": events,
-                "next_before_id": events[-1]["id"] if len(events) == limit else None}
-
     def deaths(self, kind=None, slot=None, limit=None) -> dict:
         sf, ch, cid = self._character_key(kind, slot)
         rows = self.history.deaths(cid, ch, limit) if cid else []

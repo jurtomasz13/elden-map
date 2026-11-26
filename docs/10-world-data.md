@@ -79,7 +79,10 @@ Stany świata: grafika kafli mapy ich nie ma (wariant kafla to tylko bity fragme
 miejsc: „Krater upadłej gwiazdy” po fladze 9417 (common.emevd po Radahnie, znika po wejściu do krateru, 1045360500),
 „Leyndell, stolica popiołów” po fladze 118 (po Malikecie), Enir-Ilim (ikona 211) po fladze 62890. Ikona 62 (Leyndell
 z płonącym drzewem, na wiki.gg „Leyndell, Capital of Ash”) nie ma wpisu w parametrach; strona pokazuje ją razem z napisem
-w popiele, po fladze 118.
+w popiele, po fladze 118. Tak samo Belurat: ikona 212 (wieża bez czarnych cierni) zamiast 210 po fladze 62890. Spalenie
+Zapieczętowanego Drzewa zdejmuje cień z Belurat (scenka) i przenosi gracza do Enir-Ilim, którego punkt mapy pokazuje się
+po tej fladze. Donżon Cienia ma w atlasie trzy wpisy (213-215), ale to ten sam obrazek. Oba warianty są w `ICON_AFTER`
+w `mockup/app.js`.
 
 Imiona postaci (118 napisów rodzaju 1, w `pois.json` pole `people`): gra dopisuje je pod miejscem, gdy postać tam jest
 (np. Sellen w Ruinach Zguby). 71 punktów ma same imiona, bez nazwy miejsca: to znaczniki postaci z gry (ikona 80,

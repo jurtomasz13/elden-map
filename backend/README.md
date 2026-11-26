@@ -91,5 +91,5 @@ zdarzenia kroniki (boss, łaska, skarb, przedmiot zdobyty inaczej, krok questa, 
 Baza pamięta ostatni stan każdej postaci, więc zmiany zrobione, gdy serwer nie działał, też trafią do kroniki po
 restarcie. Pierwsze zobaczenie postaci jest tylko punktem odniesienia i nie dodaje wpisów do kroniki.
 
-Żeby zacząć historię od zera, zatrzymaj serwer i usuń ten plik. Endpointy `/api/chronicle`, `/api/deaths`,
+Żeby zacząć historię od zera, zatrzymaj serwer i usuń ten plik. Endpointy `/api/deaths`,
 `/api/session` i `/api/days` opisuje docs/07.

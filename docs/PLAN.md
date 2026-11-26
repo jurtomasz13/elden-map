@@ -193,7 +193,8 @@ nie sprawdzimy w grze, kiedy się pojawiają.
 
 Zrobione 2026-11-26 (po 0.1.10): imiona postaci z mapy gry (118 napisów, 71 znaczników postaci z ikoną z gry) według
 pytania 2, Rycerze wielkiego naczynia jako pojedynki ze znaku i szara ikona Leyndell po Malikecie (wiki.gg nazywa ją
-„Capital of Ash”). Zostaje Belurat i Donżon Cienia bez czarnej chmury: nie wiadomo, kiedy gra je pokazuje.
+„Capital of Ash”). Potem Belurat bez czarnych cierni po spaleniu Zapieczętowanego Drzewa (Donżon Cienia nie ma
+wariantu ikony), usunięty nieużywany endpoint `/api/chronicle` i pole `gtype`. Z listy pytań nic nie zostało.
 
 Zrobione 2026-11-26: krok 6 (punkt 11). Baza historii w folderze użytkownika (kopiowana ze starego miejsca),
 przedmioty zdobyte bez flagi w kronice, `/api/days` z podsumowaniem dnia (od 4:00), widok Kroniki z kartami dni

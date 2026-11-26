@@ -127,11 +127,6 @@ class Handler(BaseHTTPRequestHandler):
                 if not ids or len(ids) > 1000:
                     raise ApiError(400, "podaj od 1 do 1000 ID flag w parametrze 'ids'")
                 return self._json(200, self.service.flags(ids, _file_param(qs), _int_param(qs, "slot")))
-            if path == "/api/chronicle":
-                limit = _limit_param(qs, 100, 1000)
-                kinds = [k for k in ",".join(qs.get("kind", [])).split(",") if k] or None
-                return self._json(200, self.service.chronicle(_file_param(qs), _int_param(qs, "slot"), limit,
-                                                              _int_param(qs, "before_id"), kinds))
             if path == "/api/deaths":
                 return self._json(200, self.service.deaths(_file_param(qs), _int_param(qs, "slot"),
                                                            _int_param(qs, "limit")))
@@ -164,8 +159,7 @@ class Handler(BaseHTTPRequestHandler):
                 "files": {k: {"loaded": k in s.saves, "error": s.errors.get(k)} for k in FILE_KINDS},
                 "active": s.active,
                 "history_db": s.history.path,
-                "endpoints": ["/api/characters", "/api/state?file=sl2|co2&slot=N", "/api/events",
-                              "/api/chronicle?file=&slot=&limit=&before_id=&kind=", "/api/deaths?file=&slot=",
+                "endpoints": ["/api/characters", "/api/state?file=sl2|co2&slot=N", "/api/events", "/api/deaths?file=&slot=",
                               "/api/session?file=&slot=", "/api/days?file=&slot=&limit=&before=RRRR-MM-DD",
                               "/api/flags?ids=1,2&file=&slot=",
                               "/api/data/{bosses|graces|items|quests}"]}

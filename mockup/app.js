@@ -926,9 +926,13 @@
   const poiLayer = p => npcMarker(p) ? "npc" : "poi:" + p.category;
   // a character from the map files standing where the game has its own marker for them: one marker is enough
   const hasGameMarker = n => W.pois.some(p => npcMarker(p) && p.map === n.map && p.people.some(x => x[0] === n.name) && (p.px - n.px) ** 2 + (p.py - n.py) ** 2 < 40 ** 2);
-  // icon 62 (Leyndell with the burning tree, "Capital of Ash" on wiki.gg) has no parameter row; shown with the
-  // ashen name, which WorldMapPointParam switches on flag 118 (Maliketh defeated)
-  const poiIcon = p => p.icon === 60 && isSet(118) ? 62 : p.icon;
+  // icon variants without a parameter row: icon -> [flag, icon shown once the flag is set]
+  // - Leyndell 60 -> 62 (burning tree, "Capital of Ash" on wiki.gg) on flag 118, the same flag that switches the name
+  //   to the ashen capital (Maliketh defeated);
+  // - Belurat 210 -> 212 (tower without the black thorns): burning the Sealing Tree drives the shadow off Belurat in
+  //   a cutscene and moves you to Enir-Ilim, whose map point shows on flag 62890
+  const ICON_AFTER = { 60: [118, 62], 210: [62890, 212] };
+  const poiIcon = p => ICON_AFTER[p.icon] && isSet(ICON_AFTER[p.icon][0]) ? ICON_AFTER[p.icon][1] : p.icon;
   // Twierdza Okrągłego Stołu (m11_10): gra pokazuje ją jedną ikoną w morzu na zachód od Pogrobna; jej punkty zbieramy w liście
   const atRoundtable = o => (o.map_id || "").startsWith("m11_10");
   // widok nie wychodzi poza mapę z gry („Mój postęp”: poza odkryty obszar), a najmniejsze przybliżenie wypełnia nią ekran

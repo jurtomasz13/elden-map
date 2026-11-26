@@ -102,7 +102,7 @@ def seamless_items():
         return []
     texts = json.load(open(path, encoding="utf-8"))
     return [{"category": "goods", "id": rid, "name": pl, "name_en": texts[f"MODGOODSNAME_{key}"], "icon": -1, "dlc": False,
-             "info": texts[f"MODGOODSDESC_{key}"], "rarity": None, "gtype": None, "kind": "seamless", "stats": None}
+             "info": texts[f"MODGOODSDESC_{key}"], "rarity": None, "kind": "seamless", "stats": None}
             for rid, (key, pl) in SEAMLESS.items()]
 
 
@@ -164,7 +164,7 @@ def main():
                          "icon": struct.unpack_from("<H", row, off)[0], "dlc": rid in dlc,
                          "info": info if info and not info.startswith("[ERROR]") else None,
                          "rarity": row[RARITY_OFF[cat]] if cat in RARITY_OFF else None,
-                         "gtype": row[0x3E] if cat == "goods" else None,       # typ goods (7/8 prochy duchów, 5/17 czary…)
+                         # EquipParamGoods +0x3E goods type (7/8 spirit ashes, 5/17 sorceries…), see docs/10
                          "kind": item_category(cat, rid, row[0x3E] if cat == "goods" else None, name),
                          "stats": item_stats(cat, rid, row, magic, speffects)}
             items.append(seen[key])

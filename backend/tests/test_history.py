@@ -81,11 +81,9 @@ class HistoryTest(unittest.TestCase):
 
         lvl = next(e for e in r["events"] if e["kind"] == "level_up")
         self.assertEqual(lvl["data"], {"from": self.base.level, "to": self.base.level + 2})
-        chron = self.h.chronicle(self.cid(), self.ch(), limit=10)
-        self.assertEqual(len(chron), len(r["events"]))
-        self.assertGreater(chron[0]["id"], chron[-1]["id"])            # najnowsze najpierw
-        self.assertEqual(self.h.chronicle(self.cid(), self.ch(), kinds=["boss_defeated"])[0]["ref_id"],
-                         self.boss["id"])
+        stored = [e for d in self.h.days(self.cid(), self.ch(), 60)["days"] for e in d["events"]]
+        self.assertEqual(sorted(e["kind"] for e in stored), sorted(e["kind"] for e in r["events"]))
+        self.assertIn(self.boss["id"], [e["ref_id"] for e in stored if e["kind"] == "boss_defeated"])
 
     def test_open_world_tile_change_is_not_map_change(self):
         self.h.observe(dataclasses.replace(self.base, map_id="m60_42_36_00"), self.fm, self.index)

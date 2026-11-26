@@ -219,24 +219,10 @@ Odczyt dowolnych flag po ID (maks. 1000 na żądanie). `null` = ID spoza tabeli 
 {"file": "co2", "slot": 1, "flags": {"76800": true, "20000800": true, "9140": true}}
 ```
 
-### `GET /api/chronicle?file=&slot=&limit=100&before_id=&kind=`
+### Wpisy kroniki
 
-Kronika postaci z bazy historii, najnowsze najpierw. `limit` 1–1000 (domyślnie 100); stronicowanie:
-`before_id` = `next_before_id` z poprzedniej strony (`null` = koniec). `kind` to filtr, lista po przecinku.
-
-```json
-{
-  "character": {"file": "co2", "slot": 6, "name": "chuj"},
-  "events": [
-    {"id": 2, "ts": "2026-11-23T18:30:18.331+01:00", "kind": "grace_discovered", "ref_id": "grace-74102",
-     "name": "Loch płaczki", "data": {"flag": 74102}, "character": {"file": "co2", "slot": 6, "name": "chuj"}},
-    {"id": 1, "ts": "2026-11-23T18:30:18.331+01:00", "kind": "boss_defeated", "ref_id": "boss-41020800",
-     "name": "Płaczka", "data": {"flag": 41020800}, "character": {"file": "co2", "slot": 6, "name": "chuj"}}
-  ],
-  "next_before_id": null
-}
-```
-(przykład z testu na kopii save'a w katalogu tymczasowym)
+Baza historii zapisuje zmiany postaci jako wpisy. Strona dostaje je dniami z `/api/days` (`days[].events`), a na żywo
+w zdarzeniu SSE `chronicle`. Każdy wpis ma `id`, `ts`, `kind`, `ref_id`, `name`, `data` i `character`:
 
 | `kind` | `ref_id` | `name` | `data` |
 |---|---|---|---|
@@ -371,7 +357,7 @@ poprzedniego zapisu tej postaci zapamiętanego w bazie historii). Przykład z te
 - `map_changed`: `{from, to}` przy zmianie obszaru (zasady jak w kronice) albo `null`.
 - `bloodstain`: aktualna plama krwi (jak w `/api/state`).
 
-Zdarzenie `chronicle` przychodzi zaraz po `save`, gdy zapis dodał wpisy do kroniki albo śmierci (te same kształty co w `/api/chronicle` i `/api/deaths`):
+Zdarzenie `chronicle` przychodzi zaraz po `save`, gdy zapis dodał wpisy do kroniki albo śmierci (wpisy jak w „Wpisy kroniki” i śmierci jak w `/api/deaths`):
 ```json
 {"character": {"file": "co2", "slot": 6, "name": "chuj"},
  "events": [{"id": 1, "ts": "2026-11-23T18:30:18.331+01:00", "kind": "boss_defeated", "ref_id": "boss-41020800",
@@ -693,7 +679,7 @@ Szkic: `state = {character:{slot,name,level,playtime_s,runes_memory,deaths,last_
 | `regions_unlocked` to surowe ID liczbowe; nazwy w osobnym `regions:[{id,name,region,subregion,map_id,kind}]` (od 2026-11-24) | zgodność wstecz |
 | `equipment` + `character.body_type/archetype/starting_gift` (dodane 2026-11-23) | „aktualna postać” jak na ekranie wczytywania |
 | `inventory` (dodane 2026-11-23): `goods` + osobne `key_items`; w każdym wpisie `count` (przy sobie) i `storage` (skrzynia) | „co gracz posiada”, nie tylko co podniósł z mapy |
-| dodane po rozszerzeniu zakresu (2026-11-23): `bloodstain`, `warnings`, `*.discovered/discovered_by`, `bosses[].attempts`; endpointy `/api/chronicle`, `/api/deaths`, `/api/session`; zdarzenie SSE `chronicle`; w `save`: `bloodstain`, `map_changed` | kronika, miejsca śmierci, tryb bez spoilerów, ostrzeżenia, podsumowanie sesji |
+| dodane po rozszerzeniu zakresu (2026-11-23): `bloodstain`, `warnings`, `*.discovered/discovered_by`, `bosses[].attempts`; endpointy `/api/deaths`, `/api/session`; zdarzenie SSE `chronicle`; w `save`: `bloodstain`, `map_changed` | kronika, miejsca śmierci, tryb bez spoilerów, ostrzeżenia, podsumowanie sesji |
 | `bosses[].hints` to jeden tekst albo `null` (makieta: `how: [...]`, `drops`, `attempts`, `runes`, `x`, `y`) | tych danych nie ma w save'ie ani w rzetelnych źródłach, które mamy |
 | ID bossów zmienione na `boss-<flaga>` (wcześniej slugi, np. `messmer-the-impaler`; stary slug jest w `bosses.json` jako `legacy_id`) | 213 bossów, nazwy się powtarzają (np. dwa Tańczące Lwy) |
 | nazwy bossów, łask, skarbów i questów po polsku (z plików gry); `name_en` obok (nie dla wszystkich łask) | dane świata |

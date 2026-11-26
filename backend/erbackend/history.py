@@ -221,21 +221,6 @@ class History:
         return {"id": r["id"], "ts": iso(r["ts"]), "deaths_total": r["deaths_total"], "delta": r["delta"],
                 "position": pos, "runes": r["runes"], "baseline": bool(r["baseline"]), "character": ch}
 
-    def chronicle(self, cid: int, ch: dict, limit: int = 100, before_id: int | None = None,
-                  kinds: list[str] | None = None) -> list[dict]:
-        q = "SELECT * FROM events WHERE character_id=?"
-        args: list = [cid]
-        if before_id:
-            q += " AND id<?"
-            args.append(before_id)
-        if kinds:
-            q += f" AND kind IN ({','.join('?' * len(kinds))})"
-            args += kinds
-        q += " ORDER BY id DESC LIMIT ?"
-        args.append(limit)
-        with self.lock:
-            return [self._event_dict(r, ch) for r in self.db.execute(q, args)]
-
     def deaths(self, cid: int, ch: dict, limit: int | None = None) -> list[dict]:
         q = "SELECT * FROM deaths WHERE character_id=? ORDER BY ts DESC, id DESC"
         args: list = [cid]
