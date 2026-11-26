@@ -135,7 +135,7 @@ def main():
             e["at"] += at
 
     # ---------- kupcy: zakresy sklepów ze skryptów rozmów ----------
-    shop_owner = {}                          # (start, end) -> talk id
+    shop_owner = defaultdict(list)           # (start, end) -> talk ids whose script opens this range
     gift_talks = defaultdict(set)            # pula -> {talk id}, przedmioty dawane w rozmowie
     talk_tiles = {}                          # talk id -> kafel otwartego świata z flag skryptu (rozmowa bez postaci na mapie)
     talk_files = set(tile_ids()) | {"m60_00_00_00", "m61_00_00_00", "m00_00_00_00"}      # rozmowy z otwartego świata są we wspólnych archiwach
@@ -152,7 +152,8 @@ def main():
             for a, b in zip(lits, lits[1:]):
                 # zakres (początek, koniec); początek nie musi być istniejącym wierszem (np. wymiany u Enii od 9000000)
                 if a <= b < a + 1000 and a >= 100000 and (a in shop or (a % 25 == 0 and any(a <= x <= b for x in shop_ids))):
-                    shop_owner.setdefault((a, b), talk)
+                    if talk not in shop_owner[(a, b)]:
+                        shop_owner[(a, b)].append(talk)
             for _, _, entry, conds in esd.Esd(d).states():
                 for b, _, a in list(entry) + [c for _, pc in conds for c in pc]:
                     v = ints(a)
@@ -190,7 +191,14 @@ def main():
 
     shops = defaultdict(list)
     shop_custom = set()                      # gotowe bronie w sklepach (do popiołów wojny niżej)
-    for (a, b), talk in shop_owner.items():
+    # towar każdego sklepu (TalkID -> wiersze): ShopLineupParam +0x0C flaga wyprzedania, +0x10 flaga odblokowania
+    # (np. po oddaniu dzwonka), +0x14 liczba sztuk (-1 bez limitu); stan z save'a czyta strona przez /api/flags
+    stock = defaultdict(lambda: {"who": None, "rows": []})
+    # a range is also listed by shared scripts without a character on the map (e.g. 800001100 for nomadic merchants);
+    # when a script of a placed character opens it too (Kalé 800006000), that character is the seller
+    sellers = [((a, b), t) for (a, b), talks in shop_owner.items()
+               for t in ([t for t in talks if talk_parts.get(t)] or talks)]
+    for (a, b), talk in sellers:
         who, spot = talk_owner(talk)
         if talk == 1000 or 110000 <= a <= 111399:   # menu miejsca łaski: przeróbka odzienia (za oryginalną część)
             who, spot = "Przeróbka przy miejscu łaski", None
@@ -208,6 +216,11 @@ def main():
                     shop_custom.add(eid)
                     stype, eid = lot_item(6, eid, custom)
                 kk = key(stype, eid) if stype else None
+                if kk:
+                    stock[talk]["who"] = who or "Kupiec"
+                    stock[talk]["rows"].append({"item": kk, "price": price if price > 0 and not trade else None, **({"trade": trade} if trade else {}),
+                                                "qty": struct.unpack_from("<h", row, 0x14)[0],
+                                                "sold": struct.unpack_from("<I", row, 0x0C)[0], "unlock": struct.unpack_from("<I", row, 0x10)[0]})
                 if kk and not any(s["who"] == (who or "Kupiec") for s in shops[kk]):
                     shops[kk].append({"who": who or "Kupiec", "price": price if price > 0 and not trade else None,
                                       **({"trade": trade} if trade else {}), **(spot or {})})
@@ -299,11 +312,13 @@ def main():
                                      ("enemies", e), ("events", ev)) if v}
     with open(os.path.join(DATA, "item_sources.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+    with open(os.path.join(DATA, "shops.json"), "w", encoding="utf-8") as f:
+        json.dump(stock, f, ensure_ascii=False, separators=(",", ":"))
     with open(os.path.join(DATA, "enemies.json"), "w", encoding="utf-8") as f:
         json.dump(placed, f, separators=(",", ":"))
     print(f"źródła przedmiotów: {len(out)} (kupcy {len(shops)}, z przeciwników {len(enemies)}, za bossów {len(boss_src)}, "
           f"za najeźdźców {len(invader_src)}, podarunki {len(gifts)}, ze zdarzeń {len(events_src)}); miejsca przeciwników z łupem {len(placed)}; "
-          f"zakresy sklepów {len(shop_owner)}, z nazwą kupca {sum(1 for (a, b), t in shop_owner.items() if talk_parts.get(t))}")
+          f"zakresy sklepów {len(shop_owner)}, sklepy postaci {len(stock)}, z postacią na mapie {sum(1 for t in stock if talk_parts.get(t))}")
 
 
 if __name__ == "__main__":

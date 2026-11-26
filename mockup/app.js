@@ -83,6 +83,12 @@
   const live = { on: false, file: null, slot: null, pinned: false, state: null, flags: {}, characters: null, inventory: null };
   const api = (p, ms = 6000) => fetch(API + p, { signal: AbortSignal.timeout(ms) }).then(r => r.ok ? r.json() : Promise.reject(new Error(r.status)));
   const qs = () => live.file ? `file=${live.file}&slot=${live.slot}` : "";
+  // event flags from the save in chunks (the backend takes up to 1000 ids per request)
+  async function readFlags(ids) {
+    const out = {};
+    for (let i = 0; i < ids.length; i += 900) Object.assign(out, (await api(`/api/flags?${qs()}&ids=${ids.slice(i, i + 900).join(",")}`)).flags);
+    return out;
+  }
   const hashPct = n => ((n * 2654435761) >>> 0) % 100;
   const demoSet = new Set();   // tryb demo: flagi „ustawione” przyciskiem symulacji
   const isSet = (flag, demoPct = 45) => !flag ? false : live.on ? !!live.flags[flag] : demoSet.has(flag) || hashPct(flag) < demoPct;
@@ -167,9 +173,7 @@
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
       ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f), ...W.invaders.map(x => x.flag),
       ...WORLD_FLAGS, ...W.pois.flatMap(p => [...(p.names || []), ...(p.people || [])].flatMap(n => [n[1], n[2]]))].filter(Boolean));
-    const arr = [...ids], flags = {};
-    for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
-    live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
+    live.flags = await readFlags([...ids]); live.characters = chars; live.inventory = st.inventory || null;
     const c = st.character, lgId = c.last_grace?.entity_id, lg = W.graces.find(g => g.entity === lgId || g.entity === lgId - 1000);
     D.character = { slot: c.slot, name: c.name, level: c.level, playtime_s: c.playtime_s, runes_memory: c.runes_memory, deaths: c.deaths, last_grace: lg?.name || null };
     saveAgo = Math.max(0, Math.round((Date.now() - new Date(st.save.written_at)) / 1000));
@@ -1278,16 +1282,24 @@
     state.map = o.map; navTo("#map", () => focusMap(o, spot));
   }
   // ---------- NPC card: where they stand, quest, shop, gifts, drops (opened from the map; the quest is one click further) ----------
+  // shop stock per talk script (shops.json, extract_sources.py): sold-out and unlock flags read from the save
+  async function shopRows(name) {
+    const shops = await load("shops") || {}, talks = new Set(W.npcs.filter(n => n.name === name).map(n => String(n.talk)));
+    const rows = [...new Map(Object.entries(shops).filter(([t, s]) => talks.has(t) || (!talks.size && s.who === name))
+      .flatMap(([, s]) => s.rows).map(r => [r.item, r])).values()];
+    const ids = [...new Set(rows.flatMap(r => [r.sold, r.unlock]).filter(Boolean))];
+    const flags = live.on && ids.length ? await readFlags(ids) : {};
+    return rows.map(r => ({ ...r, it: findItem(...r.item.split(":").map((v, i) => i ? +v : v)),
+      state: !live.on ? null : r.unlock && !flags[r.unlock] ? "locked" : r.qty > 0 && r.sold && flags[r.sold] ? "sold" : "open" })).filter(r => r.it);
+  }
+  const SHOP_STATE = { locked: "jeszcze niedostępne", sold: "wyprzedane", open: "" };
   async function openNpc(name) {
     await Promise.all([sourcesIndex(), itemsIndex()]);
+    const stock = await shopRows(name);
     const spots = [...W.npcs.filter(n => n.name === name && n.map), ...W.pois.filter(p => npcMarker(p) && p.people.some(x => x[0] === name))];
     const now = W.pois.filter(p => p.people?.some(x => x[0] === name && textOn(x)));
-    const shop = [], gifts = [];
-    for (const [k, s] of Object.entries(SRC || {})) {
-      const it = findItem(...k.split(":").map((v, i) => i ? +v : v)); if (!it) continue;
-      for (const sh of s.shops || []) if (sh.who === name) shop.push({ it, sh });
-      if (s.gifts?.some(g => g.who === name)) gifts.push(it);
-    }
+    const gifts = Object.entries(SRC || {}).filter(([, s]) => s.gifts?.some(g => g.who === name))
+      .map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
     const drops = W.items.filter(t => t.enemy?.name === name), inv = W.invaders.filter(x => x.name === name && !hiddenInvader(x)), q = npcQuest({ name });
     const itemRow = (it, right) => listRow(`data-go="item:${it.category}:${it.id}"`, ICON(it.icon), esc(hiddenItem(it) ? "· · ·" : it.name), right);
     const here = now[0] || spots[0];
@@ -1296,7 +1308,10 @@
       ${now.length ? `<div class="d-section"><h4>Teraz</h4>${now.map(p => listRow(null, null, esc(p.name || "znacznik postaci z gry"), esc(p.region_pl || ""))).join("")}
         <p class="view-sub" style="margin:8px 0 0">Według mapy gry i flag z Twojego save'a.</p></div>` : ""}
       ${q ? questLinks([q]) : ""}
-      ${shop.length ? `<div class="d-section"><h4>Sklep</h4>${shop.map(({ it, sh }) => itemRow(it, sh.trade ? "za: " + esc(sh.trade) : sh.price ? pl(sh.price, "run", "runy", "runów") : "")).join("")}</div>` : ""}
+      ${stock.length ? `<div class="d-section"><h4>Sklep</h4>${stock.filter(r => !(spoilers() && r.state === "locked")).map(r => itemRow(r.it, [r.trade ? "za: " + esc(r.trade) : r.price ? pl(r.price, "run", "runy", "runów") : "",
+          r.qty > 0 ? `${r.qty} szt.` : "", SHOP_STATE[r.state] || ""].filter(Boolean).join(" · "))).join("")}
+        ${live.on ? `<p class="view-sub" style="margin:8px 0 0">Stan z Twojego save'a: „wyprzedane” to towar z limitem, który już kupiłeś do końca; „jeszcze niedostępne”
+          pojawi się później (np. po oddaniu dzwonka kulistego)${spoilers() ? ", w trybie bez spoilerów ukryte" : ""}.</p>` : ""}</div>` : ""}
       ${gifts.length ? `<div class="d-section"><h4>Daje w rozmowie</h4>${gifts.map(it => itemRow(it, have(it) ? "masz" : "")).join("")}</div>` : ""}
       ${drops.length ? `<div class="d-section"><h4>Po śmierci zostawia</h4>${drops.flatMap(t => t.items.map(x => findItem(x.cat, x.id)).filter(Boolean).map(it => itemRow(it, isSet(t.flag) ? "zebrane" : ""))).join("")}</div>` : ""}
       ${inv.length ? `<div class="d-section"><h4>Najazdy</h4>${inv.map(x => listRow(`data-go="invader:${x.id}"`, null, esc(x.name), isSet(x.flag) ? "pokonany" : "niepokonany")).join("")}</div>` : ""}
