@@ -455,7 +455,7 @@
         ${b.approx && !ng?.inside ? "<li>Boss jest w lochu, znacznik stoi przy wejściu.</li>" : b.approx ? "<li>Znacznik na mapie stoi przy wejściu do lochu.</li>" : ""}${hint ? `<li>${esc(hint)}</li>` : ""}
         ${!ng && !hint ? "<li>Pozycja tego bossa nie jest jeszcze przeliczona na mapę świata.</li>" : ""}</ol></div>
       ${b.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}
-      ${bossLinks(b)}
+      ${questLinks(bossQuests(b))}
       ${b.rewards?.length ? `<div class="d-section"><h4>Nagrody</h4>${b.rewards.map(r => { const it = itemByName(r.name);
         return `<${it ? `button class="reward xreward" data-go="item:${it.category}:${it.id}"` : `div class="reward"`}><span class="rw">${r.icon != null ? `<img src="${ICON(r.icon)}">` : ""}${esc(r.name)}</span><span>${KINDS[r.kind]?.[0] || ""}${it ? " ›" : ""}</span></${it ? "button" : "div"}>`; }).join("")}</div>` : ""}
       ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div class="reward"><span class="rw"><img src="${ICON(b.icon)}">${esc(b.remembrance)}</span><span></span></div></div>` : ""}`,
@@ -556,9 +556,11 @@
     { id: "weapons", name: "Broń", f: i => i.category === "weapon" && i.icon > 0 && !(i.stats?.class >= 81 && i.stats?.class <= 86) && i.stats?.class !== 33 },
     { id: "armor", name: "Zbroje", f: i => i.category === "armor" && i.icon > 0 && i.id >= 101000 },
     { id: "talismans", name: "Talizmany", f: i => i.category === "talisman" },
-    { id: "spells", name: "Czary i inkantacje", f: i => i.category === "goods" && ((i.id >= 4000 && i.id < 8000) || (i.id >= 2004000 && i.id < 2008000)) },
+    { id: "spells", name: "Czary i inkantacje", f: i => i.kind === "sorcery" || i.kind === "incantation" },
     { id: "aow", name: "Popioły wojny", f: i => i.category === "ash_of_war" && !/dummy/i.test(i.name) },
-    { id: "spirits", name: "Prochy duchów", f: i => i.category === "goods" && (i.gtype === 7 || i.gtype === 8) && !/\+\d+\s*$/.test(i.name) },
+    { id: "spirits", name: "Prochy duchów", f: i => i.kind === "spirit_ash" && !/\+\d+\s*$/.test(i.name) },
+    // przedmioty moda: osobna zakładka, poza licznikami kolekcji (widoczna, gdy mod jest zainstalowany)
+    { id: "coop", name: "Seamless Coop", f: i => i.kind === "seamless", extra: true },
   ];
   // the same item can sit in the save under another id (`alt_ids`, extract_icons.py)
   const isId = (it, id) => id === it.id || !!it.alt_ids?.includes(id);
@@ -645,7 +647,8 @@
       ...list.map(a => `<span class="rtag aff" style="--c:${AFF[a.k][1]}">${AFF[a.k][0]}${a.v && it.stats?.status?.[a.k] ? " " + a.v : ""}</span>`)].filter(Boolean);
     return tags.length ? `<div class="rtags">${tags.join("")}</div>` : "";
   }
-  function usageNote(it, kind) {
+  function usageNote(it) {
+    const kind = it.kind;
     const s = it.stats;
     if (it.category === "weapon" && s) {
       const sc = Object.entries(s.scaling).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
@@ -682,27 +685,24 @@
     if (s.fp != null) return `<div class="d-section"><h4>Statystyki</h4>${tbl([["Koszt PS", s.fp], ...(s.requires.int ? [["Inteligencja", s.requires.int]] : []), ...(s.requires.fai ? [["Wiara", s.requires.fai]] : [])])}</div>`;
     return "";
   }
-  function itemBlock(it, kind, opts = {}) {
-    const note = usageNote(it, kind);
-    return `<div class="item-block ${opts.compact ? "compact" : ""}">
-      <div class="ib-head">${(f => `<span class="portrait ib-icon item ${f.cls}" style="${f.style}"><img src="${ICON(it.icon)}" alt="">${f.gems}</span>`)(frame(it))}
-        <div><div class="ib-name">${esc(it.name)}</div><div class="ib-sub">${esc(KINDS[kind]?.[0] || it.category)}${it.dlc ? " · DLC" : ""} · ${esc(it.name_en)}</div>${rarityTags(it)}</div></div>
-      ${it.info ? `<p class="ib-info">„${esc(it.info)}”<span>opis z gry</span></p>` : ""}
-      ${note ? `<p class="ib-note"><b>Do czego służy:</b> ${esc(note)}</p>` : ""}
-      ${opts.links === false ? "" : questsFor(it.name).map(q => `<button class="xbtn x-quest" data-go="quest:${esc(q.id)}">✦ Quest<small>${esc(q.name)}</small></button>`).join("")}
-      ${W.bosses.filter(b => (b.rewards || []).some(r => r.name === it.name)).map(b => `<button class="xbtn x-boss" data-go="boss:${b.id}">⚔ Nagroda za bossa<small>${esc(b.name)}</small></button>`).join("")}
-      ${statsHTML(it)}</div>`;
+  // opis miejsca skarbu (zebrane, kraina, najbliższa łaska), w karcie przedmiotu i w liście skarbu
+  function spotNote(t) {
+    const ng = nearestGrace(t);
+    return `${isSet(t.flag) ? "Zebrane" : "Do zebrania"}${t.region_pl ? " · " + esc(t.region_pl) : ""}${ng ? ` · najbliższa łaska „${esc(ng.name)}” (${ng.inside ? "w tym samym lochu, " : ""}${ng.dist} m)` : ""}${t.approx ? ". Znacznik na mapie stoi przy wejściu do lochu." : "."}`;
   }
+  // skarb z mapy: jeden przedmiot od razu w karcie; kilka: lista, klik otwiera kartę
   async function openSpot(t) {
     await itemsIndex();
-    const done = isSet(t.flag), ng = nearestGrace(t);
-    drawer(`<div class="eyebrow">${esc(KINDS[t.kind]?.[0] || "")}${t.region_pl ? " · " + esc(t.region_pl) : ""}</div>
-      <div class="d-title" style="text-align:left;font-size:23px">${t.items.length > 1 ? "Skarb: " + pl(t.items.length, "przedmiot", "przedmioty", "przedmiotów") : esc(t.items[0].name || "Przedmiot")}</div>
-      <div class="d-stats"><div><b>${done ? "✓" : "—"}</b><span>${done ? "Zebrane" : "Do zebrania"}</span></div>
-        <div><b>${ng ? ng.dist + " m" : "—"}</b><span>od łaski</span></div><div><b>${t.items.length}</b><span>${plural(t.items.length, "Przedmiot", "Przedmioty", "Przedmiotów")}</span></div></div>
-      ${ng ? `<p class="view-sub" style="margin:10px 0 0">Najbliższe miejsce łaski: <b style="color:var(--bone)">${esc(ng.name)}</b>${ng.inside ? " (w tym samym lochu, " + ng.dist + " m)" : ""}${t.approx ? ". Znacznik na mapie stoi przy wejściu do lochu." : "."}</p>` : ""}
+    const found = t.items.map(x => findItem(x.cat, x.id));
+    if (found.length === 1 && found[0]) return openItem(found[0], { spot: t });
+    drawer(`<div class="eyebrow">${esc(KINDS[t.kind]?.[0] || "")}</div>
+      <div class="d-title" style="text-align:left;font-size:23px">Skarb: ${pl(t.items.length, "przedmiot", "przedmioty", "przedmiotów")}</div>
+      <p class="view-sub" style="margin:10px 0 0">${spotNote(t)}</p>
       <div class="rule"></div>
-      ${t.items.map(x => { const it = findItem(x.cat, x.id); return it ? itemBlock(it, x.kind) : `<p class="note">${esc(x.name || "Nieznany przedmiot")}</p>`; }).join("")}`);
+      <div class="d-section">${t.items.map((x, i) => found[i] ? `<button class="reward xreward" data-spot-item="${i}">${hiddenItem(found[i]) ? `<span class="rw">· · ·</span><span>${esc(CATS.find(c => c.f(found[i]))?.name || "")} ›</span>`
+        : `<span class="rw"><img src="${ICON(found[i].icon)}">${esc(found[i].name)}</span><span>${esc(KINDS[found[i].kind]?.[0] || "")} ›</span>`}</button>`
+        : `<div class="reward"><span>${esc(x.name || "Nieznany przedmiot")}</span><span></span></div>`).join("")}</div>`,
+      () => document.querySelectorAll("[data-spot-item]").forEach(b => b.onclick = () => openItem(found[+b.dataset.spotItem], { spot: t })));
   }
   // ---------- przedmioty: grupowanie / sortowanie / filtry ----------
   const WEP_TYPE = { 1: "Sztylety", 3: "Miecze proste", 5: "Wielkie miecze", 7: "Kolosalne miecze", 9: "Miecze zakrzywione", 11: "Wielkie miecze zakrzywione",
@@ -714,7 +714,6 @@
     92: "Ostrza odwrotne", 93: "Lekkie wielkie miecze", 94: "Wielkie katany", 95: "Pazury bestii" };
   const ARMOR_SLOT = ["Hełmy", "Zbroje", "Rękawice", "Nagolenniki"];
   const RARITY_GROUP = { 3: "Legendarne", 2: "Rzadkie", 1: "Zwykłe", 0: "Pozostałe" };
-  const isSorcery = it => it.id % 1000000 < 6000;
   // główny atrybut skalowania (np. „Siła”, „Siła + Zręczność” gdy różnica < 15%)
   function mainScaling(it) {
     const sc = Object.entries(it.stats?.scaling || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
@@ -725,7 +724,7 @@
   const GROUPS = {
     rarity: { name: "Rzadkość", key: it => it.rarity ?? 0, label: k => RARITY_GROUP[k] || "Pozostałe", order: (a, b) => b - a },
     type: { name: "Typ", cats: ["weapons", "armor", "spells"],
-      key: it => it.category === "weapon" ? it.stats?.class ?? 0 : it.category === "armor" ? it.stats?.slot ?? 0 : isSorcery(it) ? 0 : 1,
+      key: it => it.category === "weapon" ? it.stats?.class ?? 0 : it.category === "armor" ? it.stats?.slot ?? 0 : it.kind === "sorcery" ? 0 : 1,
       label: (k, cat) => cat === "weapons" ? WEP_TYPE[k] || "Inne" : cat === "armor" ? ARMOR_SLOT[k] || "Inne" : k == 0 ? "Czary" : "Inkantacje",
       order: (a, b) => a - b },
     scaling: { name: "Skalowanie", cats: ["weapons"], key: mainScaling, label: k => k,
@@ -765,7 +764,6 @@
   function itemGroups(cat) {
     const f = itf(), gdef = GROUPS[f.group[cat.id] || "rarity"] || GROUPS.rarity, sdef = SORTS[f.sort[cat.id] || "rarity"] || SORTS.rarity;
     const q = f.q.trim().toLowerCase();
-    const idx = new Map(cat.list.map((it, i) => [it, i]));          // indeks do demonstracyjnego ukrywania (bez spoilerów)
     const list = cat.list.filter(it => (!q || it.name.toLowerCase().includes(q) || (it.name_en || "").toLowerCase().includes(q))
       && (state.mine || f.own === "all" || (f.own === "have") === !!have(it))
       && (!f.aff || cat.id !== "weapons" || affinities(it).list.some(a => a.k === f.aff))).sort(sdef.f);
@@ -775,10 +773,15 @@
     return [...groups.entries()].sort((a, b) => gdef.order(a[0], b[0])).map(([k, l]) => {
       const label = gdef.label(k, cat.id), owned = l.filter(have).length;
       return `<section class="igroup ${gdef === GROUPS.rarity ? "rg-" + k : ""}">${label ? `<div class="igroup-head"><span>${esc(label)}</span><small>${frac(owned, l.length)}</small></div>` : ""}
-        <div class="igrid">${l.map(it => cellHTML(it, idx.get(it))).join("")}</div></section>`; }).join("");
+        <div class="igrid">${l.map(it => cellHTML(it)).join("")}</div></section>`; }).join("");
   }
-  function cellHTML(it, i) {
-    const h = have(it), hid = spoilers() && h === false && (it.rarity || 0) >= 2 && !(state.revealed ??= new Set()).has("i:" + it.category + ":" + it.id) && (live.on || i % 3 === 0);
+  // tryb bez spoilerów: rzadkie i legendarne przedmioty, których nie masz, są ukryte, dopóki ich nie odsłonisz
+  const itemKey = it => "i:" + it.category + ":" + it.id;
+  // (makieta bez backendu: ukryty co trzeci, żeby było widać, jak to wygląda)
+  const hiddenItem = it => spoilers() && have(it) === false && (it.rarity || 0) >= 2 && !(state.revealed ??= new Set()).has(itemKey(it))
+    && (live.on || hashPct(it.id) % 3 === 0);
+  function cellHTML(it) {
+    const h = have(it), hid = hiddenItem(it);
     const f = hid ? { cls: "", style: "", gems: "" } : frame(it);
     return `<button class="icell ${f.cls} ${h ? "have" : ""} ${h === null ? "unknown" : ""} ${hid ? "hid" : ""}" style="${f.style}" data-item="${it.category}:${it.id}" title="${hid ? "Nieodkryty" : esc(it.name)}">
       <img src="${ICON(it.icon)}" alt="" loading="lazy">${f.gems}<span class="iname">${hid ? "· · ·" : esc(it.name)}</span>${it.dlc ? '<span class="dlc-dot" title="DLC"></span>' : ""}</button>`;
@@ -795,9 +798,11 @@
     main.innerHTML = `<div class="view"><div class="view-sub">Wczytywanie przedmiotów z gry…</div></div>`;
     const items = await load("items") || [];
     if (location.hash !== "#items") return;
-    const cats = CATS.map(c => { const l = items.filter(c.f).filter(gameOk).filter(it => !state.mine || have(it)); return { ...c, list: l, have: l.filter(have).length }; });
-    const cat = cats.find(c => c.id === state.cat);
-    const done = cats.reduce((a, c) => a + c.have, 0), total = cats.reduce((a, c) => a + c.list.length, 0);
+    const cats = CATS.map(c => { const l = items.filter(c.f).filter(gameOk).filter(it => !state.mine || have(it)); return { ...c, list: l, have: l.filter(have).length }; })
+      .filter(c => !c.extra || c.list.length), coll = cats.filter(c => !c.extra);
+    const cat = cats.find(c => c.id === state.cat) || cats[0];
+    state.cat = cat.id;
+    const done = coll.reduce((a, c) => a + c.have, 0), total = coll.reduce((a, c) => a + c.list.length, 0);
     main.innerHTML = `<div class="view">
       <div class="view-head"><div><div class="eyebrow">Skarbiec Zmatowiałego</div><h1 class="title">Przedmioty</h1>
         <div class="view-sub">${state.mine ? "Wszystko, co już masz. Kliknij, by zobaczyć szczegóły." : "Złote masz. Ciemne wciąż gdzieś czekają. Kliknij, by zobaczyć, gdzie leżą."}</div></div>
@@ -806,18 +811,13 @@
       ${itemToolbar(cat)}
       <div class="items-wrap"><div class="igroups">${itemGroups(cat)}</div>
       <aside class="cat-progress corners"><div class="eyebrow" style="margin-bottom:16px">Kolekcja</div>
-        ${cats.map(c => `<div class="cp-row"><span>${c.name}</span><span>${frac(c.have, c.list.length)}</span>${state.mine ? "" : `<span class="qbar"><i style="width:${c.have / Math.max(1, c.list.length) * 100}%"></i></span>`}</div>`).join("")}
+        ${coll.map(c => `<div class="cp-row"><span>${c.name}</span><span>${frac(c.have, c.list.length)}</span>${state.mine ? "" : `<span class="qbar"><i style="width:${c.have / Math.max(1, c.list.length) * 100}%"></i></span>`}</div>`).join("")}
         <div class="rule"></div><p class="view-sub" style="margin:0">${live.on ? (live.inventory ? "Stan posiadania z ekwipunku w save'ie." : "Ekwipunek z save'a jeszcze niedostępny, znamy tylko popioły wojny.") : "Stan posiadania w makiecie jest losowy."}</p></aside></div></div>`;
     main.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => { state.cat = b.dataset.cat; viewItems(); });
     bindItemToolbar(cat);
     (bindItemCells = () => main.querySelectorAll("[data-item]").forEach(b => b.onclick = () => {
       const [c, id] = b.dataset.item.split(":"), it = items.find(x => x.category === c && x.id === +id);
-      if (!it) return;
-      if (b.classList.contains("hid")) return drawer(`<div class="d-hero"><span class="portrait hero-portrait item alive"></span><div class="d-title">Nieodkryty przedmiot</div>
-        <div class="d-loc">${esc(CATS.find(c2 => c2.f(it))?.name || "")} · ${["", "zwykły", "rzadki", "legendarny"][it.rarity || 0]}</div></div><div class="rule"></div>
-        <p class="note">Jeszcze go nie masz. Tryb bez spoilerów ukrywa rzadkie i legendarne przedmioty, których nie zdobyłeś.</p>
-        <button class="btn" id="revealOne">Odsłoń ten przedmiot</button>`, () => $("#revealOne").onclick = () => { state.revealed.add("i:" + it.category + ":" + it.id); closeDrawer(); viewItems().then(() => openItem(it)); });
-      openItem(it);
+      if (it) openItem(it);
     }))();
   }
 
@@ -1138,20 +1138,9 @@
     }
     return html;
   }
-  // sekcja „Powiązania” w szufladzie przedmiotu
-  function itemLinks(it) {
-    const bosses = [], qs = questsFor(it.name);
-    if (!qs.length) return "";
-    return `<div class="d-section"><h4>Powiązania</h4><div class="xlinks">
-      ${bosses.map(b => `<button class="xbtn x-boss" data-go="boss:${b.id}">⚔ Nagroda za bossa<small>${esc(b.name)}</small></button>`).join("")}
-      ${qs.map(q => `<button class="xbtn x-quest" data-go="quest:${esc(q.id)}">✦ Quest<small>${esc(q.name)}</small></button>`).join("")}</div></div>`;
-  }
-  function bossLinks(b) {
-    const qs = bossQuests(b);
-    if (!qs.length) return "";
-    return `<div class="d-section"><h4>Powiązania</h4><div class="xlinks">
-      ${qs.map(q => `<button class="xbtn x-quest" data-go="quest:${esc(q.id)}">✦ Quest<small>${esc(q.name)}</small></button>`).join("")}</div></div>`;
-  }
+  // sekcja „Powiązania” w szufladzie przedmiotu i bossa: questy, w których występuje
+  const questLinks = qs => qs.length ? `<div class="d-section"><h4>Powiązania</h4><div class="xlinks">
+      ${qs.map(q => `<button class="xbtn x-quest" data-go="quest:${esc(q.id)}">✦ Quest<small>${esc(q.name)}</small></button>`).join("")}</div></div>` : "";
   document.addEventListener("click", async e => {
     const a = e.target.closest("[data-go]"); if (!a) return;
     e.preventDefault(); e.stopPropagation();
@@ -1164,7 +1153,6 @@
     else if (k === "quest") goQuest(v);
     else if (k === "place") { const pl = refIndex()?.places.get(v); if (pl) goMap(pl); }
   });
-  // szuflada przedmiotu — z każdego widoku (przedmioty, mapa, boss, quest, postać)
   // ---------- jak zdobyć: bossowie, kupcy, łup z przeciwników, nagrody ze zdarzeń (extract_sources.py) ----------
   let SRC = null;
   async function sourcesIndex() { if (!SRC) SRC = await load("item_sources") || {}; return SRC; }
@@ -1195,16 +1183,24 @@
       <span>${esc(f.label)}${f.cond ? `<small>${esc(f.cond)}</small>` : ""}</span><b>${esc(f.v)}</b></div>`).join("")}</div>
       <p class="view-sub fx-note">Dokładne liczby z parametrów gry${it.category === "weapon" ? " (działają, gdy broń jest w ręce)" : ""}.</p></div>`;
   }
-  function openItem(it) {
+  // jedna karta przedmiotu we wszystkich widokach; ctx.eq: założony egzemplarz z Postaci (ulepszenie, nasycenie),
+  // ctx.spot: skarb z mapy, z którego ją otwarto
+  function openItem(it, ctx = {}) {
     pins.length = 0;
-    const h = have(it), spots = whereItem(it), cat = CATS.find(c => c.f(it)), srcHTML = sourcesHTML(it), linksHTML = itemLinks(it);
-    const kind = spots[0]?.items.find(x => sameItem(x, it))?.kind || (it.category === "goods" ? null : it.category);
-    const fr = frame(it);
+    if (!ctx.eq && hiddenItem(it)) return drawer(`<div class="d-hero"><span class="portrait hero-portrait item alive"></span><div class="d-title">Nieodkryty przedmiot</div>
+        <div class="d-loc">${esc(CATS.find(c => c.f(it))?.name || "")} · ${["", "zwykły", "rzadki", "legendarny"][it.rarity || 0]}</div></div><div class="rule"></div>
+        <p class="note">Jeszcze go nie masz. Tryb bez spoilerów ukrywa rzadkie i legendarne przedmioty, których nie zdobyłeś.</p>
+        <button class="btn" id="revealOne">Odsłoń ten przedmiot</button>`, () => $("#revealOne").onclick = () => { state.revealed.add(itemKey(it));
+          if (location.hash === "#items") viewItems().then(() => openItem(it, ctx)); else openItem(it, ctx); });
+    const h = ctx.eq ? true : have(it), spots = whereItem(it), cat = CATS.find(c => c.f(it)), srcHTML = sourcesHTML(it), linksHTML = questLinks(questsFor(it.name));
+    const note = usageNote(it), raw = ctx.eq?.id, fr = frame(it, raw), up = ctx.eq?.upgrade ? ` +${ctx.eq.upgrade}` : "";
+    const t = ctx.spot, here = t || spots[0];
     drawer(`<div class="d-hero"><span class="portrait hero-portrait item ${fr.cls} ${h ? "" : "alive"}" style="${fr.style}"><img src="${ICON(it.icon)}" alt="">${fr.gems}</span>
-      <div class="eyebrow">${cat ? cat.name : esc(KINDS[kind]?.[0] || "")}${it.dlc ? " · DLC" : ""}</div><div class="d-title">${esc(it.name)}</div><div class="d-loc">${esc(it.name_en)}</div>${rarityTags(it)}</div>
+      <div class="eyebrow">${cat ? cat.name : esc(KINDS[it.kind]?.[0] || "")}${it.dlc ? " · DLC" : ""}</div><div class="d-title">${esc(it.name + up)}</div><div class="d-loc">${esc(it.name_en)}</div>${rarityTags(it, raw)}</div>
+      ${t ? `<div class="d-section"><h4>To miejsce</h4><p class="view-sub" style="margin:0">${spotNote(t)}</p></div>` : ""}
       <div class="d-stats"><div><b>${h ? "✓" : h === null ? "?" : "—"}</b><span>${h ? "Posiadane" : h === null ? "Nieznane" : "Brakujące"}</span></div><div><b>${spots.length}</b><span>Na mapie</span></div><div><b>${["–", "Zw.", "Rz.", "Leg."][it.rarity || 0]}</b><span>Rzadkość</span></div></div>
-      ${it.info ? `<p class="ib-info">„${esc(it.info)}”<span>opis z gry</span></p>` : ""}
-      ${usageNote(it, kind) ? `<p class="ib-note"><b>Do czego służy:</b> ${esc(usageNote(it, kind))}</p>` : ""}
+      ${it.info ? `<p class="ib-info">„${esc(it.info)}”<span>${it.kind === "seamless" ? "opis z moda" : "opis z gry"}</span></p>` : ""}
+      ${note ? `<p class="ib-note"><b>Do czego służy:</b> ${esc(note)}</p>` : ""}
       ${srcHTML}
       ${linksHTML}
       ${effectsHTML(it)}
@@ -1212,9 +1208,9 @@
       ${spots.length ? `<div class="d-section"><h4>Gdzie leży</h4>${spots.slice(0, 6).map(t => { const ng = nearestGrace(t);
         return `<div class="reward"><span>${esc(t.region_pl || t.map_id)}${ng ? ` · przy łasce „${esc(ng.name)}”` : ""}</span><span>${isSet(t.flag) ? "zebrane" : "do zebrania"}</span></div>`; }).join("")}${spots.length > 6 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(spots.length - 6, "miejsce", "miejsca", "miejsc")}. Wszystkie pokaże mapa (kliknij mini-mapę).</p>` : ""}</div>`
         : srcHTML || linksHTML ? "" : '<p class="note">Nie leży na mapie i nie znamy jeszcze źródła w danych gry (np. łup ze zwłok przy obiekcie albo podarunek postaci).</p>'}
-      ${spots[0]?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
-      () => spots[0]?.map && miniMap($("#minimap"), spots[0].map, spots[0].px, spots[0].py, it.icon, [
-        { label: spots.length > 1 ? "To miejsce" : "Pokaż na mapie", primary: true, run: () => goMap(spots[0], spots[0]) },
+      ${here?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
+      () => here?.map && miniMap($("#minimap"), here.map, here.px, here.py, it.icon, [
+        { label: spots.length > 1 ? "To miejsce" : "Pokaż na mapie", primary: true, run: () => goMap(here, here) },
         ...(spots.length > 1 ? [{ label: `Wszystkie miejsca (${spots.length})`, run: () => { goMap({ ...spots[0] }); state.mapQuery = it.name; state.mapExact = true; viewMapKeep(); } }] : [])]));
   }
   /* ---------------- postać: założony ekwipunek (z save'a) ---------------- */
@@ -1241,7 +1237,7 @@
   function slot(it, label, opts = {}) {
     const up = it?.eq?.upgrade ? ` +${it.eq.upgrade}` : "";
     const f = frame(it, it?.eq?.id), inf = it && affinities(it, it.eq?.id).infuse;
-    return `<button class="eq-slot ${f.cls} ${opts.active ? "active" : ""} ${it ? "" : "empty"} ${opts.big ? "big" : ""}" style="${f.style}" ${it ? `data-eq="${it.category}:${it.id}"` : "disabled"} title="${esc(it ? (inf ? inf + " " : "") + it.name + up : label + ": pusto")}">
+    return `<button class="eq-slot ${f.cls} ${opts.active ? "active" : ""} ${it ? "" : "empty"} ${opts.big ? "big" : ""}" style="${f.style}" ${it ? `data-eq="${it.category}:${it.id}:${it.eq?.id ?? ""}:${it.eq?.upgrade ?? ""}"` : "disabled"} title="${esc(it ? (inf ? inf + " " : "") + it.name + up : label + ": pusto")}">
       ${it ? `<img src="${ICON(it.icon)}" alt="">${f.gems}` : `<span class="eq-empty">◇</span>`}${up ? `<span class="eq-up">${up.trim()}</span>` : ""}<span class="eq-label">${esc(label)}</span></button>`;
   }
   // ---------- atrybuty i miękkie progi (krzywe CalcCorrectGraph z plików gry → stat_curves.json) ----------
@@ -1353,8 +1349,8 @@
           <div class="eq-group"><h4>Wielki run i czary</h4><div class="eq-row">${slot(eqItem(eq.great_rune, "goods"), "Wielki run")}${(eq.spells || []).filter(Boolean).map((e, i) => slot(eqItem(e, "goods"), `Czar ${i + 1}`, { active: eq.active_spell === i })).join("") || '<span class="view-sub" style="align-self:center">brak zapamiętanych czarów</span>'}</div></div>
           <div class="eq-group"><h4>Szybkie przedmioty i sakwa</h4><div class="eq-row wrap">${[...(eq.quick_items || []), ...(eq.pouch || [])].filter(Boolean).map((e, i) => slot(eqItem(e, "goods"), "Przedmiot", { active: eq.active_quick_item === i })).join("")}</div></div>
         </div></div>${visitedAreas(st)}</div>`;
-    main.querySelectorAll("[data-eq]").forEach(b => b.onclick = () => { const [cat, id] = b.dataset.eq.split(":"), it = findItem(cat, +id);
-      if (it) drawer(itemBlock(it, cat === "goods" ? (it.stats?.fp != null ? (it.stats.requires.fai > it.stats.requires.int ? "incantation" : "sorcery") : null) : cat)); });
+    main.querySelectorAll("[data-eq]").forEach(b => b.onclick = () => { const [cat, id, raw, upgrade] = b.dataset.eq.split(":"), it = findItem(cat, +id);
+      if (it) openItem(it, { eq: { id: raw ? +raw : null, upgrade: upgrade ? +upgrade : 0 } }); });
   }
 
   /* ---------------- kronika ---------------- */

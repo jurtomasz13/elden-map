@@ -252,7 +252,6 @@ def main():
                       "mountaintops": region_pl.get("mountaintops of the giants"), "leyndell": region_pl.get("leyndell, royal capital")})
     items = json.load(open(os.path.join(DATA, "items.json"), encoding="utf-8"))
     by_item = item_index(items)
-    goods_type = {rid: r[0x3E] for rid, r in P.rows(ps["EquipParamGoods"])[0]}
     npc_rows = dict(P.rows(ps["NpcParam"])[0])
     lots = dict(P.rows(ps["ItemLotParam_map"])[0])
 
@@ -273,7 +272,7 @@ def main():
             if not name:                                       # przedmioty bez nazwy w grze (atrapy, wycięte) — pomijamy
                 continue
             out.append({"cat": cat, "id": iid, "name": name, "name_en": it and it["name_en"], "icon": it and it["icon"],
-                        "count": nums[i] or 1, "kind": item_category(cat, iid, goods_type.get(iid), name)})
+                        "count": nums[i] or 1, "kind": it["kind"]})
         return out, struct.unpack_from("<I", r, 0x80)[0]
 
     # ---------- przejście po wszystkich plikach map ----------

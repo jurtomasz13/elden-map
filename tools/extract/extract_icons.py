@@ -2,9 +2,10 @@
 
 Wynik:
   assets/cache/icons/<iconId>.dds, assets/cache/loading/<n>.dds  (potem build_icons.mjs -> PNG)
-  assets/data/items.json   przedmioty: kategoria, id, nazwa (PL), iconId, DLC; ten sam przedmiot pod kilkoma
+  assets/data/items.json   przedmioty: kategoria, id, nazwa (PL), iconId, DLC, rodzaj (`kind`, item_category z extract_world.py); ten sam przedmiot pod kilkoma
                            numerami (pusta i pełna flaszka, odnowiona wielka runa, kopie notatek) to jeden wpis,
-                           pozostałe numery w `alt_ids`
+                           pozostałe numery w `alt_ids`; przedmioty moda Seamless Coop
+                           (gdy jest w folderze gry): nazwy nasze, opisy z jego pliku locale
   assets/data/bosses.json  wizerunki (remembrances) bossów -> iconId
 Ikony z /menu/low/00_solo (512 px, MENU_Knowledge_<iconId>); pola iconId w parametrach ustalone
 empirycznie (patrz docs/08-assets.md).
@@ -17,8 +18,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 import archive as A  # noqa: E402
+import bhd  # noqa: E402
 import formats as F  # noqa: E402
 import params as P  # noqa: E402
+from extract_world import item_category  # noqa: E402
 
 # (param, FMG z nazwami, offset u16 iconId, kategoria)
 ITEM_TABLES = [
@@ -37,6 +40,17 @@ REMEMBRANCE_BOSS = {
     2002900: "Commander Gaius", 2002901: "Messmer the Impaler", 2002902: "Scadutree Avatar", 2002903: "Rellana, Twin Moon Knight",
     2002904: "Romina, Saint of the Bud", 2002905: "Divine Beast Dancing Lion", 2002907: "Promised Consort Radahn",
     2002908: "Midra, Lord of Frenzied Flame", 2002909: "Metyr, Mother of Fingers", 2002910: "Putrescent Knight",
+}
+
+# Przedmioty moda Seamless Coop: identyfikatory z ersc.dll (stałe przy kluczach tekstów), klucze tekstów
+# z SeamlessCoop/locale/english.json, polskie nazwy nasze (mod nie ma polskich tekstów)
+SEAMLESS = {
+    8380001: ("HOSTINGITEM", "Maleńki wielki garnek"), 8380002: ("JOININGITEM", "Wizerunek Malenii"),
+    8380003: ("BREAKINITEM", "Sworzeń śmiałka"), 8380004: ("LEAVINGITEM", "Mgła rozłąki"),
+    8380005: ("GAMERULECHANGEITEM", "Księga zasad sędziego"), 8380006: ("RUNEARCITEM", "Karafka run"),
+    8380007: ("ROTITEM01", "Esencja zgnilizny: wycieńczenie"), 8380008: ("ROTITEM02", "Esencja zgnilizny: beznadzieja"),
+    8380009: ("ROTITEM03", "Esencja zgnilizny: rozkład"), 8380010: ("ROTITEM04", "Esencja zgnilizny: bezbronność"),
+    8380011: ("ROTITEM05", "Esencja zgnilizny: rozpacz"), 8380012: ("DRIEDFINGERITEM", "Zasuszone palce"),
 }
 
 # Rzadkość (0 brak/amunicja, 1 zwykły, 2 rzadki, 3 legendarny — złote tło w grze), u8 w wierszu parametru
@@ -79,6 +93,18 @@ def item_stats(cat, rid, row, magic, speffects=None):
     return None
 
 
+def seamless_items():
+    """Catalog entries for the Seamless Coop items, when the mod is installed (descriptions from its locale file)."""
+    path = os.path.join(bhd.GAME_DIR, "SeamlessCoop", "locale", "english.json")
+    if not os.path.exists(path):
+        print("Seamless Coop: brak moda w folderze gry, pomijam jego przedmioty")
+        return []
+    texts = json.load(open(path, encoding="utf-8"))
+    return [{"category": "goods", "id": rid, "name": pl, "name_en": texts[f"MODGOODSNAME_{key}"], "icon": -1, "dlc": False,
+             "info": texts[f"MODGOODSDESC_{key}"], "rarity": None, "gtype": None, "kind": "seamless", "stats": None}
+            for rid, (key, pl) in SEAMLESS.items()]
+
+
 def main():
     root = A.ROOT
     icon_dir = os.path.join(root, "assets", "cache", "icons")
@@ -117,8 +143,10 @@ def main():
                          "info": info if info and not info.startswith("[ERROR]") else None,
                          "rarity": row[RARITY_OFF[cat]] if cat in RARITY_OFF else None,
                          "gtype": row[0x3E] if cat == "goods" else None,       # typ goods (7/8 prochy duchów, 5/17 czary…)
+                         "kind": item_category(cat, rid, row[0x3E] if cat == "goods" else None, name),
                          "stats": item_stats(cat, rid, row, magic, speffects)}
             items.append(seen[key])
+    items += seamless_items()                    # ikona -1: dostają wspólną ikonę kategorii niżej
     goods_icon = {it["id"]: it["icon"] for it in items if it["category"] == "goods"}
     bosses = [{"remembrance_id": gid, "boss_en": boss, "icon": goods_icon.get(gid),
                "remembrance": next((it["name"] for it in items if it["id"] == gid and it["category"] == "goods"), None)}

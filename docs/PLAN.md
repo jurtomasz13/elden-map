@@ -176,6 +176,12 @@ zakładkach i zawsze jest bez spoilerów (przełącznik spoilerów wyszarzony). 
 odkrytego terenu zdejmuje tylko granice widoku (`mapPeek`), mgła i znaczniki zostają, a w panelu jest przycisk
 „Wróć do mojego postępu”. Kronika zostaje bez zmian (to i tak historia tego, co zrobione).
 
+Zrobione 2026-11-26: krok 3 (punkty 9 i 10). Jedna karta przedmiotu (`openItem`) we wszystkich widokach; Postać
+dokłada założony egzemplarz (ulepszenie, nasycenie), mapa dokłada sekcję „To miejsce”, skarb z kilkoma przedmiotami
+pokazuje listę. Rodzaj przedmiotu jest w katalogu (`kind`), więc notki „Do czego służy” są poprawne dla czarów,
+inkantacji i prochów spoza mapy. Przedmioty Seamless Coop: osobna zakładka poza licznikami kolekcji, polskie nazwy
+nasze, opisy po angielsku z pliku moda, ikona zastępcza.
+
 1. Błędy, osobne szybkie wydanie dla kolegi: kolejność kroków przygotowania danych (punkt 1), przedmioty pomijane
    przez `extract_icons.py` (punkt 10), pula łupu NPC z NpcParam +0x34 (punkt 8).
 2. Globalny „Mój postęp” (14) razem z filtrami mapy (4), granicami mapy (3) i powodem „za tobą” (2).

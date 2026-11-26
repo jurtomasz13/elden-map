@@ -23,7 +23,7 @@ dłużej, bo trzeba odszyfrować nagłówki archiwów (cache w `assets/cache`).
 | `assets/map/meta.json` | rozmiary i zakres zoomu |
 | `assets/icons/<iconId>.png` | 2499 ikon przedmiotów, 256 px, przezroczyste tło |
 | `assets/loading/<n>.png` | 35 grafik z ekranów ładowania (1280 px) |
-| `assets/data/items.json` | 3636 przedmiotów: kategoria, id, nazwa PL/EN, iconId, DLC; ten sam przedmiot pod kilkoma numerami to jeden wpis z `alt_ids` |
+| `assets/data/items.json` | 3648 przedmiotów: kategoria, rodzaj (`kind`, ta sama reguła co dla skarbów na mapie), id, nazwa PL/EN, iconId, DLC; ten sam przedmiot pod kilkoma numerami to jeden wpis z `alt_ids`; przedmioty moda Seamless Coop (8380001–8380012, `kind: seamless`), gdy mod jest w folderze gry |
 | `assets/data/bosses.json` | wizerunki (remembrances) bossów → iconId |
 | `assets/data/graces.json` | 422 łaski: flaga, nazwa, kraina, pozycja, piksele na mapie |
 | `assets/data/map_transform.json` | przeliczenie współrzędnych gry → piksele mapy |
