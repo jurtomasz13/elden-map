@@ -516,8 +516,13 @@
       ${b.stats ? bossStatsHtml(b.stats) : ""}
       ${questLinks(bossQuests(b))}
       ${b.rewards?.length ? `<div class="d-section"><h4>Nagrody</h4>${b.rewards.map(r => rewardRow(r, itemByName(r.name))).join("")}</div>` : ""}
-      ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div class="reward"><span class="rw"><img src="${ICON(b.icon)}">${esc(b.remembrance)}</span><span></span></div></div>` : ""}`,
-      () => b.map && miniMap($("#minimap"), b.map, b.px, b.py, b.icon, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(b) }]));
+      ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div id="bossRem">${listRow(itemByName(b.remembrance) ? `data-go="item:goods:${itemByName(b.remembrance).id}"` : null,
+        ICON(b.icon), esc(b.remembrance), "")}</div></div>` : ""}`,
+      () => {
+        const rem = b.remembrance && itemByName(b.remembrance);
+        if (rem) sourcesIndex().then(() => { if ($("#bossRem")) $("#bossRem").insertAdjacentHTML("beforeend", remembranceHTML(rem)); });
+        if (b.map) miniMap($("#minimap"), b.map, b.px, b.py, b.icon, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(b) }]);
+      });
   }
 
   /* ---------------- szuflada / modal ---------------- */
@@ -1340,6 +1345,16 @@
   }
   // jedna karta przedmiotu we wszystkich widokach; ctx.eq: założony egzemplarz z Postaci (ulepszenie, nasycenie),
   // ctx.spot: skarb z mapy, z którego ją otwarto
+  // remembrance exchanges at Enia: items whose shop source is paid with this remembrance (item_sources.json)
+  const exchangesFor = name => Object.entries(SRC || {}).filter(([, s]) => s.shops?.some(sh => sh.trade === name))
+    .map(([k]) => findItem(...k.split(":").map((v, i) => i ? +v : v))).filter(Boolean);
+  function remembranceHTML(it) {
+    const ex = exchangesFor(it.name);
+    return `${it.runes ? `<p class="ib-note"><b>Runy za użycie:</b> ${fmt(it.runes)}. Użyty wizerunek przepada, a wymiany już nie zrobisz.</p>` : ""}
+      ${ex.length ? `<div class="d-section"><h4>Wymiana u Enii</h4>${ex.map(x => listRow(`data-go="item:${x.category}:${x.id}"`, ICON(x.icon),
+        esc(hiddenItem(x) ? "· · ·" : x.name), have(x) ? "masz" : "")).join("")}
+        <p class="view-sub" style="margin:8px 0 0">Jeden wizerunek wymienisz na jedną rzecz. Drugą dostaniesz po skopiowaniu wizerunku w wędrującym mauzoleum.</p></div>` : ""}`;
+  }
   function openItem(it, ctx = {}) {
     pins.length = 0; drops.length = 0;
     if (!ctx.eq && hiddenItem(it)) return drawer(`<div class="d-hero"><span class="portrait hero-portrait item alive"></span><div class="d-title">Nieodkryty przedmiot</div>
@@ -1356,6 +1371,7 @@
       <div class="d-stats"><div><b>${h ? "✓" : h === null ? "?" : "—"}</b><span>${h ? "Posiadane" : h === null ? "Nieznane" : "Brakujące"}</span></div><div><b>${spots.length}</b><span>Na mapie</span></div><div><b>${["–", "Zw.", "Rz.", "Leg."][it.rarity || 0]}</b><span>Rzadkość</span></div></div>
       ${it.info ? `<p class="ib-info">„${esc(it.info)}”<span>${it.kind === "seamless" ? "opis z moda" : "opis z gry"}</span></p>` : ""}
       ${note ? `<p class="ib-note"><b>Do czego służy:</b> ${esc(note)}</p>` : ""}
+      ${it.kind === "remembrance" ? remembranceHTML(it) : it.runes ? `<p class="ib-note"><b>Runy za użycie:</b> ${fmt(it.runes)}</p>` : ""}
       ${srcHTML}
       ${linksHTML}
       ${effectsHTML(it)}

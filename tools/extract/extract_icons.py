@@ -167,6 +167,8 @@ def main():
                          # EquipParamGoods +0x3E goods type (7/8 spirit ashes, 5/17 sorceries…), see docs/10
                          "kind": item_category(cat, rid, row[0x3E] if cat == "goods" else None, name),
                          "stats": item_stats(cat, rid, row, magic, speffects)}
+            if seen[key]["kind"] in ("golden_rune", "remembrance"):    # EquipParamGoods +0x14: runes gained on use
+                seen[key]["runes"] = struct.unpack_from("<i", row, 0x14)[0]
             items.append(seen[key])
     items += seamless_items()                    # ikona -1: dostają wspólną ikonę kategorii niżej
     goods_icon = {it["id"]: it["icon"] for it in items if it["category"] == "goods"}
