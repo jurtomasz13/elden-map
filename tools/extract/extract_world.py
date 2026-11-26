@@ -118,6 +118,23 @@ def item_index(items):
     return {(i["category"], rid): i for i in items for rid in [i["id"], *i.get("alt_ids", [])]}
 
 
+def maps():
+    """(path, (area, gx, gz), map id, parsed MSB) for every map file; one pass takes a few minutes, so it prints progress."""
+    paths = msb_paths()
+    for i, path in enumerate(paths):
+        if i % 200 == 0:
+            print(f"  mapy {i}/{len(paths)}", flush=True)
+        m = msb.load(path)
+        if m:
+            area, gx, gz, _level = msb.tile(path)
+            yield path, (area, gx, gz), msb.map_id(area, gx, gz), m
+
+
+def tile_ids():
+    """Level-0 tile ids (mAA_XX_YY_00) covered by the map files; event and talk scripts exist only for these."""
+    return sorted({msb.map_id(*msb.tile(p)[:3]) for p in msb_paths()})
+
+
 def msb_paths():
     """Map files (MSB) present in the archives: names are guessed and checked by hash, the list is cached."""
     cache_path = os.path.join(A.ROOT, "assets", "cache", "map_files.txt")
@@ -316,14 +333,8 @@ def main():
         return its, flag
 
     # ---------- przejście po wszystkich plikach map ----------
-    msb_list = msb_paths()
     treasures, npcs, enemies_by_entity, enemies_by_name = [], [], {}, {}
-    for i, path in enumerate(msb_list):
-        m = msb.load(path)
-        if not m:
-            continue
-        area, gx, gz, _level = msb.tile(path)
-        mid = msb.map_id(area, gx, gz)
+    for _path, (area, gx, gz), mid, m in maps():
         for p in m["parts"]:
             if p["type"] == "enemy" and p["entity"]:
                 enemies_by_entity[p["entity"]] = (mid, p)
@@ -347,8 +358,6 @@ def main():
                               "dlc": area in DLC_AREAS,
                               "pos": [round(c, 1) for c in t["pos"]],    # lokalnie w pliku mapy (do łask w tym samym lochu)
                               **(pos or {})})
-        if i % 100 == 0:
-            print(f"  mapy {i}/{len(msb_list)}", flush=True)
 
     # ---------- skrypty zdarzeń (EMEVD): nazwy bossów i nagrody ----------
     # Wspólne zdarzenia: 90005870 (pasek życia bossa: encja, ID nazwy w NpcName),
@@ -366,8 +375,8 @@ def main():
     field_defeat = {}
     global_flag_weak = {}
     ga_flags = {rid for rid, _ in P.rows(ps["GameAreaParam"])[0] if rid > 1000 and not 9999990 <= rid <= 9999999}
-    for path in msb_list:
-        evs = E.load(path.replace("/map/mapstudio/", "/event/").replace(".msb.dcx", ".emevd.dcx"))
+    for mid in tile_ids():
+        evs = E.load(f"/event/{mid}.emevd.dcx")
         if not evs:
             continue
         local_src = award_params(evs)           # nagrody też w zdarzeniach samej mapy (np. Nocna Kawaleria z glewią)

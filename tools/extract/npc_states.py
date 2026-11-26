@@ -3,7 +3,7 @@ sprawdzają, i kwestie, które postać mówi w tym stanie.
 
     python tools/extract/npc_states.py 220 3660        # TalkID postaci i początek jej bloku flag
 
-Mapy: skrypty zdarzeń /event/<mapa>.emevd.dcx (lista map z extract_world.msb_paths), flaga w argumentach
+Mapy: skrypty zdarzeń /event/<mapa>.emevd.dcx (kafle z extract_world.tile_ids), flaga w argumentach
 instrukcji. Zwykle to mapa, na której gra pokazuje postać w tym stanie. Kwestie: talk_quests.state_lines.
 """
 import json
@@ -14,14 +14,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 import archive as A  # noqa: E402
 import emevd  # noqa: E402
 import talk_quests as Q  # noqa: E402
-from extract_world import msb_paths  # noqa: E402
+from extract_world import tile_ids  # noqa: E402
 
 
 def map_ints():
     """Map id -> every integer in the arguments of its event scripts."""
     out = {}
-    for p in msb_paths():
-        mid = os.path.basename(p).split(".")[0]
+    for mid in tile_ids():
         ev = emevd.load(f"/event/{mid}.emevd.dcx")
         if ev:
             out[mid] = {x for e in ev.values() for _, _, a in e["instrs"] for x in emevd.ints(a)}

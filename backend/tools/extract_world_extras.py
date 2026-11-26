@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "extract"))
 
 import extract_data as XD  # noqa: E402
 import msb  # noqa: E402
-from extract_world import msb_paths  # noqa: E402
+from extract_world import World, maps  # noqa: E402
 import params as P  # noqa: E402
 
 OUT = os.path.join(ROOT, "backend", "data", "world_extras.json")
@@ -159,13 +159,8 @@ def main():
     bosses = load_json("bosses_all.json")
     boss_flags = {b["id"] for b in bosses}       # wiersz GameAreaParam = encja bossa w pliku mapy
 
-    conv = []
-    for _, r in P.rows(ps["WorldMapLegacyConvParam"])[0]:
-        src, dst = (r[4], r[5], r[6]), (r[0x14], r[0x15], r[0x16])
-        if src == dst:
-            continue
-        conv.append([msb.map_id(*src), *[round(v, 2) for v in struct.unpack_from("<3f", r, 0x08)],
-                     msb.map_id(*dst), *[round(v, 2) for v in struct.unpack_from("<3f", r, 0x18)]])
+    conv = [[msb.map_id(*src), *[round(v, 2) for v in sp], msb.map_id(*dst), *[round(v, 2) for v in dp]]
+            for src, sp, dst, dp, _ in World(ps).conv]
 
     # GameAreaParam: +0x48 float[3] pozycja, +0x54 area/gx/gz (bywa mylące — tylko zapas, gdy brak wroga w MSB).
     # Uwaga: +0x3C to NIE jest PlayRegion areny (wartości niezgodne z położeniem bossów).
@@ -175,19 +170,12 @@ def main():
             ga[rid] = {"pos": struct.unpack_from("<3f", r, 0x48), "map": (r[0x54], r[0x55], r[0x56])}
 
     # pozycje bossów z plików map: wróg o EntityID = flaga pokonania
-    msb_list = msb_paths()
     found = {}
-    for i, path in enumerate(msb_list):
-        m = msb.load(path)
-        if not m:
-            continue
-        a, gx, gz, _level = msb.tile(path)
+    for path, _tile, mid, m in maps():
         for p in m["parts"]:
             if p["type"] in ("enemy", "dummy_enemy") and p["entity"] in boss_flags and p["entity"] not in found:
-                found[p["entity"]] = {"map_id": msb.map_id(a, gx, gz), "file": path, "x": round(p["pos"][0], 2), "y": round(p["pos"][1], 2),
+                found[p["entity"]] = {"map_id": mid, "file": path, "x": round(p["pos"][0], 2), "y": round(p["pos"][1], 2),
                                       "z": round(p["pos"][2], 2), "source": "msb"}
-        if i % 200 == 0:
-            print(f"  mapy {i}/{len(msb_list)} ({time.time() - t0:.0f} s)", flush=True)
     boss_positions = {}
     for flag in sorted(boss_flags):
         g = ga.get(flag, {})

@@ -31,7 +31,7 @@ import esd  # noqa: E402
 import msb  # noqa: E402
 import params as P  # noqa: E402
 from talk_quests import ints  # noqa: E402
-from extract_world import DATA, World, award_params, item_index, lot_ids, lot_item, lot_slots, msb_paths  # noqa: E402
+from extract_world import DATA, World, award_params, item_index, lot_ids, lot_item, lot_slots, maps, tile_ids  # noqa: E402
 
 SHOP_TYPES = {0: "weapon", 1: "armor", 2: "talisman", 3: "goods", 4: "ash_of_war", 5: "custom_weapon"}
 # ShopLineupParam +0x18 rodzaj kosztu (wniosek z przedmiotów w wierszach): 1 = Serce smoka (ołtarze Smoczej Komunii),
@@ -88,15 +88,9 @@ def main():
         return out
 
     # ---------- przejście po mapach: przeciwnicy i kupcy (części z TalkID) ----------
-    msb_list = msb_paths()
     enemy_spots = defaultdict(list)          # npc id -> [(map_id, pos dict)], każda część raz
     talk_parts = defaultdict(list)           # talk id -> [(map_id, npc, pos)]
-    for path in msb_list:
-        m = msb.load(path)
-        if not m:
-            continue
-        area, gx, gz, _level = msb.tile(path)
-        mid = msb.map_id(area, gx, gz)
+    for _path, (area, gx, gz), mid, m in maps():
         for p in m["parts"]:
             if p["type"] != "enemy" or not p.get("npc"):
                 continue
@@ -144,8 +138,7 @@ def main():
     shop_owner = {}                          # (start, end) -> talk id
     gift_talks = defaultdict(set)            # pula -> {talk id}, przedmioty dawane w rozmowie
     talk_tiles = {}                          # talk id -> kafel otwartego świata z flag skryptu (rozmowa bez postaci na mapie)
-    talk_files = {msb.map_id(*msb.tile(pth)[:3]) for pth in msb_list}
-    talk_files |= {"m60_00_00_00", "m61_00_00_00", "m00_00_00_00"}      # rozmowy z otwartego świata są we wspólnych archiwach
+    talk_files = set(tile_ids()) | {"m60_00_00_00", "m61_00_00_00", "m00_00_00_00"}      # rozmowy z otwartego świata są we wspólnych archiwach
     for mid in sorted(talk_files):
         r = A.find(f"/script/talk/{mid}.talkesdbnd.dcx")
         if not r:
@@ -225,8 +218,7 @@ def main():
     common = emevd.load("/event/common_func.emevd.dcx") or {}
     common_aw = award_params(common)
     event_award = defaultdict(set)           # lot -> {map_id}
-    # skrypty zdarzeń mają tylko kafle poziomu 0 (pliki map _01/_02 nie mają własnych .emevd)
-    for mid in sorted({msb.map_id(*msb.tile(pth)[:3]) for pth in msb_list}) + ["common"]:
+    for mid in tile_ids() + ["common"]:
         evs = emevd.load(f"/event/{mid}.emevd.dcx")
         if not evs:
             continue
