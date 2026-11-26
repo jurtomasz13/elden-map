@@ -233,8 +233,11 @@ mówi w tym stanie (`talk_quests.state_lines`):
 Mapa, której skrypt sprawdza flagę stanu, to zwykle miejsce, gdzie gra wtedy stawia postać (Aleksander +6: tylne
 wejście do tunelu Gael, +8: pole bitwy z Radahnem). Mapy wspólne dla wielu stanów naraz to logika ogólna, nie
 położenie. Przypisanie stanu do kroku jest w `tools/extract/quest_npc_states.json` (id questu → id kroku → lista
-przesunięć; 40 questów, 111 kroków, 115 stanów), a `quest_steps.py` dopisuje te flagi do `here`. Stany „odszedł”,
-„nie żyje” i „quest skończony” nie są przypisane do zwykłych kroków.
+przesunięć; 40 questów, 109 kroków, 113 stanów), a `quest_steps.py` dopisuje te flagi do `here`. Stany „odszedł”,
+„nie żyje” i „quest skończony” nie są przypisane do zwykłych kroków. Stan początkowy (ustawiony już u nowej postaci)
+może wskazywać tylko pierwszy krok questu: inaczej wcześniejsze kroki wyglądałyby na „za tobą”, choć gracz ich nie
+zrobił. Tak było u Latenny (czeka w Szopie śpiącego wilka od początku gry, przed rozmową z Albusem) i Ansbacha;
+oba przypisania usunięte. Sprawdzenie: flagi bloku NPC na prawie nowej postaci.
 
 Sprawdzone na 7 postaciach: żadna nie ma bieżącego kroku przed krokiem potwierdzonym flagą rozmowy albo przedmiotu
 w sposób, który zmieniłby widok. Zostają przypadki, gdzie flaga położenia jest starsza niż ostatnia potwierdzona

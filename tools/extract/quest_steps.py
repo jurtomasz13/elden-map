@@ -39,6 +39,8 @@ def main():
         print("quest_steps: brak assets/data/quests.json, pomijam")
         return
     data = json.load(open(OUT, encoding="utf-8"))
+    if "questpath" in data.get("sources", {}):
+        raise SystemExit("quest_steps: quests.json jest już po scaleniu; najpierw uruchom build_quests.py")
     ours = {q["id"]: q for q in data["entries"]}
     tr = json.load(open(SRC, encoding="utf-8"))
     names, _ = B.load_game()
