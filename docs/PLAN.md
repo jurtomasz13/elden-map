@@ -291,11 +291,10 @@ Zrobione (commity na main, niewydane):
 - Statystyki bossów na karcie bossa (punkt 1 planu), sprawdzone z Fextralife.
 - Mapa: przycisk ukryj/pokaż wszystko, tryb skupienia po przejściu z innej strony.
 
-Do zrobienia, w tej kolejności:
-1. Wizerunki: runy za użycie (EquipParamGoods +0x14) i wymiany u Enii w karcie wizerunku i bossa.
-2. Karta wroga: Twoje bronie i teoretyczna liczba ciosów (badanie wzoru obrażeń w toku).
-3. Karta NPC zamiast przejścia do questu: ikona albo render, opis, sklep z asortymentem i stanem z save'a, usługi,
-   powiązania (quest, łup, podarunki, gdzie bywa). Klik w NPC na mapie otwiera kartę, z niej przejście do questu.
-4. Teleporty na mapie (Waygate'y, skrzynie-pułapki, inne): znacznik, karta z miejscem docelowym, przycisk do celu.
-5. Pełny audyt kompletności i uzupełnienie braków.
-6. Przegląd kodu, dokumentacja (docs/10-world-data.md, 06-design), wydanie 0.2.0 po zgodzie.
+Zrobione dalej (też na main, niewydane): wizerunki z runami i wymianami, statystyki najeźdźców i łupów, Twoje bronie
+i liczba ciosów, karta postaci (sklep z licznikiem kupionych sztuk, usługi, łup po śmierci, znaki, portrety 3D),
+teleporty, znaki przywołania, podarunki z podprogramów rozmowy, audyt kompletności (docs/10-world-data.md).
+
+Zostało przed wydaniem 0.2.0: poprawki z przeglądu kodu, notatki wydania i zgoda właściciela na publikację.
+Otwarte, bez rozstrzygnięcia z danych: 104 znaczniki mapy gry bez napisu (ikony 83, 84/85; nie wiadomo, co oznaczają,
+więc ich nie pokazujemy) i 183 pule łupu, których nic w grze nie wskazuje (prawdopodobnie wycięte).
