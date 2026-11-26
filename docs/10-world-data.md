@@ -229,3 +229,27 @@ skrzyni-pułapce pierwsza encja z akcji. Encje celu to części albo regiony map
 regionu z danych bazowych `+0x50`). Sprawdzone z listą bram na Fextralife (wszystkie 32 w danych). Na mapie 52
 teleporty: 22 bramy, 2 skrzynie-pułapki, przejścia z kluczem Akademii, trumny, windy do Mohgwyn i inne. Pomijamy
 cutsceny w tym samym pliku mapy (wejście na arenę bossa).
+
+## Postacie: sklep, usługi, portrety, znaki przywołania (2026-11-26)
+
+- `talks.json` (`extract_sources.py`): dla każdego skryptu rozmowy towar i usługi. Zakres sklepu z literałów w skrypcie
+  należy do postaci stojącej na mapie, której skrypt otwiera najmniej zakresów (Kalé ma w skrypcie też zakresy dwóch
+  koczowniczych kupców, Cienie bliźniaczej służki wszystkie sklepy dzwonków). `ShopLineupParam +0x0C` to licznik
+  kupionych sztuk zapisany bitami flag (F+k = 2^k), sprawdzony na 6 postaciach; `+0x10` flaga odblokowania, `+0x14`
+  limit. Usługi z poleceń rozmowy (blok 1): 24 wzmacnianie, 48 popioły wojny, 143 powielanie popiołów, 136 duchy,
+  111 wizerunki, 148 zbroje bossów, 113 odrodzenie, 81 wygląd, 31 poziom, 46 skup, 135 Smocza Komunia, 142 przeróbka,
+  144 kukiełki, 146 powielanie wizerunków, 151 koloseum, 131 gest.
+- Podarunki w rozmowie: podprogram (blok 6), którego argument jest pulą (jedyny albo pula rozmowy obok flag).
+- Portrety (`render_portraits.py`): gra nie ma portretów postaci w teksturach menu. Ludzie są składani z części
+  (twarz z `FaceParam` wskazanego przez `CharaInitParam +0xA4`), pozostałe modele w kadrze popiersia. Bez portretu:
+  obiekty rozmowy (c1000, c0100) i 6 modeli, które renderują się niepełne (`BROKEN`).
+- `summons.json` (`extract_summons.py`): `2003[25]` PlaceNPCSummonSign, typ 20 to znak pomocnika; pozycja z regionu
+  znaku.
+
+## Audyt kompletności (2026-11-26)
+
+Jednorazowe nagrody gry (`ItemLotParam_map` z flagą, 5075 pul): 3733 skarby i łupy przeciwników na mapie, 919 ze
+skryptów, 136 łupy postaci po śmierci, 54 najeźdźcy. Pozostałe 562: 181 pustych (same runy), 43 samouczki, 155 pul
+rozmowy i 183 pule, których nie wskazuje żaden plik map, skrypt ani parametr. Przedmioty z tych 562 pul mają na stronie
+źródło albo miejsce, poza 26 listami samouczka i 2 przedmiotami zużywalnymi.
+

@@ -13,7 +13,8 @@
 - Najeźdźcy: nagrody z invaders.json (extract_world.py); ich pule nie są już osobnym „zdarzeniem”.
 - Popioły wojny na gotowej broni (EquipParamCustomWeapon +0x04 popiół): da się je zdjąć przy łasce, więc źródłem popiołu
   jest broń, którą da się zdobyć (pula kategorii 6 albo sklep rodzaju 5), np. Przebijający kieł z Nagakiby Yury.
-- Podarunki od postaci: w skrypcie rozmowy wywołanie podprogramu (blok poleceń 6) z jednym argumentem, który jest pulą
+- Podarunki od postaci: w skrypcie rozmowy wywołanie podprogramu (blok poleceń 6), którego argument jest pulą
+  (jedyny argument albo pula rozmowy 100000-199999 obok flag)
   ItemLotParam_map (np. Wielki Dzban daje „Arsenał wielkiego naczynia”: t221006000, pula 104700).
 """
 import json
@@ -164,8 +165,10 @@ def main():
             for _, _, entry, conds in esd.Esd(d).states():
                 for b, cmd, a in list(entry) + [c for _, pc in conds for c in pc]:
                     v = ints(a)
-                    if b == 6 and len(v) == 1 and v[0] in lot_map:
-                        gift_talks[v[0]].add(talk)
+                    # podprogram z pulą rozmowy w argumentach (np. (flaga, flaga, 107500) dla książek rodu poszukiwaczy)
+                    for lot in (v if b == 6 else ()):
+                        if lot in lot_map and (len(v) == 1 or 100000 <= lot < 200000):
+                            gift_talks[lot].add(talk)
                     if b == 1 and cmd in SERVICES:
                         services[talk].add(SERVICES[cmd])
             # flagi 10XXYY…/20XXYY… należą do kafla m60_XX_YY / m61_XX_YY (np. Wielki Dzban: 1047419201 → m60_47_41)
