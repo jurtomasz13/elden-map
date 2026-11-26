@@ -11,7 +11,7 @@
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const pref = (k, d) => { try { return localStorage.getItem("er." + k) ?? d; } catch { return d; } };
   const savePref = (k, v) => { try { localStorage.setItem("er." + k, v); } catch { /* prywatne okno */ } };
-  const state = { spoilers: true, game: pref("game", "all"), mine: pref("mine", "1") === "1", mapPeek: false, world: pref("world", "save"), offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
+  const state = { spoilers: true, game: pref("game", "all"), mine: pref("mine", "1") === "1", mapPeek: false, offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
     hideDone: false, mapQuery: "", qOpen: new Set(), qFilter: "all", off: new Set(["golden_rune", "material", "consumable", "ammo", "upgrade", "note", "npc", "poi:landmark"]) };
 
   // zakres gry dla wszystkich widoków (przełącznik w górnym pasku): wszystko / podstawka / DLC
@@ -166,7 +166,7 @@
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
       ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f), ...W.invaders.map(x => x.flag),
-      ...Object.keys(WORLD).map(Number), ...W.pois.flatMap(p => (p.names || []).flatMap(n => [n[1], n[2]]))].filter(Boolean));
+      ...WORLD_FLAGS, ...W.pois.flatMap(p => (p.names || []).flatMap(n => [n[1], n[2]]))].filter(Boolean));
     const arr = [...ids], flags = {};
     for (let i = 0; i < arr.length; i += 900) Object.assign(flags, (await api(`/api/flags?${qs()}&ids=${arr.slice(i, i + 900).join(",")}`)).flags);
     live.flags = flags; live.characters = chars; live.inventory = st.inventory || null;
@@ -378,11 +378,11 @@
         <div class="view-sub">${pl(all.length, "boss", "bossów", "bossów")} w tym widoku${live.on ? " · stan z twojego save'a" : " · stan przykładowy"}. Kliknij, by zobaczyć nagrody i miejsce.</div></div>
         ${ring(done, all.length, "pokonanych")}</div>
       ${(() => { const ws = activeWarnings(), known = ws.filter(w => !w.hidden), unknown = ws.length - known.length;
-        if (!ws.length) return "";
+        if (!known.length) return "";                // only hidden ones: a bare count says nothing (quests show them with ⚠)
         // bez spoilerów: ostrzeżenia o wrogach, których gracz jeszcze nie spotkał, tylko jako liczba (tekst zdradzałby bossa)
-        const more = unknown ? `<p class="view-sub bw-more">${known.length ? "Oraz " : ""}${pl(unknown, "ostrzeżenie dotyczy", "ostrzeżenia dotyczą", "ostrzeżeń dotyczy")} wrogów, których jeszcze nie spotkałeś. Szczegóły są w questach oznaczonych ⚠.</p>` : "";
-        return `<details class="boss-warnings" ${known.length && known.length <= 3 ? "open" : ""}><summary><span class="eyebrow">Zanim zabijesz…</span>
-          <span class="bw-count">${known.length ? pl(known.length, "aktywne ostrzeżenie", "aktywne ostrzeżenia", "aktywnych ostrzeżeń") : ""}${known.length && unknown ? " · " : ""}${unknown ? pl(unknown, "ukryte", "ukryte", "ukrytych") : ""}</span></summary>
+        const more = unknown ? `<p class="view-sub bw-more">Oraz ${pl(unknown, "ostrzeżenie dotyczy", "ostrzeżenia dotyczą", "ostrzeżeń dotyczy")} wrogów, których jeszcze nie spotkałeś. Szczegóły są w questach oznaczonych ⚠.</p>` : "";
+        return `<details class="boss-warnings" ${known.length <= 3 ? "open" : ""}><summary><span class="eyebrow">Zanim zabijesz…</span>
+          <span class="bw-count">${pl(known.length, "aktywne ostrzeżenie", "aktywne ostrzeżenia", "aktywnych ostrzeżeń")}${unknown ? " · " : ""}${unknown ? pl(unknown, "ukryte", "ukryte", "ukrytych") : ""}</span></summary>
           ${known.map(warnHtml).join("")}${more}</details>`; })()}
       <div class="it-bar boss-bar">
         <input class="search it-q" id="bq" type="search" placeholder="Szukaj bossa lub krainy…" value="${esc(state.bossQuery || "")}">
@@ -906,13 +906,12 @@
     const cx = (a[0] + a[1]) / 2, cy = (a[2] + a[3]) / 2, w = Math.max(a[1] - a[0], 1600) / 2, h = Math.max(a[3] - a[2], 1000) / 2;
     return [cx - w, cx + w, cy - h, cy + h];
   }
-  // stany świata na mapie (grafika mapy się nie zmienia, zmieniają się napisy i ikony miejsc): w „Moim postępie” z save'a,
-  // w zwykłym trybie do wyboru: z save'a, przed albo po zmianach
-  const WORLD = { 9417: "krater po Radahnie", 118: "Leyndell w popiele po Malikecie", 62890: "Enir-Ilim w DLC" };
-  const worldSet = f => state.mine || state.world === "save" || !(f in WORLD) ? isSet(f) : state.world === "after";
+  // stany świata: grafika mapy się nie zmienia, zmieniają się napisy miejsc (z flag w save'ie, np. krater po Radahnie)
+  // flagi pokazania miejsc, które zmieniają się w trakcie gry (Enir-Ilim w DLC); pozostałe miejsca są zawsze na mapie
+  const WORLD_FLAGS = [62890];
   // napis miejsca: ostatni włączony i niewyłączony (WorldMapPointParam); null = miejsca jeszcze (albo już) nie ma na mapie
-  const poiName = p => p.names ? p.names.filter(([, on, off]) => (!on || worldSet(on)) && !(off && worldSet(off))).pop()?.[0] ?? null : p.name;
-  const poiShown = p => poiName(p) !== null && (!(p.flag in WORLD) || worldSet(p.flag));
+  const poiName = p => p.names ? p.names.filter(([, on, off]) => (!on || isSet(on)) && !(off && isSet(off))).pop()?.[0] ?? null : p.name;
+  const poiShown = p => poiName(p) !== null && (!WORLD_FLAGS.includes(p.flag) || isSet(p.flag));
   // Twierdza Okrągłego Stołu (m11_10): gra pokazuje ją jedną ikoną w morzu na zachód od Pogrobna; jej punkty zbieramy w liście
   const atRoundtable = o => (o.map_id || "").startsWith("m11_10");
   // widok nie wychodzi poza mapę z gry („Mój postęp”: poza odkryty obszar), a najmniejsze przybliżenie wypełnia nią ekran
@@ -965,9 +964,7 @@
         ${state.mapDrops ? `<button class="chip on map-filter-chip" id="dropsClear">Gdzie wypada: ${esc(state.mapDrops.title)} (${state.mapDrops.pts.filter(p => p[0] === state.map).length}) ✕</button>` : ""}
         ${state.mapPeek ? `<p class="view-sub mine-note">Pokazuję miejsce poza odkrytym terenem. <button class="chip" id="peekBack">Wróć do mojego postępu</button></p>` : ""}
         ${state.mine ? `<p class="view-sub mine-note">Mapa jak w grze: widać tylko części odsłonięte zebranymi fragmentami mapy. Do tego odkryte łaski, pokonani bossowie i zebrane przedmioty.</p>`
-          : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>
-          <div class="world-seg"><span>Stan świata</span><div class="game-seg" role="group" aria-label="Stan świata" title="Zmiany na mapie w trakcie gry: ${Object.values(WORLD).join(", ")}">
-            ${[["save", "Jak w save'ie"], ["before", "Przed"], ["after", "Po"]].map(([k, l]) => `<button class="${state.world === k ? "on" : ""}" data-world="${k}">${l}</button>`).join("")}</div></div>`}
+          : `<label class="hide-done"><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> Ukryj zaliczone (zebrane, pokonane, odkryte)</label>`}
         <div class="layers-scroll">
         ${group("Na mapie", ["grace", "boss", "invader", "npc", "deaths", "dlc"], [row("dlc", "Wejście do DLC", '<span class="sw-dlc">✦</span>'), row("grace", "Miejsca łaski", '<span class="sw-grace"></span>'), row("boss", "Bossowie", '<span class="sw-boss"></span>'), row("invader", "Najeźdźcy", '<span class="sw-invader"></span>', "Czerwone fantomy NPC, które najeżdżają twój świat"),
           row("npc", "Postacie (NPC)", '<span class="sw-quest"></span>'), row("deaths", "Miejsca śmierci", '<span class="sw-death"></span>', "Save pamięta tylko liczbę śmierci i ostatnią plamę krwi. Miejsca wcześniejszych śmierci aplikacja zbiera sama, od kiedy działa")])}
@@ -989,7 +986,6 @@
       main.querySelectorAll("[data-layer]").forEach(l => l.classList.toggle("on", on(l.dataset.layer)));
       syncGroups(); refreshLayers(); });
     if ($("#hideDone")) $("#hideDone").onchange = e => { state.hideDone = e.target.checked; buildLayers(); };
-    main.querySelectorAll("[data-world]").forEach(b => b.onclick = () => { state.world = b.dataset.world; savePref("world", state.world); viewMapKeep(); });
     if ($("#dropsClear")) $("#dropsClear").onclick = () => { state.mapDrops = null;
       if (state.mapPeek) { state.mapPeek = false; viewMap(); } else { $("#dropsClear").remove(); buildLayers(); } };
     if ($("#peekBack")) $("#peekBack").onclick = () => { state.mapPeek = false; state.mapDrops = null; viewMap(); };

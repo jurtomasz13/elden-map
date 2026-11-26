@@ -465,9 +465,9 @@ a { color: inherit; text-decoration: none; }
 .layer { padding: 4px 0; font-size: 17.5px; }
 .sw-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid #1a140c; box-shadow: 0 0 5px rgba(0,0,0,.5); }
 .sw-poi, .mk-poi { color: #e8dcb8; font-size: 15.5px; line-height: 1; }
-.mk-place { display: grid; place-items: center; width: 100%; height: 100%; cursor: pointer; }
-.mk-place img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.8)); }
-.world-seg { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 0 0; font-size: 16px; color: var(--muted); }
+.mk-place { display: block; width: 100%; height: 100%; cursor: pointer; }
+/* Leaflet sets width: auto and max-width: none !important on marker images; this selector is more specific */
+.leaflet-marker-pane .mk-place img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.8)); }
 .mk-poi { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 4px; transform: rotate(0); background: rgba(20,17,12,.85);
   border: 1px solid rgba(201,170,113,.6); box-shadow: 0 2px 6px rgba(0,0,0,.6); font-size: 14.5px; }
 .tip-item { display: flex; align-items: center; gap: 8px; margin: 2px 0; }

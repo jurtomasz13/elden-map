@@ -185,9 +185,9 @@ Zrobione 2026-11-26: krok 4 (punkty 7 i 8). Najeźdźcy (25, bez Moore'a) jako w
 w karcie przedmiotu źródło „Nagroda za najeźdźcę”. Łup z przeciwników: wszystkie miejsca bez limitów (`enemies.json`),
 przycisk w karcie przedmiotu pokazuje je na mapie (filtr „Gdzie wypada”).
 
-Zrobione 2026-11-26: krok 5 (punkty 5 i 6). Miejsca mają ikony z gry i napisy zależne od flag. W zwykłym trybie
-mapy wybór „Stan świata: jak w save'ie / przed / po” (krater, Leyndell w popiele, Enir-Ilim), w „Moim postępie” zawsze
-z save'a. Twierdza Okrągłego Stołu to jedna ikona z listą postaci, najeźdźcy i skarbów. Zostaje: imiona postaci z mapy gry
+Zrobione 2026-11-26: krok 5 (punkty 5 i 6). Miejsca mają ikony z gry i napisy zależne od flag z save'a (krater,
+Leyndell w popiele, Enir-Ilim). Przełącznik „Stan świata: przed / po” był w 0.1.7, ale usunięty na prośbę właściciela
+(nic praktycznie nie dawał). Twierdza Okrągłego Stołu to jedna ikona z listą postaci, najeźdźcy i skarbów. Zostaje: imiona postaci z mapy gry
 (118 napisów) i ikony bez wpisu w parametrach (Leyndell szary, Belurat i Donżon Cienia bez czarnej chmury), dopóki
 nie sprawdzimy w grze, kiedy się pojawiają.
 
