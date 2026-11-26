@@ -60,6 +60,8 @@ def lot_slots(row):
 # Resident special effects (+0x4C 8x, +0x178 8x, +0x1E8 16x) include the area scaling that multiplies HP and
 # resistances (SpEffectParam +0x10 maxHpRate, regist*ChangeRate). Checked on Margit against Fextralife:
 # 2521 HP x 1.656 = 4174, slash -10, holy 40, statuses 316/414/704/1161, sleep and madness immune, poise 80.
+# Defense: NpcParam +0xF8/0x100/0x102/0x104/0x15E u16 (phys, magic, fire, lightning, holy) times SpEffectParam
+# +0x68/0x6C/0x70/0x74/0x1D4 (Margit 100 x 1.039 = 103.9, in the Capital Outskirts 111.9; Fextralife 103 / 111).
 ABSORB = ("standard", "slash", "strike", "pierce", "magic", "fire", "lightning", "holy")
 STATUS = {"poison": (0x108, 0x08, 0x108), "rot": (0x10A, 0x1D0, 0x10C), "bleed": (0x10C, 0x2B4, 0x110),
           "death": (0x10E, 0x2B8, 0x114), "frost": (0x1E0, 0x2BC, 0x2B4), "sleep": (0x126, 0x2C0, 0x340),
@@ -81,7 +83,9 @@ def enemy_stats(row, speffects, resist_correct):
         corr = resist_correct.get(struct.unpack_from("<i", row, corr_off)[0])
         steps = struct.unpack_from("<5f", corr, 0)[:3] if corr and struct.unpack_from("<5f", corr, 0x14) == (1.0,) * 5 else ()
         status[name] = [round(first)] + [round(first + p) for p in steps]   # next threshold = first + increment
-    return {"hp": int(struct.unpack_from("<I", row, 0x24)[0] * scale(0x10)),
+    defense = [round(struct.unpack_from("<H", row, off)[0] * scale(rate), 1)
+               for off, rate in zip((0xF8, 0x100, 0x102, 0x104, 0x15E), (0x68, 0x6C, 0x70, 0x74, 0x1D4))]
+    return {"hp": int(struct.unpack_from("<I", row, 0x24)[0] * scale(0x10)), "defense": defense,
             "absorb": {k: round((1 - v) * 100) for k, v in zip(ABSORB, struct.unpack_from("<8f", row, 0x1A4))},
             "status": status, "poise": round(struct.unpack_from("<f", row, 0x2A8)[0])}
 
@@ -526,6 +530,7 @@ def main():
         invaders.append({"id": entity, "flag": flag, "name": npc_pl.get(nid), "name_en": npc_en.get(nid), "map_id": mid,
                          "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in part["pos"]], "lots": lots_,
                          "quest_rewards": flag in quest_lots, **({"summoned": True} if flag in gauntlet else {}),
+                         "stats": enemy_stats(row, speffects, resist_correct),
                          "rewards": [x for lot in lots_ for x in lot_chain(lot)[0]],
                          **(world.to_map(area, gx, gz, *part["pos"]) or {})})
 

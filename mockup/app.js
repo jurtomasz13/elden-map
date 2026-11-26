@@ -474,8 +474,11 @@
         : "Czerwony fantom, który najeżdża twój świat w tej okolicy. Pokonany już nie wraca."}</p>
       ${hid ? '<p class="note">Imię i nagrody zobaczysz po pokonaniu (tryb bez spoilerów).</p>' : x.rewards.length ? `<div class="d-section"><h4>Nagrody</h4>${x.rewards.map(r => rewardRow(r, findItem(r.cat, r.id))).join("")}
         ${x.quest_rewards ? '<p class="view-sub" style="margin:8px 0 0">Nagroda zależy od etapu questu tej postaci.</p>' : ""}</div>` : ""}
+      ${x.stats && !hid ? bossStatsHtml(x.stats) : ""}
+      ${live.on && x.stats ? '<div class="d-section" id="hitsBox"></div>' : ""}
       ${x.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
-      () => x.map && miniMap($("#minimap"), x.map, x.px, x.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(x) }]));
+      () => { if (x.stats) fillHits(x.stats);
+        if (x.map) miniMap($("#minimap"), x.map, x.px, x.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(x) }]); });
   }
   // hidden enemy stats from the game files (NpcParam + area scaling, bosses_all.json `stats`)
   const PHYS = { standard: "Zwykłe", slash: "Cięte", strike: "Obuchowe", pierce: "Kłute" };
@@ -493,6 +496,48 @@
         `<span class="neg${t ? "" : " strong"}" title="${t ? "Próg po kolejnych wywołaniach statusu" : ""}">${esc(AFF[k][0])}<b>${t ? t.join(" → ") : "odporny"}</b></span>`).join("")}</div>
       <p class="view-sub" style="margin:8px 0 0">Najsłabszy na: ${esc([...weakDmg, ...weakSt].join(", ") || "brak wyraźnej słabości")}.
         Wartości dla pierwszego przejścia, z plików gry; przy bossach z kilkoma fazami to pierwsza faza.</p></div>`;
+  }
+  // ---------- the player's weapons against an enemy: attack rating, damage of one hit, hits to kill ----------
+  // weapon_calc.json (tools/extract/extract_damage.py); the formula matches the MIT weapon calculator by ThomasJClark
+  let CALC = null;
+  const calcIndex = async () => CALC ??= await load("weapon_calc");
+  function weaponAR(w, upgrade, attrs) {
+    const rf = CALC.reinforce[w.reinforce]?.[upgrade], el = CALC.element[w.element];
+    if (!rf || !el) return null;
+    return w.base.map((b, t) => {
+      const base = b * rf[t], by = [0, 1, 2, 3, 4].filter(s => el[t][s] !== null);
+      if (!base) return 0;
+      if (by.some(s => attrs[s] < w.req[s])) return base * 0.6;          // stat below requirement: -40%, no scaling
+      const g = CALC.graphs[w.graph[t]];
+      return base * (1 + by.reduce((sum, s) => sum + curve(g, attrs[s]) / 100 * (el[t][s] === -1 ? w.scaling[s] : el[t][s]) / 100 * rf[5 + s], 0));
+    });
+  }
+  // share of an attack that passes flat defense (attack/defense ratio curve, community-derived; 10%..90%)
+  const defenseMul = (atk, def) => { const r = atk / def;
+    return r >= 8 ? .9 : r >= 2.5 ? .9 - (8 - r) ** 2 / 151.25 : r >= 1 ? .7 - (2.5 - r) ** 2 / 7.5 : r >= .125 ? .1 + (r - .125) ** 2 / 2.552 : .1; };
+  const PHYS_ATTR = ["slash", "strike", "pierce", "standard"];          // EquipParamWeapon +0x104
+  const hitDamage = (ar, attr, st) => ar.reduce((sum, a, t) => !a ? sum
+    : sum + a * defenseMul(a, st.defense[t]) * (1 - st.absorb[[PHYS_ATTR[attr] || "standard", "magic", "fire", "lightning", "holy"][t]] / 100), 0);
+  async function fillHits(st) {
+    const at = live.state?.stats?.attributes, inv = live.inventory?.weapons;
+    if (!$("#hitsBox")) return;
+    if (!at || !inv) return $("#hitsBox").remove();
+    await Promise.all([calcIndex(), itemsIndex()]);
+    const box = $("#hitsBox"); if (!box || !CALC) return;
+    const attrs = [at.strength, at.dexterity, at.intelligence, at.faith, at.arcane], seen = new Set(), rows = [];
+    for (const e of inv) {
+      const w = CALC.weapons[e.id - (e.upgrade || 0)], it = findItem("weapon", e.base_id ?? e.id), cls = it?.stats?.class;
+      if (!w || !it || seen.has(e.id) || (cls >= 50 && cls <= 56) || (cls >= 81 && cls <= 86)) continue;   // bows and ammo: damage comes from arrows
+      seen.add(e.id);
+      const ar = weaponAR(w, e.upgrade || 0, attrs), dmg = ar && hitDamage(ar, w.attr, st);
+      if (dmg > 0) rows.push({ it, up: e.upgrade || 0, dmg, hits: Math.ceil(st.hp / dmg) });
+    }
+    rows.sort((a, b) => a.hits - b.hits || b.dmg - a.dmg);
+    box.innerHTML = !rows.length ? "" : `<h4>Twoje bronie: ile ciosów</h4>${rows.slice(0, 10).map(r => listRow(`data-go="item:weapon:${r.it.id}"`, ICON(r.it.icon),
+      esc(r.it.name + (r.up ? " +" + r.up : "")), `${pl(r.hits, "cios", "ciosy", "ciosów")} · ${Math.floor(r.dmg)} na cios`)).join("")}
+      ${rows.length > 10 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(rows.length - 10, "broń", "bronie", "broni")} z ekwipunku.</p>` : ""}
+      <p class="view-sub" style="margin:8px 0 0">Teoretycznie: pierwszy lekki cios jedną ręką, Twoje atrybuty z save'a, bez statusów, umiejętności broni,
+        talizmanów i wzmocnień. Obrona i redukcja obrażeń z plików gry, krzywa obrony według opisów społeczności.</p>`;
   }
   function openBoss(id) {
     const b = bossList().find(x => x.id === id);
@@ -514,11 +559,13 @@
         ${!ng && !hint ? "<li>Pozycja tego bossa nie jest jeszcze przeliczona na mapę świata.</li>" : ""}</ol></div>
       ${b.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}
       ${b.stats ? bossStatsHtml(b.stats) : ""}
+      ${live.on && b.stats ? '<div class="d-section" id="hitsBox"></div>' : ""}
       ${questLinks(bossQuests(b))}
       ${b.rewards?.length ? `<div class="d-section"><h4>Nagrody</h4>${b.rewards.map(r => rewardRow(r, itemByName(r.name))).join("")}</div>` : ""}
       ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div id="bossRem">${listRow(itemByName(b.remembrance) ? `data-go="item:goods:${itemByName(b.remembrance).id}"` : null,
         ICON(b.icon), esc(b.remembrance), "")}</div></div>` : ""}`,
       () => {
+        if (b.stats) fillHits(b.stats);
         const rem = b.remembrance && itemByName(b.remembrance);
         if (rem) sourcesIndex().then(() => { if ($("#bossRem")) $("#bossRem").insertAdjacentHTML("beforeend", remembranceHTML(rem)); });
         if (b.map) miniMap($("#minimap"), b.map, b.px, b.py, b.icon, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(b) }]);

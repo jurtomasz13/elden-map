@@ -20,14 +20,16 @@ import params as P  # noqa: E402
 USE = {100: "hp", 101: "fp", 104: "stamina", 220: "equip_load", 0: "phys_scaling", 4: "elem_scaling", 6: "status_scaling"}
 
 
+def graph(r):
+    """One CalcCorrectGraph row: stages, values and curve exponents (also used by extract_damage.py)."""
+    return {"stages": [round(v, 3) for v in struct.unpack_from("<5f", r, 0)],
+            "values": [round(v, 3) for v in struct.unpack_from("<5f", r, 0x14)],
+            "exp": [round(v, 3) for v in struct.unpack_from("<5f", r, 0x28)]}
+
+
 def main():
     rows = dict(P.rows(P.load_params()["CalcCorrectGraph"])[0])
-    out = {}
-    for rid, key in USE.items():
-        r = rows[rid]
-        out[key] = {"graph": rid, "stages": [round(v, 3) for v in struct.unpack_from("<5f", r, 0)],
-                    "values": [round(v, 3) for v in struct.unpack_from("<5f", r, 0x14)],
-                    "exp": [round(v, 3) for v in struct.unpack_from("<5f", r, 0x28)]}
+    out = {key: {"graph": rid, **graph(rows[rid])} for rid, key in USE.items()}
     path = os.path.join(A.ROOT, "assets", "data", "stat_curves.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=1)

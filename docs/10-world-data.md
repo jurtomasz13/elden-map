@@ -201,3 +201,19 @@ usunięty z gry w łatce 1.03 (`unobtainable` w `mockup/app.js`).
 - Kraina obiektów w lochach = kraina najbliższej łaski z tego samego pliku mapy (w m12_07 są Nokron i studnia Siofry; Stormveil → „Zamek Burzowego Całunu”, a nie Liurnia);
   `PlaceName_dlc02` dołączone (krainy DLC). Opisy miejsc bossów z tabeli CE (po angielsku) nie są już pokazywane.
 - Przedmioty bez nazwy w grze (atrapy) pomijane; nazwy przycinane (spacje na końcu).
+
+## Statystyki wrogów i ciosy do zabicia (2026-11-26)
+
+`bosses_all.json` i `invaders.json` mają `stats` z `extract_world.enemy_stats`: PŻ, obrona, redukcja obrażeń, progi
+statusów i postawa z `NpcParam` (układ z Paramdex), pomnożone przez stałe efekty postaci (`SpEffectParam`, m.in.
+skalowanie obszaru). Progi statusów po kolejnych wywołaniach to pierwszy próg plus przyrost z `ResistCorrectParam`.
+Sprawdzone z Fextralife: Margit 4174 PŻ, obrona 103, cięte −10, święte 40, statusy 316/414/704/1161; Godrick 6080;
+Radahn 9572; Malenia 18 473 (pierwsza faza). Przy bossach z kilkoma fazami to statystyki postaci z flagą bossa.
+
+Karta bossa i najeźdźcy liczy dla broni z ekwipunku (`weapon_calc.json`, `tools/extract/extract_damage.py`) siłę ataku
+z atrybutów z save'a: obrażenia bazowe × mnożnik ulepszenia × (1 + suma krzywa(atrybut) × skalowanie × mnożnik
+skalowania), atrybut poniżej wymagania daje 60% bazy. Wynik zgadza się co do setnych z kalkulatorem
+ThomasJClark/elden-ring-weapon-calculator (MIT). Obrażenia ciosu: dla każdego rodzaju obrażeń atak × krzywa obrony
+(stosunek ataku do obrony, 10-90%, według opisów społeczności) × (1 − redukcja); rodzaj ciosu fizycznego z
+`EquipParamWeapon +0x104`. Pierwszy lekki cios jedną ręką ma w danych 100% w 578 z 579 broni, więc tak liczymy. Pomijamy
+statusy, umiejętności broni, talizmany, wzmocnienia, oburęczność i łuki (obrażenia zależą od strzał).
