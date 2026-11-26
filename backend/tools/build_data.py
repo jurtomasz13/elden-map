@@ -370,12 +370,13 @@ def world_bosses(world, ct_bosses, extras=None, locator=None, fallback=None):
         per_map[w.get("map_id")] = per_map.get(w.get("map_id"), 0) + 1
     out, used = [], set()
     for w in world:
+        # w["id"] = wiersz GameAreaParam; u bossów polowych to encja, a flaga pokonania jest inna (extract_world.py)
         flag = w["flag"]
-        ct = ct_by_flag.get(flag)
-        used.add(flag)
+        ct = ct_by_flag.get(flag) or ct_by_flag.get(w["id"])
+        used |= {flag, w["id"]}
         arena = None
         mid = w.get("map_id")
-        bpos = ((extras or {}).get("boss_positions") or {}).get(str(flag))
+        bpos = ((extras or {}).get("boss_positions") or {}).get(str(w["id"]))
         region = subregion = None
         if bpos:                                # pozycja bossa z pliku mapy (wróg o EntityID = flaga)
             arena = {"map_id": bpos["map_id"], "x": bpos["x"], "y": bpos["y"], "z": bpos["z"], "radius": ARENA_RADIUS,

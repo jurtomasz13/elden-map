@@ -344,6 +344,9 @@ def main():
                 award_src.setdefault(eid, []).extend(p[2] for p in ev["params"] if p[0] == k)
     boss_name_by_entity, reward_by_flag, name_near_flag, global_flag, reward_by_global = {}, {}, {}, {}, {}
     invasions, invader_lots, quest_lots = {}, {}, {}        # flaga pokonania -> encja / pule nagród
+    # bossowie polowi (Nocna Kawaleria, Ptak śmierci…): wiersz GameAreaParam ma numer encji bossa, a śmierć zapisuje
+    # wspólne zdarzenie 90005860/90005861(flaga pokonania, …, encja, …) pod inną flagą (…800 / …850)
+    field_defeat = {}
     global_flag_weak = {}
     ga_flags = {rid for rid, _ in P.rows(ps["GameAreaParam"])[0] if rid > 1000 and not 9999990 <= rid <= 9999999}
     for path in msb_list:
@@ -357,6 +360,10 @@ def main():
                 if (bank, iid) == (2000, 6) and len(x) >= 2:          # InitializeCommonEvent(0, id, args...)
                     cid, args = x[1], a[8:]
                     cargs = E.ints(args)
+                    if cid in (90005860, 90005861) and cargs:
+                        for v in cargs[1:]:
+                            if v in ga_flags and v != cargs[0]:
+                                field_defeat.setdefault(v, cargs[0])
                     if cid == INVASION and len(cargs) >= 5:              # (warunek, flaga pokonania, obszar, obszar, encja, …)
                         invasions.setdefault(cargs[1], cargs[4])
                     elif cid == INVADER_DEATH and len(cargs) >= 5 and cargs[4] in lots and cargs[4] > 0:   # (flaga, obszar, obszar, encja, pula, …)
@@ -486,14 +493,15 @@ def main():
         # postać ludzka (c0000): ekwipunek i wygląd z CharaInitParam/FaceParam — ID z części bossa albo imiennika na tej mapie
         same = sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != f"m{area:02d}_{gx:02d}_{gz:02d}_00") if nid else []
         chara_init = next((e[1]["chara_init"] for e in ([ent] if ent else []) + same if e and (e[1].get("chara_init") or 0) > 0), None) if model == "c0000" else None
-        bosses.append({"id": rid, "flag": rid, "name": name_pl or name_en, "name_en": name_en, "location": loc, "region": region,
+        flag = field_defeat.get(rid, rid)
+        bosses.append({"id": rid, "flag": flag, "name": name_pl or name_en, "name_en": name_en, "location": loc, "region": region,
                        "region_pl": region_pl.get((region or "").lower()) or region,
                        "runes": runes, "map_id": f"m{area:02d}_{gx:02d}_{gz:02d}_00", "dlc": area in DLC_AREAS or bool(c and c["group"].startswith("DLC")),
                        "icon": (rem and rem.get("icon")) or (drop and drop["icon"]), "remembrance": rem and rem.get("remembrance"),
                        "rewards": [{"name": it["name"], "icon": it["icon"], "kind": it["kind"]} for it in reward if it["name"]],
                        "named_by": named_by, "model": model, "chara_init": chara_init, "pos": local,
                        # bossowie dużej mapy (Radahn, Borealis) zapisują śmierć pod flagą z prefiksem 12 zamiast 10
-                       "alt_flags": [rid + 200000000] if 1000000000 <= rid < 1100000000 and (rid + 200000000) // 1000 in flag_blocks() else [],
+                       "alt_flags": [flag + 200000000] if 1000000000 <= flag < 1100000000 and (flag + 200000000) // 1000 in flag_blocks() else [],
                        **(pos or {})})
 
     # ---------- miejsca ----------

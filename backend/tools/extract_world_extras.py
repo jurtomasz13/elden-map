@@ -203,7 +203,7 @@ def main():
     graces = load_json("graces.json")
     pois = load_json("pois.json")
     bosses = load_json("bosses_all.json")
-    boss_flags = {b["flag"] for b in bosses}
+    boss_flags = {b["id"] for b in bosses}       # wiersz GameAreaParam = encja bossa w pliku mapy
 
     conv = []
     for _, r in P.rows(ps["WorldMapLegacyConvParam"])[0]:
