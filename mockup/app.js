@@ -1153,12 +1153,12 @@
         .bindTooltip(`<b>${esc(state.mapDrops.title)}</b>tu się pojawia`, { direction: "top", className: "er-tip" }).addTo(grp("drops"));
     for (const pnt of W.pois) { const who = poiPeople(pnt), npc = npcMarker(pnt), icon = poiIcon(pnt);
       const name = npc ? who.now.join(" · ") || "Postać" : poiName(pnt), here = npc ? [] : who.now;
-      const quest = npc && npcQuest({ name: who.now[0] || who.later[0] });
+      const person = npc && (who.now[0] || who.later[0]);
       if (pnt.map !== m || !poiShown(pnt) || !show(pnt, match(name, ...who.now, ...who.later) && near(pnt))) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: icon != null ? divIcon(`<span class="mk-place"><img src="${MAP_ICON(icon)}" alt=""></span>`, 36)
         : divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
-        .on("click", () => { if (quest) goQuest(quest.id); })
-        .bindTooltip(`<b>${esc(name)}</b>${npc ? (quest ? `postać · klik: quest „${esc(quest.name)}”` : "postać") : esc(POI[pnt.category]?.[0] || "")}${here.length ? `<span class="tip-sub">tu jest: ${esc(here.join(" · "))}</span>` : ""}${
+        .on("click", () => { if (person) openNpc(person); })
+        .bindTooltip(`<b>${esc(name)}</b>${npc ? "postać · klik: karta postaci" : esc(POI[pnt.category]?.[0] || "")}${here.length ? `<span class="tip-sub">tu jest: ${esc(here.join(" · "))}</span>` : ""}${
           who.later.length ? `<span class="tip-sub">w innym momencie gry: ${esc(who.later.join(" · "))}</span>` : ""}`, { direction: "top", offset: [0, -12], className: "er-tip" }).addTo(grp(poiLayer(pnt))); }
     for (const d of dlcMarks(m)) { if (!show({ ...d, map: m }, match("wejście do dlc", "dlc", d.name) && !(mine && !near(d)))) continue;
       L.marker(ll(map, d.px, d.py), { icon: divIcon(`<span class="mk-dlc ${d.done ? "done" : ""}">✦</span>`, 30), zIndexOffset: 800, riseOnHover: true })
@@ -1166,8 +1166,8 @@
         .on("click", () => goQuest("dlc-entry")).addTo(grp("dlc")); }
     for (const n of W.npcs) { if (n.map !== m || atRoundtable(n) || hasGameMarker(n) || !show(n, match(n.name, n.name_en) && near(n))) continue;
       L.circleMarker(ll(map, n.px, n.py), { renderer, radius: 5, color: "#cfe3ea", weight: 1.2, fillColor: "#2f4a5a", fillOpacity: .95 })
-        .bindTooltip(`<b>${esc(n.name)}</b>${npcQuest(n) ? "postać · klik: quest „" + esc(npcQuest(n).name) + "”" : "postać"}`, { direction: "top", className: "er-tip" })
-        .on("click", () => { const q = npcQuest(n); if (q) goQuest(q.id); }).addTo(grp("npc")); }
+        .bindTooltip(`<b>${esc(n.name)}</b>postać · klik: karta postaci`, { direction: "top", className: "er-tip" })
+        .on("click", () => openNpc(n.name)).addTo(grp("npc")); }
     for (const t of W.items) { if (t.map !== m || atRoundtable(t)) continue;
       const done = isSet(t.flag); if (!show(t, match(...t.items.map(i => i.name), ...t.items.map(i => i.name_en)) && !(hide && done) && !(mine && !done))) continue;
       const col = KINDS[t.kind]?.[1] || "#999", dim = done && !mine;      // „Mój postęp” pokazuje tylko zebrane: bez przygaszania
@@ -1277,6 +1277,34 @@
     if (location.hash === "#map") { closeDrawer(); state.map = o.map; viewMap(); focusMap(o, spot); return; }
     state.map = o.map; navTo("#map", () => focusMap(o, spot));
   }
+  // ---------- NPC card: where they stand, quest, shop, gifts, drops (opened from the map; the quest is one click further) ----------
+  async function openNpc(name) {
+    await Promise.all([sourcesIndex(), itemsIndex()]);
+    const spots = [...W.npcs.filter(n => n.name === name && n.map), ...W.pois.filter(p => npcMarker(p) && p.people.some(x => x[0] === name))];
+    const now = W.pois.filter(p => p.people?.some(x => x[0] === name && textOn(x)));
+    const shop = [], gifts = [];
+    for (const [k, s] of Object.entries(SRC || {})) {
+      const it = findItem(...k.split(":").map((v, i) => i ? +v : v)); if (!it) continue;
+      for (const sh of s.shops || []) if (sh.who === name) shop.push({ it, sh });
+      if (s.gifts?.some(g => g.who === name)) gifts.push(it);
+    }
+    const drops = W.items.filter(t => t.enemy?.name === name), inv = W.invaders.filter(x => x.name === name && !hiddenInvader(x)), q = npcQuest({ name });
+    const itemRow = (it, right) => listRow(`data-go="item:${it.category}:${it.id}"`, ICON(it.icon), esc(hiddenItem(it) ? "· · ·" : it.name), right);
+    const here = now[0] || spots[0];
+    drawer(`<div class="d-hero">${portrait(null, "hero-portrait", "knight")}<div class="eyebrow">Postać</div><div class="d-title">${esc(name)}</div>
+      <div class="d-loc">${esc(here?.region_pl || "")}</div></div>
+      ${now.length ? `<div class="d-section"><h4>Teraz</h4>${now.map(p => listRow(null, null, esc(p.name || "znacznik postaci z gry"), esc(p.region_pl || ""))).join("")}
+        <p class="view-sub" style="margin:8px 0 0">Według mapy gry i flag z Twojego save'a.</p></div>` : ""}
+      ${q ? questLinks([q]) : ""}
+      ${shop.length ? `<div class="d-section"><h4>Sklep</h4>${shop.map(({ it, sh }) => itemRow(it, sh.trade ? "za: " + esc(sh.trade) : sh.price ? pl(sh.price, "run", "runy", "runów") : "")).join("")}</div>` : ""}
+      ${gifts.length ? `<div class="d-section"><h4>Daje w rozmowie</h4>${gifts.map(it => itemRow(it, have(it) ? "masz" : "")).join("")}</div>` : ""}
+      ${drops.length ? `<div class="d-section"><h4>Po śmierci zostawia</h4>${drops.flatMap(t => t.items.map(x => findItem(x.cat, x.id)).filter(Boolean).map(it => itemRow(it, isSet(t.flag) ? "zebrane" : ""))).join("")}</div>` : ""}
+      ${inv.length ? `<div class="d-section"><h4>Najazdy</h4>${inv.map(x => listRow(`data-go="invader:${x.id}"`, null, esc(x.name), isSet(x.flag) ? "pokonany" : "niepokonany")).join("")}</div>` : ""}
+      ${spots.length ? `<div class="d-section"><h4>Gdzie bywa</h4>${spots.slice(0, 8).map((p, i) => listRow(`data-npc-spot="${i}"`, null, esc(p.region_pl || p.map_id || ""), "na mapie")).join("")}</div>` : ""}
+      ${here?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
+      () => { document.querySelectorAll("[data-npc-spot]").forEach(b => b.onclick = () => goMap({ ...spots[+b.dataset.npcSpot], name }));
+        if (here?.map) miniMap($("#minimap"), here.map, here.px, here.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap({ ...here, name }) }]); });
+  }
   // quest postaci: po imieniu NPC (pierwszy człon przed przecinkiem)
   const npcQuest = n => { const stem = (n.name || "").split(",")[0].trim(); return stem.length >= 3 ? W.quests.find(q => (q.npc || "").split(",")[0].trim() === stem) : null; };
   function goQuest(id) { state.quest = id; state.qFilter = "all"; ensureGame(W.quests.find(q => q.id === id)); if (location.hash === "#quests") { closeDrawer(); render(); } else navTo("#quests"); }
@@ -1334,6 +1362,7 @@
     else if (k === "pin") { const o = pins[+v]; if (o) goMap(o); }
     else if (k === "drops") showDrops(drops[+v]);
     else if (k === "invader") { const x = W.invaders.find(i => i.id === +v); if (x) openInvader(x); }
+    else if (k === "npc") openNpc(v);
     else if (k === "quest") goQuest(v);
     else if (k === "place") { const pl = refIndex()?.places.get(v); if (pl) goMap(pl); }
   });
