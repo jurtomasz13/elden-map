@@ -32,7 +32,7 @@ function tex(name) {
 }
 
 for (const m of model.meshes) {
-  const t = tex(m.tex), P = m.pos, N = m.nrm, U = m.uv, T = m.tris, nv = P.length / 3;
+  const t = tex(m.tex), dt = tex(m.detail), P = m.pos, N = m.nrm, U = m.uv, T = m.tris, nv = P.length / 3;
   const sp2 = new Float32Array(nv * 3), rn = new Float32Array(nv * 3);
   for (let v = 0; v < nv; v++) {
     const [x, y, z] = rot(P[v * 3], P[v * 3 + 1], P[v * 3 + 2]); const [sx, sy2] = toScreen(x, y);
@@ -64,6 +64,10 @@ for (const m of model.meshes) {
           if (al < 0.3) continue;
           const sh = 0.75 + 0.35 * al; r = m.color[0] * sh; g = m.color[1] * sh; bl = m.color[2] * sh;
         } else { r = t.rgba[ti] / 255; g = t.rgba[ti + 1] / 255; bl = t.rgba[ti + 2] / 255; }
+        if (dt) {                                                         // costume: colour palette x grey fabric pattern
+          const di2 = (Math.min(dt.h - 1, (v * dt.h) | 0) * dt.w + Math.min(dt.w - 1, (u * dt.w) | 0)) * 4, k = 1.8 * dt.rgba[di2] / 255;
+          r = Math.min(1, r * k); g = Math.min(1, g * k); bl = Math.min(1, bl * k); al = Math.min(al, dt.rgba[di2 + 3] / 255);
+        }
         if (al < 0.4 && !m.alphaOnly) continue;                                           // alpha test (włosy, tkaniny)
         if (m.tint) {                                                     // barwienie skóry kolorem z save'a (tekstura twarzy jest neutralna)
           const lum = 0.3 * r + 0.59 * g + 0.11 * bl, k = 1.9;

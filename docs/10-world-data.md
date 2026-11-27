@@ -140,10 +140,10 @@ Wyjątki (2026-11-25):
 
 | Plik | Liczba | Pola |
 |---|---|---|
-| `bosses_all.json` | 209 | id/flag, name (PL), name_en, location, region_pl, runes, map_id, dlc, icon, remembrance, rewards[], stats, model, chara_init, render, map/px/py/approx, named_by |
+| `bosses_all.json` | 209 | id/flag, name (PL), name_en, location, region_pl, runes, map_id, dlc, icon, remembrance, rewards[], stats, mask, model, chara_init, render, map/px/py/approx, named_by |
 | `item_locations.json` | 3664 | lot, flag, map_id, items[{cat,id,name,name_en,icon,count,kind}], kind, dlc, enemy{name, stats} (jednorazowy łup przeciwnika), region_pl, map/px/py/approx |
 | `pois.json` | 366 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py |
-| `npcs.json` | 245 | name, name_en, map_id, entity, talk, model, chara_init, render, region_pl, map/px/py |
+| `npcs.json` | 245 | name, name_en, map_id, entity, talk, model, chara_init, mask (warianty modelu), render, region_pl, map/px/py |
 | `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), stats, rewards[], region_pl, map/px/py |
 | `warps.json` | 52 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
 | `summons.json` | 38 | name, helper (biały znak pomocnika), map_id, map/px/py/approx |
@@ -251,8 +251,12 @@ cutsceny w tym samym pliku mapy (wejście na arenę bossa).
   144 kukiełki, 146 powielanie wizerunków, 151 koloseum, 131 gest.
 - Podarunki w rozmowie: podprogram (blok 6), którego argument jest pulą (jedyny albo pula rozmowy obok flag).
 - Portrety (`render_portraits.py`): gra nie ma portretów postaci w teksturach menu. Ludzie są składani z części
-  (twarz z `FaceParam` wskazanego przez `CharaInitParam +0xA4`), pozostałe modele w kadrze popiersia. Bez portretu:
-  obiekty rozmowy (c1000, c0100) i 6 modeli, które renderują się niepełne (`BROKEN`).
+  (twarz z `FaceParam` wskazanego przez `CharaInitParam +0xA4`, bez kształtu twarzy z edytora postaci), pozostałe modele
+  w kadrze popiersia. Jeden model służy kilku postaciom: meshe `#NN#` to warianty, a NpcParam ma maskę widoczności
+  (`+0x14A/+0x14B/+0x14E/+0x14F`, bit NN; `extract_world.display_mask`, np. Azur bit 2 = szata, Pidia 10, 11, 15), więc
+  portret jest liczony dla postaci (`<model>_<maska>.png`). Shader „Costume” (kupcy c3200) ma dwie tekstury koloru:
+  paletę barw wariantu i szary wzór tkaniny, które render mnoży (`detail` w `model.json`). Bez portretu zostają obiekty
+  rozmowy (c1000, c0100).
 - `summons.json` (`extract_summons.py`): `2003[25]` PlaceNPCSummonSign, typ 20 to znak pomocnika; pozycja z regionu
   znaku.
 

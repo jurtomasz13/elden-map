@@ -28,17 +28,21 @@ def matbins():
     return _matbins
 
 
-def albedo_of(mtd_path, suffix="_a.tif"):
-    """Nazwa tekstury z pliku MATBIN materiału (pierwsza ścieżka kończąca się `suffix`, domyślnie albedo *_a.tif)."""
+def material_strings(mtd_path):
+    """Texts of the material's MATBIN in order (texture paths, shader .spx); [] when the material is unknown."""
     key = re.sub(r"\.(mtd|matxml)$", ".matbin", mtd_path.split("\\")[-1], flags=re.I).lower()
     d = matbins().get(key)
-    if not d:
-        return None
-    for m in re.finditer(rb"(?:[\x20-\x7e]\x00){6,}", d):
-        s = m.group().decode("utf-16le")
-        if s.lower().endswith(suffix):
-            return s.split("\\")[-1][:-4]
-    return None
+    return [m.group().decode("utf-16le") for m in re.finditer(rb"(?:[\x20-\x7e]\x00){6,}", d)] if d else []
+
+
+def textures_of(mtd_path, suffix="_a.tif"):
+    """Texture names of the material ending with `suffix` (default albedo *_a.tif), in MATBIN order."""
+    return [s.split("\\")[-1][:-4] for s in material_strings(mtd_path) if s.lower().endswith(suffix)]
+
+
+def albedo_of(mtd_path, suffix="_a.tif"):
+    """First texture of the material ending with `suffix` (default albedo *_a.tif), or None."""
+    return next(iter(textures_of(mtd_path, suffix)), None)
 
 
 def chr_textures(chr_id):
@@ -92,28 +96,38 @@ def find_texture(name, own):
 _chr_cache = {}
 
 
-def export(chr_id, out_root):
+def export(chr_id, out_root, mask=None):
+    """Meshes '#NN#' are model variants: shown when bit NN of the character's display mask is set (NpcParam,
+    extract_world.display_mask); without a mask only '#00#'. Output: <out_root>/<chr>[_<mask hex>]/."""
     r = A.find(f"/chr/{chr_id}.chrbnd.dcx")
     if not r:
         raise FileNotFoundError(chr_id)
     fl = next(d for _, n, d in F.bnd4(r[1]) if n.lower().endswith(".flver"))
     model = flver.parse(fl)
     tex = chr_textures(chr_id)
-    out = os.path.join(out_root, chr_id)
+    out = os.path.join(out_root, chr_id if mask is None else f"{chr_id}_{mask:x}")
     os.makedirs(out, exist_ok=True)
     meshes = []
     for i, m in enumerate(model["meshes"]):
         name = (m["material"] or {}).get("name", "")
-        if name.startswith("#") and not name.startswith("#00#"):   # warianty broni/flag — zostawiamy tylko #00#
+        flag = _mesh_flag(name)
+        if flag is not None and name.startswith("#") and (flag != 0 if mask is None else not mask >> flag & 1):
             continue
-        alb = albedo_of((m["material"] or {}).get("mtd", ""))
-        tex_file = None
-        dds = find_texture(alb, tex) if alb else None
-        if dds:
-            tex_file = f"{alb}.dds"
-            with open(os.path.join(out, tex_file), "wb") as f:
-                f.write(dds)
-        meshes.append({"name": name, "tex": tex_file, "pos": [c for p in m["pos"] for c in p],
+        mtd = (m["material"] or {}).get("mtd", "")
+        albs = textures_of(mtd)
+        # costume shader (nomadic merchants c3200): the first albedo is a flat colour palette of the outfit variant,
+        # the second a grey fabric pattern; the game multiplies them
+        costume = len(albs) > 1 and any(s.lower().endswith("_costume.spx") for s in material_strings(mtd))
+        files = []
+        for alb in albs[:2 if costume else 1]:
+            dds = find_texture(alb, tex)
+            files.append(f"{alb}.dds" if dds else None)
+            if dds:
+                with open(os.path.join(out, f"{alb}.dds"), "wb") as f:
+                    f.write(dds)
+        tex_file = files[0] if files else None
+        meshes.append({"name": name, "tex": tex_file, **({"detail": files[1]} if costume and files[1] else {}),
+                       "pos": [c for p in m["pos"] for c in p],
                        "nrm": [round(c, 3) for n in (m["nrm"] or []) for c in n],
                        "uv": [round(c, 4) for u in (m["uv"] or []) for c in u], "tris": [i for t in m["tris"] for i in t]})
     with open(os.path.join(out, "model.json"), "w") as f:

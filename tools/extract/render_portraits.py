@@ -21,17 +21,16 @@ MODELS = os.path.join(A.ROOT, "assets", "cache", "models")
 RENDERS = os.path.join(A.ROOT, "assets", "renders")
 # rozmowa z obiektem: niewidoczny model (Cienie bliźniaczej służki, ołtarze, Miecz Bernahla) i Stół Kowala / kościoły
 NO_MODEL = {"c1000", "c0100"}
-# render wychodzi niepełny (sprawdzone na oko 2026-11-26): Kalé ma złe materiały, Pidia i Albus to sam kij,
-# Azur i Lusat nie mają szaty, Alexander i Słojątko to ułamki modelu; zostaje znak zamiast złego obrazka
-BROKEN = {"c3200", "c3670", "c3710", "c3720", "c4490", "c4491"}
 
 
 def portrait(o, force):
     """Render name for a boss or character (model or npc_<CharaInit>), rendering it when missing; None = no portrait."""
     model, ci = o.get("model"), o.get("chara_init")
-    if not model or model in NO_MODEL or model in BROKEN:
+    if not model or model in NO_MODEL:
         return None
-    name = f"npc_{ci}" if model == "c0000" and ci else None if model == "c0000" else model
+    mask = o.get("mask")
+    # one model, several characters: the display mask picks this character's clothes and body (export_model.export)
+    name = (f"npc_{ci}" if ci else None) if model == "c0000" else model if mask is None else f"{model}_{mask:x}"
     if not name:
         return None
     png = os.path.join(RENDERS, name + ".png")
@@ -39,8 +38,8 @@ def portrait(o, force):
         if model == "c0000":
             render_character.render_npc(ci, png)
         else:
-            n, t = export_model.export(model, MODELS)
-            subprocess.run(["node", os.path.join(HERE, "render.mjs"), os.path.join(MODELS, model), png, "256", "205", "bust"], check=True)
+            n, t = export_model.export(model, MODELS, mask)
+            subprocess.run(["node", os.path.join(HERE, "render.mjs"), os.path.join(MODELS, name), png, "256", "205", "bust"], check=True)
             print(f"  {model}: meshe {n}, z teksturą {t}")
     return name if os.path.exists(png) else None
 
@@ -54,7 +53,7 @@ def main(force=False):
         for o in rows:
             o.pop("render", None)
             if need(o):
-                key = (o.get("model"), o.get("chara_init"))
+                key = (o.get("model"), o.get("chara_init"), o.get("mask"))
                 if key not in done:
                     done[key] = portrait(o, force)
                 if done[key]:

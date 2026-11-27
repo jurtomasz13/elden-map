@@ -91,6 +91,14 @@ def enemy_stats(row, speffects, resist_correct):
             "status": status, "poise": round(struct.unpack_from("<f", row, 0x2A8)[0])}
 
 
+def display_mask(row):
+    """Model variants an NpcParam row shows: bit NN = meshes named '#NN#' (+0x14A/+0x14B/+0x14E/+0x14F, 32 bits).
+
+    One model serves several characters (Pidia and Albus c3670, Kalé and the nomadic merchants c3200), the game picks
+    clothes, robes and bodies per character with this mask (Azur: bit 2 = robe '#02#'; Pidia: 10, 11, 15)."""
+    return row[0x14A] | row[0x14B] << 8 | row[0x14E] << 16 | row[0x14F] << 24
+
+
 def lot_item(code, iid, custom):
     """(category, item id) of a lot slot; category None for codes outside LOT_CATS, a ready-made weapon -> its base weapon."""
     if code == 6 and iid > 0:
@@ -452,6 +460,7 @@ def main():
                     pos = world.to_map(area, gx, gz, *p["pos"])
                     npcs.append({"name": npc_pl[name_id], "name_en": npc_en.get(name_id), "map_id": mid, "entity": p["entity"],
                                  "talk": p["talk"], "model": p["name"].split("_")[0], "chara_init": p["chara_init"] if (p["chara_init"] or 0) > 0 else None,
+                                 "mask": display_mask(npc_rows[p["npc"]]),
                                  "pos": [round(c, 1) for c in p["pos"]], **(pos or {})})
         for t in m["treasures"]:
             if t["lot"] > 0 and t["pos"]:
@@ -628,7 +637,7 @@ def main():
         chara_init = next((e[1]["chara_init"] for e in ([ent] if ent else []) + same if e and (e[1].get("chara_init") or 0) > 0), None) if model == "c0000" else None
         flag = field_defeat.get(rid, rid)
         npc_id = next((e[1]["npc"] for e in ([ent] if ent else []) + same if e and e[1]["npc"] in npc_rows), None)
-        bosses.append({**({"stats": enemy_stats(npc_rows[npc_id], speffects, resist_correct)} if npc_id else {}),"id": rid, "flag": flag, "name": name_pl or name_en, "name_en": name_en, "location": loc, "region": region,
+        bosses.append({**({"stats": enemy_stats(npc_rows[npc_id], speffects, resist_correct), "mask": display_mask(npc_rows[npc_id])} if npc_id else {}),"id": rid, "flag": flag, "name": name_pl or name_en, "name_en": name_en, "location": loc, "region": region,
                        "region_pl": region_pl.get((region or "").lower()) or region,
                        "runes": runes, "map_id": msb.map_id(area, gx, gz), "dlc": area in DLC_AREAS or bool(c and c["group"].startswith("DLC")),
                        "icon": (rem and rem.get("icon")) or (drop and drop["icon"]), "remembrance": rem and rem.get("remembrance"),
