@@ -2,7 +2,8 @@
 z naszymi krokami z flagami (`assets/data/quests.json` z build_quests.py).
 
 - Krok QuestPath, który opisuje to samo co nasz krok (`match`), dostaje jego flagi i identyfikator (ostrzeżenia
-  `locks` dalej wskazują właściwy krok); dodatkowe flagi zaliczenia z `flags`.
+  `locks` dalej wskazują właściwy krok); dodatkowe flagi zaliczenia z `flags`. Krok `dead` (np. „Millicent nie żyje”)
+  zalicza flaga śmierci postaci: blok NPC +3 (build_quests.NPC).
 - `later` = flagi wszystkich późniejszych kroków (bez zakończeń alternatywnych `alt`): krok bez własnej flagi zalicza
   się, gdy zaliczony jest dowolny dalszy etap (skoro jest dalszy etap, ten był wcześniej).
 - Nasze kroki z flagami, których nie dopasowano, zostają w swoim pierwotnym miejscu (sprawdzalny postęp).
@@ -64,6 +65,10 @@ def main():
             mt = [by_step[m] for m in s.get("match") or [] if m in by_step]
             used |= {m for m in s.get("match") or [] if m in by_step}
             own = list(dict.fromkeys([f for m in mt for f in m.get("flags") or []] + list(s.get("flags") or [])))
+            if s.get("dead"):
+                if not q.get("npc_block"):
+                    raise SystemExit(f"quest_steps_pl.json: quest {t['id']} ma krok 'dead', ale nie ma bloku flag NPC")
+                own.append(q["npc_block"] + 3)
             mode = "all" if len(mt) == 1 and mt[0].get("mode") == "all" and not s.get("flags") else "any"
             sid = mt[0]["id"] if len(mt) == 1 and mt[0]["id"] not in {x["id"] for x in steps} else f"p{s['qp']}"
             nxt = fill(s.get("next")) or ""

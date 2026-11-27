@@ -193,7 +193,14 @@ przetłumaczone na polski; nazwy własne w znacznikach `{p:}` `{i:}` `{n:}` → 
   postaci) i nie oznacza spotkania; wykluczone, tak samo +6 u Yury.
 - `later`: krok bez własnej flagi zalicza się, gdy zaliczony jest dalszy etap. Bez `alt` (wybory wykluczające się)
   i bez `extra` (nasze kroki z flagą bez odpowiednika, wstawiane za poprzednim dopasowanym krokiem).
-- `end` (QuestPath s98/s99, np. śmierć NPC) kończy wątek.
+- `end` (QuestPath s98/s99, np. śmierć NPC) kończy wątek. Krok oznaczony w `quest_steps_pl.json` jako `dead`
+  („Millicent nie żyje”, 16 questów) zalicza flaga śmierci postaci: blok NPC +3. Bez tego, np. Millicent i Gowry
+  zabici w czasie gry, ich questy wisiały otwarte.
+- Wątek Gowry'ego to część historii Millicent: jego kroki od protezy do starcia z siostrami zaliczają te same flagi
+  gry co kroki Millicent (jego własna flaga rozmowy 1050389221 nie jest ustawiana u żadnej z 7 sprawdzonych postaci).
+- Strona: quest ukończony, gdy zaliczone jest zakończenie albo wszystkie kroki poza alternatywnymi; cały wątek
+  (z podwątkami) ukończony, gdy jest ukończony quest główny i każdy rozpoczęty podwątek. Ukończony quest z otwartym
+  podwątkiem wskazuje go w „Co dalej”, a ostrzeżenia `locks` po ukończeniu znikają.
 - Sprawdzone na 3 postaciach: nowa (poziom 13) ma 2 kroki (prawdziwe), średnia i ukończona nie mają luk poza
   Rogierem (śmierć na końcu, kroki pośrednie bez flag).
 

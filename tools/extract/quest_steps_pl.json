@@ -266,7 +266,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -1266,7 +1267,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -1344,7 +1346,10 @@
     "warn": null,
     "where": "{p:Shaded Castle}",
     "match": [],
-    "flags": [],
+    "flags": [
+     1038519257,
+     1042559205
+    ],
     "alt": false
    },
    {
@@ -1366,7 +1371,10 @@
     "warn": null,
     "where": "{p:Gowry's Shack}",
     "match": [],
-    "flags": [],
+    "flags": [
+     1051569255,
+     15009205
+    ],
     "alt": false
    },
    {
@@ -1377,7 +1385,13 @@
     "warn": null,
     "where": "{p:Gowry's Shack}",
     "match": [],
-    "flags": [],
+    "flags": [
+     400480,
+     400323,
+     400321,
+     400324,
+     15009210
+    ],
     "alt": false
    },
    {
@@ -1413,7 +1427,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -1656,7 +1671,8 @@
     "where": "{p:Bestial Sanctum}",
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -2034,7 +2050,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -3075,7 +3092,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -3339,7 +3357,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -3409,7 +3428,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -3906,7 +3926,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -4068,7 +4089,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -4307,7 +4329,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -4401,7 +4424,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -4596,7 +4620,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -4798,7 +4823,8 @@
     "where": "{p:Volcano Manor}",
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -4923,7 +4949,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },
@@ -5096,7 +5123,8 @@
     "where": null,
     "match": [],
     "flags": [],
-    "alt": true
+    "alt": true,
+    "dead": true
    }
   ]
  },

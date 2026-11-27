@@ -613,12 +613,16 @@
     for (const q of quests) { const ended = q.steps.some(s => s.end && s.done), i = ended ? -1 : q.steps.findIndex(s => !s.done && !s.alt);
       q.steps.forEach((s, k) => s.current = k === i);
       if (real) q.next = i >= 0 ? { text: q.steps[i].next || q.steps[i].text, hint: q.steps[i].where } : { text: "Quest ukończony", hint: "" }; }
-    // status całego wątku (quest + jego podwątki): ukończony / w toku / nierozpoczęty
+    // progress without alternative steps; an ending (e.g. the character's death) finishes the quest
+    const progress = x => { const st = x.steps.filter(s => !s.alt), d = st.filter(s => s.done).length;
+      return { d, n: st.length, fin: x.steps.some(s => s.end && s.done) || (d > 0 && d === st.length) }; };
+    // status of a whole thread (quest + side threads): done when it and every started side thread are finished
     const family = x => [x, ...quests.filter(c => c.parent === x.id).flatMap(family)];
-    // zakończenie alternatywne (np. śmierć postaci) kończy wątek; postęp liczony bez kroków alternatywnych
-    const qStatus = x => { const all = family(x).flatMap(f => f.steps), st = all.filter(s => !s.alt), d = st.filter(s => s.done).length;
-      if (all.some(s => s.end && s.done)) return "done";
-      return d && d === st.length ? "done" : d ? "active" : "new"; };
+    const qStatus = x => { const fam = family(x).map(progress);
+      return fam[0].fin && fam.every(p => p.fin || !p.d) ? "done" : fam.some(p => p.d) ? "active" : "new"; };
+    // a finished quest whose side thread is still open points at it
+    for (const x of quests) { const open = real && !x.steps.some(s => s.current) && family(x).slice(1).find(c => !progress(c).fin && c.steps.some(s => s.current));
+      if (open) x.next = { text: `Quest ukończony. Otwarty powiązany wątek: ${open.name}.`, hint: "" }; }
     // „Mój postęp”: tylko wątki odkryte (choć jeden zrobiony krok); z kroków widać zrobione i bieżący
     const seen = x => !state.mine || family(x).some(f => f.steps.some(s => s.done));
     const allRoots = quests.filter(x => !x.parent || !quests.some(p => p.id === x.parent));
@@ -644,14 +648,14 @@
         ${q.parent ? `<button class="q-parent" data-q="${esc(q.parent)}">↖ Część questu: ${esc(quests.find(p => p.id === q.parent)?.name || q.parent)}</button>` : ""}
         <div class="q-head">${portrait(q.icon, "qd-portrait", "knight")}
         <div style="flex:1"><div class="eyebrow">${esc(q.npc)}</div><h2 class="q-title">${esc(q.name)}</h2></div>
-        <div class="view-sub">${state.mine ? pl(q.steps.filter(s => s.done).length, "krok za tobą", "kroki za tobą", "kroków za tobą") : `${q.steps.filter(s => s.done).length} z ${pl(q.steps.length, "kroku", "kroków", "kroków")}`}</div></div>
-        ${(q.locks || []).filter(l => l.text).map(l => `<p class="note warn" style="margin-top:20px">⚠ ${esc(l.text)}</p>`).join("")}
+        <div class="view-sub">${state.mine ? pl(progress(q).d, "krok za tobą", "kroki za tobą", "kroków za tobą") : `${progress(q).d} z ${pl(progress(q).n, "kroku", "kroków", "kroków")}`}</div></div>
+        ${(progress(q).fin ? [] : q.locks || []).filter(l => l.text).map(l => `<p class="note warn" style="margin-top:20px">⚠ ${esc(l.text)}</p>`).join("")}
         ${q.missable ? `<p class="note warn" style="margin-top:12px">Ten quest można przegapić. Postępuj według kolejności kroków.</p>` : ""}
         <div class="next"><div class="eyebrow">Co dalej</div><div class="next-text">${linkify(q.next.text)}</div><div class="next-hint">${linkify(q.next.hint || "")}</div></div>
         <ol class="timeline">${visible(q).map(s => `<li class="${s.done ? "done" : s.current ? "current" : "future"}${s.alt ? " alt" : ""}${s.skipped ? " skipped" : ""}"><span class="diamond"></span>${s.skipped ? '<span class="alt-tag">za tobą</span>' : ""}${s.alt ? `<span class="alt-tag">${s.end ? "zakończenie" : "alternatywa"}</span>` : ""}
           ${blur(s) ? `<span style="filter:blur(5px)">${esc(s.text)}</span>` : linkify(s.text)}<span class="where">${blur(s) ? "ukryte w trybie bez spoilerów" : linkify(s.where)}</span>${s.why ? `<span class="why">${linkify(s.why)}</span>` : ""}</li>`).join("")}</ol>
-        ${kidsOf(q.id).length ? `<div class="d-section"><h4>Powiązane wątki</h4>${kidsOf(q.id).map(k => { const d = k.steps.filter(s => s.done).length;
-          return `<button class="reward q-link" data-q="${esc(k.id)}"><span class="rw">${portrait(k.icon, "q-mini", "knight")}${esc(k.name)}</span><span>${frac(d, k.steps.length)}</span></button>`; }).join("")}</div>` : ""}
+        ${kidsOf(q.id).length ? `<div class="d-section"><h4>Powiązane wątki</h4>${kidsOf(q.id).map(k => { const p = progress(k);
+          return `<button class="reward q-link" data-q="${esc(k.id)}"><span class="rw">${portrait(k.icon, "q-mini", "knight")}${esc(k.name)}</span><span>${frac(p.d, p.n)}</span></button>`; }).join("")}</div>` : ""}
       </article></div></div>`;
     // klik w quest: wybiera go, a quest nadrzędny od razu rozwija (ponowny klik w już wybrany — zwija)
     main.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { const id = b.dataset.q;
@@ -663,15 +667,14 @@
 
     function kidsOf(id) { return quests.filter(c => c.parent === id && seen(c)); }
     function qNode(x, depth) {
-      const kids = kidsOf(x.id), open = state.qOpen.has(x.id), d = x.steps.filter(s => s.done).length;
-      const kd = kids.reduce((a, k) => a + k.steps.filter(s => s.done).length, 0), kt = kids.reduce((a, k) => a + k.steps.length, 0);
-      const fin = d === x.steps.length && d > 0;
+      const kids = kidsOf(x.id), open = state.qOpen.has(x.id), { d, n, fin } = progress(x);
+      const kd = kids.reduce((a, k) => a + progress(k).d, 0), kt = kids.reduce((a, k) => a + progress(k).n, 0);
       return `<div class="qnode ${depth ? "child" : ""} ${kids.length ? "has-kids" : ""} ${open ? "open" : ""}">
         <div class="qrow">${kids.length ? `<button class="qtoggle ${open ? "open" : ""}" data-qt="${esc(x.id)}" aria-expanded="${open}" aria-label="${open ? "Zwiń" : "Rozwiń"} powiązane wątki">▸</button>` : `<span class="qtoggle-sp">${depth ? "↳" : ""}</span>`}
-          <button class="qitem ${x.id === q.id ? "on" : ""} ${fin ? "finished" : ""} ${x.locks?.length && d < x.steps.length ? "warned" : ""}" data-q="${esc(x.id)}">
-            ${portrait(x.icon, "q-portrait", "knight")}<span class="qitem-name">${esc(x.name)}</span><span class="qitem-frac">${frac(d, x.steps.length)}</span>
+          <button class="qitem ${x.id === q.id ? "on" : ""} ${fin ? "finished" : ""} ${x.locks?.length && !fin ? "warned" : ""}" data-q="${esc(x.id)}">
+            ${portrait(x.icon, "q-portrait", "knight")}<span class="qitem-name">${esc(x.name)}</span><span class="qitem-frac">${frac(d, n)}</span>
             <span class="qitem-npc">${esc(x.npc)}${x.dlc ? " · DLC" : ""}${kids.length ? ` · <em class="q-kids">${pl(kids.length, "wątek", "wątki", "wątków")} (${frac(kd, kt)})</em>` : ""}</span>
-            ${state.mine ? "" : `<span class="qbar"><i style="width:${d / Math.max(1, x.steps.length) * 100}%"></i></span>`}</button></div>
+            ${state.mine ? "" : `<span class="qbar"><i style="width:${fin ? 100 : d / Math.max(1, n) * 100}%"></i></span>`}</button></div>
         ${kids.length && open ? `<div class="qchildren">${kids.map(k => qNode(k, depth + 1)).join("")}</div>` : ""}</div>`;
     }
   }
