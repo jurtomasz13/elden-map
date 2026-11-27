@@ -11,7 +11,7 @@
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const pref = (k, d) => { try { return localStorage.getItem("er." + k) ?? d; } catch { return d; } };
   const savePref = (k, v) => { try { localStorage.setItem("er." + k, v); } catch { /* prywatne okno */ } };
-  // "plain font" switch in the top bar (styles: :root[data-font="plain"])
+  // "readable font" switch above the session summary button (styles: :root[data-font="plain"])
   const setPlainFont = on => { document.documentElement.dataset.font = on ? "plain" : ""; savePref("font", on ? "plain" : ""); };
   setPlainFont(pref("font", "") === "plain");
   const state = { spoilers: true, game: pref("game", "all"), mine: pref("mine", "1") === "1", mapPeek: false, offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
@@ -161,7 +161,7 @@
     W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
     // bossowie bez nazwy w plikach gry (np. Wyszczerbiony Drake na szczycie) zostają — nazwę dopisze backend (tabela CE)
     W.bosses = (b || []).map(x => x.name ? x : { ...x, name: x.name_en || "Boss bez nazwy w grze", unnamed: true })
-      .map(x => x.icon == null && x.render ? { ...x, icon: "r:" + x.render, rendered: true } : x); W.pois = p || []; W.items = it || []; W.npcs = n || []; W.graces = g || [];
+      .map(x => x.render ? { ...x, icon: "r:" + x.render } : x);   // 3D portrait first, the drop's icon only without one W.pois = p || []; W.items = it || []; W.npcs = n || []; W.graces = g || [];
     W.quests = (q && q.entries) || []; TR = tr;
     const dq = dlcEntryQuest(); if (dq && W.quests.length) W.quests.push(dq);
     if (W.quests.length) state.quest = W.quests[0].id; else state.quest = D.quests[0].id;
@@ -578,7 +578,7 @@
       ${questLinks(bossQuests(b))}
       ${b.rewards?.length ? `<div class="d-section"><h4>Nagrody</h4>${b.rewards.map(r => rewardRow(r, itemByName(r.name))).join("")}</div>` : ""}
       ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div id="bossRem">${listRow(itemByName(b.remembrance) ? `data-go="item:goods:${itemByName(b.remembrance).id}"` : null,
-        ICON(b.icon), esc(b.remembrance), "")}</div></div>` : ""}`,
+        ICON(itemByName(b.remembrance)?.icon), esc(b.remembrance), "")}</div></div>` : ""}`,
       () => {
         if (b.stats) fillHits(b.stats);
         const rem = b.remembrance && itemByName(b.remembrance);

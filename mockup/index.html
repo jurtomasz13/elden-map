@@ -6,7 +6,7 @@
 <title>Kronika Zmatowiałego</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Libertinus+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css?v=0.2.1">
@@ -51,11 +51,6 @@
         <span class="toggle-track"><span class="toggle-thumb"></span></span>
         <span class="toggle-label">Bez spoilerów</span>
       </label>
-      <label class="toggle" title="Zwykła, łatwiejsza do czytania czcionka zamiast ozdobnej">
-        <input type="checkbox" id="fontToggle">
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        <span class="toggle-label">Zwykła czcionka</span>
-      </label>
       <div class="live" title="Dane z pliku save (tryb online z EAC): gra zapisuje co ~60 s">
         <span class="live-dot"></span>
         <span>Ostatni zapis <b id="lastSave">23 s</b> temu</span>
@@ -71,6 +66,11 @@
     <a href="#items" data-view="items"><span class="nav-ico">❖</span><span>Przedmioty</span></a>
     <a href="#chronicle" data-view="chronicle"><span class="nav-ico">❦</span><span>Kronika</span></a>
     <div class="nav-foot">
+      <label class="toggle font-toggle" title="Łatwiejsza do czytania czcionka (Libertinus) zamiast ozdobnej">
+        <input type="checkbox" id="fontToggle">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">Czytelna czcionka</span>
+      </label>
       <button class="session-btn" id="sessionBtn">Podsumowanie sesji</button>
       <div class="nav-note">makieta · dane przykładowe</div>
     </div>
