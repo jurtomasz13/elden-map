@@ -118,6 +118,25 @@ def write_texture(name, own, out):
     return f"{name}.dds"
 
 
+def material_layers(mtd, own_prefix):
+    """Textures a mesh of material `mtd` is drawn with: {"tex", "detail", "strands", "normal"} (None = absent).
+    Costume shader (nomadic merchants c3200): the first albedo is a flat colour palette of the outfit variant, the
+    second a grey fabric pattern (`detail`); the game multiplies them. Fur and shell-fur shaders (C[Fur]*.spx,
+    C[c3200]_Fur, C[Shell]*): colour from the owner's own texture (name starting with `own_prefix`: chr id or part
+    name), `strands` (alpha and pattern) from the hair / shell-fur texture or, without one, the other albedo."""
+    albs = textures_of(mtd)
+    shader = next((s.split("\\")[-1].lower() for s in material_strings(mtd) if s.lower().endswith(".spx")), "")
+    out = {"tex": albs[0] if albs else None, "detail": None, "strands": None, "normal": albedo_of(mtd, "_n.tif")}
+    if len(albs) > 1 and shader.endswith("_costume.spx"):
+        out["detail"] = albs[1]
+    elif len(set(albs)) > 1 and ("fur" in shader or "shell" in shader):
+        own = [a for a in albs if a.lower().startswith(own_prefix.lower())]
+        out["tex"] = own[0] if own else albs[0]
+        out["strands"] = (next((a for a in albs if re.search("hair|shellfur", a, re.I)), None)
+                          or next(a for a in albs if a != out["tex"]))
+    return out
+
+
 def export(chr_id, out_root, mask=None):
     """Meshes '#NN#' are model variants: shown when bit NN of the character's display mask is set (NpcParam,
     extract_world.display_mask); without a mask only '#00#'. Output: <out_root>/<chr>[_<mask hex>]/."""
@@ -135,26 +154,9 @@ def export(chr_id, out_root, mask=None):
         flag = _mesh_flag(name)
         if flag is not None and name.startswith("#") and (flag != 0 if mask is None else not mask >> flag & 1):
             continue
-        mtd = (m["material"] or {}).get("mtd", "")
-        albs = textures_of(mtd)
-        # costume shader (nomadic merchants c3200): the first albedo is a flat colour palette of the outfit variant,
-        # the second a grey fabric pattern; the game multiplies them
-        shader = next((s.split("\\")[-1].lower() for s in material_strings(mtd) if s.lower().endswith(".spx")), "")
-        costume = len(albs) > 1 and shader.endswith("_costume.spx")
-        # fur and shell-fur shaders (C[Fur]*.spx, C[c3200]_Fur, C[Shell]*): colour from the character's own texture,
-        # strands (alpha and pattern) from the hair / shell-fur texture or, without one, the other albedo
-        fur = len(set(albs)) > 1 and ("fur" in shader or "shell" in shader)
-        if fur:
-            own = [a for a in albs if a.lower().startswith(chr_id)]
-            color = own[0] if own else albs[0]
-            strands = next((a for a in albs if re.search("hair|shellfur", a, re.I)), None) or next(a for a in albs if a != color)
-            albs = [color, strands]
-        files = [write_texture(alb, tex, out) for alb in albs[:2 if costume or fur else 1]]
-        tex_file = files[0] if files else None
-        nrm_file = write_texture(albedo_of(mtd, "_n.tif"), tex, out)
-        meshes.append({"name": name, "tex": tex_file, **({"detail": files[1]} if costume and files[1] else {}),
-                       **({"strands": files[1]} if fur and files[1] else {}),
-                       **({"normal": nrm_file} if nrm_file else {}), "pos": [c for p in m["pos"] for c in p],
+        files = {k: write_texture(v, tex, out) for k, v in material_layers((m["material"] or {}).get("mtd", ""), chr_id).items()}
+        meshes.append({"name": name, "tex": files["tex"], **{k: files[k] for k in ("detail", "strands", "normal") if files[k]},
+                       "pos": [c for p in m["pos"] for c in p],
                        "nrm": [round(c, 3) for n in (m["nrm"] or []) for c in n],
                        "uv": [round(c, 4) for u in (m["uv"] or []) for c in u], "tris": [i for t in m["tris"] for i in t]})
     with open(os.path.join(out, "model.json"), "w") as f:
@@ -176,9 +178,11 @@ def _mesh_flag(name):
     return int(m.group(1)) if m else None
 
 
-def export_parts(parts, out, skin=None, hair=None):
-    """parts: lista (ścieżka partsbnd, zbiór ukrytych flag). Meshe '#NN#' z flagą NN ukrytą przez hełm są pomijane.
-    Twarz/skóra: albedo z własnego TPF części, mnożone przez kolor skóry z save'a; włosy: kolor włosów (gra barwi je w shaderze)."""
+def export_parts(parts, out, skin=None, hair=None, body=False):
+    """parts: list of (partsbnd path, hidden flags). Meshes '#NN#' whose flag NN is hidden (by the equipped armour,
+    EquipParamProtector) are left out. Face and skin: albedo from the part's own TPF times the skin colour from the
+    save; hair: hair colour (the game tints it in the shader); armour: material_layers (fabric pattern, fur strands,
+    normal map). body=False is a head portrait: skin meshes of the rest of the body are left out."""
     os.makedirs(out, exist_ok=True)
     meshes = []
     for path, hide in parts:
@@ -202,40 +206,30 @@ def export_parts(parts, out, skin=None, hair=None):
                 continue
             low = mtd.lower()
             kind = "hair" if part.startswith("HR_") and "hair" in low else "skin" if ("_face" in low or "sss" in low or "_body" in low) else "gear"
-            if "_body" in low or "sss" in low:
-                continue                                   # reszta ciała (tułów, ręce) — portret to tylko głowa
+            if not body and ("_body" in low or "sss" in low):
+                continue                                   # the rest of the body (torso, arms): a portrait is the head
             if "eyeao" in low or "hairline" in name.lower() or "_alpha" in low:
-                continue                                   # nakładki półprzezroczyste (cień oczu, linia włosów) — bez shadera wyglądają jak płaty
-            tex_name = None
-            if kind == "skin" and f"{part.lower()}_a" in own:
-                tex_name = f"{part}_a"
-            elif kind == "gear":
-                tex_name = albedo_of(mtd)
-                if not tex_name and "hair" in low:          # futro/pióropusz hełmu bez albedo: maska z mapy normalnych, kolor neutralny
-                    tex_name, kind = albedo_of(mtd, "_n.tif"), "fur"
+                continue                                   # translucent overlays (eye shadow, hairline) look like flaps without the shader
+            lay = {"tex": None}
+            if kind == "skin":
+                lay["tex"] = f"{part}_a" if f"{part.lower()}_a" in own else None
             elif kind == "hair":
-                tex_name = albedo_of(mtd, "_n.tif")       # maska włosów = kanał alfa mapy normalnych (AAT500_PCHair_n)
-            dds = (own.get(tex_name.lower()) or find_texture(tex_name, {})) if tex_name else None
-            tex_file = None
-            if dds:
-                tex_file = f"{tex_name}.dds"
-                with open(os.path.join(out, tex_file), "wb") as f:
-                    f.write(dds)
-            n_name = albedo_of(mtd, "_n.tif") if kind == "gear" else None     # relief of helmets and armour
-            n_dds = (own.get(n_name.lower()) or find_texture(n_name, {})) if n_name else None
-            if n_dds:
-                with open(os.path.join(out, f"{n_name}.dds"), "wb") as f:
-                    f.write(n_dds)
-            e = {"name": f"{part}:{name}", "tex": tex_file, **({"normal": f"{n_name}.dds"} if n_dds else {}), "pos": [c for p in m["pos"] for c in p],
-                 "nrm": [round(c, 3) for n in (m["nrm"] or []) for c in n],
+                lay["tex"] = albedo_of(mtd, "_n.tif")      # hair mask = alpha of the normal map (AAT500_PCHair_n)
+            else:
+                lay = material_layers(mtd, part)
+                if not lay["tex"] and "hair" in low:       # helmet fur / plume without an albedo: mask from the normal map
+                    lay, kind = {"tex": albedo_of(mtd, "_n.tif")}, "fur"
+            files = {k: write_texture(v, own, out) for k, v in lay.items()}
+            e = {"name": f"{part}:{name}", "tex": files["tex"], **{k: f for k, f in files.items() if k != "tex" and f},
+                 "pos": [c for p in m["pos"] for c in p], "nrm": [round(c, 3) for n in (m["nrm"] or []) for c in n],
                  "uv": [round(c, 4) for u in (m["uv"] or []) for c in u], "tris": [i for t in m["tris"] for i in t]}
             if kind == "skin" and skin:
-                e["tint" if tex_file else "color"] = [round(c / 255, 3) for c in skin]
-            if kind == "fur" and tex_file:
+                e["tint" if files["tex"] else "color"] = [round(c / 255, 3) for c in skin]
+            if kind == "fur" and files["tex"]:
                 e["color"], e["alphaOnly"] = [0.55, 0.47, 0.36], True
             if kind == "hair" and hair:
                 e["color"] = [round(c / 255, 3) for c in hair]
-                e["alphaOnly"] = True                      # z tekstury tylko alfa (pasma), kolor z save'a
+                e["alphaOnly"] = True                      # only the alpha (strands) from the texture, colour from the save
             meshes.append(e)
     with open(os.path.join(out, "model.json"), "w") as f:
         json.dump({"meshes": meshes}, f)

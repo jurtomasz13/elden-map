@@ -151,7 +151,13 @@ narysowany ręcznie w SVG. Prawdziwą mapę świata wyciągniemy później z pli
 - Postacie: ręczny wybór przypina postać, a „Śledź automatycznie” wraca do postaci, której save zmienił się
   ostatnio.
 - Bossowie: grupy według rangi (domyślnie), krainy albo statusu, panel krain po prawej z podkrainami. Karta
-  niepokonanego jest wyszarzona, pokonanego jasna ze złotym ptaszkiem, bez napisu o stanie.
+  niepokonanego jest wyszarzona, pokonanego jasna ze złotym ptaszkiem, bez napisu o stanie. Na górze osobna sekcja
+  najeźdźców (unikalne czerwone fantomy) z portretami, te same filtry stanu i wyszukiwania, bez filtra krainy i rangi.
+- Strona postaci: duży obrazek całej postaci w zbroi, kafelki PŻ, PS, energii, błogosławieństw Ostrodrzewa
+  i prochów czcigodnych (poziom i zmiana obrażeń w procentach, tylko gdy postać je ma), butelek (ładunki szkarłatne
+  i modre z 14, moc +0 do +12), miejsc na czary (kamienie pamięci), slotów talizmanów oraz obciążenia: pasek
+  podzielony na strefy lekki / średni / ciężki z górną wagą każdej i zapasem do następnego progu.
+- Liczenie ciosów na przeciwników z DLC mnoży obrażenia przez błogosławieństwo Ostrodrzewa postaci.
 - Pola o rodzaju obrażeń albo statusie (redukcja i odporności bossa, atak broni, ochrona zbroi, tagi żywiołów,
   linia „słaby na”) mają kolor i efekt swojego żywiołu, np. ogień żarzy się od dołu, mróz ma lodowy połysk.
 - Przedmioty: grupy według rzadkości (domyślnie), typu, skalowania albo żywiołu, ramki rzadkość × żywioł, sekcja

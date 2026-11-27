@@ -1,4 +1,4 @@
-"""Portrety: render tylko gdy zmienił się podpis (hełm + blok FACE) albo brak PNG; zdarzenie SSE 'portrait' po sukcesie."""
+"""Portrety: render tylko gdy zmienił się podpis (zbroja + blok FACE + renderer) albo brak PNG; zdarzenie SSE 'portrait' po sukcesie."""
 import os
 import queue
 import shutil
@@ -21,11 +21,12 @@ class PortraitsTest(unittest.TestCase):
     def setUp(self):
         self.tmp = copy_saves()
         self.out = tempfile.mkdtemp()
-        # podmiana skryptu renderu na atrapę, która tylko tworzy PNG
+        # podmiana skryptu renderu na atrapę, która tylko tworzy oba PNG (głowa i cała postać)
         self.fake = os.path.join(self.out, "fake_render.py")
         with open(self.fake, "w", encoding="utf-8") as f:
             f.write("import os,sys\nif sys.argv[1:] == ['--version']:\n    print('render-1')\n    sys.exit(0)\n"
-                    "open(os.path.join(os.environ['ER_RENDERS'], f'char_{sys.argv[1]}_{sys.argv[2]}.png'),'wb').write(b'x')\n")
+                    "for s in ('', '_full'):\n"
+                    "    open(os.path.join(os.environ['ER_RENDERS'], f'char_{sys.argv[1]}_{sys.argv[2]}{s}.png'),'wb').write(b'x')\n")
         os.environ["ER_RENDERS"] = self.out
         self._orig = (P.SCRIPT, P.RENDERS, P.STATE)
         P.SCRIPT, P.RENDERS, P.STATE = self.fake, self.out, os.path.join(self.out, "portraits.json")

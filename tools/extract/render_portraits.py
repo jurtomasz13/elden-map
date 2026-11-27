@@ -1,6 +1,7 @@
-"""Portrety 3D z plików gry: bossowie i postacie (NPC) → assets/renders/<model>.png albo npc_<CharaInit>.png.
+"""Portrety 3D z plików gry: bossowie, najeźdźcy i postacie (NPC) → assets/renders/<model>.png albo npc_<CharaInit>.png.
 
-Uruchamiać po extract_world.py (pola "model" i "chara_init" w bosses_all.json i npcs.json). Uzupełnia pole "render".
+Uruchamiać po extract_world.py (pola "model" i "chara_init" w bosses_all.json, invaders.json i npcs.json). Uzupełnia
+pole "render".
 Postać ludzka (c0000) jest składana z części jak postać gracza (render_character.render_npc: CharaInitParam
 + FaceParam), pozostałe modele eksportuje export_model.export i renderuje render.mjs w kadrze popiersia.
 Gra nie ma portretów postaci w teksturach menu (sprawdzone: menu/hi i low, 00_solo, 01_common, 02_title, 05_dummy).
@@ -50,7 +51,7 @@ def main(force=False):
     version = export_model.renderer_version()
     force = force or not os.path.exists(stamp) or open(stamp, encoding="utf-8").read().strip() != version
     done = {}
-    for fn in ("bosses_all.json", "npcs.json"):
+    for fn in ("bosses_all.json", "invaders.json", "npcs.json"):
         path = os.path.join(DATA, fn)
         rows = json.load(open(path, encoding="utf-8"))
         k = 0

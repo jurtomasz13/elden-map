@@ -1,8 +1,8 @@
-"""Automatyczne portrety postaci: po zapisie gry, gdy zmienił się hełm albo wygląd (blok FACE), w tle uruchamiamy
-tools/extract/render_character.py dla tego slotu i publikujemy zdarzenie SSE 'portrait'.
+"""Automatyczne portrety postaci: po zapisie gry, gdy zmieniła się zbroja albo wygląd (blok FACE), w tle uruchamiamy
+tools/extract/render_character.py dla tego slotu (portret głowy i cała postać) i publikujemy zdarzenie SSE 'portrait'.
 
 Render czyta pliki gry i save (tylko odczyt) i zapisuje PNG do assets/renders/ (lokalnie). Podpis ostatniego renderu
-(id hełmu + skrót bloku FACE + wersja renderera) trzymamy w backend/var/portraits.json, żeby nie renderować w kółko,
+(id czterech części zbroi + skrót bloku FACE + wersja renderera) trzymamy w backend/var/portraits.json, żeby nie renderować w kółko,
 a po zmianie renderera (nowa wersja aplikacji) odświeżyć portrety przy starcie.
 """
 from __future__ import annotations
@@ -50,13 +50,15 @@ class Portraits:
 
     @staticmethod
     def signature(sf, slot: int, version: str = "-") -> tuple[str, int | None]:
-        s = sf.slot(slot)
-        head = ((s.equipment or {}).get("head") or {}).get("id")
+        eq = sf.slot(slot).equipment or {}
+        head = (eq.get("head") or {}).get("id")
+        # the whole-figure render (char_<file>_<slot>_full.png) changes with any armour piece
+        armour = "/".join(str((eq.get(k) or {}).get("id")) for k in ("head", "chest", "arms", "legs"))
         e = sf.entries[slot]
         raw = sf.data[e.offset:e.offset + e.size]
         k = raw.find(b"FACE")
         face = hashlib.md5(raw[k:k + 0x120]).hexdigest()[:12] if k >= 0 else "-"
-        return f"{head}:{face}:{version}", head
+        return f"{armour}:{face}:{version}", head
 
     def check(self, kind: str, slot: int, sf) -> None:
         """Wołane przez serwis po zmianie slotu (i przy starcie dla wszystkich postaci)."""
@@ -68,8 +70,8 @@ class Portraits:
             log.debug("portret %s:%s — brak podpisu: %s", kind, slot, e)
             return
         key = f"{kind}:{slot}"
-        png = os.path.join(RENDERS, f"char_{kind}_{slot}.png")
-        if self.done.get(key) == sig and os.path.exists(png):
+        pngs = [os.path.join(RENDERS, f"char_{kind}_{slot}{suffix}.png") for suffix in ("", "_full")]
+        if self.done.get(key) == sig and all(os.path.exists(p) for p in pngs):
             return
         with self.lock:
             if key in self.pending:

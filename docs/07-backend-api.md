@@ -504,23 +504,28 @@ dodany do Steama jako gra spoza Steama dostaje własny `compatdata/<numer>`, wi�
 ## Atrybuty (`stats` w `/api/state`)
 
 Z PlayerGameData (zaraz za mapą GaItem, `savefile.parse_stats`): `+0x08` PŻ (bieżące, max, bazowe max), `+0x14` PS,
-`+0x24` wytrzymałość, `+0x34` 8 × u32 atrybuty, `+0x60` poziom. Kontrola: suma atrybutów − 79 = poziom (inaczej
+`+0x24` wytrzymałość, `+0x34` 8 × u32 atrybuty, `+0x60` poziom, `+0xF4` u8 błogosławieństwo Ostrodrzewa (0–20),
+`+0xF5` u8 błogosławieństwo prochów czcigodnych (0–10), `+0xF9`/`+0xFA` u8 butelki szkarłatne / modre (suma 4 na
+starcie, 14 z kompletem złotych nasion), `+0xBD` u8 kamienie pamięci (0–8), `+0xBE` u8 dodatkowe sloty talizmanów (0–3). Kontrola: suma atrybutów − 79 = poziom (inaczej
 `attributes: null`).
 
 ```json
 "stats": {"attributes": {"vigor": 60, "mind": 42, "endurance": 54, "strength": 32, "dexterity": 16,
           "intelligence": 27, "faith": 10, "arcane": 18}, "level": 180,
-          "hp": {"current": 1900, "max": 1900, "base_max": 1900}, "fp": {...}, "stamina": {...}}
+          "hp": {"current": 1900, "max": 1900, "base_max": 1900}, "fp": {...}, "stamina": {...},
+          "scadutree_blessing": 9, "revered_spirit_ash_blessing": 5, "flasks": {"crimson": 12, "cerulean": 2},
+          "memory_stones": 8, "talisman_slots_added": 3}
 ```
 
 Miękkie progi liczy frontend z krzywych gry (`assets/data/stat_curves.json`, `tools/extract/extract_curves.py`, docs/08).
 
 ## Portrety postaci (zdarzenie SSE `portrait`)
 
-`erbackend/portraits.py`: po zmianie slotu (i przy starcie dla brakujących) liczony jest podpis = id hełmu + skrót bloku
-`FACE` + wersja renderera (`render_character.py --version`, skrót plików renderu z `export_model.RENDER_FILES`), więc
+`erbackend/portraits.py`: po zmianie slotu (i przy starcie dla brakujących) liczony jest podpis = id czterech części zbroi (hełm, tułów,
+ręce, nogi) + skrót bloku `FACE` + wersja renderera (`render_character.py --version`, skrót plików renderu z `export_model.RENDER_FILES`), więc
 po aktualizacji renderera portrety odświeżają się przy starcie. Gdy różni się od ostatniego renderu (`backend/var/portraits.json`) albo brak PNG, w wątku w tle uruchamia się
-`tools/extract/render_character.py <plik> <slot>` (≈1 s), potem zdarzenie:
+`tools/extract/render_character.py <plik> <slot>` (≈3 s: `char_<plik>_<slot>.png` z głową i `char_<plik>_<slot>_full.png`
+z całą postacią w zbroi), potem zdarzenie:
 
 ```
 event: portrait

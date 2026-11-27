@@ -1,11 +1,13 @@
-"""Portret postaci gracza: głowa (twarz, włosy) w kolorach z save'a + założony hełm → assets/renders/char_<plik>_<slot>.png.
+"""Player character: head portrait (face, hair in the save's colours + helmet) → assets/renders/char_<file>_<slot>.png
+and the whole figure in the equipped armour → char_<file>_<slot>_full.png.
 
 Użycie: python render_character.py [plik=sl2|co2] [slot]   (bez argumentów: wszystkie postacie)
 Dane: FaceData z save'a (tylko odczyt), ekwipunek z backendu (http://127.0.0.1:8765), części z /parts/*.partsbnd.dcx.
 
 FaceData (blok "FACE" w slocie, offsety od magii): +0x0C model twarzy (v → fg_a_01{(v%100)//10}{v%10}, jak w FaceParam), +0x10 model włosów (hr_a_NNNN),
 +0xB3 kolor skóry RGB, +0xF6 kolor włosów RGB.
-EquipParamProtector: +0xA4 u16 model (hd_m_NNNN), +0x136+NN bajt = ukryj meshe '#NN#' (np. 60–65 = segmenty włosów).
+EquipParamProtector: +0xA4 u16 model (hd_/bd_/am_/lg_ + m/f + NNNN; also the "naked" slots 10000/100000/…),
++0x136+NN bajt = ukryj meshe '#NN#' (np. 60–65 = segmenty włosów).
 """
 import json
 import os
@@ -70,10 +72,7 @@ def render_npc(chara_init, png):
     look = npc_look(chara_init)
     if not look:
         return None
-    model, hide = helmet(look["head"]) if look["head"] > 0 else (None, set())
-    parts = [(face_file(look["face"]), hide), (f"/parts/hr_a_{look['hair']:04d}.partsbnd.dcx", hide)]
-    if model:
-        parts.append((f"/parts/hd_m_{model:04d}.partsbnd.dcx", set()))
+    parts, model = figure(look["face"], look["hair"], {"head": look["head"]}, "m", body=False)
     mdir = os.path.join(A.ROOT, "assets", "cache", "models", f"npc_{chara_init}")
     n, t = E.export_parts(parts, mdir, skin=look["skin"], hair=look["hair_rgb"])
     subprocess.run(["node", os.path.join(HERE, "render.mjs"), mdir, png, "256", "200", "full"], check=True)
@@ -83,35 +82,49 @@ def render_npc(chara_init, png):
 
 
 
-def helmet(head_id):
+ARMOUR = (("head", "hd"), ("chest", "bd"), ("arms", "am"), ("legs", "lg"))     # equipment slot, part file prefix
+
+
+def protector(pid):
+    """(model, hidden mesh flags) of an EquipParamProtector row; (None, set()) without one."""
     global _prot
     if _prot is None:
         _prot = dict(P.rows(P.load_params()["EquipParamProtector"])[0])
-    row = _prot.get(head_id)
+    row = _prot.get(pid)
     if not row:
         return None, set()
-    model = struct.unpack_from("<H", row, 0xA4)[0]
-    hide = {i for i in range(96) if row[0x136 + i]}
-    return model, hide
+    return struct.unpack_from("<H", row, 0xA4)[0], {i for i in range(96) if row[0x136 + i]}
+
+
+def figure(face, hair, armour, sex, body):
+    """Parts of a human figure: [(partsbnd path, hidden flags)] and the helmet model. Head portrait (body=False): face,
+    hair and helmet, the helmet's hidden flags applied to face and hair. Whole figure: every armour piece too, and like
+    in the game the hidden flags of all pieces apply to every part (a high collar hides the helmet's chainmail)."""
+    pieces = [(pre, *protector(armour.get(slot))) for slot, pre in ARMOUR if armour.get(slot) and (body or slot == "head")]
+    hide = set().union(*(h for _pre, _m, h in pieces))
+    own = hide if body else set()
+    parts = [(face_file(face), hide), (f"/parts/hr_a_{hair:04d}.partsbnd.dcx", hide)]
+    for pre, model, _h in pieces:
+        if model:
+            path = f"/parts/{pre}_{sex}_{model:04d}.partsbnd.dcx"
+            parts.append((path if A.find(path) else f"/parts/{pre}_m_{model:04d}.partsbnd.dcx", own))
+    return parts, next((m for pre, m, _h in pieces if pre == "hd"), None)
 
 
 def render(file_key, slot, save_path, eq, body_type):
     fd = face_data(save_path, slot)
     if not fd:
         return None
-    head = (eq or {}).get("head") or {}
-    model, hide = helmet(head.get("id")) if head.get("id") else (None, set())
     bt = body_type.get("name") if isinstance(body_type, dict) else body_type
     sex = "f" if str(bt).upper() == "B" else "m"
-    parts = [(face_file(fd["face"]), hide), (f"/parts/hr_a_{fd['hair']:04d}.partsbnd.dcx", hide)]
-    if model:
-        hp = f"/parts/hd_{sex}_{model:04d}.partsbnd.dcx"
-        parts.append((hp if A.find(hp) else f"/parts/hd_m_{model:04d}.partsbnd.dcx", set()))
-    mdir = os.path.join(A.ROOT, "assets", "cache", "models", f"char_{file_key}_{slot}")
-    n, t = E.export_parts(parts, mdir, skin=fd["skin"], hair=fd["hair_rgb"])
-    png = os.path.join(OUT, f"char_{file_key}_{slot}.png")
-    subprocess.run(["node", os.path.join(HERE, "render.mjs"), mdir, png, "320", "200", "full"], check=True)
-    print(f"  {file_key}:{slot} twarz {fd['face']} włosy {fd['hair']} hełm {model} (ukryte flagi {len(hide)}) — meshe {n}, z teksturą {t}")
+    armour = {k: ((eq or {}).get(k) or {}).get("id") for k, _pre in ARMOUR}
+    for body, suffix in ((False, ""), (True, "_full")):
+        parts, model = figure(fd["face"], fd["hair"], armour, sex, body)
+        mdir = os.path.join(A.ROOT, "assets", "cache", "models", f"char_{file_key}_{slot}{suffix}")
+        n, t = E.export_parts(parts, mdir, skin=fd["skin"], hair=fd["hair_rgb"], body=body)
+        png = os.path.join(OUT, f"char_{file_key}_{slot}{suffix}.png")
+        subprocess.run(["node", os.path.join(HERE, "render.mjs"), mdir, png, "320", "200", "full"], check=True)
+        print(f"  {file_key}:{slot}{suffix} twarz {fd['face']} włosy {fd['hair']} hełm {model} — meshe {n}, z teksturą {t}")
     return png
 
 

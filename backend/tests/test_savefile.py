@@ -90,6 +90,11 @@ class SaveFileTest(unittest.TestCase):
                 self.assertIsNotNone(a)
                 self.assertEqual(sum(a.values()) - 79, c.level)
                 self.assertGreater(s.stats["hp"]["max"], 0)
+                self.assertLessEqual(s.stats["scadutree_blessing"], 20)
+                self.assertLessEqual(s.stats["revered_spirit_ash_blessing"], 10)
+                self.assertIn(sum(s.stats["flasks"].values()), range(4, 15))       # 4 at the start, 14 with every seed
+                self.assertLessEqual(s.stats["memory_stones"], 8)
+                self.assertLessEqual(s.stats["talisman_slots_added"], 3)
 
     def test_md5_mismatch_is_busy_then_retry_gives_up(self):
         path = self.files()[0]

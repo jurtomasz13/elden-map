@@ -191,19 +191,26 @@ Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobra
   Gdy część bossa nie ma CharaInit (Leda: atrapa `10003000`), bierzemy imiennika z tej samej mapy (`chara_init` w
   `bosses_all.json`). Render: `render_character.render_npc` → `assets/renders/npc_<CharaInitID>.png`.
 
-## Portret postaci gracza (głowa)
+## Portret postaci gracza (głowa i cała postać)
 
-`tools/extract/render_character.py` → `assets/renders/char_<sl2|co2>_<slot>.png` (wszystkie postacie w ~12 s;
-po zmianie hełmu trzeba uruchomić ponownie; UI dokleja `?h=<id hełmu>`, gdy renderu brak, pokazuje ikonę hełmu).
+`tools/extract/render_character.py` → `assets/renders/char_<sl2|co2>_<slot>.png` (głowa) i `char_<…>_<slot>_full.png`
+(cała postać w założonej zbroi, strona postaci), ok. 3 s na postać. Backend rysuje je od nowa po zmianie zbroi, wyglądu
+albo renderera (`erbackend/portraits.py`); gdy renderu brak, UI pokazuje ikonę hełmu (dla całej postaci: głowę).
+Cała postać stoi w pozycji spoczynkowej szkieletu (poza T), bo części nie mają animacji.
 
 - FaceData w save'ie (blok `FACE`, wersja 4, rozmiar 0x120, szukany w slocie; offsety od magii):
   `+0x0C` model twarzy v → plik `/parts/fg_a_01{(v%100)//10}{v%10}` (0→0100, 20→0120, 101→0101, 151→0151;
   tak samo koduje `FaceParam +0x00`: wartości 0–52 i 100–152),
   `+0x10` włosy → `/parts/hr_a_NNNN`, `+0x18` brwi, `+0x1C` zarost, `+0x30..` 64 bajty kształtu twarzy (morfy FaceGen, pomijane),
   `+0xB3` skóra RGB, `+0xDB` tęczówka RGB, `+0xF6` włosy RGB, `+0xFC` zarost RGB, `+0x102` brwi RGB.
-- Hełm: `EquipParamProtector +0xA4` u16 model → `/parts/hd_m_NNNN` (`hd_f_` tylko dla kilku); bajty `+0x136+NN` (NN 0–95)
-  = ukryj meshe o nazwie `#NN#` w twarzy i włosach (np. kaptur ukrywa segmenty włosów 60–65).
-- Pliki twarzy zawierają całe ciało (materiały `_Body`/`SSStest`), do portretu bierzemy tylko `_Face`.
+- Zbroja: `EquipParamProtector +0xA4` u16 model → `/parts/{hd,bd,am,lg}_{m,f}_NNNN` (wersja `_f` tylko dla części
+  modeli); „gołe” sloty (10000, 100000, 200000, 300000) też mają model (np. `bd_m_1140`). Bajty `+0x136+NN` (NN 0–95)
+  = ukryj meshe `#NN#`: w portrecie głowy flagi hełmu działają na twarz i włosy (kaptur ukrywa segmenty włosów 60–65),
+  w całej postaci, jak w grze, flagi wszystkich czterech części na wszystkie części (wysoki kołnierz ukrywa kolczugę
+  hełmu). Materiały części: `export_model.material_layers`, ta sama funkcja co dla modeli postaci (wzór tkaniny,
+  pasma futra z tekstury `Hair`, mapa normalnych).
+- Pliki twarzy zawierają całe ciało (materiały `_Body`/`SSStest`); portret głowy bierze tylko `_Face`, cała postać
+  także skórę ciała.
   Albedo twarzy = `FG_A_xxxx_a` z TPF części, barwione kolorem skóry z save'a.
 - Włosy nie mają albedo, gra barwi je w shaderze. Maska pasm = kanał alfa mapy normalnych
   `AAT500_PCHair_n` / `PCHair3_n` z `/parts/common_body.tpf.dcx`; kolor z FaceData.

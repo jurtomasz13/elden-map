@@ -189,7 +189,11 @@ ATTRS = ("vigor", "mind", "endurance", "strength", "dexterity", "intelligence", 
 
 def parse_stats(s: bytes, ga_end: int) -> dict:
     """PlayerGameData zaraz za mapą GaItem: +0x08 HP (bieżące, max, bazowe max), +0x14 PF, +0x24 wytrzymałość,
-    +0x34 8 × u32 atrybuty (Witalność…Tajemność), +0x60 poziom. Suma atrybutów − 79 = poziom (sprawdzone na 7 postaciach)."""
+    +0x34 8 × u32 atrybuty (Witalność…Tajemność), +0x60 poziom. Suma atrybutów − 79 = poziom (sprawdzone na 7 postaciach).
+    +0xF4 u8 poziom błogosławieństwa Ostrodrzewa (0–20), +0xF5 u8 błogosławieństwa prochów czcigodnych (0–10), układ wg
+    elden-ring-save-manager (docs „save file structure”), sprawdzone na 7 postaciach (bez DLC 0, z DLC 9/5 i 19/9).
+    +0xF9/+0xFA u8 butelki szkarłatne / modre (suma 4 na starcie, 14 z kompletem złotych nasion), +0xBD u8 kamienie
+    pamięci (0–8), +0xBE u8 dodatkowe sloty talizmanów (0–3); sprawdzone na tych samych 7 postaciach."""
     hp = struct.unpack_from("<3I", s, ga_end + 0x08)
     fp = struct.unpack_from("<3I", s, ga_end + 0x14)
     sp = struct.unpack_from("<3I", s, ga_end + 0x24)
@@ -199,7 +203,10 @@ def parse_stats(s: bytes, ga_end: int) -> dict:
     return {"attributes": attrs if ok else None, "level": level,
             "hp": {"current": hp[0], "max": hp[1], "base_max": hp[2]},
             "fp": {"current": fp[0], "max": fp[1], "base_max": fp[2]},
-            "stamina": {"current": sp[0], "max": sp[1], "base_max": sp[2]}}
+            "stamina": {"current": sp[0], "max": sp[1], "base_max": sp[2]},
+            "scadutree_blessing": s[ga_end + 0xF4], "revered_spirit_ash_blessing": s[ga_end + 0xF5],
+            "flasks": {"crimson": s[ga_end + 0xF9], "cerulean": s[ga_end + 0xFA]},
+            "memory_stones": s[ga_end + 0xBD], "talisman_slots_added": s[ga_end + 0xBE]}
 
 
 def parse_bloodstain(s: bytes, o: int) -> dict | None:

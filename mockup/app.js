@@ -157,7 +157,7 @@
     // warps from the event scripts (extract_warps.py); none ending in Roundtable Hold, which has no world-map place
     W.warps = (wp || []).filter(w => !atRoundtable(w.src) && !atRoundtable(w.dst));
     W.summons = sm || [];                                  // znaki przywołania postaci (extract_summons.py)
-    W.invaders = inv || [];                                // najeźdźcy (czerwone fantomy NPC, extract_world.py)
+    W.invaders = (inv || []).map(x => x.render ? { ...x, icon: "r:" + x.render } : x);   // red NPC phantoms (extract_world.py), 3D portrait
     W.pieces = mp || {};                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
     W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)
     // bossowie bez nazwy w plikach gry (np. Wyszczerbiony Drake na szczycie) zostają — nazwę dopisze backend (tabela CE)
@@ -404,12 +404,14 @@
           return n.length ? `<button class="chip tier-chip t-${t} ${state.bossTier === t ? "on" : ""}" data-bt="${t}" title="${esc(TIER[t].desc)}"><i>${TIER[t].glyph}</i>${TIER[t].name}<small>${frac(n.filter(b => b.defeated).length, n.length)}</small></button>` : ""; }).join("")}</span>
       </div>
       <div class="boss-layout"><div class="boss-groups">${state.bossRegion !== "all" ? `<div class="ra-active">Kraina: <b>${esc(state.bossRegion)}</b> <button class="chip" data-br="all">✕ pokaż wszystkie</button></div>` : ""}
+      ${invaderSection(q)}
       ${[...groups.entries()].sort((x, y) => g.order(x[0], y[0])).map(([k, items]) => {
         const tot = all.filter(b => g.key(b) === k && regionMatch(b.region, state.bossRegion) && (!state.bossTier || b.tier === state.bossTier) &&
           (!q || (b.name + " " + (b.name_en || "") + " " + b.region).toLowerCase().includes(q)));
         return `<section class="region boss-group ${gk === "tier" ? "tg-" + k : ""}">${gk === "none" ? "" : `<div class="region-head">${g.head(k)}<span class="region-count">${frac(tot.filter(b => b.defeated).length, tot.length)}</span><span class="region-line"></span></div>`}
           <div class="grid">${items.map(bossCard).join("")}</div></section>`; }).join("") || '<p class="view-sub">Nic nie pasuje do filtrów.</p>'}</div>
       ${regionAside}</div></div>`;
+    main.querySelectorAll("[data-invader]").forEach(b => b.onclick = () => openInvader(W.invaders.find(x => x.id === +b.dataset.invader)));
     main.querySelectorAll("[data-bf]").forEach(b => b.onclick = () => { state.bossFilter = b.dataset.bf; viewBosses(); });
     main.querySelectorAll("[data-bt]").forEach(b => b.onclick = () => { state.bossTier = b.dataset.bt; viewBosses(); });
     $("#bgroup").onchange = e => { state.bossGroup = e.target.value; viewBosses(); };
@@ -475,9 +477,25 @@
   }
   // najeźdźca: bez spoilerów imię i nagrody widać dopiero po pokonaniu
   const hiddenInvader = x => spoilers() && !isSet(x.flag);
+  // invaders on the bosses page: unique enemies too, in their own section (same filters as bosses, no region or rank)
+  function invaderSection(q) {
+    if (state.bossRegion !== "all" || state.bossTier) return "";
+    const all = W.invaders.filter(gameOk).filter(x => !state.mine || isSet(x.flag)), list = all.filter(x => { const done = isSet(x.flag);
+      return (state.bossFilter === "all" || state.mine || (state.bossFilter === "alive" ? !done : done)) && (!q || hiddenInvader(x) ? !q : (x.name + " " + (x.name_en || "") + " " + (x.region_pl || "")).toLowerCase().includes(q)); });
+    if (!list.length) return "";
+    const card = x => { const done = isSet(x.flag), hid = hiddenInvader(x);
+      return `<button class="card corners ${done ? "done" : ""} ${hid ? "hidden-spoiler" : ""}" data-invader="${x.id}">
+        ${done && !hid ? '<span class="felled-mark" title="Pokonany">✓</span>' : ""}${portrait(hid ? null : x.icon, "card-portrait", "knight")}
+        <div class="card-name">${hid ? (x.summoned ? "Nieznany przeciwnik" : "Nieznany najeźdźca") : esc(x.name)}</div>
+        <div class="card-meta"><span>${x.summoned ? "pojedynek" : "najeźdźca"}${hid ? "" : " · " + esc(x.region_pl || "")}</span></div></button>`; };
+    return `<section class="region boss-group invaders"><div class="region-head"><span class="region-name">Najeźdźcy</span><span class="region-count">${
+      frac(all.filter(x => isSet(x.flag)).length, all.length)}</span><span class="region-line"></span></div>
+      <p class="view-sub" style="margin:-4px 0 12px">Czerwone fantomy postaci: każdy najeżdża raz w swojej okolicy, pokonany już nie wraca.</p>
+      <div class="grid">${list.map(card).join("")}</div></section>`;
+  }
   function openInvader(x) {
     const done = isSet(x.flag), hid = hiddenInvader(x);
-    drawer(`<div class="d-hero">${portrait(null, "hero-portrait" + (done ? "" : " alive"), "knight")}<div class="eyebrow">${x.summoned ? "Pojedynek" : "Najeźdźca"}${x.dlc ? " · DLC" : ""}</div>
+    drawer(`<div class="d-hero">${portrait(hid ? null : x.icon, "hero-portrait" + (done ? "" : " alive"), "knight")}<div class="eyebrow">${x.summoned ? "Pojedynek" : "Najeźdźca"}${x.dlc ? " · DLC" : ""}</div>
       <div class="d-title">${hid ? (x.summoned ? "Nieznany przeciwnik" : "Nieznany najeźdźca") : esc(x.name)}</div><div class="d-loc">${esc(x.region_pl || "")}</div></div>
       <div class="d-stats"><div><b>${done ? "✓" : "—"}</b><span>${done ? "Pokonany" : "Niepokonany"}</span></div>${x.summoned ? "" : `<div><b>${hid ? "?" : x.rewards.length}</b><span>Nagrody</span></div>`}</div>
       <p class="view-sub" style="margin:10px 0 0">${x.summoned ? "Czerwony fantom, którego przyzywasz znakiem. To jedna z kilku walk po kolei; za wygranie wszystkich nagrodę daje postać przy znaku."
@@ -487,7 +505,7 @@
       ${x.stats && !hid ? bossStatsHtml(x.stats) : ""}
       ${live.on && x.stats && !hid ? '<div class="d-section" id="hitsBox"></div>' : ""}
       ${x.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
-      () => { if (x.stats) fillHits(x.stats);
+      () => { if (x.stats) fillHits(x.stats, x.dlc);
         if (x.map) miniMap($("#minimap"), x.map, x.px, x.py, null, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(x) }]); });
   }
   // hidden enemy stats from the game files (NpcParam + area scaling, bosses_all.json `stats`)
@@ -531,9 +549,10 @@
   const defenseMul = (atk, def) => { const r = atk / def;
     return r >= 8 ? .9 : r >= 2.5 ? .9 - (8 - r) ** 2 / 151.25 : r >= 1 ? .7 - (2.5 - r) ** 2 / 7.5 : r >= .125 ? .1 + (r - .125) ** 2 / 2.552 : .1; };
   const PHYS_ATTR = ["slash", "strike", "pierce", "standard"];          // EquipParamWeapon +0x104
-  const hitDamage = (ar, attr, st) => ar.reduce((sum, a, t) => !a ? sum
-    : sum + a * defenseMul(a, st.defense[t]) * (1 - st.absorb[[PHYS_ATTR[attr] || "standard", "magic", "fire", "lightning", "holy"][t]] / 100), 0);
-  async function fillHits(st) {
+  // mul: damage multiplier per type (Scadutree Blessing in the Realm of Shadow, weapon_calc.json `blessing`)
+  const hitDamage = (ar, attr, st, mul) => ar.reduce((sum, a, t) => !a ? sum
+    : sum + a * defenseMul(a, st.defense[t]) * (1 - st.absorb[[PHYS_ATTR[attr] || "standard", "magic", "fire", "lightning", "holy"][t]] / 100) * mul[t], 0);
+  async function fillHits(st, dlc) {
     // only the weapons put in your hands (equipment, 3 slots per hand), not everything carried
     const at = live.state?.stats?.attributes, eq = live.state?.equipment;
     if (!$("#hitsBox")) return;
@@ -542,19 +561,21 @@
     await Promise.all([calcIndex(), itemsIndex()]);
     const box = $("#hitsBox"); if (!box || !CALC) return;
     const attrs = [at.strength, at.dexterity, at.intelligence, at.faith, at.arcane], seen = new Set(), rows = [];
+    const bless = dlc ? live.state.stats.scadutree_blessing ?? 0 : 0, mul = CALC.blessing[bless].dmg;
     for (const e of inv) {
       const w = CALC.weapons[e.id - (e.upgrade || 0)], it = findItem("weapon", e.base_id ?? e.id), cls = it?.stats?.class;
       if (!w || !it || seen.has(e.id) || (cls >= 50 && cls <= 56) || (cls >= 81 && cls <= 86)) continue;   // bows and ammo: damage comes from arrows
       seen.add(e.id);
-      const ar = weaponAR(w, e.upgrade || 0, attrs), dmg = ar && hitDamage(ar, w.attr, st);
+      const ar = weaponAR(w, e.upgrade || 0, attrs), dmg = ar && hitDamage(ar, w.attr, st, mul);
       if (dmg > 0) rows.push({ it, up: e.upgrade || 0, dmg, hits: Math.ceil(st.hp / dmg) });
     }
     rows.sort((a, b) => a.hits - b.hits || b.dmg - a.dmg);
     box.innerHTML = `<h4>Twoje bronie: ile ciosów</h4>${rows.map(r => listRow(`data-go="item:weapon:${r.it.id}"`, ICON(r.it.icon),
       esc(r.it.name + (r.up ? " +" + r.up : "")), `${pl(r.hits, "cios", "ciosy", "ciosów")} · ${Math.floor(r.dmg)} na cios`)).join("")
       || '<p class="view-sub" style="margin:0">Nie masz w rękach broni do walki wręcz (łuki i kusze pomijamy, bo obrażenia zależą od strzał).</p>'}
-      <p class="view-sub" style="margin:8px 0 0">Bronie z Twoich rąk i Twoje atrybuty. Liczę pierwszy lekki cios jedną ręką, bez statusów,
-        umiejętności broni, talizmanów i wzmocnień.</p>`;
+      <p class="view-sub" style="margin:8px 0 0">Bronie z Twoich rąk i Twoje atrybuty${bless ? `, z Twoim błogosławieństwem Ostrodrzewa
+        (poziom ${bless}, obrażenia ×${mul[0].toLocaleString("pl-PL")})` : ""}. Liczę pierwszy lekki cios jedną ręką, bez statusów, umiejętności broni,
+        talizmanów i wzmocnień.</p>`;
   }
   function openBoss(id) {
     const b = bossList().find(x => x.id === id);
@@ -582,7 +603,7 @@
       ${b.remembrance ? `<div class="d-section"><h4>Wizerunek</h4><div id="bossRem">${listRow(itemByName(b.remembrance) ? `data-go="item:goods:${itemByName(b.remembrance).id}"` : null,
         ICON(itemByName(b.remembrance)?.icon), esc(b.remembrance), "")}</div></div>` : ""}`,
       () => {
-        if (b.stats) fillHits(b.stats);
+        if (b.stats) fillHits(b.stats, b.dlc);
         const rem = b.remembrance && itemByName(b.remembrance);
         if (rem) sourcesIndex().then(() => { if ($("#bossRem")) $("#bossRem").insertAdjacentHTML("beforeend", remembranceHTML(rem)); });
         if (b.map) miniMap($("#minimap"), b.map, b.px, b.py, b.icon, [{ label: "Pokaż na mapie", primary: true, run: () => goMap(b) }]);
@@ -842,7 +863,7 @@
       <div class="d-section">${t.items.map((x, i) => !found[i] ? listRow(null, null, esc(x.name || "Nieznany przedmiot"), "")
         : hiddenItem(found[i]) ? listRow(`data-spot-item="${i}"`, null, "· · ·", esc(CATS.find(c => c.f(found[i]))?.name || ""))
         : listRow(`data-spot-item="${i}"`, ICON(found[i].icon), esc(found[i].name), esc(KINDS[found[i].kind]?.[0] || ""))).join("")}</div>`,
-      () => { if (t.enemy?.stats) fillHits(t.enemy.stats); document.querySelectorAll("[data-spot-item]").forEach(b => b.onclick = () => openItem(found[+b.dataset.spotItem], { spot: t })); });
+      () => { if (t.enemy?.stats) fillHits(t.enemy.stats, t.dlc); document.querySelectorAll("[data-spot-item]").forEach(b => b.onclick = () => openItem(found[+b.dataset.spotItem], { spot: t })); });
   }
   // ---------- przedmioty: grupowanie / sortowanie / filtry ----------
   const WEP_TYPE = { 1: "Sztylety", 3: "Miecze proste", 5: "Wielkie miecze", 7: "Kolosalne miecze", 9: "Miecze zakrzywione", 11: "Wielkie miecze zakrzywione",
@@ -1544,7 +1565,7 @@
         return `<div class="reward"><span>${esc(t.region_pl || t.map_id)}${ng ? ` · przy łasce „${esc(ng.name)}”` : ""}</span><span>${isSet(t.flag) ? "zebrane" : "do zebrania"}</span></div>`; }).join("")}${spots.length > 6 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(spots.length - 6, "miejsce", "miejsca", "miejsc")}. Wszystkie pokaże mapa (kliknij mini-mapę).</p>` : ""}</div>`
         : srcHTML || linksHTML ? "" : '<p class="note">Nie leży na mapie i nie znamy jeszcze źródła w danych gry (np. łup ze zwłok przy obiekcie albo podarunek postaci).</p>'}
       ${here?.map ? `<div class="d-section"><h4>Na mapie</h4><div class="minimap" id="minimap"></div></div>` : ""}`,
-      () => { if (t?.enemy?.stats) fillHits(t.enemy.stats); if (here?.map) miniMap($("#minimap"), here.map, here.px, here.py, it.icon, [
+      () => { if (t?.enemy?.stats) fillHits(t.enemy.stats, t.dlc); if (here?.map) miniMap($("#minimap"), here.map, here.px, here.py, it.icon, [
         { label: spots.length > 1 ? "To miejsce" : "Pokaż na mapie", primary: true, run: () => goMap(here, here) },
         ...(spots.length > 1 ? [{ label: `Wszystkie miejsca (${spots.length})`, run: () => { goMap({ ...spots[0] }); state.mapFocus = null; state.mapQuery = it.name; state.mapExact = true; viewMapKeep(); } }] : [])]); });
   }
@@ -1556,14 +1577,16 @@
   // portret głowy: render 3D z plików gry (twarz i włosy w kolorach z save'a + założony hełm,
   // tools/extract/render_character.py); gdy renderu brak — sama ikona hełmu
   // brak renderu → ikona hełmu (albo nic)
-  window.__hpFallback = img => { img.onerror = null; if (img.dataset.fb) { img.src = img.dataset.fb; img.className = "hp-icon"; } else img.remove(); };
+  window.__hpFallback = img => { img.onerror = null; if (img.dataset.fb) { img.src = img.dataset.fb; if (!img.dataset.full) img.className = "hp-icon"; } else img.remove(); };
   // wersja portretu z backendu (zdarzenie SSE 'portrait' po ponownym renderze) — wymusza odświeżenie obrazka
   const portraitVer = {};
-  const headSrc = (file, slot, eq) => `${ASSETS}/renders/char_${file}_${slot}.png?h=${eq?.head?.id ?? 0}&v=${encodeURIComponent(portraitVer[file + ":" + slot] || "")}`;
-  function doll(eq, cls = "", file = live.file, slot = live.slot) {
+  // head portrait, or (full) the whole figure in the equipped armour (render_character.py)
+  const headSrc = (file, slot, eq, full = false) => `${ASSETS}/renders/char_${file}_${slot}${full ? "_full" : ""}.png?h=${
+    ["head", "chest", "arms", "legs"].map(k => eq?.[k]?.id ?? 0).join("-")}&v=${encodeURIComponent(portraitVer[file + ":" + slot] || "")}`;
+  function doll(eq, cls = "", file = live.file, slot = live.slot, full = false) {
     const it = eq?.head && findItem("armor", eq.head.id);
-    return `<div class="headp ${cls}">${file != null ? `<img class="hp-render" src="${headSrc(file, slot, eq)}" alt="${esc(it?.name || "")}"
-      data-fb="${it ? ICON(it.icon) : ""}" onerror="__hpFallback(this)">` : it ? `<img class="hp-icon" src="${ICON(it.icon)}" alt="">` : sigil("knight")}</div>`;
+    return `<div class="headp ${cls}">${file != null ? `<img class="hp-render" src="${headSrc(file, slot, eq, full)}" alt="${esc(it?.name || "")}"
+      ${full ? `data-full="1" data-fb="${headSrc(file, slot, eq)}"` : `data-fb="${it ? ICON(it.icon) : ""}"`} onerror="__hpFallback(this)">` : it ? `<img class="hp-icon" src="${ICON(it.icon)}" alt="">` : sigil("knight")}</div>`;
   }
   const stateCache = new Map();
   const charState = (file, slot) => { const k = file + ":" + slot;
@@ -1635,13 +1658,34 @@
       + [...(st.equipment?.right_weapons || []), ...(st.equipment?.left_weapons || [])].reduce((a, e) => a + (e ? findItem("weapon", e.base_id ?? e.id)?.stats?.weight || 0 : 0), 0);
     const load = curve(curves.equip_load, at.endurance), ratio = eqw / load;
     const roll = ratio <= .3 ? ["Lekki", "light"] : ratio <= .7 ? ["Średni", "mid"] : ratio <= 1 ? ["Ciężki", "heavy"] : ["Przeciążenie", "over"];
-    const s = st.stats;
-    const tile = (val, label, sub = "", cls = "", bar = null) => `<div class="ad-tile ${cls}"><span class="ad-label">${label}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ""}${bar != null ? `<span class="ad-bar"><i style="width:${Math.min(100, bar * 100)}%"></i></span>` : ""}</div>`;
+    // roll weight limits: light up to 30% of the load, medium up to 70%, heavy up to 100%, above that overloaded
+    const kg = v => num(Math.round(v * 10) / 10), limits = [[.3, "lekki", "średniego"], [.7, "średni", "ciężkiego"], [1, "ciężki", "przeciążenia"]];
+    const next = limits.find(([t]) => ratio <= t);
+    const loadSub = `${roll[0]} · ${next ? `zapas ${kg(load * next[0] - eqw)} do ${next[2]}` : `${kg(eqw - load)} ponad udźwig`}`;
+    // the bar shows 0..100% of the load, split into the three zones; under each zone its name and upper weight
+    const loadBar = `<span class="ad-bar"><i style="width:${Math.min(100, ratio * 100)}%"></i>${limits.slice(0, 2).map(([t]) => `<s style="left:${t * 100}%"></s>`).join("")}</span>
+      <span class="ad-marks">${limits.map(([t, name], i) => `<em style="left:${((limits[i - 1]?.[0] || 0) + t) * 50}%">${name}<br>do ${kg(load * t)}</em>`).join("")}</span>`;
+    const s = st.stats, bless = s.scadutree_blessing ?? 0, ash = s.revered_spirit_ash_blessing ?? 0;
+    const tile = (val, label, sub = "", cls = "", extra = "") => `<div class="ad-tile ${cls}"><span class="ad-label">${label}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ""}${extra}</div>`;
+    const pct = v => `${v >= 1 ? "+" : "−"}${Math.round(Math.abs(v - 1) * 100)}%`;
+    // flask strength from the flask carried: goods 1000 + 2·level crimson, 1050 + 2·level cerulean (odd ids = empty)
+    const flaskLv = base => Math.max(0, ...(st.inventory?.goods || []).filter(g => g.id >= base && g.id <= base + 25).map(g => (g.id - base) >> 1));
+    const fl = s.flasks, charges = fl.crimson + fl.cerulean;
     return `<div class="attr-panel"><div class="attr-head"><h4>Atrybuty</h4>
         <div class="attr-legend"><span><i class="lg-near"></i>blisko progu</span><span><i class="lg-capped"></i>powyżej progów</span><span><i class="lg-knee"></i>przyspieszenie</span></div></div>
       <div class="attr-derived">
         ${tile(fmt(s.hp.max), "PŻ")}${tile(fmt(s.fp.max), "PS")}${tile(fmt(s.stamina.max), "Energia")}
-        ${tile(`${num(Math.round(eqw * 10) / 10)}<span class="ad-of"> / ${num(Math.round(load * 10) / 10)}</span>`, "Obciążenie", `${roll[0]} · ${Math.round(ratio * 100)}%`, "roll-" + roll[1], ratio)}</div>
+        ${bless || ash ? `<div class="ad-pair" title="Działa tylko w Królestwie Cieni (DLC)">
+          ${tile(`${bless}<span class="ad-of"> / 20</span>`, "Ostrodrzew", `obrażenia ${pct(CALC.blessing[bless].dmg[0])}<br>otrzymywane ${pct(CALC.blessing[bless].taken)}`)}
+          ${tile(`${ash}<span class="ad-of"> / 10</span>`, "Prochy czcigodne", `duchy: obrażenia ${pct(CALC.spirit_blessing[ash].dmg)}<br>otrzymywane ${pct(CALC.spirit_blessing[ash].taken)}`)}</div>` : ""}
+        <div class="ad-pair">
+          ${tile(`${charges}<span class="ad-of"> / 14</span>`, "Butelki", `${fl.crimson} szkarłatnych, ${fl.cerulean} modrych<br>${
+            charges < 14 ? "więcej dają Złote nasiona" : "komplet ładunków"}`)}
+          ${tile(`+${flaskLv(1000)}<span class="ad-of"> / 12</span>`, "Moc butelek", `${flaskLv(1000) < 12 ? "mocniejsze dzięki Świętym Łzom" : "pełna moc"}`)}</div>
+        <div class="ad-pair">
+          ${tile(`${2 + s.memory_stones}<span class="ad-of"> / 10</span>`, "Miejsca na czary", `kamienie pamięci ${s.memory_stones} / 8`)}
+          ${tile(`${1 + s.talisman_slots_added}<span class="ad-of"> / 4</span>`, "Sloty talizmanów", `${s.talisman_slots_added < 3 ? "więcej daje Sakwa na talizman" : "komplet"}`)}</div>
+        ${tile(`${kg(eqw)}<span class="ad-of"> / ${kg(load)}</span>`, "Obciążenie", loadSub, "roll-" + roll[1], loadBar)}</div>
       ${ATTR_INFO.map(a => attrRow(a, at[a.k], curves)).join("")}
       <p class="view-sub attr-hint">Najedź na atrybut, by zobaczyć progi i ile daje każdy punkt. Obciążenie liczone z broni i zbroi (bez talizmanów).</p></div>`;
   }
@@ -1668,11 +1712,11 @@
       <div class="view-sub">${ch.archetype ? `${CLASS_PL[ch.archetype.name] || ch.archetype.name} · ` : ""}poziom ${c.level} · ${c.playtime_s < 3600 ? Math.round(c.playtime_s / 60) + " min" : Math.round(c.playtime_s / 3600) + " h"} w grze${c.last_grace ? ` · ostatnia łaska: ${esc(c.last_grace)}` : ""}</div></div></div>`;
     if (!eq) { main.innerHTML = `<div class="view">${head}<p class="note">Ekwipunek postaci pokaże się, gdy działa backend (python backend\\server.py), który czyta go z twojego save'a.</p></div>`; return; }
     const w = (arr, side) => arr.map((e, i) => slot(eqItem(e, "weapon"), `${side} ${i + 1}`, { active: eq.active_weapon?.[side === "Prawa" ? "right" : "left"] === i })).join("");
-    const helm = eqItem(eq.head, "armor"), curves = await load("stat_curves");
+    const helm = eqItem(eq.head, "armor"), [curves] = await Promise.all([load("stat_curves"), calcIndex()]);
     if (location.hash !== "#character") return;
     main.innerHTML = `<div class="view">${head}
       <div class="char-sheet">
-        <div class="char-hero corners">${doll(eq, "big")}
+        <div class="char-hero corners">${doll(eq, "big full", live.file, live.slot, true)}
           <div class="char-hero-name">${esc(c.name)}</div><div class="view-sub">${ch.archetype ? esc(CLASS_PL[ch.archetype.name] || "") : ""}${ch.body_type ? ` · typ ciała ${esc(ch.body_type.name)}` : ""}</div>
           <div class="char-mini"><div><b>${c.level}</b><span>Poziom</span></div><div><b>${fmt(c.deaths)}</b><span>Śmierci</span></div><div><b>${c.runes_memory < 1e6 ? fmt(c.runes_memory) : num(c.runes_memory / 1e6) + " mln"}</b><span>Pamięć run</span></div></div>
           ${attrPanel(st, curves)}</div>
@@ -1763,11 +1807,11 @@
   }
   function connectEvents() {
     const es = new EventSource(API + "/api/events");
-    es.addEventListener("portrait", e => {           // backend przerenderował głowę po zmianie hełmu/wyglądu
+    es.addEventListener("portrait", e => {           // backend rendered the head and figure again after an armour or look change
       const d = JSON.parse(e.data); portraitVer[d.file + ":" + d.slot] = d.version;
       stateCache.delete(d.file + ":" + d.slot);
       if (d.file === live.file && d.slot === live.slot) { topbar(); if (location.hash === "#character") render(); }
-      document.querySelectorAll(`[data-doll="${d.file}:${d.slot}"] img.hp-render`).forEach(img => { img.src = headSrc(d.file, d.slot, { head: { id: d.head_id } }); });
+      document.querySelectorAll(`[data-doll="${d.file}:${d.slot}"] img.hp-render`).forEach(img => { img.src = headSrc(d.file, d.slot, { head: { id: d.head_id } }, !!img.dataset.full); });
     });
     es.addEventListener("save", async e => {
       const d = JSON.parse(e.data);

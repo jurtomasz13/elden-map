@@ -147,11 +147,11 @@ Wyjątki (2026-11-25):
 | `item_locations.json` | 3664 | lot, flag, map_id, items[{cat,id,name,name_en,icon,count,kind}], kind, dlc, enemy{name, stats} (jednorazowy łup przeciwnika), region_pl, map/px/py/approx |
 | `pois.json` | 373 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py; restore[{flag, rune}] przy Boskich Wieżach, walking przy Wędrownych Mauzoleach (`extract_landmarks.py`) |
 | `npcs.json` | 245 | name, name_en, map_id, entity, talk, model, chara_init, mask (warianty modelu), render, region_pl, map/px/py |
-| `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), stats, rewards[], region_pl, map/px/py |
+| `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), stats, model, mask, chara_init, render (portret), rewards[], region_pl, map/px/py |
 | `warps.json` | 52 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
 | `summons.json` | 38 | name, helper (biały znak pomocnika), map_id, map/px/py/approx |
 | `talks.json` | 102 | TalkID → who, rows[{item, price, trade, qty, sold (licznik bitowy), unlock}], services[] |
-| `weapon_calc.json` | 1 | weapons (wiersz broni → base, scaling, graph, req, reinforce, element, attr), reinforce, element, graphs |
+| `weapon_calc.json` | 1 | weapons (wiersz broni → base, scaling, graph, req, reinforce, element, attr), reinforce, element, graphs, blessing[21] {dmg[5], taken} (Ostrodrzew, SpEffect 20000100+poziom), spirit_blessing[11] {dmg, taken} (prochy czcigodne, 20000200+poziom) |
 | `enemies.json` | 19 887 | [mapa, px, py] każdego przeciwnika z łupem (numery wierszy w `item_sources.json` → `at`) |
 
 ## Braki

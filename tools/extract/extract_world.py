@@ -586,6 +586,9 @@ def main():
                          "dlc": area in DLC_AREAS, "pos": [round(c, 1) for c in part["pos"]], "lots": lots_,
                          "quest_rewards": flag in quest_lots, **({"summoned": True} if flag in gauntlet else {}),
                          "stats": enemy_stats(row, speffects, resist_correct),
+                         # portrait like a boss's (render_portraits.py): humans are assembled from CharaInitParam parts
+                         "model": part_model(part["name"]), "mask": display_mask(row),
+                         "chara_init": part["chara_init"] if (part["chara_init"] or 0) > 0 else None,
                          "rewards": [x for lot in lots_ for x in lot_chain(lot)[0]],
                          **(world.to_map(area, gx, gz, *part["pos"]) or {})})
 

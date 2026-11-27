@@ -9,6 +9,10 @@ Układ pól z publicznych definicji Paramdex (soulsmods/Paramdex ER/Defs), rozmi
 - ReinforceParamWeapon (wiersz = typ + poziom): +0x00/0x04/0x08/0x0C/0x58 f32 mnożniki obrażeń, +0x1C/0x20/0x24/0x28/0x60
   f32 mnożniki skalowania.
 - AttackElementCorrectParam: 25 bitów od +0x00 (rodzaj obrażeń × atrybut), od +0x04 s16 nadpisane skalowanie (-1 = broni).
+- Shadow Realm blessings (SpEffectParam, applied only in the Realm of Shadow): Scadutree Blessing level n = row
+  20000100 + n (0-20), +0x2A0..0x2B0 f32 atkEnemyDmgCorrectRate (physical, magic, fire, lightning, holy) = damage dealt
+  to enemies, +0x28 f32 neutralDamageCutRate = damage taken (level 20: x2.05 and x0.488). Revered Spirit Ash Blessing
+  level n = row 20000200 + n (0-10), +0x38 f32 physicsAttackRate of the spirit, +0x28 damage the spirit takes.
 Sprawdzone z kalkulatorem ThomasJClark/elden-ring-weapon-calculator (MIT): Długi miecz 120,64, Uchigatana +10 bystra
 281,21 przy tych samych atrybutach. Wzór jest w mockup/app.js (weaponAR).
 """
@@ -28,6 +32,8 @@ GRAPH = (0xEC, 0x17D, 0x17E, 0x17F, 0x18E)
 REQ = (0xF2, 0xF3, 0xF4, 0xF5, 0x195)
 REINFORCE_ATK = (0x00, 0x04, 0x08, 0x0C, 0x58)
 REINFORCE_SCALING = (0x1C, 0x20, 0x24, 0x28, 0x60)
+SCADUTREE, SPIRIT_ASH = 20000100, 20000200
+ENEMY_DMG = (0x2A0, 0x2A4, 0x2A8, 0x2AC, 0x2B0)
 
 
 def main():
@@ -36,6 +42,7 @@ def main():
     reinforce = dict(P.rows(ps["ReinforceParamWeapon"])[0])
     element = dict(P.rows(ps["AttackElementCorrectParam"])[0])
     graphs = dict(P.rows(ps["CalcCorrectGraph"])[0])
+    effects = dict(P.rows(ps["SpEffectParam"])[0])
     items = json.load(open(os.path.join(A.ROOT, "assets", "data", "items.json"), encoding="utf-8"))
     owned_bases = {i["id"] for i in items if i["category"] == "weapon"}
     out = {"weapons": {}, "reinforce": {}, "element": {}, "graphs": {}}
@@ -57,6 +64,14 @@ def main():
                                      for s in range(5)] for t in range(5)]     # None = stat does not scale this damage type
         for g in out["weapons"][rid]["graph"]:
             out["graphs"].setdefault(g, graph(graphs[g]))
+    f32 = lambda r, o: round(struct.unpack_from("<f", r, o)[0], 4)  # noqa: E731
+    missing = [rid for rid in [*range(SCADUTREE, SCADUTREE + 21), *range(SPIRIT_ASH, SPIRIT_ASH + 11)] if rid not in effects]
+    if missing:
+        raise SystemExit(f"extract_damage: brak efektów błogosławieństw w SpEffectParam: {missing}")
+    out["blessing"] = [{"dmg": [f32(effects[SCADUTREE + lv], o) for o in ENEMY_DMG], "taken": f32(effects[SCADUTREE + lv], 0x28)}
+                       for lv in range(21)]
+    out["spirit_blessing"] = [{"dmg": f32(effects[SPIRIT_ASH + lv], 0x38), "taken": f32(effects[SPIRIT_ASH + lv], 0x28)}
+                              for lv in range(11)]
     with open(os.path.join(A.ROOT, "assets", "data", "weapon_calc.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, separators=(",", ":"))
     print(f"obrażenia broni: {len(out['weapons'])} wierszy broni, {len(out['reinforce'])} typów ulepszeń, {len(out['graphs'])} krzywych")
