@@ -138,7 +138,12 @@ Pozostałe postacie (grandes, prophet, Mokki, Ser Davick) też nie mają narusze
 
 Ikona questa = `icon` charakterystycznego przedmiotu z `items.json` (np. Ranni → Pierścień ciemnego księżyca 3050,
 Alexander → Odłamek Alexandra 18871). Nazwy NPC, miejsc i przedmiotów w tekstach są z plików gry (`polpl`); żeby
-uniknąć błędnej odmiany, miejsca występują jako „w lokacji X”, a przedmioty jako „przedmiot X”.
+uniknąć błędnej odmiany, miejsca występują jako „w lokacji X” albo „przy łasce X”, a przedmioty jako „przedmiot X”.
+W `quest_steps_pl.json` znacznik (`{p:…}`, `{i:…}`, `{n:…}`) wstawia oficjalną nazwę w mianowniku, więc stoi tylko tam,
+gdzie mianownik pasuje (podmiot, po dwukropku, w nawiasie); w innych przypadkach postać jest odmieniona zwykłym tekstem
+(„z Blaiddem”, „Bocowi”). Klucz znacznika to angielska nazwa z plików gry; nieznany klucz przerywa `quest_steps.py`.
+Teksty przejrzane w całości (2026-11-27): z angielskim oryginałem QuestPath i pod kątem odmiany po podstawieniu nazw;
+podpowiedzi bez spoilerów (`safe`) mówią, dokąd iść albo z kim porozmawiać, bez zdradzania losów postaci.
 
 ## Czego brakuje / problemy
 
