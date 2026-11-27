@@ -191,10 +191,13 @@ def F(*ids, src="tga-ct"):
     return ("raw", ids, src)
 
 
+DEAD_FLAG = 3       # offset in an NPC's flag block set when the character dies
+
+
 def NPC(base, skip=(), dead=True):
     """NPC opuścił stan początkowy: dowolna flaga etapu +6..+17 z jego bloku (bez etapów startowych `skip`)
     albo (dead=True) flaga śmierci +3. +18 pomijamy — u części postaci jest ustawiona w blokach bez NPC."""
-    ids = [base + k for k in range(6, 18) if k not in skip] + ([base + 3] if dead else [])
+    ids = [base + k for k in range(6, 18) if k not in skip] + ([base + DEAD_FLAG] if dead else [])
     return ("raw", tuple(ids), "npc-block")
 
 

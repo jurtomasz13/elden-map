@@ -40,8 +40,11 @@ Wyniki w `assets/data/` (lokalnie, poza repozytorium).
 - Ikona: wizerunek (remembrance) albo pierwszy przedmiot z nagrody (najpierw znaczące: broń, zbroja,
   talizman, czar…, potem dowolny poza złotymi runami; bez „gołych” zbroi `Głowa/Tułów…`, ID < 101000),
   a gdy boss nie ma własnej nagrody, ikona imiennika (kolejni Strażnicy Drzewa, Nocna Kawaleria).
-  Ikonę ma 201 z 212 bossów, kolejnych 8 ma portret wyrenderowany z modelu 3D gry (pole `model`, `render`;
-  `render_portraits.py`, opis w [08-assets](08-assets.md)). Ludzcy bossowie (Leda, Łata, Hrabia Ymir, model `c0000`) są składani z części wg CharaInitParam + FaceParam. Wszystkich 212 bossów ma obrazek.
+  Każdy z 209 bossów ma też portret wyrenderowany z modelu 3D gry (pole `model`, `render`; `render_portraits.py`,
+  opis w [08-assets](08-assets.md)) i strona pokazuje go przed ikoną; ikona zostaje dla wizerunku i nagród. Ludzcy
+  bossowie (model `c0000`, np. Leda, Łata, Hrabia Ymir) są składani z części wg CharaInitParam + FaceParam. Model
+  bossa z dużego kafelka mapy ma w nazwie części przedrostek kafelka (`m60_52_38_00-c4730_9002`, Radahn), czyta go
+  `extract_world.part_model`.
 - Popioły wojny i dzwonki kulisty mają w grze wspólne ikony według typu, to nie błąd danych.
 - Region: kraina najbliższej łaski (PL). Łaski DLC nie mają krainy w danych gry, więc jest brana z danych backendu (EN → PL przez PlaceName).
 
@@ -145,7 +148,7 @@ Wyjątki (2026-11-25):
 | `pois.json` | 373 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py; restore[{flag, rune}] przy Boskich Wieżach, walking przy Wędrownych Mauzoleach (`extract_landmarks.py`) |
 | `npcs.json` | 245 | name, name_en, map_id, entity, talk, model, chara_init, mask (warianty modelu), render, region_pl, map/px/py |
 | `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), stats, rewards[], region_pl, map/px/py |
-| `warps.json` | 50 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
+| `warps.json` | 52 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
 | `summons.json` | 38 | name, helper (biały znak pomocnika), map_id, map/px/py/approx |
 | `talks.json` | 102 | TalkID → who, rows[{item, price, trade, qty, sold (licznik bitowy), unlock}], services[] |
 | `weapon_calc.json` | 1 | weapons (wiersz broni → base, scaling, graph, req, reinforce, element, attr), reinforce, element, graphs |
@@ -251,11 +254,11 @@ zdarzeń są rozwijane przez wywołania (`emevd.callers`, `emevd.instances`, `em
 bez której brama jest zamknięta), powroty po bossie, wieczne więzienia i windy z medalionem nie trafiają na mapę, bo
 przenoszą w to samo miejsce. Źródło to encja z warunku zdarzenia (przycisk akcji, obszar, odległość, śmierć), przy
 skrzyni-pułapce pierwsza encja z akcji. Encje celu to części albo regiony map, także punktowe (`msb.py` czyta EntityID
-regionu z danych bazowych `+0x50`). Sprawdzone z listą bram na Fextralife (wszystkie 32 w danych). Na mapie 50
+regionu z danych bazowych `+0x50`). Sprawdzone z listą bram na Fextralife (wszystkie 32 w danych). W danych 52
 teleporty: 22 bramy, 2 skrzynie-pułapki, przejścia z kluczem Akademii, trumny, windy do Mohgwyn i inne. Pomijamy
-cutsceny w tym samym pliku mapy (wejście na arenę bossa) i przejścia wewnątrz Twierdzy Okrągłego Stołu
-(`m11_10_00_00`): do Twierdzy wchodzi się z menu łaski, a jej przeliczenie na mapę świata wypada w morzu na zachód
-od Przedpola.
+cutsceny w tym samym pliku mapy (wejście na arenę bossa). Mapa nie rysuje przejść z końcem w Twierdzy Okrągłego
+Stołu (`atRoundtable` w `app.js`, jak przy łaskach i postaciach): do Twierdzy wchodzi się z menu łaski, a jej
+przeliczenie na mapę świata wypada w morzu na zachód od Przedpola.
 
 ## Postacie: sklep, usługi, portrety, znaki przywołania (2026-11-26)
 

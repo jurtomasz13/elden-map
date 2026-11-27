@@ -171,7 +171,7 @@ Wielka runa (6 półbogów) · Legenda (wizerunek albo ≥ 300 tys. / DLC ≥ 38
 m11, m13–m16, m19, DLC m20–m28, albo ≥ 70 tys. / DLC ≥ 200 tys.) · Boss · Pomniejszy (< 5 tys. / DLC < 75 tys.) ·
 Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobrane na rozkładzie run z `GameAreaParam`.
 
-## Modele 3D → portrety (bossowie bez ikony)
+## Modele 3D → portrety (bossowie i postacie)
 
 - Model: `/chr/cXXXX.chrbnd.dcx` → `cXXXX.flver` (FLVER2, wersja 0x2001A; parser `tools/extract/flver.py`:
   pozycja typ 0x02/0x03, normalna 0x10/0x11/0x13/0x2F jako `(b-127)/127` lub 0x1A jako short, UV 0x15/0x16 jako short/2048;
@@ -183,7 +183,7 @@ Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobra
 - Meshe wariantów (`#NN#`, poza `#00#`) pomijane. Render: `render.mjs` (z-bufor, alpha test < 0,4, dwa światła,
   supersampling, kadr „bust” = górne 60% faktycznie narysowanej sylwetki).
 - Bossowie: model z nazwy części MSB (`c4340_9000`) dla encji bossa, zapasowo wróg o tej samej nazwie z NpcParam.
-  Wszystkie 11 bossów bez ikony ma portret (8 z własnego modelu, 3 ludzkie, opisane niżej).
+  Portret ma każdy z 209 bossów (ludzcy złożeni z części, opisane niżej).
 - Bossowie ludzcy (`c0000`: Leda, Łata, Hrabia Ymir): w MSB dane wroga `+0x18` = `CharaInitID`.
   `CharaInitParam`: `+0x20` hełm, `+0x24` zbroja, `+0x28` rękawice, `+0x2C` nogi (ID z EquipParamProtector),
   `+0x10`/`+0x18` bronie. `FaceParam` ma wiersz o tym samym ID: `+0x00` model twarzy, `+0x01` skóra RGB, kolejne

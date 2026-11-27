@@ -194,10 +194,10 @@ przetłumaczone na polski; nazwy własne w znacznikach `{p:}` `{i:}` `{n:}` → 
 - `later`: krok bez własnej flagi zalicza się, gdy zaliczony jest dalszy etap. Bez `alt` (wybory wykluczające się)
   i bez `extra` (nasze kroki z flagą bez odpowiednika, wstawiane za poprzednim dopasowanym krokiem).
 - `end` (QuestPath s98/s99, np. śmierć NPC) kończy wątek. Krok oznaczony w `quest_steps_pl.json` jako `dead`
-  („Millicent nie żyje”, 16 questów) zalicza flaga śmierci postaci: blok NPC +3. Bez tego, np. Millicent i Gowry
-  zabici w czasie gry, ich questy wisiały otwarte.
-- Wątek Gowry'ego to część historii Millicent: jego kroki od protezy do starcia z siostrami zaliczają te same flagi
-  gry co kroki Millicent (jego własna flaga rozmowy 1050389221 nie jest ustawiana u żadnej z 7 sprawdzonych postaci).
+  („Millicent nie żyje”, 16 questów) zalicza flaga śmierci postaci: blok NPC + `build_quests.DEAD_FLAG` (3).
+- `like`: krok dostaje też flagi wskazanych kroków innego questu. Wątek Gowry'ego to część historii Millicent, więc
+  jego kroki od protezy do starcia z siostrami wskazują kroki Millicent (`millicent:p3`, `p5`, `p6`, `p8`); jego
+  własna flaga rozmowy 1050389221 nie jest ustawiana u żadnej z 7 sprawdzonych postaci.
 - Strona: quest ukończony, gdy zaliczone jest zakończenie albo wszystkie kroki poza alternatywnymi; cały wątek
   (z podwątkami) ukończony, gdy jest ukończony quest główny i każdy rozpoczęty podwątek. Ukończony quest z otwartym
   podwątkiem wskazuje go w „Co dalej”, a ostrzeżenia `locks` po ukończeniu znikają.

@@ -143,7 +143,7 @@ def export(chr_id, out_root, mask=None):
         costume = len(albs) > 1 and shader.endswith("_costume.spx")
         # fur and shell-fur shaders (C[Fur]*.spx, C[c3200]_Fur, C[Shell]*): colour from the character's own texture,
         # strands (alpha and pattern) from the hair / shell-fur texture or, without one, the other albedo
-        fur = len(albs) > 1 and ("fur" in shader or "shell" in shader)
+        fur = len(set(albs)) > 1 and ("fur" in shader or "shell" in shader)
         if fur:
             own = [a for a in albs if a.lower().startswith(chr_id)]
             color = own[0] if own else albs[0]

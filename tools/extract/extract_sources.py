@@ -32,7 +32,7 @@ import esd  # noqa: E402
 import msb  # noqa: E402
 import params as P  # noqa: E402
 from talk_quests import ints  # noqa: E402
-from extract_world import DATA, World, award_params, item_index, lot_ids, lot_item, lot_slots, maps, tile_ids  # noqa: E402
+from extract_world import DATA, World, award_params, item_index, lot_ids, lot_item, lot_slots, maps, part_model, tile_ids  # noqa: E402
 
 # usługi postaci: polecenia skryptu rozmowy (bank 1), numery z publicznego katalogu poleceń ESD, sprawdzone na znanych
 # postaciach (Hewg: wzmacnianie, popioły, powielanie; Roderika: duchy; Rennala: odrodzenie, wygląd; Enia: wizerunki)
@@ -102,7 +102,7 @@ def main():
             if p["type"] != "enemy" or not p.get("npc"):
                 continue
             pos = world.to_map(area, gx, gz, *p["pos"]) or {}
-            pos = {**pos, "model": p["name"].split("_")[0]}
+            pos = {**pos, "model": part_model(p["name"])}
             enemy_spots[p["npc"]].append((mid, pos))
             if p.get("talk") not in (None, -1, 0):
                 talk_parts[p["talk"]].append((mid, p["npc"], pos))

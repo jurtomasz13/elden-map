@@ -1346,11 +1346,11 @@
     "warn": null,
     "where": "{p:Shaded Castle}",
     "match": [],
-    "flags": [
-     1038519257,
-     1042559205
-    ],
-    "alt": false
+    "flags": [],
+    "alt": false,
+    "like": [
+     "millicent:p3"
+    ]
    },
    {
     "qp": 7,
@@ -1371,11 +1371,12 @@
     "warn": null,
     "where": "{p:Gowry's Shack}",
     "match": [],
-    "flags": [
-     1051569255,
-     15009205
-    ],
-    "alt": false
+    "flags": [],
+    "alt": false,
+    "like": [
+     "millicent:p5",
+     "millicent:p6"
+    ]
    },
    {
     "qp": 9,
@@ -1385,14 +1386,11 @@
     "warn": null,
     "where": "{p:Gowry's Shack}",
     "match": [],
-    "flags": [
-     400480,
-     400323,
-     400321,
-     400324,
-     15009210
-    ],
-    "alt": false
+    "flags": [],
+    "alt": false,
+    "like": [
+     "millicent:p8"
+    ]
    },
    {
     "qp": 10,
@@ -5150,7 +5148,7 @@
     "qp": 2,
     "text": "Pochłoń smoczą esencję i przyjmij błogosławieństwo pradawnego smoka.",
     "next": "Wybierz pochłonięcie smoczej esencji. Kapłanka wysyła cię na {p:Jagged Peak}, byś zabił {n:Bayle the Dread}, i w imieniu swego pana, {n:Dragonlord Placidusax}, udziela ci błogosławieństwa pradawnego smoka.",
-    "safe": "Ona coś ci oferuje. Możesz odmówić i zmienić zdanie później.",
+    "safe": "Kapłanka składa ci propozycję. Jeśli teraz odmówisz, możesz wrócić do niej i przyjąć ją później.",
     "warn": null,
     "where": "{p:Grand Altar of Dragon Communion}",
     "match": [],

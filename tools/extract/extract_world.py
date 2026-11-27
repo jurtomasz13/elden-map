@@ -192,6 +192,13 @@ def maps():
             yield path, (area, gx, gz), msb.map_id(area, gx, gz), m
 
 
+def part_model(name):
+    """Character model (cXXXX) of a map part, None for other parts. Parts of the big overworld tiles carry the small
+    tile's name first: m60_52_38_00-c4730_9002 (Radahn)."""
+    m = re.match(r"(?:m[\d_]+-)?(c\d{4})_", name)
+    return m and m.group(1)
+
+
 class EntityPlaces:
     """Entity id -> page position of a map part or region (also point regions) holding it, for scripted objects."""
 
@@ -459,7 +466,7 @@ def main():
                 if name_id > 0 and npc_pl.get(name_id):
                     pos = world.to_map(area, gx, gz, *p["pos"])
                     npcs.append({"name": npc_pl[name_id], "name_en": npc_en.get(name_id), "map_id": mid, "entity": p["entity"],
-                                 "talk": p["talk"], "model": p["name"].split("_")[0], "chara_init": p["chara_init"] if (p["chara_init"] or 0) > 0 else None,
+                                 "talk": p["talk"], "model": part_model(p["name"]), "chara_init": p["chara_init"] if (p["chara_init"] or 0) > 0 else None,
                                  "mask": display_mask(npc_rows[p["npc"]]),
                                  "pos": [round(c, 1) for c in p["pos"]], **(pos or {})})
         for t in m["treasures"]:
@@ -631,7 +638,7 @@ def main():
         local = [round(c, 1) for c in (ent[1]["pos"] if ent else (x, y, z))]   # pozycja w układzie pliku mapy (map_id)
         # model 3D (cXXXX) — z części mapy o encji bossa, zapasowo wróg o tej samej nazwie (najpierw na tej mapie)
         cand = [ent] if ent else sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != msb.map_id(area, gx, gz))
-        model = next((re.match(r"(c\d{4})_", e[1]["name"]).group(1) for e in cand if e and re.match(r"c\d{4}_", e[1]["name"])), None)
+        model = next((part_model(e[1]["name"]) for e in cand if e and part_model(e[1]["name"])), None)
         # postać ludzka (c0000): ekwipunek i wygląd z CharaInitParam/FaceParam — ID z części bossa albo imiennika na tej mapie
         same = sorted(enemies_by_name.get(nid, []), key=lambda e: e[0] != msb.map_id(area, gx, gz)) if nid else []
         chara_init = next((e[1]["chara_init"] for e in ([ent] if ent else []) + same if e and (e[1].get("chara_init") or 0) > 0), None) if model == "c0000" else None
@@ -655,7 +662,7 @@ def main():
         lot = enemy_drop.get(entity) or (entity if entity in lots and struct.unpack_from("<I", lots[entity], 0x80)[0] else 0)
         if not lot or lot in treasure_lots or entity in not_drops or not part["pos"]:
             continue
-        model = part["name"].split("_")[0]
+        model = part_model(part["name"])
         row = npc_rows.get(part["npc"])
         name = npc_pl.get(struct.unpack_from("<i", row, 0x0C)[0]) if row else None
         name = "Skarabeusz" if model in SCARAB_MODELS else name if name and "dummy" not in name.lower() else None

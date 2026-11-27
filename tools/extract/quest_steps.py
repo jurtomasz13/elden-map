@@ -3,7 +3,8 @@ z naszymi krokami z flagami (`assets/data/quests.json` z build_quests.py).
 
 - Krok QuestPath, który opisuje to samo co nasz krok (`match`), dostaje jego flagi i identyfikator (ostrzeżenia
   `locks` dalej wskazują właściwy krok); dodatkowe flagi zaliczenia z `flags`. Krok `dead` (np. „Millicent nie żyje”)
-  zalicza flaga śmierci postaci: blok NPC +3 (build_quests.NPC).
+  zalicza flaga śmierci postaci: blok NPC + build_quests.DEAD_FLAG. Krok z `like` (np. Gowry: ["millicent:p3"])
+  dostaje też flagi wskazanych kroków innego questu, gdy oba wątki to ta sama historia.
 - `later` = flagi wszystkich późniejszych kroków (bez zakończeń alternatywnych `alt`): krok bez własnej flagi zalicza
   się, gdy zaliczony jest dowolny dalszy etap (skoro jest dalszy etap, ten był wcześniej).
 - Nasze kroki z flagami, których nie dopasowano, zostają w swoim pierwotnym miejscu (sprawdzalny postęp).
@@ -33,6 +34,17 @@ TALK_SRC = os.path.join(os.path.dirname(__file__), "quest_talk_flags.json")
 TALK = json.load(open(TALK_SRC, encoding="utf-8")) if os.path.exists(TALK_SRC) else {}
 STATES_SRC = os.path.join(os.path.dirname(__file__), "quest_npc_states.json")
 STATES = json.load(open(STATES_SRC, encoding="utf-8")) if os.path.exists(STATES_SRC) else {}
+
+
+def chain(steps):
+    """`later` (flags of every later step) and `gated` (a step closed only by a boss flag waits for the previous step)."""
+    for i, s in enumerate(steps):
+        if not s["alt"]:
+            s["later"] = list(dict.fromkeys(f for x in steps[i + 1:] if not x["alt"] and not x.get("extra")
+                                            for f in x["flags"] if f not in BOSS_FLAGS))
+        # e.g. Darriwil, who can be beaten without Blaidd
+        if i > 0 and s["flags"] and all(f in BOSS_FLAGS for f in s["flags"]):
+            s["gated"] = True
 
 
 def main():
@@ -68,7 +80,7 @@ def main():
             if s.get("dead"):
                 if not q.get("npc_block"):
                     raise SystemExit(f"quest_steps_pl.json: quest {t['id']} ma krok 'dead', ale nie ma bloku flag NPC")
-                own.append(q["npc_block"] + 3)
+                own.append(q["npc_block"] + B.DEAD_FLAG)
             mode = "all" if len(mt) == 1 and mt[0].get("mode") == "all" and not s.get("flags") else "any"
             sid = mt[0]["id"] if len(mt) == 1 and mt[0]["id"] not in {x["id"] for x in steps} else f"p{s['qp']}"
             nxt = fill(s.get("next")) or ""
@@ -77,6 +89,7 @@ def main():
             steps.append({"id": sid, "text": fill(s["text"]), "where": fill(s.get("where")) or "", "next": nxt,
                           "text_safe": fill(s.get("safe")) or None, "flags": own, "mode": mode, "alt": bool(s.get("alt")) or s["qp"] >= 90,
                           "end": s["qp"] >= 90,                          # QuestPath s98/s99 = zakończenie (np. śmierć NPC)
+                          **({"like": s["like"]} if s.get("like") else {}),
                           "sources": ["questpath"] + (["regulation"] if mt else [])})
         # niedopasowany krok z flagą: zostaje (sprawdzalny postęp) w swoim pierwotnym miejscu — zaraz po kroku, do którego
         # dopasowano nasz poprzedni krok (albo na początku) — ale nie zalicza kroków przed sobą
@@ -102,14 +115,6 @@ def main():
         for s in steps:
             if any(f not in BOSS_FLAGS for f in s["flags"]):
                 s["flags"] = [f for f in s["flags"] if f not in BOSS_FLAGS]
-        for i, s in enumerate(steps):
-            if not s["alt"]:
-                s["later"] = list(dict.fromkeys(f for x in steps[i + 1:] if not x["alt"] and not x.get("extra")
-                                                for f in x["flags"] if f not in BOSS_FLAGS))
-            # krok zaliczany tylko flagą bossa (np. Darriwil, którego można pokonać bez Blaidda) liczy się dopiero,
-            # gdy zaliczony jest poprzedni krok questu
-            if i > 0 and s["flags"] and all(f in BOSS_FLAGS for f in s["flags"]):
-                s["gated"] = True
         for s in steps:                                # zakończenia/alternatywy bez podpowiedzi — ogólny tekst bez szczegółów
             if not s.get("text_safe") and s.get("alt"):
                 s["text_safe"] = ("Jedno z możliwych zakończeń wątku. Szczegóły ukryte." if s.get("end")
@@ -127,6 +132,15 @@ def main():
     for q in out:
         if q.get("parent") in removed:
             q["parent"] = removed[q["parent"]]
+    step_at = {f"{q['id']}:{s['id']}": s for q in out for s in q["steps"]}
+    for q in out:
+        for s in q["steps"]:
+            for ref in s.pop("like", None) or []:
+                if ref not in step_at:
+                    raise SystemExit(f"quest_steps_pl.json: {q['id']}: krok `like` wskazuje nieistniejący krok {ref}")
+                s["flags"] = list(dict.fromkeys(s["flags"] + step_at[ref]["flags"]))
+        if q["id"] in done_ids:                        # quests with QuestPath steps; the rest keep build_quests' steps
+            chain(q["steps"])
     # Block flags +5..+18 say where the NPC waits now. The game moves them on its own (Irina's death puts Hyetta at the
     # cliffs), so they mean "this is the current step, earlier ones are behind you", not "step done".
     by_id = {q["id"]: q for q in out}

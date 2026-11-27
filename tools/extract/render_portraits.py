@@ -1,4 +1,4 @@
-"""Portrety 3D z plików gry: bossowie bez ikony i postacie (NPC) → assets/renders/<model>.png albo npc_<CharaInit>.png.
+"""Portrety 3D z plików gry: bossowie i postacie (NPC) → assets/renders/<model>.png albo npc_<CharaInit>.png.
 
 Uruchamiać po extract_world.py (pola "model" i "chara_init" w bosses_all.json i npcs.json). Uzupełnia pole "render".
 Postać ludzka (c0000) jest składana z części jak postać gracza (render_character.render_npc: CharaInitParam
@@ -50,21 +50,20 @@ def main(force=False):
     version = export_model.renderer_version()
     force = force or not os.path.exists(stamp) or open(stamp, encoding="utf-8").read().strip() != version
     done = {}
-    for fn, need in (("bosses_all.json", lambda o: not o.get("icon")), ("npcs.json", lambda o: True)):
+    for fn in ("bosses_all.json", "npcs.json"):
         path = os.path.join(DATA, fn)
         rows = json.load(open(path, encoding="utf-8"))
         k = 0
         for o in rows:
             o.pop("render", None)
-            if need(o):
-                key = (o.get("model"), o.get("chara_init"), o.get("mask"))
-                if key not in done:
-                    done[key] = portrait(o, force)
-                if done[key]:
-                    o["render"] = done[key]
-                    k += 1
+            key = (o.get("model"), o.get("chara_init"), o.get("mask"))
+            if key not in done:
+                done[key] = portrait(o, force)
+            if done[key]:
+                o["render"] = done[key]
+                k += 1
         json.dump(rows, open(path, "w", encoding="utf-8"), ensure_ascii=False)
-        print(f"render_portraits: {fn}: {k} z portretem 3D, bez obrazka: {sum(1 for o in rows if need(o) and not o.get('render'))}")
+        print(f"render_portraits: {fn}: {k} z portretem 3D, bez portretu: {sum(1 for o in rows if not o.get('render'))}")
     os.makedirs(RENDERS, exist_ok=True)
     with open(stamp, "w", encoding="utf-8") as f:
         f.write(version)

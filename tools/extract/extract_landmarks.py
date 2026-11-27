@@ -1,13 +1,12 @@
-"""Miejsca bez własnego punktu w WorldMapPointParam, dopisywane do assets/data/pois.json (po extract_world.py).
+"""Places without their own WorldMapPointParam row, added to assets/data/pois.json (after extract_world.py).
 
-- Boskie Wieże: posąg, przy którym przywraca się Wielki run. Wspólne zdarzenie common_func 90005110 uruchamiane
-  z pliku mapy wieży, argumenty: flaga przywrócenia, flaga ze świata, encja posągu, encja obiektu, run nieprzywrócony,
-  efekt, przycisk akcji. Flaga przywrócenia to zarazem id przywróconego runu w EquipParamGoods (191 Godrick … 196
-  Malenia). Wynik: pole `restore` [{flag, rune}] przy najbliższym punkcie Boskiej Wieży (posąg stoi kilka pikseli
-  od napisu wieży).
-- Wędrowne Mauzolea: przeciwnicy z modelem c4450 w plikach map (5 chodzi, w tym 1 pod ziemią w m12_03, a 2 stoją
-  na Polu Mauzoleów w Liurnii; NpcParam 445000xx chodzi, 44501020 stoi). Gra nie ma ich nazwy w NpcName, nazwa
-  z opisów zbroi strażników. Pozycja chodzących to miejsce startu.
+- Divine Towers: the statue where a Great Rune is restored. Common event common_func 90005110 started from the
+  tower's map script, arguments: restored flag, world flag, statue entity, object entity, unrestored rune, effect,
+  action button. The restored flag is also the restored rune's EquipParamGoods id (191 Godrick ... 196 Malenia).
+  Result: `restore` [{flag, rune}] on the nearest Divine Tower point (the statue stands a few pixels from its label).
+- Walking Mausoleums: enemies with model c4450 in the map files (5 walk, one of them underground in m12_03, and 2 stand
+  in the Mausoleum Compound in Liurnia; NpcParam 445000xx walks, 44501020 stands). NpcName has no name for them,
+  the name comes from the captions of their guards' armour. A walking one's position is where it starts.
 """
 import json
 import os
@@ -16,11 +15,11 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import emevd as E  # noqa: E402
 import params as P  # noqa: E402
-from extract_world import DATA, EntityPlaces, World, event_scripts, maps, scope_tile  # noqa: E402
+from extract_world import DATA, EntityPlaces, World, event_scripts, maps, part_model, scope_tile  # noqa: E402
 
 RESTORE_EVENT = 90005110
-MAUSOLEUM_MODEL = "c4450_"
-MAUSOLEUM_NAME = "Wędrowne Mauzoleum"     # ProtectorCaption 1740100: „strzegących Wędrownego Mauzoleum”
+MAUSOLEUM_MODEL = "c4450"
+MAUSOLEUM_NAME = "Wędrowne Mauzoleum"     # ProtectorCaption 1740100: "strzegących Wędrownego Mauzoleum"
 STANDING_NPC = 44501020                    # the two mausoleums of the Mausoleum Compound do not walk
 
 
@@ -48,14 +47,14 @@ def main():
     found = 0
     for _path, tile, mid, m in maps():
         for p in m["parts"]:
-            # parts of the big overworld tiles carry the small tile's name: m60_36_47_00-c4450_9000
-            if p["type"] == "enemy" and p["name"].split("-")[-1].startswith(MAUSOLEUM_MODEL):
+            if p["type"] == "enemy" and part_model(p["name"]) == MAUSOLEUM_MODEL:
                 pos = world.to_map(*tile, *p["pos"])
-                if pos:
-                    found += 1
-                    pois.append({"id": p["entity"], "name": MAUSOLEUM_NAME, "category": "mausoleum", "map_id": mid, "dlc": False,
-                                 "pos": [round(c, 1) for c in p["pos"]], "flag": 0, "icon": None,
-                                 "walking": p["npc"] != STANDING_NPC, **pos})
+                if not pos:
+                    raise SystemExit(f"extract_landmarks: Wędrowne Mauzoleum {p['entity']} ({mid}) bez pozycji na mapie")
+                found += 1
+                pois.append({"id": p["entity"], "name": MAUSOLEUM_NAME, "category": "mausoleum", "map_id": mid, "dlc": False,
+                            "pos": [round(c, 1) for c in p["pos"]], "flag": 0, "icon": None,
+                            "walking": p["npc"] != STANDING_NPC, **pos})
     with open(path, "w", encoding="utf-8") as f:
         json.dump(pois, f, ensure_ascii=False)
     print(f"extract_landmarks: posągi Wielkich run przy {sum(1 for t in towers if t.get('restore'))} wieżach, "

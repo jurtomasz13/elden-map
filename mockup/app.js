@@ -154,11 +154,12 @@
   }
   async function loadWorld() {
     const [b, p, it, n, g, q, tr, mp, fx, inv, wp, sm] = await Promise.all(["bosses_all", "pois", "item_locations", "npcs", "graces", "quests", "map_transform", "map_pieces", "item_effects", "invaders", "warps", "summons"].map(load));
-    W.warps = wp || [];                                    // teleporty ze skryptów zdarzeń (extract_warps.py)
+    // warps from the event scripts (extract_warps.py); none ending in Roundtable Hold, which has no world-map place
+    W.warps = (wp || []).filter(w => !atRoundtable(w.src) && !atRoundtable(w.dst));
     W.summons = sm || [];                                  // znaki przywołania postaci (extract_summons.py)
     W.invaders = inv || [];                                // najeźdźcy (czerwone fantomy NPC, extract_world.py)
-    W.pieces = mp || {};
-    W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
+    W.pieces = mp || {};                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
+    W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)
     // bossowie bez nazwy w plikach gry (np. Wyszczerbiony Drake na szczycie) zostają — nazwę dopisze backend (tabela CE)
     W.bosses = (b || []).map(x => x.name ? x : { ...x, name: x.name_en || "Boss bez nazwy w grze", unnamed: true })
       .map(x => x.render ? { ...x, icon: "r:" + x.render } : x);   // 3D portrait first, the drop's icon only without one
@@ -611,18 +612,18 @@
         return { text: (safe && s.text_safe) || s.text, where: s.where || "", done: s.done, skipped: s.skipped, why: s.why, alt: !!s.alt, end: !!s.end, next: (safe && s.next_safe) || (safe && s.text_safe) || s.next }; }),
       locks: (q.locks || []).map(l => ({ text: (spoilers() && l.warning_safe) || l.warning })) }))
       : D.quests.map(q => ({ ...q, icon: D.questIcons[q.id] }));
-    for (const q of quests) { const ended = q.steps.some(s => s.end && s.done), i = ended ? -1 : q.steps.findIndex(s => !s.done && !s.alt);
-      q.steps.forEach((s, k) => s.current = k === i);
-      if (real) q.next = i >= 0 ? { text: q.steps[i].next || q.steps[i].text, hint: q.steps[i].where } : { text: "Quest ukończony", hint: "" }; }
     // progress without alternative steps; an ending (e.g. the character's death) finishes the quest
     const progress = x => { const st = x.steps.filter(s => !s.alt), d = st.filter(s => s.done).length;
       return { d, n: st.length, fin: x.steps.some(s => s.end && s.done) || (d > 0 && d === st.length) }; };
+    for (const q of quests) { const i = progress(q).fin ? -1 : q.steps.findIndex(s => !s.done && !s.alt);
+      q.steps.forEach((s, k) => s.current = k === i);
+      if (real) q.next = i >= 0 ? { text: q.steps[i].next || q.steps[i].text, hint: q.steps[i].where } : { text: "Quest ukończony", hint: "" }; }
     // status of a whole thread (quest + side threads): done when it and every started side thread are finished
     const family = x => [x, ...quests.filter(c => c.parent === x.id).flatMap(family)];
     const qStatus = x => { const fam = family(x).map(progress);
       return fam[0].fin && fam.every(p => p.fin || !p.d) ? "done" : fam.some(p => p.d) ? "active" : "new"; };
-    // a finished quest whose side thread is still open points at it
-    for (const x of quests) { const open = real && !x.steps.some(s => s.current) && family(x).slice(1).find(c => !progress(c).fin && c.steps.some(s => s.current));
+    // a finished quest whose started side thread is still open points at it
+    for (const x of quests) { const open = real && progress(x).fin && family(x).slice(1).find(c => { const p = progress(c); return p.d && !p.fin; });
       if (open) x.next = { text: `Quest ukończony. Otwarty powiązany wątek: ${open.name}.`, hint: "" }; }
     // „Mój postęp”: tylko wątki odkryte (choć jeden zrobiony krok); z kroków widać zrobione i bieżący
     const seen = x => !state.mine || family(x).some(f => f.steps.some(s => s.done));
@@ -634,7 +635,7 @@
       <div class="view-sub">Nie masz jeszcze żadnego odkrytego questu. Pojawi się tu, gdy zrobisz jego pierwszy krok.</div></div></div></div>`; return; }
     for (let p = q.parent; p; p = quests.find(x => x.id === p)?.parent) state.qOpen.add(p);   // rozwiń przodków wybranego
     const blur = s => spoilers() && !s.done && !s.current;
-    const total = shown.reduce((a, x) => a + x.steps.filter(s => !s.alt).length, 0), doneAll = shown.reduce((a, x) => a + x.steps.filter(s => s.done && !s.alt).length, 0);
+    const total = shown.reduce((a, x) => a + progress(x).n, 0), doneAll = shown.reduce((a, x) => a + progress(x).d, 0);
     main.innerHTML = `<div class="view">
       <div class="view-head"><div><div class="eyebrow">Losy napotkanych dusz</div><h1 class="title">Questy</h1>
         <div class="view-sub">${real ? `${pl(roots.length, "wątek", "wątki", "wątków")} · kroki odhaczają się z flag zapisu gry` : "Dane przykładowe, zbiór questów jeszcze się buduje."}</div></div>
@@ -1190,10 +1191,10 @@
     for (const pnt of W.pois) { const who = poiPeople(pnt), npc = npcMarker(pnt), icon = poiIcon(pnt);
       const name = npc ? who.now.join(" · ") || "Postać" : poiName(pnt), here = npc ? [] : who.now;
       const person = npc && (who.now[0] || who.later[0]);
+      if (pnt.map !== m || !poiShown(pnt) || !show(pnt, match(name, ...who.now, ...who.later) && near(pnt))) continue;
       // Divine Tower: Great Rune restored or not (extract_landmarks.py); mausoleum: remembrance duplication
       const about = (pnt.restore || []).map(r => `<span class="tip-sub">${esc(r.rune)}: ${isSet(r.flag) ? "przywrócony" : "przywrócisz go tu, przy posągu na szczycie"}</span>`).join("")
         + (pnt.walking != null ? `<span class="tip-sub">powielisz tu wizerunek bossa${pnt.walking ? " · chodzi po okolicy, to miejsce startu" : ""}</span>` : "");
-      if (pnt.map !== m || !poiShown(pnt) || !show(pnt, match(name, ...who.now, ...who.later) && near(pnt))) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: icon != null ? divIcon(`<span class="mk-place"><img src="${MAP_ICON(icon)}" alt=""></span>`, 36)
         : divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
         .on("click", () => { if (person) openNpc(person); })
