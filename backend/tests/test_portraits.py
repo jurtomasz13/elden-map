@@ -24,7 +24,8 @@ class PortraitsTest(unittest.TestCase):
         # podmiana skryptu renderu na atrapę, która tylko tworzy PNG
         self.fake = os.path.join(self.out, "fake_render.py")
         with open(self.fake, "w", encoding="utf-8") as f:
-            f.write("import os,sys\nopen(os.path.join(os.environ['ER_RENDERS'], f'char_{sys.argv[1]}_{sys.argv[2]}.png'),'wb').write(b'x')\n")
+            f.write("import os,sys\nif sys.argv[1:] == ['--version']:\n    print('render-1')\n    sys.exit(0)\n"
+                    "open(os.path.join(os.environ['ER_RENDERS'], f'char_{sys.argv[1]}_{sys.argv[2]}.png'),'wb').write(b'x')\n")
         os.environ["ER_RENDERS"] = self.out
         self._orig = (P.SCRIPT, P.RENDERS, P.STATE)
         P.SCRIPT, P.RENDERS, P.STATE = self.fake, self.out, os.path.join(self.out, "portraits.json")
@@ -64,6 +65,11 @@ class PortraitsTest(unittest.TestCase):
         self.assertEqual(self._events(timeout=1.5), [])
         # inny podpis (np. zmieniony hełm) — render ponownie
         self.p.done[f"{self.kind}:{self.slot}"] = "inny-hełm:xxx"
+        self.p.check(self.kind, self.slot, self.sf)
+        self.assertEqual(len(self._events()), 1)
+        # nowa wersja renderera (aktualizacja aplikacji): portret rysowany od nowa, choć hełm i twarz bez zmian
+        self.assertEqual(self.p.version, "render-1")
+        self.p.version = "render-2"
         self.p.check(self.kind, self.slot, self.sf)
         self.assertEqual(len(self._events()), 1)
 

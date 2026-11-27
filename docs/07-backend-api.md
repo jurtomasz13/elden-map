@@ -518,7 +518,8 @@ Miękkie progi liczy frontend z krzywych gry (`assets/data/stat_curves.json`, `t
 ## Portrety postaci (zdarzenie SSE `portrait`)
 
 `erbackend/portraits.py`: po zmianie slotu (i przy starcie dla brakujących) liczony jest podpis = id hełmu + skrót bloku
-`FACE`. Gdy różni się od ostatniego renderu (`backend/var/portraits.json`) albo brak PNG, w wątku w tle uruchamia się
+`FACE` + wersja renderera (`render_character.py --version`, skrót plików renderu z `export_model.RENDER_FILES`), więc
+po aktualizacji renderera portrety odświeżają się przy starcie. Gdy różni się od ostatniego renderu (`backend/var/portraits.json`) albo brak PNG, w wątku w tle uruchamia się
 `tools/extract/render_character.py <plik> <slot>` (≈1 s), potem zdarzenie:
 
 ```

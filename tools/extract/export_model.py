@@ -3,6 +3,7 @@
 Użycie: python export_model.py c4340 [c4750 ...]
 Wynik: assets/cache/models/<chr>/model.json + tekstury DDS (albedo) obok.
 """
+import hashlib
 import json
 import os
 import re
@@ -14,6 +15,17 @@ import flver  # noqa: E402
 import formats as F  # noqa: E402
 
 _matbins = None
+# files that decide how a portrait looks; a change in any of them means every portrait is rendered again
+RENDER_FILES = ("export_model.py", "render.mjs", "render_character.py", "flver.py", "dds.mjs")
+
+
+def renderer_version():
+    """Short hash of the rendering code (RENDER_FILES), stored next to portraits to know when they are stale."""
+    h = hashlib.md5()
+    for f in RENDER_FILES:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f), "rb") as fh:
+            h.update(fh.read().replace(b"\r\n", b"\n"))
+    return h.hexdigest()[:12]
 
 
 def matbins():

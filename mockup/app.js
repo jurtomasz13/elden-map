@@ -492,16 +492,20 @@
   function bossStatsHtml(st) {
     const neg = Object.entries(st.absorb), lo = Math.min(...neg.map(n => n[1])), hi = Math.max(...neg.map(n => n[1]));
     const statuses = Object.entries(st.status), open = statuses.filter(([, t]) => t).sort((a, b) => a[1][0] - b[1][0]);
-    const weakDmg = lo < hi ? neg.filter(([, v]) => v === lo).map(([k]) => dmgName(k)) : [];
-    const weakSt = open.filter(([, t]) => t[0] <= open[0][1][0] * 1.25).map(([k]) => AFF[k][0]);
+    // weakest damage: the lowest reduction (all four physical types tied read as one), real weakness when below zero
+    const low = lo < hi ? neg.filter(([, v]) => v === lo).map(([k]) => k) : [];
+    const lowNames = Object.keys(PHYS).every(k => low.includes(k)) ? ["obrażenia fizyczne", ...low.filter(k => !PHYS[k]).map(dmgName)] : low.map(dmgName);
+    const weakDmg = lowNames.length ? `${lowNames.join(", ").toLowerCase()} (${lo}%)` : "";
+    const weakSt = open.length ? `${open.filter(([, t]) => t[0] === open[0][1][0]).map(([k]) => AFF[k][0].toLowerCase()).join(", ")} (próg ${open[0][1][0]})` : "";
     return `<div class="d-section"><h4>Statystyki</h4>
       <div class="d-stats"><div><b>${fmt(st.hp)}</b><span>Punkty życia</span></div><div><b>${st.poise}</b><span>Postawa</span></div></div>
       <h5 class="sub-h">Redukcja obrażeń</h5><div class="neg-grid">${neg.map(([k, v]) =>
         `<span class="neg${v === lo && lo < hi ? " weak" : v >= 40 ? " strong" : ""}">${esc(dmgName(k))}<b>${v}%</b></span>`).join("")}</div>
       <h5 class="sub-h">Odporność na statusy</h5><div class="neg-grid st">${statuses.map(([k, t]) =>
         `<span class="neg${t ? "" : " strong"}" title="${t ? "Próg po kolejnych wywołaniach statusu" : ""}">${esc(AFF[k][0])}<b>${t ? t.join(" → ") : "odporny"}</b></span>`).join("")}</div>
-      <p class="view-sub" style="margin:8px 0 0">Najsłabszy na: ${esc([...weakDmg, ...weakSt].join(", ") || "brak wyraźnej słabości")}.
-        Wartości dla pierwszego przejścia, z plików gry; przy bossach z kilkoma fazami to postać, której śmierć kończy walkę według gry (zwykle pierwsza faza).</p></div>`;
+      <p class="ib-note"><b>${lo < 0 ? "Słaby na" : "Najmniej odporny na"}</b> ${esc(weakDmg || "nic szczególnego")}</p>
+      ${weakSt ? `<p class="ib-note"><b>Najłatwiejszy status</b> ${esc(weakSt)}</p>` : '<p class="ib-note"><b>Statusy</b> odporny na wszystkie</p>'}
+      <p class="view-sub" style="margin:8px 0 0">Pierwsze przejście, wartości z plików gry. Przy kilku fazach: zwykle pierwsza faza.</p></div>`;
   }
   // ---------- the player's weapons against an enemy: attack rating, damage of one hit, hits to kill ----------
   // weapon_calc.json (tools/extract/extract_damage.py); the formula matches the MIT weapon calculator by ThomasJClark
@@ -525,9 +529,11 @@
   const hitDamage = (ar, attr, st) => ar.reduce((sum, a, t) => !a ? sum
     : sum + a * defenseMul(a, st.defense[t]) * (1 - st.absorb[[PHYS_ATTR[attr] || "standard", "magic", "fire", "lightning", "holy"][t]] / 100), 0);
   async function fillHits(st) {
-    const at = live.state?.stats?.attributes, inv = live.inventory?.weapons;
+    // only the weapons put in your hands (equipment, 3 slots per hand), not everything carried
+    const at = live.state?.stats?.attributes, eq = live.state?.equipment;
     if (!$("#hitsBox")) return;
-    if (!at || !inv) return $("#hitsBox").remove();
+    if (!at || !eq) return $("#hitsBox").remove();
+    const inv = [...(eq.right_weapons || []), ...(eq.left_weapons || [])].filter(Boolean);
     await Promise.all([calcIndex(), itemsIndex()]);
     const box = $("#hitsBox"); if (!box || !CALC) return;
     const attrs = [at.strength, at.dexterity, at.intelligence, at.faith, at.arcane], seen = new Set(), rows = [];
@@ -539,11 +545,11 @@
       if (dmg > 0) rows.push({ it, up: e.upgrade || 0, dmg, hits: Math.ceil(st.hp / dmg) });
     }
     rows.sort((a, b) => a.hits - b.hits || b.dmg - a.dmg);
-    box.innerHTML = !rows.length ? "" : `<h4>Twoje bronie: ile ciosów</h4>${rows.slice(0, 10).map(r => listRow(`data-go="item:weapon:${r.it.id}"`, ICON(r.it.icon),
-      esc(r.it.name + (r.up ? " +" + r.up : "")), `${pl(r.hits, "cios", "ciosy", "ciosów")} · ${Math.floor(r.dmg)} na cios`)).join("")}
-      ${rows.length > 10 ? `<p class="view-sub" style="margin:8px 0 0">i jeszcze ${pl(rows.length - 10, "broń", "bronie", "broni")} z ekwipunku.</p>` : ""}
-      <p class="view-sub" style="margin:8px 0 0">Teoretycznie: pierwszy lekki cios jedną ręką, Twoje atrybuty z save'a, bez statusów, umiejętności broni,
-        talizmanów i wzmocnień. Obrona i redukcja obrażeń z plików gry, krzywa obrony według opisów społeczności.</p>`;
+    box.innerHTML = `<h4>Twoje bronie: ile ciosów</h4>${rows.map(r => listRow(`data-go="item:weapon:${r.it.id}"`, ICON(r.it.icon),
+      esc(r.it.name + (r.up ? " +" + r.up : "")), `${pl(r.hits, "cios", "ciosy", "ciosów")} · ${Math.floor(r.dmg)} na cios`)).join("")
+      || '<p class="view-sub" style="margin:0">Nie masz w rękach broni do walki wręcz (łuki i kusze pomijamy, bo obrażenia zależą od strzał).</p>'}
+      <p class="view-sub" style="margin:8px 0 0">Bronie z Twoich rąk i Twoje atrybuty. Liczę pierwszy lekki cios jedną ręką, bez statusów,
+        umiejętności broni, talizmanów i wzmocnień.</p>`;
   }
   function openBoss(id) {
     const b = bossList().find(x => x.id === id);

@@ -2,7 +2,8 @@
 tools/extract/render_character.py dla tego slotu i publikujemy zdarzenie SSE 'portrait'.
 
 Render czyta pliki gry i save (tylko odczyt) i zapisuje PNG do assets/renders/ (lokalnie). Podpis ostatniego renderu
-(id hełmu + skrót bloku FACE) trzymamy w backend/var/portraits.json, żeby nie renderować w kółko.
+(id hełmu + skrót bloku FACE + wersja renderera) trzymamy w backend/var/portraits.json, żeby nie renderować w kółko,
+a po zmianie renderera (nowa wersja aplikacji) odświeżyć portrety przy starcie.
 """
 from __future__ import annotations
 
@@ -28,6 +29,7 @@ class Portraits:
         self.service = service
         self.python = python
         self.enabled = os.path.exists(SCRIPT)
+        self.version = self._renderer_version() if self.enabled else "-"
         try:
             self.done: dict[str, str] = json.load(open(STATE, encoding="utf-8"))
         except (OSError, ValueError):
@@ -38,22 +40,30 @@ class Portraits:
         self._thread = threading.Thread(target=self._run, name="portraits", daemon=True)
         self._thread.start()
 
+    def _renderer_version(self) -> str:
+        """Version of the rendering code, from the render script itself (one place: export_model.renderer_version)."""
+        r = subprocess.run([self.python, "-I", "-X", "utf8", SCRIPT, "--version"], cwd=ROOT, capture_output=True,
+                           text=True, encoding="utf-8", errors="replace", timeout=60)
+        if r.returncode != 0:
+            raise RuntimeError(f"render_character.py --version: {(r.stderr or r.stdout)[-300:]}")
+        return r.stdout.strip()
+
     @staticmethod
-    def signature(sf, slot: int) -> tuple[str, int | None]:
+    def signature(sf, slot: int, version: str = "-") -> tuple[str, int | None]:
         s = sf.slot(slot)
         head = ((s.equipment or {}).get("head") or {}).get("id")
         e = sf.entries[slot]
         raw = sf.data[e.offset:e.offset + e.size]
         k = raw.find(b"FACE")
         face = hashlib.md5(raw[k:k + 0x120]).hexdigest()[:12] if k >= 0 else "-"
-        return f"{head}:{face}", head
+        return f"{head}:{face}:{version}", head
 
     def check(self, kind: str, slot: int, sf) -> None:
         """Wołane przez serwis po zmianie slotu (i przy starcie dla wszystkich postaci)."""
         if not self.enabled:
             return
         try:
-            sig, head = self.signature(sf, slot)
+            sig, head = self.signature(sf, slot, self.version)
         except Exception as e:                      # zepsuty slot nie może zatrzymać watchera
             log.debug("portret %s:%s — brak podpisu: %s", kind, slot, e)
             return

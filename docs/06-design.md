@@ -144,7 +144,7 @@ narysowany ręcznie w SVG. Prawdziwą mapę świata wyciągniemy później z pli
   kliknięciem), usługi, sklep z ceną i stanem z save'a (kupione X z Y, wyprzedane, jeszcze niedostępne), podarunki,
   łup po śmierci (z uwagą o dzwonku kulistym), znaki przywołania, najazdy, miejsca, w których bywa.
 - Karta bossa: statystyki z plików gry (PŻ, postawa, redukcja obrażeń, progi statusów), „Twoje bronie: ile ciosów”
-  (bronie z ekwipunku, atrybuty z save'a), wizerunek z runami za użycie i wymianami u Enii. Najeźdźcy i przeciwnicy
+  (bronie założone w rękach, atrybuty z save'a), wizerunek z runami za użycie i wymianami u Enii. Najeźdźcy i przeciwnicy
   z jednorazowym łupem (skarabeusze) mają te same sekcje.
 - Postacie: ręczny wybór przypina postać, a „Śledź automatycznie” wraca do postaci, której save zmienił się
   ostatnio.

@@ -45,6 +45,10 @@ def portrait(o, force):
 
 
 def main(force=False):
+    # portraits made by an older renderer are drawn again (the file names stay the same, e.g. npc_<CharaInit>)
+    stamp = os.path.join(RENDERS, "renderer.txt")
+    version = export_model.renderer_version()
+    force = force or not os.path.exists(stamp) or open(stamp, encoding="utf-8").read().strip() != version
     done = {}
     for fn, need in (("bosses_all.json", lambda o: not o.get("icon")), ("npcs.json", lambda o: True)):
         path = os.path.join(DATA, fn)
@@ -61,6 +65,9 @@ def main(force=False):
                     k += 1
         json.dump(rows, open(path, "w", encoding="utf-8"), ensure_ascii=False)
         print(f"render_portraits: {fn}: {k} z portretem 3D, bez obrazka: {sum(1 for o in rows if need(o) and not o.get('render'))}")
+    os.makedirs(RENDERS, exist_ok=True)
+    with open(stamp, "w", encoding="utf-8") as f:
+        f.write(version)
 
 
 if __name__ == "__main__":

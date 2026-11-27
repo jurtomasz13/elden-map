@@ -220,7 +220,7 @@ Sprawdzone z Fextralife: Margit 4174 PŻ, obrona 103, cięte −10, święte 40,
 Radahn 9572; Malenia 18 473 (pierwsza faza). Przy bossach z kilkoma fazami to statystyki postaci o encji bossa, której
 śmierć kończy walkę (zwykle pierwsza faza).
 
-Karta bossa i najeźdźcy liczy dla broni z ekwipunku (`weapon_calc.json`, `tools/extract/extract_damage.py`) siłę ataku
+Karta bossa i najeźdźcy liczy dla broni założonych w rękach (`weapon_calc.json`, `tools/extract/extract_damage.py`) siłę ataku
 z atrybutów z save'a: obrażenia bazowe × mnożnik ulepszenia × (1 + suma krzywa(atrybut) × skalowanie × mnożnik
 skalowania), atrybut poniżej wymagania daje 60% bazy. Wynik zgadza się co do setnych z kalkulatorem
 ThomasJClark/elden-ring-weapon-calculator (MIT). Obrażenia ciosu: dla każdego rodzaju obrażeń atak × krzywa obrony
@@ -259,7 +259,8 @@ cutsceny w tym samym pliku mapy (wejście na arenę bossa).
   `C[Shell]*`, `C[c3200]_Fur`) mają kolor z własnej tekstury postaci i pasma z tekstury włosów albo futra (`strands`).
   Render (`render.mjs`) ma dwa przejścia: bufor koloru, normalnej z mapy normalnych gry (BC7: R, G normalna, B maska
   metalu, A szorstkość) i głębokości, potem trzy światła, połysk metalu, cień z mapy cieni, przyciemnienie zagłębień
-  i tło z poświatą. Twarze ludzi są bez ustawień z edytora postaci. Bez portretu zostają obiekty rozmowy (c1000, c0100).
+  i tło z poświatą. Po zmianie kodu renderu (`assets/renders/renderer.txt` inny niż `export_model.renderer_version()`)
+  przygotowanie danych rysuje wszystkie portrety od nowa. Twarze ludzi są bez ustawień z edytora postaci. Bez portretu zostają obiekty rozmowy (c1000, c0100).
 - `summons.json` (`extract_summons.py`): `2003[25]` PlaceNPCSummonSign, typ 20 to znak pomocnika; pozycja z regionu
   znaku.
 

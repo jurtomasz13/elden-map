@@ -127,4 +127,7 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    if sys.argv[1:] == ["--version"]:              # the backend puts it in the portrait signature (erbackend/portraits.py)
+        print(E.renderer_version())
+    else:
+        main(sys.argv[1:])
