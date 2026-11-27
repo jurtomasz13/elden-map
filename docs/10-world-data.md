@@ -255,8 +255,11 @@ cutsceny w tym samym pliku mapy (wejście na arenę bossa).
   w kadrze popiersia. Jeden model służy kilku postaciom: meshe `#NN#` to warianty, a NpcParam ma maskę widoczności
   (`+0x14A/+0x14B/+0x14E/+0x14F`, bit NN; `extract_world.display_mask`, np. Azur bit 2 = szata, Pidia 10, 11, 15), więc
   portret jest liczony dla postaci (`<model>_<maska>.png`). Shader „Costume” (kupcy c3200) ma dwie tekstury koloru:
-  paletę barw wariantu i szary wzór tkaniny, które render mnoży (`detail` w `model.json`). Bez portretu zostają obiekty
-  rozmowy (c1000, c0100).
+  paletę barw wariantu i szary wzór tkaniny, które render mnoży (`detail` w `model.json`). Shadery futra (`C[Fur]*`,
+  `C[Shell]*`, `C[c3200]_Fur`) mają kolor z własnej tekstury postaci i pasma z tekstury włosów albo futra (`strands`).
+  Render (`render.mjs`) ma dwa przejścia: bufor koloru, normalnej z mapy normalnych gry (BC7: R, G normalna, B maska
+  metalu, A szorstkość) i głębokości, potem trzy światła, połysk metalu, cień z mapy cieni, przyciemnienie zagłębień
+  i tło z poświatą. Twarze ludzi są bez ustawień z edytora postaci. Bez portretu zostają obiekty rozmowy (c1000, c0100).
 - `summons.json` (`extract_summons.py`): `2003[25]` PlaceNPCSummonSign, typ 20 to znak pomocnika; pozycja z regionu
   znaku.
 

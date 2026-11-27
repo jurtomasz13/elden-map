@@ -96,6 +96,16 @@ def find_texture(name, own):
 _chr_cache = {}
 
 
+def write_texture(name, own, out):
+    """Copy texture `name` (own texbnd, model template or common) as <out>/<name>.dds; file name or None."""
+    dds = find_texture(name, own) if name else None
+    if not dds:
+        return None
+    with open(os.path.join(out, f"{name}.dds"), "wb") as f:
+        f.write(dds)
+    return f"{name}.dds"
+
+
 def export(chr_id, out_root, mask=None):
     """Meshes '#NN#' are model variants: shown when bit NN of the character's display mask is set (NpcParam,
     extract_world.display_mask); without a mask only '#00#'. Output: <out_root>/<chr>[_<mask hex>]/."""
@@ -117,17 +127,22 @@ def export(chr_id, out_root, mask=None):
         albs = textures_of(mtd)
         # costume shader (nomadic merchants c3200): the first albedo is a flat colour palette of the outfit variant,
         # the second a grey fabric pattern; the game multiplies them
-        costume = len(albs) > 1 and any(s.lower().endswith("_costume.spx") for s in material_strings(mtd))
-        files = []
-        for alb in albs[:2 if costume else 1]:
-            dds = find_texture(alb, tex)
-            files.append(f"{alb}.dds" if dds else None)
-            if dds:
-                with open(os.path.join(out, f"{alb}.dds"), "wb") as f:
-                    f.write(dds)
+        shader = next((s.split("\\")[-1].lower() for s in material_strings(mtd) if s.lower().endswith(".spx")), "")
+        costume = len(albs) > 1 and shader.endswith("_costume.spx")
+        # fur and shell-fur shaders (C[Fur]*.spx, C[c3200]_Fur, C[Shell]*): colour from the character's own texture,
+        # strands (alpha and pattern) from the hair / shell-fur texture or, without one, the other albedo
+        fur = len(albs) > 1 and ("fur" in shader or "shell" in shader)
+        if fur:
+            own = [a for a in albs if a.lower().startswith(chr_id)]
+            color = own[0] if own else albs[0]
+            strands = next((a for a in albs if re.search("hair|shellfur", a, re.I)), None) or next(a for a in albs if a != color)
+            albs = [color, strands]
+        files = [write_texture(alb, tex, out) for alb in albs[:2 if costume or fur else 1]]
         tex_file = files[0] if files else None
+        nrm_file = write_texture(albedo_of(mtd, "_n.tif"), tex, out)
         meshes.append({"name": name, "tex": tex_file, **({"detail": files[1]} if costume and files[1] else {}),
-                       "pos": [c for p in m["pos"] for c in p],
+                       **({"strands": files[1]} if fur and files[1] else {}),
+                       **({"normal": nrm_file} if nrm_file else {}), "pos": [c for p in m["pos"] for c in p],
                        "nrm": [round(c, 3) for n in (m["nrm"] or []) for c in n],
                        "uv": [round(c, 4) for u in (m["uv"] or []) for c in u], "tris": [i for t in m["tris"] for i in t]})
     with open(os.path.join(out, "model.json"), "w") as f:
@@ -194,7 +209,12 @@ def export_parts(parts, out, skin=None, hair=None):
                 tex_file = f"{tex_name}.dds"
                 with open(os.path.join(out, tex_file), "wb") as f:
                     f.write(dds)
-            e = {"name": f"{part}:{name}", "tex": tex_file, "pos": [c for p in m["pos"] for c in p],
+            n_name = albedo_of(mtd, "_n.tif") if kind == "gear" else None     # relief of helmets and armour
+            n_dds = (own.get(n_name.lower()) or find_texture(n_name, {})) if n_name else None
+            if n_dds:
+                with open(os.path.join(out, f"{n_name}.dds"), "wb") as f:
+                    f.write(n_dds)
+            e = {"name": f"{part}:{name}", "tex": tex_file, **({"normal": f"{n_name}.dds"} if n_dds else {}), "pos": [c for p in m["pos"] for c in p],
                  "nrm": [round(c, 3) for n in (m["nrm"] or []) for c in n],
                  "uv": [round(c, 4) for u in (m["uv"] or []) for c in u], "tris": [i for t in m["tris"] for i in t]}
             if kind == "skin" and skin:
