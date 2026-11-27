@@ -730,7 +730,7 @@ a { color: inherit; text-decoration: none; }
   padding: 3px 9px 3px 7px; border: 1px solid var(--tc, var(--line-2)); color: var(--tc, var(--muted)); background: rgba(10,9,7,.75); white-space: nowrap; }
 .tier-badge i { font-style: normal; font-size: 13px; letter-spacing: 0; }
 .tier-badge.on-card { position: absolute; top: 10px; left: 10px; z-index: 2; }
-.t-great_rune { --tc: #ff8a5c; } .t-legend { --tc: #f0c766; } .t-major { --tc: #c9d6e2; } .t-normal { --tc: #b89f72; } .t-minor { --tc: #8a8270; } .t-trivial { --tc: #6c675c; }
+.t-great_rune { --tc: #ff8a5c; } .t-legend { --tc: #f0c766; } .t-major { --tc: #c9d6e2; } .t-normal { --tc: #b89f72; } .t-minor { --tc: #8a8270; } .t-trivial { --tc: #6c675c; } .t-invader { --tc: #d0503f; }
 .tier-badge.t-great_rune { background: linear-gradient(90deg, rgba(120,30,10,.75), rgba(10,9,7,.8)); box-shadow: 0 0 12px rgba(255,120,70,.35); }
 .tier-badge.t-legend { box-shadow: 0 0 10px rgba(240,199,102,.3); }
 .tier-chip i { font-style: normal; margin-right: 6px; color: var(--tc); }

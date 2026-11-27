@@ -401,14 +401,15 @@
         <label class="it-lbl"><span>Sortuj</span>${sel("bsort", Object.entries(BOSS_SORTS).map(([k, v]) => [k, v.name]), sk)}</label>
         ${state.mine ? "" : `<span class="it-chips">${chip("bf", "all", "Wszyscy", state.bossFilter === "all")}${chip("bf", "alive", "Niepokonani", state.bossFilter === "alive")}${chip("bf", "felled", "Pokonani", state.bossFilter === "felled")}</span>`}
         <span class="it-chips tier-filters">${chip("bt", "", "Każda ranga", !state.bossTier)}${TIER_ORDER.map(t => { const n = all.filter(b => b.tier === t);
-          return n.length ? `<button class="chip tier-chip t-${t} ${state.bossTier === t ? "on" : ""}" data-bt="${t}" title="${esc(TIER[t].desc)}"><i>${TIER[t].glyph}</i>${TIER[t].name}<small>${frac(n.filter(b => b.defeated).length, n.length)}</small></button>` : ""; }).join("")}</span>
+          return n.length ? `<button class="chip tier-chip t-${t} ${state.bossTier === t ? "on" : ""}" data-bt="${t}" title="${esc(TIER[t].desc)}"><i>${TIER[t].glyph}</i>${TIER[t].name}<small>${frac(n.filter(b => b.defeated).length, n.length)}</small></button>` : ""; }).join("")}${
+          (inv => inv.length ? `<button class="chip tier-chip t-invader ${state.bossTier === "invader" ? "on" : ""}" data-bt="invader" title="Czerwone fantomy postaci, każdy najeżdża raz"><i>✦</i>Najeźdźcy<small>${frac(inv.filter(x => isSet(x.flag)).length, inv.length)}</small></button>` : "")(invaderList())}</span>
       </div>
       <div class="boss-layout"><div class="boss-groups">${state.bossRegion !== "all" ? `<div class="ra-active">Kraina: <b>${esc(state.bossRegion)}</b> <button class="chip" data-br="all">✕ pokaż wszystkie</button></div>` : ""}
       ${[...groups.entries()].sort((x, y) => g.order(x[0], y[0])).map(([k, items]) => {
         const tot = all.filter(b => g.key(b) === k && regionMatch(b.region, state.bossRegion) && (!state.bossTier || b.tier === state.bossTier) &&
           (!q || (b.name + " " + (b.name_en || "") + " " + b.region).toLowerCase().includes(q)));
         return `<section class="region boss-group ${gk === "tier" ? "tg-" + k : ""}">${gk === "none" ? "" : `<div class="region-head">${g.head(k)}<span class="region-count">${frac(tot.filter(b => b.defeated).length, tot.length)}</span><span class="region-line"></span></div>`}
-          <div class="grid">${items.map(bossCard).join("")}</div></section>`; }).join("") || '<p class="view-sub">Nic nie pasuje do filtrów.</p>'}
+          <div class="grid">${items.map(bossCard).join("")}</div></section>`; }).join("") || (state.bossTier === "invader" ? "" : '<p class="view-sub">Nic nie pasuje do filtrów.</p>')}
       ${invaderSection(q)}</div>
       ${regionAside}</div></div>`;
     main.querySelectorAll("[data-invader]").forEach(b => b.onclick = () => openInvader(W.invaders.find(x => x.id === +b.dataset.invader)));
@@ -478,9 +479,10 @@
   // najeźdźca: bez spoilerów imię i nagrody widać dopiero po pokonaniu
   const hiddenInvader = x => spoilers() && !isSet(x.flag);
   // invaders on the bosses page: unique enemies too, the last group below the lowest rank (same filters as bosses, no region or rank)
+  const invaderList = () => W.invaders.filter(gameOk).filter(x => !state.mine || isSet(x.flag));
   function invaderSection(q) {
-    if (state.bossRegion !== "all" || state.bossTier) return "";
-    const all = W.invaders.filter(gameOk).filter(x => !state.mine || isSet(x.flag)), list = all.filter(x => { const done = isSet(x.flag);
+    if (state.bossRegion !== "all" || (state.bossTier && state.bossTier !== "invader")) return "";
+    const all = invaderList(), list = all.filter(x => { const done = isSet(x.flag);
       return (state.bossFilter === "all" || state.mine || (state.bossFilter === "alive" ? !done : done)) && (!q || hiddenInvader(x) ? !q : (x.name + " " + (x.name_en || "") + " " + (x.region_pl || "")).toLowerCase().includes(q)); });
     if (!list.length) return "";
     const card = x => { const done = isSet(x.flag), hid = hiddenInvader(x);
