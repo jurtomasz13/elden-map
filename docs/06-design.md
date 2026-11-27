@@ -148,8 +148,10 @@ narysowany ręcznie w SVG. Prawdziwą mapę świata wyciągniemy później z pli
   z jednorazowym łupem (skarabeusze) mają te same sekcje.
 - Postacie: ręczny wybór przypina postać, a „Śledź automatycznie” wraca do postaci, której save zmienił się
   ostatnio.
-- Bossowie: grupy według rangi (domyślnie), krainy albo statusu, panel krain po prawej z podkrainami, niepokonani
-  przygaszeni.
+- Bossowie: grupy według rangi (domyślnie), krainy albo statusu, panel krain po prawej z podkrainami. Karta
+  niepokonanego jest wyszarzona, pokonanego jasna ze złotym ptaszkiem, bez napisu o stanie.
+- Pola o rodzaju obrażeń albo statusie (redukcja i odporności bossa, atak broni, ochrona zbroi, tagi żywiołów,
+  linia „słaby na”) mają kolor i efekt swojego żywiołu, np. ogień żarzy się od dołu, mróz ma lodowy połysk.
 - Przedmioty: grupy według rzadkości (domyślnie), typu, skalowania albo żywiołu, ramki rzadkość × żywioł, sekcja
   „Jak zdobyć” (bossowie, kupcy z ceną, wymiana, przeróbka odzienia, łup z przeciwników z szansą, nagrody ze
   zdarzeń).

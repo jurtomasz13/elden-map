@@ -424,8 +424,7 @@
       ${b.defeated && !hid ? '<span class="felled-mark" title="Pokonany">✓</span>' : ""}
       ${portrait(hid ? null : b.icon, "card-portrait", b.icon ? "demigod" : "knight")}
       <div class="card-name">${hid ? "Nieznany wróg" : esc(b.name)}</div>
-      <div class="card-meta"><span>${hid ? "??????" : (b.runes ? pl(b.runes, "run", "runy", "runów") : "")}</span>
-      ${b.defeated ? '<span class="status-felled">Pokonany</span>' : '<span class="status-alive">Niepokonany</span>'}</div></button>`;
+      <div class="card-meta"><span>${hid ? "??????" : (b.runes ? pl(b.runes, "run", "runy", "runów") : "")}</span></div></button>`;
   }
   // najbliższa łaska. W lochach (wszystko poza otwartym światem m60/m61) liczymy w obrębie tego samego lochu,
   // po lokalnych współrzędnych z pliku mapy — rzut lochu na mapę świata (Farum Azula, Leyndell, jaskinie) myli odległości.
@@ -496,15 +495,16 @@
     const low = lo < hi ? neg.filter(([, v]) => v === lo).map(([k]) => k) : [];
     const lowNames = Object.keys(PHYS).every(k => low.includes(k)) ? ["obrażenia fizyczne", ...low.filter(k => !PHYS[k]).map(dmgName)] : low.map(dmgName);
     const weakDmg = lowNames.length ? `${lowNames.join(", ").toLowerCase()} (${lo}%)` : "";
-    const weakSt = open.length ? `${open.filter(([, t]) => t[0] === open[0][1][0]).map(([k]) => AFF[k][0].toLowerCase()).join(", ")} (próg ${open[0][1][0]})` : "";
+    const easy = open.filter(([, t]) => t[0] === open[0][1][0]).map(([k]) => k);
+    const weakSt = easy.length ? `${easy.map(k => AFF[k][0].toLowerCase()).join(", ")} (próg ${open[0][1][0]})` : "";
     return `<div class="d-section"><h4>Statystyki</h4>
       <div class="d-stats"><div><b>${fmt(st.hp)}</b><span>Punkty życia</span></div><div><b>${st.poise}</b><span>Postawa</span></div></div>
       <h5 class="sub-h">Redukcja obrażeń</h5><div class="neg-grid">${neg.map(([k, v]) =>
-        `<span class="neg${v === lo && lo < hi ? " weak" : v >= 40 ? " strong" : ""}">${esc(dmgName(k))}<b>${v}%</b></span>`).join("")}</div>
-      <h5 class="sub-h">Odporność na statusy</h5><div class="neg-grid st">${statuses.map(([k, t]) =>
-        `<span class="neg${t ? "" : " strong"}" title="${t ? "Próg po kolejnych wywołaniach statusu" : ""}">${esc(AFF[k][0])}<b>${t ? t.join(" → ") : "odporny"}</b></span>`).join("")}</div>
-      <p class="ib-note"><b>${lo < 0 ? "Słaby na" : "Najmniej odporny na"}</b> ${esc(weakDmg || "nic szczególnego")}</p>
-      ${weakSt ? `<p class="ib-note"><b>Najłatwiejszy status</b> ${esc(weakSt)}</p>` : '<p class="ib-note"><b>Statusy</b> odporny na wszystkie</p>'}
+        statCell(esc(dmgName(k)), v + "%", k, v === lo && lo < hi ? "weak" : v >= 40 ? "strong" : "")).join("")}</div>
+      <h5 class="sub-h">Odporność na statusy (próg po kolejnych wywołaniach)</h5><div class="neg-grid st">${statuses.map(([k, t]) =>
+        statCell(esc(AFF[k][0]), t ? t.join(" → ") : "odporny", k, t ? "" : "strong")).join("")}</div>
+      <p class="ib-note"${low.length === 1 ? elAttr(low[0]) : ""}><b>${lo < 0 ? "Słaby na" : "Najmniej odporny na"}</b> ${esc(weakDmg || "nic szczególnego")}</p>
+      ${weakSt ? `<p class="ib-note"${easy.length === 1 ? elAttr(easy[0]) : ""}><b>Najłatwiejszy status</b> ${esc(weakSt)}</p>` : '<p class="ib-note"><b>Statusy</b> odporny na wszystkie</p>'}
       <p class="view-sub" style="margin:8px 0 0">Pierwsze przejście, wartości z plików gry. Przy kilku fazach: zwykle pierwsza faza.</p></div>`;
   }
   // ---------- the player's weapons against an enemy: attack rating, damage of one hit, hits to kill ----------
@@ -744,6 +744,9 @@
     ammo: "Amunicja do łuków i kusz.",
   };
   // ---------- ramki przedmiotów: rzadkość × żywioł/status (np. legendarny + mróz) ----------
+  // a box about a damage type or status gets that element's look (styles: [data-el])
+  const elAttr = k => AFF[k] ? ` data-el="${k}" style="--c:${AFF[k][1]}"` : "";
+  const statCell = (label, value, el, cls = "") => `<span class="neg${cls ? " " + cls : ""}"${elAttr(el)}>${label}<b>${value}</b></span>`;
   const AFF = { bleed: ["Krwotok", "#c8283c"], frost: ["Odmrożenie", "#8fdcff"], poison: ["Trucizna", "#8fbf3a"], rot: ["Szkarłatna zgnilizna", "#e0662a"],
     sleep: ["Sen", "#b39cf0"], madness: ["Szaleństwo", "#ffbe2e"], death: ["Plaga śmierci", "#8a6fa0"],
     magic: ["Magia", "#5b9cff"], fire: ["Ogień", "#ff6a1f"], lightning: ["Błyskawica", "#f7e65c"], holy: ["Święte", "#fff0c2"] };
@@ -770,7 +773,7 @@
   function rarityTags(it, rawId) {
     const { list, infuse } = affinities(it, rawId), r = it?.rarity || 0;
     const tags = [r >= 2 ? `<span class="rtag r${r}">${RARITY[r]}</span>` : "", infuse ? `<span class="rtag">${infuse}</span>` : "",
-      ...list.map(a => `<span class="rtag aff" style="--c:${AFF[a.k][1]}">${AFF[a.k][0]}${a.v && it.stats?.status?.[a.k] ? " " + a.v : ""}</span>`)].filter(Boolean);
+      ...list.map(a => `<span class="rtag"${elAttr(a.k)}>${AFF[a.k][0]}${a.v && it.stats?.status?.[a.k] ? " " + a.v : ""}</span>`)].filter(Boolean);
     return tags.length ? `<div class="rtags">${tags.join("")}</div>` : "";
   }
   function usageNote(it) {
@@ -801,13 +804,13 @@
   }
   function statsHTML(it) {
     const s = it.stats; if (!s) return "";
-    const tbl = rows => `<div class="stat-grid">${rows.map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join("")}</div>`;
+    const tbl = rows => `<div class="neg-grid two">${rows.map(([label, v, el]) => statCell(label, v, el)).join("")}</div>`;
     if (it.category === "weapon") return `<div class="d-section"><h4>Statystyki</h4>
-      ${tbl(Object.entries(s.attack).filter(([, v]) => v > 0).map(([k, v]) => [DMG[k], v]))}
+      ${tbl(Object.entries(s.attack).filter(([, v]) => v > 0).map(([k, v]) => [DMG[k], v, k]))}
       <div class="stat-sub">Skalowanie</div>${tbl(Object.entries(s.scaling).filter(([, v]) => v > 0).map(([k, v]) => [ATTR[k], grade(v)]))}
       <div class="stat-sub">Wymagania</div>${tbl(Object.entries(s.requires).filter(([, v]) => v > 0).map(([k, v]) => [ATTR[k], v]))}
       ${tbl([["Waga", num(s.weight)]])}</div>`;
-    if (it.category === "armor") return `<div class="d-section"><h4>Ochrona</h4>${tbl(Object.entries(s.absorb).map(([k, v]) => [ABS[k], num(v) + "%"]))}${tbl([["Waga", num(s.weight)]])}</div>`;
+    if (it.category === "armor") return `<div class="d-section"><h4>Ochrona</h4>${tbl(Object.entries(s.absorb).map(([k, v]) => [ABS[k], num(v) + "%", k]))}${tbl([["Waga", num(s.weight)]])}</div>`;
     if (s.fp != null) return `<div class="d-section"><h4>Statystyki</h4>${tbl([["Koszt PS", s.fp], ...(s.requires.int ? [["Inteligencja", s.requires.int]] : []), ...(s.requires.fai ? [["Wiara", s.requires.fai]] : [])])}</div>`;
     return "";
   }
@@ -1496,7 +1499,7 @@
   // catalogue item of an item_sources.json key ("weapon:9000000"); items whose sources pass a test
   const itemByKey = k => findItem(...k.split(":").map((v, i) => i ? +v : v));
   const itemsFrom = test => Object.entries(SRC || {}).filter(([, s]) => test(s)).map(([k]) => itemByKey(k)).filter(Boolean);
-  const runesNote = it => it.runes ? `<p class="ib-note"><b>Runy za użycie:</b> ${fmt(it.runes)}${it.kind === "remembrance" ? ". Użyty wizerunek przepada, a wymiany już nie zrobisz." : ""}</p>` : "";
+  const runesNote = it => it.runes ? `<p class="ib-note"><b>Runy za użycie:</b> ${fmt(it.runes)}</p>` : "";
   function remembranceHTML(it) {
     const ex = itemsFrom(s => s.shops?.some(sh => sh.trade === it.name));
     return `${runesNote(it)}

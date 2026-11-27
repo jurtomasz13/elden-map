@@ -166,7 +166,7 @@ a { color: inherit; text-decoration: none; }
 .card {
   background: linear-gradient(180deg, rgba(28,25,19,.85), rgba(20,18,14,.85));
   border: 1px solid var(--line); padding: 18px 16px 14px; text-align: left; cursor: pointer;
-  transition: border-color .4s var(--ease), transform .4s var(--ease), background .4s var(--ease);
+  transition: border-color .4s var(--ease), transform .4s var(--ease), background .4s var(--ease), filter .4s var(--ease);
 }
 .card:hover { border-color: var(--line-2); transform: translateY(-2px); }
 .card:hover.corners::before, .card:hover.corners::after { border-color: var(--gold); }
@@ -176,8 +176,6 @@ a { color: inherit; text-decoration: none; }
 .card-name { font-family: var(--display); font-size: 16px; letter-spacing: .1em; text-transform: uppercase; text-align: center; color: var(--bone); line-height: 1.35; min-height: 37px; }
 .card.done .card-name { color: var(--gold-hi); }
 .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); font-size: 16.5px; color: var(--muted); }
-.status-felled { color: var(--gold); font-family: var(--display); font-size: 12px; letter-spacing: .25em; text-transform: uppercase; }
-.status-alive { color: var(--blood); font-family: var(--display); font-size: 12px; letter-spacing: .25em; text-transform: uppercase; }
 .tag { font-family: var(--display); font-size: 11px; letter-spacing: .2em; padding: 2px 6px; border: 1px solid var(--line); color: var(--muted); }
 .tag.req { color: var(--gold); border-color: var(--line-2); }
 .card.hidden-spoiler { border-style: dashed; background: repeating-linear-gradient(135deg, rgba(28,25,19,.6) 0 6px, rgba(20,18,14,.6) 6px 12px); }
@@ -227,8 +225,24 @@ a { color: inherit; text-decoration: none; }
 .sub-h { font-family: var(--display); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; font-weight: 400; }
 .neg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .neg-grid.st { grid-template-columns: 1fr; }
+.neg-grid.two { grid-template-columns: repeat(2, 1fr); margin-top: 6px; }
 .neg { display: flex; justify-content: space-between; gap: 6px; padding: 6px 9px; border: 1px solid var(--line); font-size: 17.5px; color: #b3a990; }
 .neg b { color: var(--bone); font-weight: 400; }
+/* pole z rodzajem obrażeń albo statusem (data-el, elAttr w app.js): ramka i poświata w kolorze żywiołu,
+   ogień, mróz, błyskawice, święte, krwotok i szaleństwo z własnym efektem */
+[data-el] { border: 1px solid; border-color: color-mix(in srgb, var(--c) 55%, transparent); color: color-mix(in srgb, var(--c) 65%, var(--bone));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 16%, transparent), color-mix(in srgb, var(--c) 4%, transparent));
+  box-shadow: inset 0 0 14px color-mix(in srgb, var(--c) 12%, transparent); }
+[data-el] b { color: color-mix(in srgb, var(--c) 40%, #fff6e6); }
+[data-el="fire"] { background: radial-gradient(130% 110% at 50% 130%, rgba(255,120,30,.42), rgba(255,60,10,.12) 55%, transparent 80%), rgba(40,14,6,.35);
+  box-shadow: inset 0 -8px 16px rgba(255,90,20,.28), 0 0 10px rgba(255,90,20,.12); }
+[data-el="frost"] { background: linear-gradient(180deg, rgba(200,240,255,.26), rgba(140,210,255,.05) 65%), rgba(10,24,34,.35);
+  box-shadow: inset 0 1px 0 rgba(230,250,255,.45), inset 0 8px 14px rgba(170,225,255,.16); }
+[data-el="lightning"] { box-shadow: inset 0 0 12px rgba(247,230,92,.26), 0 0 8px rgba(247,230,92,.18); }
+[data-el="holy"] { background: radial-gradient(120% 120% at 50% -20%, rgba(255,240,194,.32), transparent 70%), rgba(40,34,18,.3); }
+[data-el="bleed"] { background: linear-gradient(0deg, rgba(200,40,60,.32), rgba(120,10,20,.06) 75%); }
+[data-el="madness"] { background: radial-gradient(100% 100% at 50% 50%, rgba(255,190,46,.22), transparent 75%); }
+.ib-note[data-el] { padding: 8px 12px; }
 .neg.weak { border-color: var(--moss-hi); } .neg.weak b { color: var(--moss-hi); }
 .neg.strong b { color: var(--dim); }
 .reward { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--line); }
@@ -496,9 +510,6 @@ a { color: inherit; text-decoration: none; }
 .ib-info span { display: block; margin-top: 4px; font-size: 16px; color: var(--dim); font-style: normal; letter-spacing: .08em; }
 .ib-note { margin: 12px 0 0; color: var(--bone); line-height: 1.5; }
 .ib-note b { font-family: var(--display); font-weight: 500; font-size: 15px; letter-spacing: .2em; text-transform: uppercase; color: var(--moss-hi); margin-right: 6px; }
-.stat-grid { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 4px 14px; font-size: 17.5px; margin-top: 6px; }
-.stat-grid span { color: var(--muted); }
-.stat-grid b { font-weight: 500; color: var(--bone); text-align: right; }
 .stat-sub { margin-top: 10px; font-family: var(--display); font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--dim); }
 .mk-select { display: block; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #f4d37c; box-shadow: 0 0 18px #f4d37c, inset 0 0 12px rgba(244,211,124,.6);
   animation: sel 1.6s ease-in-out infinite; }
@@ -644,7 +655,6 @@ a { color: inherit; text-decoration: none; }
 .rtag { font-family: var(--display); font-size: 15px; letter-spacing: .16em; text-transform: uppercase; padding: 3px 9px; border: 1px solid var(--line-2); color: var(--bone); }
 .rtag.r2 { color: #cfe0ee; border-color: #a9c0d4; }
 .rtag.r3 { color: #ffe3a0; border-color: #f0c766; box-shadow: 0 0 10px rgba(240,199,102,.25); }
-.rtag.aff { color: var(--c); border-color: color-mix(in srgb, var(--c) 60%, transparent); background: color-mix(in srgb, var(--c) 10%, transparent); }
 .icell.fr:hover, .eq-slot.fr:hover { border-color: transparent; }
 
 /* ---------- portret głowy postaci (render 3D: twarz, włosy, hełm) ---------- */
@@ -848,7 +858,8 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- stan na pierwszy rzut oka: żywi przygaszeni, pokonani w kolorze ---------- */
 .card:not(.done):not(.hidden-spoiler) .card-portrait img { filter: grayscale(.85) brightness(.62) contrast(.95); transition: filter .35s var(--ease); }
-.card:not(.done):not(.hidden-spoiler) { background: linear-gradient(180deg, rgba(20,19,16,.85), rgba(14,13,11,.88)); }
+.card:not(.done):not(.hidden-spoiler) { background: linear-gradient(180deg, rgba(20,19,16,.85), rgba(14,13,11,.88)); filter: saturate(.3); }
+.card:not(.done):not(.hidden-spoiler):hover { filter: none; }
 .card:not(.done):not(.hidden-spoiler) .card-name { color: color-mix(in srgb, var(--bone) 70%, var(--muted)); }
 .card:not(.done):not(.hidden-spoiler) .tier-badge { opacity: .6; }
 .card:not(.done):not(.hidden-spoiler):hover .card-portrait img { filter: grayscale(.2) brightness(.9); }
