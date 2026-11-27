@@ -524,7 +524,7 @@ po aktualizacji renderera portrety odświeżają się przy starcie. Gdy różni 
 
 ```
 event: portrait
-data: {"file": "co2", "slot": 6, "head_id": 670000, "version": "670000:1a2b3c4d5e6f"}
+data: {"file": "co2", "slot": 6, "head_id": 670000, "version": "670000:1a2b3c4d5e6f:c7c846a1bfbb"}
 ```
 
 Frontend podmienia obrazek (`?v=<version>`). Render tylko czyta pliki gry i save; PNG zostaje lokalnie w `assets/renders/`.
