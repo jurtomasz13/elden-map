@@ -145,7 +145,7 @@ Wyjątki (2026-11-25):
 | `pois.json` | 366 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py |
 | `npcs.json` | 245 | name, name_en, map_id, entity, talk, model, chara_init, mask (warianty modelu), render, region_pl, map/px/py |
 | `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), stats, rewards[], region_pl, map/px/py |
-| `warps.json` | 52 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
+| `warps.json` | 50 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
 | `summons.json` | 38 | name, helper (biały znak pomocnika), map_id, map/px/py/approx |
 | `talks.json` | 102 | TalkID → who, rows[{item, price, trade, qty, sold (licznik bitowy), unlock}], services[] |
 | `weapon_calc.json` | 1 | weapons (wiersz broni → base, scaling, graph, req, reinforce, element, attr), reinforce, element, graphs |
@@ -236,9 +236,11 @@ zdarzeń są rozwijane przez wywołania (`emevd.callers`, `emevd.instances`, `em
 bez której brama jest zamknięta), powroty po bossie, wieczne więzienia i windy z medalionem nie trafiają na mapę, bo
 przenoszą w to samo miejsce. Źródło to encja z warunku zdarzenia (przycisk akcji, obszar, odległość, śmierć), przy
 skrzyni-pułapce pierwsza encja z akcji. Encje celu to części albo regiony map, także punktowe (`msb.py` czyta EntityID
-regionu z danych bazowych `+0x50`). Sprawdzone z listą bram na Fextralife (wszystkie 32 w danych). Na mapie 52
+regionu z danych bazowych `+0x50`). Sprawdzone z listą bram na Fextralife (wszystkie 32 w danych). Na mapie 50
 teleporty: 22 bramy, 2 skrzynie-pułapki, przejścia z kluczem Akademii, trumny, windy do Mohgwyn i inne. Pomijamy
-cutsceny w tym samym pliku mapy (wejście na arenę bossa).
+cutsceny w tym samym pliku mapy (wejście na arenę bossa) i przejścia wewnątrz Twierdzy Okrągłego Stołu
+(`m11_10_00_00`): do Twierdzy wchodzi się z menu łaski, a jej przeliczenie na mapę świata wypada w morzu na zachód
+od Przedpola.
 
 ## Postacie: sklep, usługi, portrety, znaki przywołania (2026-11-26)
 

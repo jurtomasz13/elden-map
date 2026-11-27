@@ -27,6 +27,9 @@ WARP_PLAYER, CUTSCENE_WARP, SHORT_WARP = (2003, 14), {(2002, 11), (2002, 12), (2
 SOURCE = (((3, 24), 8), ((3, 2), 8), ((3, 7), 4), ((3, 3), 8), ((4, 0), 4))   # condition, byte of the source entity
 KIND = {90005605: "waygate", 90005645: "return", 90005646: "return", 90005880: "evergaol", 90005881: "evergaol", 930: "lift", 936: "lift"}
 SKIP = {("common", 950)}     # one Limgrave event with 8 branches (flags 951/9000) that the scan would join wrongly
+# Roundtable Hold is entered from the grace menu and has no place on the world map (its map conversion lands in the sea
+# west of Limgrave), so passages inside it are not shown
+ROUNDTABLE = "m11_10_00_00"
 
 
 def main():
@@ -67,7 +70,7 @@ def main():
                                     for off in range(0, len(x) - 3, 4) for ent in [struct.unpack_from("<I", x, off)[0]]
                                     if ent > 10000000 and ent != dent for s in [where(ent, here)] if s), None)
                     dst = dent and where(dent, dtile)
-                    if not src or not dst:
+                    if not src or not dst or src["map_id"] == dst["map_id"] == ROUNDTABLE:
                         continue
                     kind = ("trap_chest" if op == WARP_PLAYER and any(c == (5, 2) for c, _ in conds)
                             else KIND.get(eid) or ("short" if op in SHORT_WARP else "cutscene" if op in CUTSCENE_WARP else "local"))
