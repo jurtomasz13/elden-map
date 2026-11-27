@@ -56,7 +56,9 @@ Trybu jasnego nie planujemy: gra jest ciemna, a aplikacja działa obok niej, cz�
 
 - Cinzel: tytuły widoków, nazwy bossów, nawigacja. Wersaliki, duży odstęp liter (0.12–0.25em).
 - Cormorant Garamond: opisy, wskazówki, tekst fabularny, duże liczby.
-- Bez fontów bezszeryfowych w interfejsie, bo to one najszybciej dają wygląd generycznego UI.
+- Domyślnie bez fontów bezszeryfowych w interfejsie, bo to one najszybciej dają wygląd generycznego UI. Przełącznik
+  „Zwykła czcionka” w górnym pasku zamienia oba kroje na systemowy bezszeryfowy (Segoe UI) dla wygody czytania;
+  wybór zostaje w przeglądarce.
 
 ### Ornament i faktura
 

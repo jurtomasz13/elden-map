@@ -11,6 +11,9 @@
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const pref = (k, d) => { try { return localStorage.getItem("er." + k) ?? d; } catch { return d; } };
   const savePref = (k, v) => { try { localStorage.setItem("er." + k, v); } catch { /* prywatne okno */ } };
+  // "plain font" switch in the top bar (styles: :root[data-font="plain"])
+  const setPlainFont = on => { document.documentElement.dataset.font = on ? "plain" : ""; savePref("font", on ? "plain" : ""); };
+  setPlainFont(pref("font", "") === "plain");
   const state = { spoilers: true, game: pref("game", "all"), mine: pref("mine", "1") === "1", mapPeek: false, offMine: new Set(["npc", "poi:landmark"]), bossFilter: "all", bossRegion: "all", bossQuery: "", quest: null, cat: "weapons", map: "M00",
     hideDone: false, mapQuery: "", qOpen: new Set(), qFilter: "all", off: new Set(["golden_rune", "material", "consumable", "ammo", "upgrade", "note", "npc", "poi:landmark"]) };
 
@@ -1785,6 +1788,8 @@
   // zmiana trybu spoilerów: otwarte szczegóły (boss, przedmiot…) mogły pokazywać to, co teraz ma być ukryte
   $("#spoilerToggle").onchange = e => { state.spoilers = e.target.checked; closeDrawer(); render(); };
   $("#mineToggle").onchange = e => setMine(e.target.checked);
+  $("#fontToggle").checked = pref("font", "") === "plain";
+  $("#fontToggle").onchange = e => setPlainFont(e.target.checked);
   syncMine();
   document.querySelectorAll("[data-game]").forEach(b => { b.classList.toggle("on", b.dataset.game === state.game); b.onclick = () => setGame(b.dataset.game); });
   $("#charSwitch").onclick = () => live.on && live.characters ? drawer(`<div class="eyebrow">Twoje save'y</div><div class="d-title" style="text-align:left">Postacie</div>

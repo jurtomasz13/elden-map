@@ -32,6 +32,8 @@
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
 }
+/* „Zwykła czcionka” (przełącznik w górnym pasku): wszystkie napisy zwykłym krojem bezszeryfowym */
+:root[data-font="plain"] { --display: "Segoe UI", system-ui, "Noto Sans", Arial, sans-serif; --serif: var(--display); }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
