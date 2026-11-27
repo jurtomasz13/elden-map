@@ -103,7 +103,7 @@ for (const m of model.meshes) {
         }
         // przezroczystość z szumem zamiast ostrego progu: po zmniejszeniu kadru krawędzie futra i strzępów są miękkie
         const hash = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
-        if (!m.alphaOnly && al < 0.15 + 0.7 * hash) continue;
+        if (!m.alphaOnly && !m.tint && al < 0.15 + 0.7 * hash) continue;     // skin: its texture's alpha is not opacity
         if (m.tint) {                                              // barwienie skóry kolorem z save'a (tekstura twarzy jest neutralna)
           const lum = 0.3 * r + 0.59 * g + 0.11 * bl, kk = 1.9;
           r = Math.min(1, lum * m.tint[0] * kk); g = Math.min(1, lum * m.tint[1] * kk); bl = Math.min(1, lum * m.tint[2] * kk);

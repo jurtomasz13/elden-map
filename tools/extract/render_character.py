@@ -7,7 +7,7 @@ Dane: FaceData z save'a (tylko odczyt), ekwipunek z backendu (http://127.0.0.1:8
 FaceData (blok "FACE" w slocie, offsety od magii): +0x0C model twarzy (v → fg_a_01{(v%100)//10}{v%10}, jak w FaceParam), +0x10 model włosów (hr_a_NNNN),
 +0xB3 kolor skóry RGB, +0xF6 kolor włosów RGB.
 EquipParamProtector: +0xA4 u16 model (hd_/bd_/am_/lg_ + m/f + NNNN; also the "naked" slots 10000/100000/…),
-+0x136+NN bajt = ukryj meshe '#NN#' (np. 60–65 = segmenty włosów).
++0x132+NN bajt = ukryj meshe '#NN#' (np. 60–65 = segmenty włosów).
 """
 import json
 import os
@@ -54,8 +54,9 @@ _npc = None
 
 
 def npc_look(chara_init):
-    """Postać ludzka (c0000): CharaInitParam (+0x20 hełm, +0x24 zbroja…, +0xA4 wiersz FaceParam) + FaceParam:
-    +0x00 model twarzy, +0x01 skóra RGB, +0x3C model włosów, +0x3D włosy RGB."""
+    """Human character (c0000): CharaInitParam (+0x20/+0x24/+0x28/+0x2C helmet, chest, arms, legs, -1 = none;
+    +0xA4 FaceParam row; +0xE4 sex, 0 = female) + FaceParam: +0x00 face model, +0x01 skin RGB, +0x3C hair model,
+    +0x3D hair RGB."""
     global _npc
     if _npc is None:
         ps = P.load_params()
@@ -64,18 +65,19 @@ def npc_look(chara_init):
     fp = ci and _npc[1].get(struct.unpack_from("<i", ci, 0xA4)[0])
     if not ci or not fp:
         return None
-    return {"head": struct.unpack_from("<i", ci, 0x20)[0], "face": fp[0], "skin": list(fp[1:4]),
-            "hair": fp[0x3C], "hair_rgb": list(fp[0x3D:0x40])}
+    return {"armour": dict(zip((slot for slot, _pre in ARMOUR), struct.unpack_from("<4i", ci, 0x20))),
+            "sex": "m" if ci[0xE4] else "f", "face": fp[0], "skin": list(fp[1:4]), "hair": fp[0x3C], "hair_rgb": list(fp[0x3D:0x40])}
 
 
 def render_npc(chara_init, png):
+    """Portrait of a human character: the whole figure in its armour, framed like the other portraits (bust)."""
     look = npc_look(chara_init)
     if not look:
         return None
-    parts, model = figure(look["face"], look["hair"], {"head": look["head"]}, "m", body=False)
+    parts, model = figure(look["face"], look["hair"], look["armour"], look["sex"], body=True)
     mdir = os.path.join(A.ROOT, "assets", "cache", "models", f"npc_{chara_init}")
-    n, t = E.export_parts(parts, mdir, skin=look["skin"], hair=look["hair_rgb"])
-    subprocess.run(["node", os.path.join(HERE, "render.mjs"), mdir, png, "256", "200", "full"], check=True)
+    n, t = E.export_parts(parts, mdir, skin=look["skin"], hair=look["hair_rgb"], body=True)
+    subprocess.run(["node", os.path.join(HERE, "render.mjs"), mdir, png, "256", "205", "bust"], check=True)
     print(f"  npc {chara_init}: twarz {look['face']} włosy {look['hair']} hełm {model} — meshe {n}, z teksturą {t}")
     return png
 
@@ -83,6 +85,7 @@ def render_npc(chara_init, png):
 
 
 ARMOUR = (("head", "hd"), ("chest", "bd"), ("arms", "am"), ("legs", "lg"))     # equipment slot, part file prefix
+NAKED = {"chest": 100000, "arms": 200000, "legs": 300000}    # EquipParamProtector rows of an empty slot (bare body)
 
 
 def protector(pid):
@@ -93,14 +96,17 @@ def protector(pid):
     row = _prot.get(pid)
     if not row:
         return None, set()
-    return struct.unpack_from("<H", row, 0xA4)[0], {i for i in range(96) if row[0x136 + i]}
+    # +0x132+NN u8 invisibleFlag_SexVerNN (Paramdex): non-zero hides meshes '#NN#' (1 for both sexes; 2/3, six rows
+    # in the whole game, for one sex only; treated as hidden)
+    return struct.unpack_from("<H", row, 0xA4)[0], {i for i in range(96) if row[0x132 + i]}
 
 
 def figure(face, hair, armour, sex, body):
     """Parts of a human figure: [(partsbnd path, hidden flags)] and the helmet model. Head portrait (body=False): face,
     hair and helmet, the helmet's hidden flags applied to face and hair. Whole figure: every armour piece too, and like
     in the game the hidden flags of all pieces apply to every part (a high collar hides the helmet's chainmail)."""
-    pieces = [(pre, *protector(armour.get(slot))) for slot, pre in ARMOUR if armour.get(slot) and (body or slot == "head")]
+    ids = {slot: pid if (pid or 0) > 0 else NAKED.get(slot) for slot, pid in armour.items()}
+    pieces = [(pre, *protector(ids.get(slot))) for slot, pre in ARMOUR if ids.get(slot) and (body or slot == "head")]
     hide = set().union(*(h for _pre, _m, h in pieces))
     own = hide if body else set()
     parts = [(face_file(face), hide), (f"/parts/hr_a_{hair:04d}.partsbnd.dcx", hide)]

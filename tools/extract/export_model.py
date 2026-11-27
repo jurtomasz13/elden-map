@@ -5,6 +5,7 @@ Wynik: assets/cache/models/<chr>/model.json + tekstury DDS (albedo) obok.
 """
 import hashlib
 import json
+import math
 import os
 import re
 import sys
@@ -118,6 +119,122 @@ def write_texture(name, own, out):
     return f"{name}.dds"
 
 
+# ---------- pose: models are stored in their bind pose (humanoids in a T- or A-pose); the arms are lowered for portraits ----------
+ARM_DOWN = math.radians(78)        # angle of the lowered upper arm below the horizontal
+
+
+def _rot_matrix(axis, a):
+    """Row-vector rotation (v' = v @ M) about X, Y or Z, as System.Numerics builds it (FLVER bone transforms)."""
+    c, s = math.cos(a), math.sin(a)
+    return {"x": ((1, 0, 0), (0, c, s), (0, -s, c)), "y": ((c, 0, -s), (0, 1, 0), (s, 0, c)), "z": ((c, s, 0), (-s, c, 0), (0, 0, 1))}[axis]
+
+
+def _mat(a, b):
+    return tuple(tuple(sum(a[i][k] * b[k][j] for k in range(3)) for j in range(3)) for i in range(3))
+
+
+def _vec(v, m):
+    return tuple(sum(v[k] * m[k][j] for k in range(3)) for j in range(3))
+
+
+def joints(bones):
+    """Model-space position of every bone's joint in the bind pose. FLVER local transform (row vectors):
+    scale, rotate X, rotate Z, rotate Y, translate; world = local · parent."""
+    world = [None] * len(bones)
+
+    def solve(i):
+        if world[i] is None:
+            b = bones[i]
+            rx, ry, rz = b["r"]
+            m = _mat(_mat(_mat(((b["s"][0], 0, 0), (0, b["s"][1], 0), (0, 0, b["s"][2])), _rot_matrix("x", rx)), _rot_matrix("z", rz)), _rot_matrix("y", ry))
+            if b["parent"] < 0:
+                world[i] = (m, tuple(b["t"]))
+            else:
+                pm, pp = solve(b["parent"])
+                world[i] = (_mat(m, pm), tuple(x + y for x, y in zip(_vec(b["t"], pm), pp)))
+        return world[i]
+    return [solve(i)[1] for i in range(len(bones))]
+
+
+def _rodrigues(v, k, a):
+    """v rotated by angle a about unit axis k."""
+    c, s = math.cos(a), math.sin(a)
+    kv = k[0] * v[0] + k[1] * v[1] + k[2] * v[2]
+    cr = (k[1] * v[2] - k[2] * v[1], k[2] * v[0] - k[0] * v[2], k[0] * v[1] - k[1] * v[0])
+    return tuple(v[i] * c + cr[i] * s + k[i] * kv * (1 - c) for i in range(3))
+
+
+def arm_turns(bones, others=()):
+    """Lowering of raised arms (T- or A-pose) for a portrait: {bone name: (pivot, axis, angle)} for every bone under
+    L_/R_UpperArm, turning about the shoulder joint so the upper arm points ARM_DOWN below the horizontal. Empty for
+    arms already hanging about that low and for skeletons without these bones. `others`: skeletons of the other parts
+    of the same figure; a part lists some bones without their parent (the chest part has finger bones at the root,
+    the gauntlets have them under the hand), so the hierarchy is joined by bone name."""
+    names = {b["name"]: i for i, b in enumerate(bones)}
+    parent = {}
+    for skel in (bones, *others):
+        for b in skel:
+            if b["parent"] >= 0:
+                parent.setdefault(b["name"], skel[b["parent"]]["name"])
+    pos = joints(bones)
+    turn = {}
+    for side in "LR":
+        s, e = names.get(f"{side}_UpperArm"), names.get(f"{side}_Forearm")
+        if s is None or e is None:
+            continue
+        d = tuple(b - a for a, b in zip(pos[s], pos[e]))
+        n, h = math.sqrt(sum(x * x for x in d)), math.hypot(d[0], d[2])
+        if not n or not h or math.asin(max(-1, min(1, -d[1] / n))) > ARM_DOWN - math.radians(8):
+            continue
+        out = (d[0] / h, d[2] / h)                 # horizontal direction of the arm
+        d = tuple(x / n for x in d)
+        target = (out[0] * math.cos(ARM_DOWN), -math.sin(ARM_DOWN), out[1] * math.cos(ARM_DOWN))
+        axis = (d[1] * target[2] - d[2] * target[1], d[2] * target[0] - d[0] * target[2], d[0] * target[1] - d[1] * target[0])
+        k = math.sqrt(sum(x * x for x in axis))
+        if not k:
+            continue
+        axis, angle = tuple(x / k for x in axis), math.acos(max(-1, min(1, sum(a * b for a, b in zip(d, target)))))
+        upper = bones[s]["name"]
+        for name in {b["name"] for skel in (bones, *others) for b in skel}:
+            j = name
+            while j is not None and j != upper:
+                j = parent.get(j)
+            if j == upper:
+                turn[name] = (pos[s], axis, angle)
+    return turn
+
+
+def apply_turns(meshes, bones, turn):
+    """Move vertices by the bone turns (arm_turns) weighted by their bone weights (linear blend skinning); bones are
+    matched by name, so a part holding only hand bones (gauntlets) follows the arm of the body's skeleton."""
+    turn = {i: turn[b["name"]] for i, b in enumerate(bones) if b["name"] in turn}
+    if not turn:
+        return
+    for m in meshes:
+        if not m.get("bi") or not m.get("bw"):
+            continue
+        for v, (bi, bw) in enumerate(zip(m["bi"], m["bw"])):
+            if not any(w and b in turn for b, w in zip(bi, bw)):
+                continue
+            total, p, nr = sum(bw) or 1, [0, 0, 0], [0, 0, 0]
+            for b, w in zip(bi, bw):
+                if not w:
+                    continue
+                q, nq = m["pos"][v], m["nrm"][v] if m["nrm"] else None
+                if b in turn:
+                    pivot, axis, angle = turn[b]
+                    q = tuple(x + c for x, c in zip(_rodrigues(tuple(x - c for x, c in zip(q, pivot)), axis, angle), pivot))
+                    nq = _rodrigues(nq, axis, angle) if nq else None
+                for i in range(3):
+                    p[i] += q[i] * w / total
+                    if nq:
+                        nr[i] += nq[i] * w / total
+            m["pos"][v] = tuple(p)
+            if m["nrm"]:
+                ln = math.sqrt(sum(x * x for x in nr)) or 1
+                m["nrm"][v] = tuple(x / ln for x in nr)
+
+
 def material_layers(mtd, own_prefix):
     """Textures a mesh of material `mtd` is drawn with: {"tex", "detail", "strands", "normal"} (None = absent).
     Costume shader (nomadic merchants c3200): the first albedo is a flat colour palette of the outfit variant, the
@@ -145,6 +262,7 @@ def export(chr_id, out_root, mask=None):
         raise FileNotFoundError(chr_id)
     fl = next(d for _, n, d in F.bnd4(r[1]) if n.lower().endswith(".flver"))
     model = flver.parse(fl)
+    apply_turns(model["meshes"], model["bones"], arm_turns(model["bones"]))
     tex = chr_textures(chr_id)
     out = os.path.join(out_root, chr_id if mask is None else f"{chr_id}_{mask:x}")
     os.makedirs(out, exist_ok=True)
@@ -153,6 +271,8 @@ def export(chr_id, out_root, mask=None):
         name = (m["material"] or {}).get("name", "")
         flag = _mesh_flag(name)
         if flag is not None and name.startswith("#") and (flag != 0 if mask is None else not mask >> flag & 1):
+            continue
+        if "_arts_" in name.lower():               # attack effect geometry (Malenia's 19 m flower, c5840's tongue)
             continue
         files = {k: write_texture(v, tex, out) for k, v in material_layers((m["material"] or {}).get("mtd", ""), chr_id).items()}
         meshes.append({"name": name, "tex": files["tex"], **{k: files[k] for k in ("detail", "strands", "normal") if files[k]},
@@ -184,7 +304,7 @@ def export_parts(parts, out, skin=None, hair=None, body=False):
     save; hair: hair colour (the game tints it in the shader); armour: material_layers (fabric pattern, fur strands,
     normal map). body=False is a head portrait: skin meshes of the rest of the body are left out."""
     os.makedirs(out, exist_ok=True)
-    meshes = []
+    loaded = []
     for path, hide in parts:
         r = A.find(path)
         if not r:
@@ -196,10 +316,15 @@ def export_parts(parts, out, skin=None, hair=None, body=False):
                     own[name.lower()] = dds
             elif n.lower().endswith(".flver"):
                 fl = d
-        if not fl:
-            continue
-        part = os.path.basename(path).split(".")[0].upper()
-        for m in flver.parse(fl)["meshes"]:
+        if fl:
+            loaded.append((os.path.basename(path).split(".")[0].upper(), hide, own, flver.parse(fl)))
+    # the arm pose comes from the fullest skeleton (the chest part); gauntlets carry only hand bones
+    skeletons = [model["bones"] for *_x, model in loaded]
+    turns = max((arm_turns(sk, skeletons) for sk in skeletons), key=len, default={})
+    meshes = []
+    for part, hide, own, model in loaded:
+        apply_turns(model["meshes"], model["bones"], turns)
+        for m in model["meshes"]:
             mat = m["material"] or {}
             name, mtd = mat.get("name", ""), mat.get("mtd", "")
             if _mesh_flag(name) in hide:

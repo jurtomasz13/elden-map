@@ -1,4 +1,5 @@
-"""FLVER2 (Elden Ring, wersja 0x2001A), modele 3D: meshe, wierzchołki (pozycja, normalna, UV), ściany, materiały.
+"""FLVER2 (Elden Ring, wersja 0x2001A), modele 3D: meshe, wierzchołki (pozycja, normalna, UV, kości i wagi), ściany,
+materiały, szkielet.
 
 Układ (zgodny z SoulsFormats FLVER2):
   nagłówek 0x80: +0x0C offset danych, +0x14 liczby: dummy, materiały, kości, meshe, bufory wierzchołków,
@@ -8,7 +9,7 @@ Układ (zgodny z SoulsFormats FLVER2):
 """
 import struct
 
-SEM_POS, SEM_NORMAL, SEM_UV = 0, 3, 5
+SEM_POS, SEM_WEIGHTS, SEM_BONES, SEM_NORMAL, SEM_UV = 0, 1, 2, 3, 5
 # typ -> rozmiar w bajtach
 TYPE_SIZE = {0x01: 8, 0x02: 12, 0x03: 16, 0x10: 4, 0x11: 4, 0x12: 4, 0x13: 4, 0x15: 4, 0x16: 8, 0x18: 8, 0x1A: 8, 0x2E: 4, 0x2F: 4, 0xF0: 4}
 
@@ -32,7 +33,7 @@ def parse(d):
     n_fs, n_lay, n_tex = struct.unpack_from("<3i", d, 0x50)
     o = 0x80 + n_dummy * 0x40
     mats_off = o; o += n_mat * 0x20
-    o += n_bone * 0x80
+    bones_off = o; o += n_bone * 0x80
     mesh_off = o; o += n_mesh * 0x30
     fs_off = o; o += n_fs * 0x20
     vb_off = o; o += n_vb * 0x20
@@ -48,6 +49,10 @@ def parse(d):
         name_o, mtd_o, tcount, tindex = struct.unpack_from("<4i", d, mats_off + i * 0x20)
         materials.append({"name": _str(d, name_o, unicode), "mtd": _str(d, mtd_o, unicode),
                           "textures": textures[tindex:tindex + tcount]})
+    # bone 0x80: +0x00 translation, +0x0C name, +0x10 rotation (euler, radians), +0x1C s16 parent, +0x20 scale
+    bones = [{"name": _str(d, struct.unpack_from("<i", d, b + 0x0C)[0], unicode), "parent": struct.unpack_from("<h", d, b + 0x1C)[0],
+              "t": struct.unpack_from("<3f", d, b), "r": struct.unpack_from("<3f", d, b + 0x10), "s": struct.unpack_from("<3f", d, b + 0x20)}
+             for b in (bones_off + i * 0x80 for i in range(n_bone))]
     layouts = []
     for i in range(n_lay):
         count, _, _, moff = struct.unpack_from("<4i", d, lay_off + i * 0x10)
@@ -71,7 +76,7 @@ def parse(d):
         fs_count, fs_idx_off, vb_count, vb_idx_off = struct.unpack_from("<4i", d, mo + 0x20)
         fs_ids = struct.unpack_from(f"<{fs_count}i", d, fs_idx_off)
         vb_ids = struct.unpack_from(f"<{vb_count}i", d, vb_idx_off)
-        pos, nrm, uv = None, None, None
+        pos, nrm, uv, bi, bw = None, None, None, None, None
         for vb in vb_ids:
             lay_idx, vsize, vcount, boff = vbufs[vb]
             for _unk, soff, typ, sem, idx in layouts[lay_idx]:
@@ -85,6 +90,12 @@ def parse(d):
                     uv = [tuple(x / 2048 for x in struct.unpack_from("<2h", d, boff + v * vsize + soff)) for v in range(vcount)]
                 elif sem == SEM_UV and uv is None and idx == 0 and typ == 0x01:
                     uv = [struct.unpack_from("<2f", d, boff + v * vsize + soff) for v in range(vcount)]
+                elif sem == SEM_BONES and bi is None and typ in (0x11, 0x13, 0x2F):     # 4 x u8, indices into `bones`
+                    bi = [tuple(d[boff + v * vsize + soff:boff + v * vsize + soff + 4]) for v in range(vcount)]
+                elif sem == SEM_WEIGHTS and bw is None and typ in (0x13, 0x10):          # 4 x u8, /255
+                    bw = [tuple(x / 255 for x in d[boff + v * vsize + soff:boff + v * vsize + soff + 4]) for v in range(vcount)]
+                elif sem == SEM_WEIGHTS and bw is None and typ == 0x1A:                  # 4 x s16, /32767
+                    bw = [tuple(x / 32767 for x in struct.unpack_from("<4h", d, boff + v * vsize + soff)) for v in range(vcount)]
         # najdokładniejszy faceset (bez flag LOD / motion blur)
         best = None
         for fid in fs_ids:
@@ -111,5 +122,5 @@ def parse(d):
         else:
             tris = [tuple(idx[k:k + 3]) for k in range(0, len(idx) - 2, 3)]
         meshes.append({"material": materials[mat_idx] if 0 <= mat_idx < len(materials) else None,
-                       "pos": pos, "nrm": nrm, "uv": uv, "tris": tris})
-    return {"meshes": meshes, "materials": materials}
+                       "pos": pos, "nrm": nrm, "uv": uv, "tris": tris, "bi": bi, "bw": bw})
+    return {"meshes": meshes, "materials": materials, "bones": bones}

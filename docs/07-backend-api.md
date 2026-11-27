@@ -436,7 +436,7 @@ ale nie porównano ich z grą.
 | `+0x2F4` | `equipped_items_item_id` (22 × u32) | ID przedmiotów w 22 slotach (pusty = `0xFFFFFFFF`) |
 | `+0x34C` | `equipped_items_gaitem_handle` (22 × u32) | handle, potrzebny do popiołu wojny w broni |
 | `+0x93B4` | `equipped_spells` (0x74) | 14 × (id czaru, ?) + aktywny |
-| `+0x9428` | `equipped_items` (0x8C) | 10 × (handle, idx) szybkie przedmioty, aktywny, 6 × (handle, idx) sakwa, (handle, idx) wielka runa |
+| `+0x9428` | `equipped_items` (0x8C) | 10 × (handle, idx) szybkie przedmioty, aktywny, 6 × (handle, idx) sakwa, (handle, idx) wielki run |
 | za listą pocisków `+0x9C` | `equipped_physics` | 2 × item_id łez do Cudownej Fiolki (`0x4…` = goods) |
 
 Kolejność 22 slotów: L1, P1, L2, P2, L3, P3, strzały 1, bełty 1, strzały 2, bełty 2, ?, ?, głowa, tors, ręce, nogi,
@@ -477,7 +477,7 @@ Gauntlets/Greaves, P1 = Scimitar, L1 = Scimitar, L2 = Riveted Wooden Shield, szy
 | `ammo` | 4 sloty: strzały 1, bełty 1, strzały 2, bełty 2: `{id, kind: "arrow"/"bolt"}` |
 | `quick_items` / `active_quick_item` | 10 slotów szybkiego dostępu (goods) + indeks aktywnego |
 | `pouch` | 6 slotów sakwy (goods) |
-| `great_rune` | założona wielka runa (goods, np. 191 Godrick's, 192 Radahn's) |
+| `great_rune` | założony wielki run (goods, np. 191 Godrick's, 192 Radahn's) |
 | `spells` / `active_spell` | 14 slotów pamięci (ID goods czarów/inkantacji) + indeks aktywnego |
 | `physick` | 2 łzy w Cudownej Fiolce (goods) |
 

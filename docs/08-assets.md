@@ -167,7 +167,7 @@ Nie każdy próg to cap: frontend porównuje przyrost na punkt przed i po progu.
 
 ## Rangi bossów (frontend)
 
-Wielka runa (6 półbogów) · Legenda (wizerunek albo ≥ 300 tys. / DLC ≥ 380 tys. run) · Wielki boss (główny loch: m10,
+Wielki run (6 półbogów) · Legenda (wizerunek albo ≥ 300 tys. / DLC ≥ 380 tys. run) · Wielki boss (główny loch: m10,
 m11, m13–m16, m19, DLC m20–m28, albo ≥ 70 tys. / DLC ≥ 200 tys.) · Boss · Pomniejszy (< 5 tys. / DLC < 75 tys.) ·
 Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobrane na rozkładzie run z `GameAreaParam`.
 
@@ -180,8 +180,15 @@ Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobra
   materiał `C[cXXXX]_nazwa.matxml` → `/material/allmaterial*.matbinbnd.dcx` → pierwsza ścieżka `*_a.tif`.
   Część postaci dzieli tekstury z modelem-wzorcem (Rycerz Godricka c4311 → `c4310_*`), więc szukamy też w texbnd
   postaci z prefiksu nazwy tekstury.
-- Meshe wariantów (`#NN#`, poza `#00#`) pomijane. Render: `render.mjs` (z-bufor, alpha test < 0,4, dwa światła,
-  supersampling, kadr „bust” = górne 60% faktycznie narysowanej sylwetki).
+- Meshe wariantów (`#NN#`) według maski wyświetlania postaci; siatki efektów ataków (`_Arts_` w nazwie, np. kwiat
+  Malenii o średnicy 19 m) pomijane. Render: `render.mjs` (z-bufor, przezroczystość z alfy tekstury poza skórą,
+  światła, cienie, kadr „bust” = górna część faktycznie narysowanej sylwetki).
+- Poza: modele są zapisane w pozie spoczynkowej szkieletu (ludzie i humanoidy w pozie T albo A). `flver.py` czyta
+  kości (pozycja, obrót, skala, rodzic) i wagi wierzchołków (4 × u8 indeksy, 4 × u8 wagi), `export_model.arm_turns`
+  liczy położenia stawów i opuszcza ramiona do ok. 78° poniżej poziomu, obracając wszystko pod `L_/R_UpperArm` wokół
+  barku; wierzchołki idą za kośćmi według wag. Hierarchia kości jest łączona po nazwach ze wszystkich części jednej
+  postaci (w pliku tułowia palce nie mają rodzica, rękawice mają tylko kości dłoni). Modele bez tych kości (zwierzęta,
+  smoki) zostają w pozie spoczynkowej, ogony też.
 - Bossowie: model z nazwy części MSB (`c4340_9000`) dla encji bossa, zapasowo wróg o tej samej nazwie z NpcParam.
   Portret ma każdy z 209 bossów (ludzcy złożeni z części, opisane niżej).
 - Bossowie ludzcy (`c0000`: Leda, Łata, Hrabia Ymir): w MSB dane wroga `+0x18` = `CharaInitID`.
@@ -189,7 +196,8 @@ Ledwo boss (< 1,5 tys. run, np. Łata, Tricia, Szalony Dyniogłowy). Progi dobra
   `+0x10`/`+0x18` bronie. `FaceParam` ma wiersz o tym samym ID: `+0x00` model twarzy, `+0x01` skóra RGB, kolejne
   bajty jak w FaceData z save'a (cienie, policzki, oczy), `+0x3C` model włosów (`hr_a_NNNN`), `+0x3D` włosy RGB.
   Gdy część bossa nie ma CharaInit (Leda: atrapa `10003000`), bierzemy imiennika z tej samej mapy (`chara_init` w
-  `bosses_all.json`). Render: `render_character.render_npc` → `assets/renders/npc_<CharaInitID>.png`.
+  `bosses_all.json`). Render: `render_character.render_npc` → `assets/renders/npc_<CharaInitID>.png`: cała postać
+  w zbroi z CharaInitParam (`-1` = pusty slot, wtedy „goła” część), płeć z `+0xE4` (0 = kobieta), kadr popiersia.
 
 ## Portret postaci gracza (głowa i cała postać)
 
@@ -204,7 +212,7 @@ Cała postać stoi w pozycji spoczynkowej szkieletu (poza T), bo części nie ma
   `+0x10` włosy → `/parts/hr_a_NNNN`, `+0x18` brwi, `+0x1C` zarost, `+0x30..` 64 bajty kształtu twarzy (morfy FaceGen, pomijane),
   `+0xB3` skóra RGB, `+0xDB` tęczówka RGB, `+0xF6` włosy RGB, `+0xFC` zarost RGB, `+0x102` brwi RGB.
 - Zbroja: `EquipParamProtector +0xA4` u16 model → `/parts/{hd,bd,am,lg}_{m,f}_NNNN` (wersja `_f` tylko dla części
-  modeli); „gołe” sloty (10000, 100000, 200000, 300000) też mają model (np. `bd_m_1140`). Bajty `+0x136+NN` (NN 0–95)
+  modeli); „gołe” sloty (10000, 100000, 200000, 300000) też mają model (np. `bd_m_1140`). Bajty `+0x132+NN` (NN 0–95, Paramdex `invisibleFlag_SexVerNN`)
   = ukryj meshe `#NN#`: w portrecie głowy flagi hełmu działają na twarz i włosy (kaptur ukrywa segmenty włosów 60–65),
   w całej postaci, jak w grze, flagi wszystkich czterech części na wszystkie części (wysoki kołnierz ukrywa kolczugę
   hełmu). Materiały części: `export_model.material_layers`, ta sama funkcja co dla modeli postaci (wzór tkaniny,

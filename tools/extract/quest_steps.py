@@ -159,12 +159,12 @@ def main():
     data.setdefault("sources", {})["questpath"] = {
         "title": "QuestPath (imCioco) — opisy kroków questów, tłumaczenie na polski",
         "url": "https://github.com/imCioco/ER_QuestPath-Lang", "license": "MIT"}
+    if missing:                                    # the tag would show in English: fix its key in quest_steps_pl.json
+        raise SystemExit("quest_steps: znaczniki bez polskiej nazwy w plikach gry: " + ", ".join(sorted(missing)))
     json.dump(data, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     steps = sum(len(q["steps"]) for q in out)
     flagged = sum(1 for q in out for s in q["steps"] if s.get("flags"))
     print(f"quest_steps: {len(out)} questów, {steps} kroków ({flagged} z własną flagą), połączone: {removed or '—'}")
-    if missing:
-        print("  bez polskiej nazwy:", ", ".join(sorted(missing))[:600])
 
 
 if __name__ == "__main__":
