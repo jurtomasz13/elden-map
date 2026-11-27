@@ -151,7 +151,7 @@ narysowany ręcznie w SVG. Prawdziwą mapę świata wyciągniemy później z pli
 - Postacie: ręczny wybór przypina postać, a „Śledź automatycznie” wraca do postaci, której save zmienił się
   ostatnio.
 - Bossowie: grupy według rangi (domyślnie), krainy albo statusu, panel krain po prawej z podkrainami. Karta
-  niepokonanego jest wyszarzona, pokonanego jasna ze złotym ptaszkiem, bez napisu o stanie. Na górze osobna sekcja
+  niepokonanego jest wyszarzona, pokonanego jasna ze złotym ptaszkiem, bez napisu o stanie. Na samym dole, pod „Ledwo boss”, osobna grupa
   najeźdźców (unikalne czerwone fantomy) z portretami, te same filtry stanu i wyszukiwania, bez filtra krainy i rangi.
 - Strona postaci: duży obrazek całej postaci w zbroi, kafelki PŻ, PS, energii, błogosławieństw Ostrodrzewa
   i prochów czcigodnych (poziom i zmiana obrażeń w procentach, tylko gdy postać je ma), butelek (ładunki szkarłatne
