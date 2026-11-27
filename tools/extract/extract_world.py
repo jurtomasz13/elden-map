@@ -372,7 +372,7 @@ LEGACY_NAMES = ("leyndell", "farum azula", "akademia rai lucarii", "elphael", "w
 POI_RULES = [("katakumby", "catacombs"), ("jaskini", "cave"), ("grota", "cave"), ("pieczar", "cave"), ("kryjówk", "cave"),
              ("smocza jama", "cave"), ("tunel", "tunnel"),
              ("wieczne więzienie", "evergaol"), ("grobowiec bohatera", "hero_grave"), ("grób bohatera", "hero_grave"),
-             ("mogilnik", "hero_grave"),
+             ("mogilnik", "hero_grave"), ("mauzoleum", "mausoleum"),
              ("wieża", "tower"), ("ruiny", "ruins"), ("kościół", "church"), ("kaplica", "church"), ("katedr", "church"),
              ("zamek", "castle"), ("twierdz", "castle"), ("fort", "fort"), ("szopa", "shack"), ("chata", "shack"),
              ("drzewo", "minor_erdtree"), ("wioska", "village"), ("osad", "village"), ("most", "landmark")]

@@ -50,6 +50,7 @@ dłużej, bo trzeba odszyfrować nagłówki archiwów (cache w `assets/cache`).
 | `extract_damage.py` | dane do liczenia siły ataku broni gracza (EquipParamWeapon, ReinforceParamWeapon, AttackElementCorrectParam, krzywe) → `weapon_calc.json` |
 | `extract_sources.py` | skąd zdobyć przedmioty: kupcy (ShopLineupParam + skrypty rozmów), łup z przeciwników, zdarzenia, bossowie → `item_sources.json`; sklep i usługi każdej postaci → `talks.json` |
 | `extract_warps.py` | teleporty ze skryptów zdarzeń (bramy, skrzynie-pułapki, przejścia) → `warps.json` |
+| `extract_landmarks.py` | posągi Wielkich run przy Boskich Wieżach (`restore`) i Wędrowne Mauzolea → dopisane do `pois.json` |
 | `extract_summons.py` | znaki przywołania postaci ze skryptów zdarzeń → `summons.json` |
 | `quest_spoilers.py` | wersje kroków questów bez spoilerów (stosowane też w `build_quests.py`) |
 | `contact_sheet.mjs` | podgląd: kilka PNG w jednej siatce |

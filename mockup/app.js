@@ -66,7 +66,7 @@
     ["Pozostałe", ["golden_rune", "material", "consumable", "ammo", "upgrade", "note"]],
   ];
   const POI = { legacy: ["Główne lochy", "♛"], catacombs: ["Katakumby", "⛫"], cave: ["Jaskinie i pieczary", "◒"], tunnel: ["Tunele", "⛏"],
-    evergaol: ["Wieczne więzienia", "⊚"], gaol: ["Lochy", "⊚"], hero_grave: ["Grobowce bohaterów", "⚰"], tower: ["Wieże", "♜"], ruins: ["Ruiny", "⌂"], church: ["Kościoły i kaplice", "✝"],
+    evergaol: ["Wieczne więzienia", "⊚"], gaol: ["Lochy", "⊚"], hero_grave: ["Grobowce bohaterów", "⚰"], mausoleum: ["Mauzolea", "⚱"], tower: ["Wieże", "♜"], ruins: ["Ruiny", "⌂"], church: ["Kościoły i kaplice", "✝"],
     castle: ["Zamki i twierdze", "♖"], fort: ["Forty", "♖"], shack: ["Szopy i chaty", "⌂"], minor_erdtree: ["Pomniejsze Złote Drzewa", "♣"],
     village: ["Wioski i osady", "⌂"], landmark: ["Inne miejsca", "◇"] };
 
@@ -161,7 +161,8 @@
     W.effects = fx || {};                                  // ukryte statystyki (extract_effects.py)                                   // flagi fragmentów mapy (bit i maski = i-ty fragment)
     // bossowie bez nazwy w plikach gry (np. Wyszczerbiony Drake na szczycie) zostają — nazwę dopisze backend (tabela CE)
     W.bosses = (b || []).map(x => x.name ? x : { ...x, name: x.name_en || "Boss bez nazwy w grze", unnamed: true })
-      .map(x => x.render ? { ...x, icon: "r:" + x.render } : x);   // 3D portrait first, the drop's icon only without one W.pois = p || []; W.items = it || []; W.npcs = n || []; W.graces = g || [];
+      .map(x => x.render ? { ...x, icon: "r:" + x.render } : x);   // 3D portrait first, the drop's icon only without one
+    W.pois = p || []; W.items = it || []; W.npcs = n || []; W.graces = g || [];
     W.quests = (q && q.entries) || []; TR = tr;
     const dq = dlcEntryQuest(); if (dq && W.quests.length) W.quests.push(dq);
     if (W.quests.length) state.quest = W.quests[0].id; else state.quest = D.quests[0].id;
@@ -177,7 +178,7 @@
     // flagi wszystkich obiektów świata (łaski, bossowie, skarby, kroki questów) — czyta je backend z save'a
     const ids = new Set([...W.graces.map(x => x.flag), ...W.bosses.flatMap(x => [x.flag, ...(x.alt_flags || [])]), ...W.items.map(x => x.flag),
       ...W.quests.flatMap(q => q.steps.flatMap(s => [...(s.flags || []), ...(s.here || [])])), ...Object.values(W.pieces || {}).flat().map(p => p.f), ...W.invaders.map(x => x.flag),
-      ...WORLD_FLAGS, ...W.pois.flatMap(p => [...(p.names || []), ...(p.people || [])].flatMap(n => [n[1], n[2]]))].filter(Boolean));
+      ...WORLD_FLAGS, ...W.pois.flatMap(p => [...(p.names || []), ...(p.people || [])].flatMap(n => [n[1], n[2]])), ...W.pois.flatMap(p => (p.restore || []).map(r => r.flag))].filter(Boolean));
     live.flags = await readFlags([...ids]); live.characters = chars; live.inventory = st.inventory || null;
     const c = st.character, lgId = c.last_grace?.entity_id, lg = W.graces.find(g => g.entity === lgId || g.entity === lgId - 1000);
     D.character = { slot: c.slot, name: c.name, level: c.level, playtime_s: c.playtime_s, runes_memory: c.runes_memory, deaths: c.deaths, last_grace: lg?.name || null };
@@ -1189,11 +1190,14 @@
     for (const pnt of W.pois) { const who = poiPeople(pnt), npc = npcMarker(pnt), icon = poiIcon(pnt);
       const name = npc ? who.now.join(" · ") || "Postać" : poiName(pnt), here = npc ? [] : who.now;
       const person = npc && (who.now[0] || who.later[0]);
+      // Divine Tower: Great Rune restored or not (extract_landmarks.py); mausoleum: remembrance duplication
+      const about = (pnt.restore || []).map(r => `<span class="tip-sub">${esc(r.rune)}: ${isSet(r.flag) ? "przywrócony" : "przywrócisz go tu, przy posągu na szczycie"}</span>`).join("")
+        + (pnt.walking != null ? `<span class="tip-sub">powielisz tu wizerunek bossa${pnt.walking ? " · chodzi po okolicy, to miejsce startu" : ""}</span>` : "");
       if (pnt.map !== m || !poiShown(pnt) || !show(pnt, match(name, ...who.now, ...who.later) && near(pnt))) continue;
       L.marker(ll(map, pnt.px, pnt.py), { icon: icon != null ? divIcon(`<span class="mk-place"><img src="${MAP_ICON(icon)}" alt=""></span>`, 36)
         : divIcon(`<span class="mk-poi">${POI[pnt.category]?.[1] || "◇"}</span>`, 22) })
         .on("click", () => { if (person) openNpc(person); })
-        .bindTooltip(`<b>${esc(name)}</b>${npc ? "postać · klik: karta postaci" : esc(POI[pnt.category]?.[0] || "")}${here.length ? `<span class="tip-sub">tu jest: ${esc(here.join(" · "))}</span>` : ""}${
+        .bindTooltip(`<b>${esc(name)}</b>${npc ? "postać · klik: karta postaci" : esc(POI[pnt.category]?.[0] || "")}${about}${here.length ? `<span class="tip-sub">tu jest: ${esc(here.join(" · "))}</span>` : ""}${
           who.later.length ? `<span class="tip-sub">w innym momencie gry: ${esc(who.later.join(" · "))}</span>` : ""}`, { direction: "top", offset: [0, -12], className: "er-tip" }).addTo(grp(poiLayer(pnt))); }
     for (const d of dlcMarks(m)) { if (!show({ ...d, map: m }, match("wejście do dlc", "dlc", d.name) && !(mine && !near(d)))) continue;
       L.marker(ll(map, d.px, d.py), { icon: divIcon(`<span class="mk-dlc ${d.done ? "done" : ""}">✦</span>`, 30), zIndexOffset: 800, riseOnHover: true })

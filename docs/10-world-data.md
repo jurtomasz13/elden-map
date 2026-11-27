@@ -142,7 +142,7 @@ Wyjątki (2026-11-25):
 |---|---|---|
 | `bosses_all.json` | 209 | id/flag, name (PL), name_en, location, region_pl, runes, map_id, dlc, icon, remembrance, rewards[], stats, mask, model, chara_init, render, map/px/py/approx, named_by |
 | `item_locations.json` | 3664 | lot, flag, map_id, items[{cat,id,name,name_en,icon,count,kind}], kind, dlc, enemy{name, stats} (jednorazowy łup przeciwnika), region_pl, map/px/py/approx |
-| `pois.json` | 366 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py |
+| `pois.json` | 373 | id, name (null = znacznik postaci z gry, category `npc`), category, map_id, dlc, pos, flag (pokazanie), icon, names[[napis, flaga włączenia, flaga wyłączenia]], people[[imię, flaga włączenia, flaga wyłączenia]], region_pl, map/px/py; restore[{flag, rune}] przy Boskich Wieżach, walking przy Wędrownych Mauzoleach (`extract_landmarks.py`) |
 | `npcs.json` | 245 | name, name_en, map_id, entity, talk, model, chara_init, mask (warianty modelu), render, region_pl, map/px/py |
 | `invaders.json` | 28 | id (encja), flag (pokonanie), name, name_en, map_id, dlc, pos, lots[], quest_rewards, summoned (pojedynek ze znaku), stats, rewards[], region_pl, map/px/py |
 | `warps.json` | 50 | kind (waygate, trap_chest, local, short, cutscene), src/dst {map_id, map, px, py, approx}, flag (warunek bramy), items[] |
@@ -227,6 +227,21 @@ ThomasJClark/elden-ring-weapon-calculator (MIT). Obrażenia ciosu: dla każdego 
 (stosunek ataku do obrony, 10-90%, według opisów społeczności) × (1 − redukcja); rodzaj ciosu fizycznego z
 `EquipParamWeapon +0x104`. Pierwszy lekki cios jedną ręką ma w danych 100% w 578 z 579 broni, więc tak liczymy. Pomijamy
 statusy, umiejętności broni, talizmany, wzmocnienia, oburęczność i łuki (obrażenia zależą od strzał).
+
+## Boskie Wieże i Wędrowne Mauzolea (2026-11-27)
+
+`tools/extract/extract_landmarks.py` dopisuje do `pois.json` miejsca, których nie ma w WorldMapPointParam.
+- Posąg przywracania Wielkiego runu: wspólne zdarzenie `common_func 90005110` uruchamiane z pliku mapy wieży
+  (argumenty: flaga przywrócenia, flaga ze świata, encja posągu, encja obiektu, run nieprzywrócony, efekt, przycisk
+  akcji). Flaga przywrócenia to zarazem id przywróconego runu w EquipParamGoods (191 Godrick, 192 Radahn,
+  193 Morgott, 194 Rykard, 195 Mohg, 196 Malenia). Sześć posągów w pięciu wieżach (Morgott i Mohg we wschodnim
+  Altus, Boska Wieża Liurnii nie ma posągu); pole `restore` przy punkcie wieży, a strona pokazuje w podpowiedzi,
+  czy run jest przywrócony.
+- Wędrowne Mauzolea: przeciwnicy z modelem `c4450` (w dużych kafelkach nazwa z przedrostkiem, np.
+  `m60_36_47_00-c4450_9000`). Siedem: pięć chodzi (Płaczący Półwysep, Liurnia, Szczyty Olbrzymów, Uświęcona
+  Śnieżna Dolina, pod ziemią w m12_03), dwa stoją na Polu Mauzoleów (NpcParam 44501020). Nazwa z opisów
+  zbroi strażników, bo NpcName jej nie ma. Pozycja chodzących to miejsce startu. Kategoria `mausoleum`
+  obejmuje też miejsca z nazwą „mauzoleum” (Bezimienne mauzolea i Mauzoleum dynastii w DLC).
 
 ## Teleporty: `warps.json` (2026-11-26)
 
